@@ -1,0 +1,16 @@
+--
+--   Dial an address
+--
+--   Usage:
+--      dial <address>
+--
+
+dofile("config")
+dofile("compat")
+args = {...}
+
+function main()
+  sg.dial(args[1])
+end
+
+try(main)

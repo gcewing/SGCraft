@@ -1,0 +1,20 @@
+--
+--   Display stargate state
+--
+
+dofile("config")
+dofile("compat")
+
+function main()
+  state, n = sg.stargateState()
+  la = sg.localAddress()
+  ra = sg.remoteAddress()
+  e = sg.energyAvailable()
+  print("Local address: " .. la)
+  print("Remote address: " .. ra)
+  print("State: " .. state)
+  print("Engaged chevrons: " .. n)
+  print("Energy available: " .. e)
+end
+
+try(main)

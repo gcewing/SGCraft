@@ -1,0 +1,13 @@
+--
+--   Put your own stargate addresses here
+--   Used by the 'interactive' example program
+--
+
+addresses = {
+  {"Island", "FFOW-X48"},
+  {"Mainland", "PFIV-8GF"},
+  {"Nether 1", "ZFFB-XP8-1V"},
+  {"Beach", "T9F9-IP4"},
+  {"Home", "59LB-RP2"},
+  {"Nether 2", "599F-01A-1V"}
+}

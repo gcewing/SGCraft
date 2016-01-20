@@ -1,0 +1,16 @@
+--
+--   Loop reading and displaying stargate events
+--
+
+dofile("config")
+dofile("compat")
+
+while true do
+  e = {pull_event()}
+  if string.sub(e[1], 1, 2) == "sg" then
+    print("Event:")
+    for k, v in pairs(e) do
+      print(string.format("%s %s", k, v))
+    end
+  end
+end

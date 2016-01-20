@@ -1,0 +1,19 @@
+--
+--   Send a netork message
+--
+--   Usage:
+--      netsend text [strength]
+--
+--   Strength is ignored if the network card is not wireless.
+--
+
+local component = require("component")
+local event = require("event")
+local m = component.modem
+
+args = {...}
+m.open(123)
+if #args >= 2 and m.isWireless() then
+  m.setStrength(tonumber(args[2]))
+end
+m.broadcast(321, args[1])

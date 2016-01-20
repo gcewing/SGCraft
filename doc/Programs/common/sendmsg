@@ -1,0 +1,15 @@
+--
+--   Send a message through the wormhole
+--
+--   Usage:
+--      sendmsg arg, ...
+--
+
+dofile("config")
+dofile("compat")
+
+function main(...)
+  sg.sendMessage(...)
+end
+
+try(main, ...)

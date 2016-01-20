@@ -1,0 +1,10 @@
+{
+	"sg_abort": {"category": "ambient", "sounds": ["sg_abort"]},
+	"sg_close": {"category": "ambient", "sounds": ["sg_close"]},
+	"sg_dial7": {"category": "ambient", "sounds": ["sg_dial7"]},
+	"sg_dial9": {"category": "ambient", "sounds": ["sg_dial9"]},
+	"sg_open":  {"category": "ambient", "sounds": ["sg_open"]},
+	"iris_open":  {"category": "ambient", "sounds": ["iris_open"]},
+	"iris_close": {"category": "ambient", "sounds": ["iris_close"]},
+	"iris_hit": {"category": "ambient", "sounds": ["iris_hit"]}
+}

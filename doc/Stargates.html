@@ -1,0 +1,374 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+
+
+
+
+
+  
+  <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>Stargates - SG Craft</title>
+  
+
+  
+  
+  <link rel="stylesheet" href="Styles.css" type="text/css"></head><body>
+<h1>Stargates</h1>
+
+<ul id="mozToc"><!--mozToc h2 1 h3 2 h4 3 h5 4 h6 5--><li><a href="#mozTocId334260">Stargate Components</a></li><li><a href="#mozTocId205944">Building a Stargate</a></li><li><a href="#mozTocId92294">Stargate Controller</a></li><li><a href="#mozTocId450832">Stargate Addressing</a></li><li><a href="#mozTocId74917">Powering Stargates</a></li><li><a href="#mozTocId759003">State Monitoring</a></li><li><a href="#mozTocId983594">Base Camouflage</a></li><li><a href="#mozTocId322404">Upgrades
+  </a><ul><li><a href="#mozTocId442651">Chevron Upgrade</a></li><li><a href="#mozTocId788610">Iris
+Upgrade</a></li></ul></li><li><a href="#mozTocId448298">Safety Precautions</a></li><li><a href="#mozTocId927505">Troubleshooting</a></li></ul>
+
+A stargate is a transportation device developed by a long-vanished
+alien civilisation known as the Ancients. Their vast network of
+stargates was later taken over by the Goa'uld, a race of nasty sentient
+parasites. The Goa'uld brought stargate technology to Earth, enslaved
+the ancient Egyptians, and then largely lost interest in us. The only
+traces remaining of them on Earth now are their influence on Egyptian
+culture and a few pieces of mysterious technology.<br>
+
+  <br>
+
+How the stargate works is not known in detail,
+but it appears to create a space-time wormhole linking it to another
+stargate in a distant location. Once the wormhole is established, a
+person can step into one stargate and be instantly transported to the
+other.<br>
+
+  <br>
+
+A network of stargates is similar in some ways to a telephone network.
+Each stargate has an address, and you establish a connection by
+dialling the address of the stargate you want to connect to.<br>
+
+  
+<h2><a class="mozTocH2" name="mozTocId334260"></a><a name="StargateComponents"></a>Stargate Components</h2>
+
+Stargates are built from components that
+may be found in various places in the world. You will sometimes find
+stargate components in chests in dungeons and other structures, and
+occasionally you may even come across a complete stargate. Some
+components can also be crafted, but not all. In particular, the circuit
+crystals that form the heart of certain key stargate components are
+beyond our ability to replicate; these may only be found in the world
+or purchased from a <a href="TokraVillager.html">Tok'ra villager</a>.<br>
+
+  <br>
+
+  <span style="font-style: italic;">Note: Generation of stargates in
+the
+world is currently disabled by default due to incompatibility with some
+other mods. You can enable it by setting the </span><span style="font-family: monospace; font-style: italic;">augmentStructures</span><span style="font-style: italic;"> configuration option to </span><span style="font-family: monospace; font-style: italic;">true</span><span style="font-style: italic;">.</span><br>
+
+  
+<h2><a class="mozTocH2" name="mozTocId205944"></a><a name="BuildingAStargate"></a>Building a Stargate</h2>
+
+  <img style="width: 360px; height: 160px;" class="float-right" src="StargatePattern.png" alt="">To create a stargate, you need to
+build a 5x5 ring composed of a
+Stargate Base Block, eight Stargate Ring Blocks and seven Stargate
+Chevron Blocks, arranged in the patter shown here. The blue circle on
+the base block should face the direction you want the front of the
+stargate to be in; the direction of the other blocks doesn't matter.<br>
+
+  <br>
+
+Once the last block is placed, the blocks of the ring will merge
+together and form a Stargate.<br>
+
+  
+<h2><a class="mozTocH2" name="mozTocId92294"></a><a name="StargateController"></a>Stargate Controller</h2>
+
+To use your stargate, you will need a Stargate Controller, also known
+as a DHD or Dial Home Device. The controller should be placed facing
+the front of the stargate, within 5 blocks of the bottom centre of the
+ring, either on the same level or one block above or below.If the
+controller is properly linked to a stargate,
+the central button will be orange. If it is grey, your controller is
+too far from the stargate or facing the wrong way.<br>
+
+  <br>
+
+  <img style="width: 340px; height: 238px;" class="float-right" src="StargateAndController2.png" alt="">
+Right-clicking on the <span style="font-style: italic;">top</span> of
+the controller will bring up a GUI for entering a
+stargate address. The address can be entered either by clicking buttons
+on the circular
+grid or typing letters on the keyboard. The Backspace or Delete key can
+be used to erase characters. Once a complete address is entered, press
+the Enter key or click on the orange button. If the address is valid,
+the orange button will light up and the stargate will begin dialling
+the address.<br>
+
+  <br>
+
+Once a stargate connection is made, it can be disconnected by pressing
+the orange button again.<br>
+
+  
+<h2><a class="mozTocH2" name="mozTocId450832"></a><a name="StargateAddressing"></a>Stargate Addressing</h2>
+
+A stargate address is made up of either 7 or 9 characters, chosen from
+an
+alphabet of 36 symbols. For convenience, these symbols have been
+mapped to letters and digits, so that you can write them down easily
+and type them on
+your keyboard.<br>
+
+  <br>
+
+To find out the address of a stargate, right-click somewhere on the
+ring. The address displayed will look something like this:<br>
+
+  <br>
+
+  
+<div style="margin-left: 40px;"><span style="font-family: monospace;">QASQ-G6B-SA</span><br>
+  </div>
+
+  <br>
+
+The hyphens are purely for readability &#8211; you do not need to enter them
+when dialling the address.<br>
+
+  <br>
+
+The address encodes a dimension and a spatial location within that
+dimension. The location has chunk-level resolution, meaning that you
+can only have one useful stargate in each chunk (16x16 area). If you
+dial the address of a chunk containing more than one stargate, one of
+them will be connected to arbitrarily.<br>
+
+  <br>
+
+If you are connecting to a stargate in the same dimension, you only
+need to enter the first 7 characters, for example,<br>
+
+  <br>
+
+  
+<div style="margin-left: 40px;"><span style="font-family: monospace;">QASQ-G6B</span><br>
+  </div>
+
+  <br>
+
+To connect to a stargate in another dimension, you need to dial the
+full 9-character address. You can only do this from a stargate that has
+been expanded to 9 chevrons using a <a href="#ChevronUpgrade">Stargate
+Chevron Upgrade</a>. The stargate at the other end must also have 9
+chevrons, because it needs to dial back to complete the connection.<br>
+<h3>Copying and pasting addresses</h3>
+When you open a stargate's GUI, its address is copied to the clipboard,
+so you can then easily paste it into a book or other place.<br>
+
+  
+<h2><a class="mozTocH2" name="mozTocId74917"></a><a name="PowreringStargates"></a>Powering Stargates</h2>
+
+  <img style="width: 48px; height: 48px;" class="float-right" src="NaquadahOre300.png" alt="">Before your stargate will do anything,
+it needs to be supplied with energy. Stargates run on <span style="font-style: italic;">naquadah</span>, a
+dense mineral of unknown composition that is a very rich energy source.
+Naquadah is obtained from <span style="font-style: italic;">naquadah
+ore</span>,
+which is most commonly found underneath lava, although it occasionally
+appears in other places. Due to its very high density, a
+diamond pickaxe is required to mine naquadah.<br>
+
+  <br>
+
+The naquadah reactor that powers the stargate is located in the
+DHD. Open the fuelling interface by right-clicking on the grey panel
+near the bottom, and place naquadah in the fuel slots at the right. The
+black rectangle is a fuel buffer that will be automatically refilled as
+necessary from the fuel slots.<br>
+
+  <br>
+
+Establishing a connection requires a fairly large burst of energy,
+and energy is also used as long as the connection remains open. Energy
+usage varies with the distance between the stargates, and whether they
+are in the same dimension or not. If you
+don't keep the stargate open for longer than necessary, one
+piece of naquadah is good for about 15-20 moderate-distance journeys to
+a stargate in the same dimension. Travelling a very long distance, or
+to another dimension, will use considerably more naquadah.<br>
+
+  <br>
+
+If you leave a gate open, it closes automatically after 5
+minutes.<br>
+
+  <br>
+
+Fuel is only used by the stargate initiating the connection. No fuel is
+required to receive a connection or maintain a received connection.<br>
+
+  <br>
+
+Alternative means of powering stargates are available if you have
+certain other mods installed. See <a href="IC2Integration.html">Power
+Units</a>.<br style="font-style: italic;">
+
+  
+<h2><a class="mozTocH2" name="mozTocId759003"></a><a name="StargateMonitoring"></a>State Monitoring</h2>
+
+The Stargate Base Block emits a redstone signal whenever the stargate
+is active (dialling or connected).<br>
+<h2><a class="mozTocH2" name="mozTocId983594"></a><a name="BaseCamouflage"></a>Base Camouflage</h2>
+You can make the base of the stargate appear to be buried in the ground
+by using the Base Camouflage slots of the stargate GUI. Placing a block
+in one of these slots will cause the corresponding ring segment at the
+bottom of the gate to be rendered using the texture of that block.<br>
+<br>
+<table style="text-align: left;" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;"><img src="file:///Local/Projects/D/Minecraft/MC1.7/GregsSGCraft/doc/BaseCamouflage.png" alt=""></td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top; width: 200px;"><img style="width: 200px; height: 72px;" src="BaseCamouflageGUI.png" alt=""><br>
+      <br>
+Example of a "buried" stargate achieved using the above arrangement of camouflage blocks.<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+
+
+  
+<h2><a class="mozTocH2" name="mozTocId322404"></a><a name="Upgrades"></a>Upgrades<br>
+  </h2>
+
+  
+<h3><a class="mozTocH3" name="mozTocId442651"></a><a name="ChevronUpgrade"></a>Chevron Upgrade</h3>
+
+  <img style="width: 48px; height: 48px;" class="float-right" src="ChevronUpgrade300.png" alt="">A
+Stargate Chevron Upgrade adds another two chevrons to a 7-chevron
+stargate, enabling 9-character addresses to be dialled. To install the
+upgrade, <span style="font-style: italic;">shift-right-click</span> on
+the stargate while holding it. (If you just right-click, it will open
+the GUI instead.)<br>
+
+  <br>
+
+Once the upgrade is installed, it cannot be removed except by breaking
+the stargage base block, in which case the upgrade item will be
+returned.<br>
+
+  
+<h3><a class="mozTocH3" name="mozTocId788610"></a><a name="IrisUpgrade"></a>Iris
+Upgrade</h3>
+
+  <img style="width: 48px; height: 48px;" class="float-right" src="IrisUpgrade300.png" alt="">A stargate inside your base can be a
+fairly large security hole, since
+there is nothing to stop an enemy from dialling in and invading you. To
+guard against this, you can install an iris in your stargate by
+shift-right-clicking on the base block with an Iris Upgrade item. <br>
+<br>
+To close the iris, apply a redstone signal to the stargate base block
+or one of the blocks adjacent to it. When the iris is closed, any
+players or mobs coming through the wormhole will be instantly killed,
+and any items thrown through will be destroyed.<br>
+
+  <br>
+
+  
+<table style="text-align: left;" border="0" cellpadding="0" cellspacing="10">
+
+    <tbody>
+      <tr>
+        <td style="vertical-align: top; text-align: center;"><img src="IrisOpen.png" alt=""><br>
+Open iris<br>
+        </td>
+        <td style="vertical-align: top; text-align: center;"><img src="IrisClosed.png" alt=""><br>
+Closed iris<br>
+        </td>
+        <td style="vertical-align: top; text-align: left;"><img style="width: 371px; height: 420px;" src="IrisRepeaters.png" alt=""><br>
+If you are using redstone wires to control the iris or monitor the gate's state,
+you will need to insert repeaters as shown here, otherwise the signal
+emitted when the gate is connected will activate the iris.<br>
+        </td>
+      </tr>
+    </tbody>
+  
+</table>
+
+  <br>
+
+  
+<h2><a class="mozTocH2" name="mozTocId448298"></a><a name="SafetyPrecautions"></a>Safety Precautions</h2>
+
+The opening transient of a stargate event horizon is extremely
+dangerous. It is recommended to maintain a distance of at least 5
+blocks from the front of the stargate until the event horizon
+stabilises.<br>
+
+  <br>
+
+Breaking a stargate while a connection is open is not recommended. The
+event horizon contains a large amount of potential energy; if the
+stargate mechanism is disrupted, this energy will be explosively
+released.<br>
+
+  
+<h2><a class="mozTocH2" name="mozTocId927505"></a><a name="Troubleshooting"></a>Troubleshooting</h2>
+
+  
+<table style="text-align: left;" border="1" cellpadding="5" cellspacing="0">
+
+    <tbody>
+      <tr>
+        <td style="vertical-align: top; font-weight: bold;">Problem<br>
+        </td>
+        <td style="vertical-align: top; font-weight: bold;">Possible
+causes<br>
+        </td>
+      </tr>
+      <tr>
+        <td style="vertical-align: top;">Blocks will not merge into
+stargate<br>
+        </td>
+        <td style="vertical-align: top;">&#8226; Block pattern is incorrect<br>
+&#8226; Base block facing in wrong direction<br>
+&#8226; Interior of ring is not empty<br>
+        </td>
+      </tr>
+      <tr>
+        <td style="vertical-align: top;">Central button of controller
+is
+dark <br>
+and controller is not responsive<br>
+        </td>
+        <td style="vertical-align: top;">&#8226; Controller not close enough
+to
+stargate<br>
+&#8226; Controller not facing towards stargate<br>
+&#8226; Stargate already linked to another controller<br>
+        </td>
+      </tr>
+      <tr>
+        <td style="vertical-align: top;">Dialling an address fails<br>
+        </td>
+        <td style="vertical-align: top;">&#8226; Address is incorrect<br>
+&#8226; Initiating stargate has insufficient fuel<br>
+&#8226; Destination stargate is already connected<br>
+        </td>
+      </tr>
+      <tr>
+        <td style="vertical-align: top;">Stargate begins dialling by
+itself<br>
+        </td>
+        <td style="vertical-align: top;">This is normal. When receiving
+a
+connection, the receiving stargate <br>
+automatically dials back to the initiating stargate.<br>
+        </td>
+      </tr>
+    </tbody>
+  
+</table>
+
+  <br>
+
+  <br>
+
+
+</body></html>

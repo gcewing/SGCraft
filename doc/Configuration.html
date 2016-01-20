@@ -1,0 +1,323 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+
+
+
+
+
+
+
+
+
+
+
+  
+  <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>Configuration - SG Craft</title></head><body>
+<h1>Configuration Options</h1>These options can be found in the <span style="font-family: monospace;">SGCraft.cfg</span> file in the <span style="font-family: monospace;">config</span> folder, which is alongside the <span style="font-family: monospace;">mods</span> folder. SG Craft must have been run at least once to create the configuration file.<br>
+<br>
+
+
+<table style="text-align: left;" border="1" cellpadding="5" cellspacing="0">
+
+  <tbody>
+    <tr>
+      <td style="vertical-align: top; font-weight: bold;">Category<br>
+      </td>
+      <td style="vertical-align: top; font-weight: bold;">Name<br>
+      </td>
+      <td style="vertical-align: top;"><span style="font-weight: bold;">Default</span><br>
+      </td>
+<td style="vertical-align: top; font-weight: bold;">Description<br>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="1" rowspan="7" style="vertical-align: top; font-family: monospace;">options<br>
+      <br>
+
+      </td>
+      <td style="vertical-align: top; font-family: monospace;">addOresToExistingWorlds<br>
+      </td>
+      <td style="vertical-align: top; font-family: monospace;">false<br>
+      </td>
+      <td style="vertical-align: top;">If true, naquadah ore will be added to previously-generated chunks.<br>
+Otherwise, only new worlds. or chunks generated after SGCraft is installed, will contain naquadah ore.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><span style="font-family: monospace;">enableNaquadahOre</span><br>
+      </td>
+      <td style="vertical-align: top; font-family: monospace;">true<br>
+      </td>
+      <td style="vertical-align: top;">Enables generating naquadah ore in the world.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><span style="font-family: monospace;">allowCraftingCrystals</span><br>
+      </td>
+      <td style="vertical-align: top; font-family: monospace;">false<br>
+      </td>
+      <td style="vertical-align: top;">Enables recipes for crafting core and controller crystals from vanilla items. <br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">allowCraftingNaquadah</td>
+      <td style="vertical-align: top; font-family: monospace;">false<br>
+      </td>
+      <td style="vertical-align: top;">Enables a recipe for crafting naquadah from vanilla items. Defaults to false.</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">augmentStructures</td>
+      <td style="vertical-align: top; font-family: monospace;">false</td>
+      <td style="vertical-align: top;">If
+true, stargates will be found assocated with certain structures in the
+world. Use with caution -- may be incompatible with other world
+generation mods.<br>
+</td>
+    </tr>
+    <tr>
+      
+      <td style="vertical-align: top; font-family: monospace;">chunkLoadingRange<br>
+      </td>
+      <td style="vertical-align: top; font-family: monospace;">1<br>
+      </td>
+      <td style="vertical-align: top;">Number of additional chunks
+surrounding a stargate to keep loaded. A value of 0 keeps
+just the chunk containing the gate loaded. A value of 1 keeps a 3x3 area loaded, etc.<br>
+      <br>
+Setting this to -1 will prevent any chunks from being kept loaded, but
+this is not recommended since it may have undesirable consequences such
+as connections closing immediately upon leaving a dimension.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">logStargateEvents</td>
+      <td style="vertical-align: top; font-family: monospace;">false</td>
+      <td style="vertical-align: top;">Write a message to the server log each time a stargate is merged or unmerged.<br>
+
+Messages are of the form:<br>
+
+      
+      <div style="margin-left: 40px;"><span style="font-family: monospace;">STARGATE ADDED "</span>world name<span style="font-family: monospace;">" (</span><span style="font-style: italic;">x,y,z</span><span style="font-family: monospace;">) </span><span style="font-style: italic;">address</span><br>
+      <span style="font-family: monospace;">STARGATE REMOVED </span><span style="font-family: monospace;">"</span>world name<span style="font-family: monospace;">" </span><span style="font-family: monospace;">(</span><span style="font-style: italic;">x,y,z</span><span style="font-family: monospace;">) </span><span style="font-style: italic;">address</span></div>
+      </td>
+    </tr>
+<tr>
+      <td style="vertical-align: top; font-family: monospace;">dhd<br>
+      </td>
+      <td style="vertical-align: top; font-family: monospace;">linkRangeX<br>
+linkRangeY<br>
+linkRangeZ<br>
+      </td>
+      <td style="vertical-align: top;"><span style="font-family: monospace;">5</span><br style="font-family: monospace;">
+      <span style="font-family: monospace;">1</span><br style="font-family: monospace;">
+      <span style="font-family: monospace;">6</span><br>
+      </td>
+<td style="vertical-align: top;">Maximum distance between a
+stargate and its associated controller block.<br>
+X = either side, Y = up or down, Z = in front.<br>
+      </td>
+    </tr><tr>
+      <td colspan="1" rowspan="7" style="vertical-align: top; font-family: monospace;">naquadah<br>
+      </td>
+      <td style="vertical-align: top; font-family: monospace;">genIsolatedOdds<br>
+      </td>
+      <td style="vertical-align: top; font-family: monospace;">8<br>
+      </td>
+      <td style="vertical-align: top;">Reciprocal probability of isolated naquadah ore being generated in a chunk. Lower numbers give more ore.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">maxIsolatedNodes<br>
+      </td>
+      <td style="vertical-align: top; font-family: monospace;">4<br>
+      </td>
+      <td style="vertical-align: top;">Maximum number of isolated naquadah ore clusters per chunk. Higher numbers give more ore.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">genUnderLavaOdds<br>
+      </td>
+      <td style="vertical-align: top; font-family: monospace;">4<br>
+      </td>
+      <td style="vertical-align: top;">Reciprocal probability of naquadah being generated under lava in a chunk. Lower numbers give more ore.
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">maxNodesUnderLava<br>
+      </td>
+      <td style="vertical-align: top; font-family: monospace;">8<br>
+      </td>
+      <td style="vertical-align: top;">Maximum number of naquadah ore clusters under lava per chunk. Higher numbers give more ore.</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">debugLava<br>
+      </td>
+      <td style="vertical-align: top; font-family: monospace;">false<br>
+      </td>
+      <td style="vertical-align: top;">Log generation of naquadah under lava.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">debugRandom<br>
+      </td>
+      <td style="vertical-align: top; font-family: monospace;">false<br>
+      </td>
+      <td style="vertical-align: top;">Log generation of isolated naquadah nodes.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">debugLevel<br>
+      </td>
+      <td style="vertical-align: top; font-family: monospace;">0<br>
+      </td>
+      <td style="vertical-align: top;">Raise this to increase detail of naquadah debug messages. Range is 0 to 2.<br>
+      </td>
+    </tr>
+<tr>
+      <td colspan="1" rowspan="14" style="vertical-align: top; font-family: monospace;">stargate<br>
+      </td>
+      <td style="vertical-align: top; font-family: monospace;">closeFromEitherEnd<br>
+      </td>
+      <td style="vertical-align: top; font-family: monospace;">true<br>
+      </td>
+      <td style="vertical-align: top;">Whether a stargate connection can be closed from either end, or only from the initiating end.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">oneWayTravel<br>
+      </td>
+      <td style="vertical-align: top; font-family: monospace;">false<br>
+      </td>
+      <td style="vertical-align: top;">Whether a wormhole can be traversed in both directions, or only from the initiating side.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">secondsToStayOpen</td>
+      <td style="vertical-align: top; font-family: monospace;">300</td>
+      <td style="vertical-align: top;">Number of seconds a connection stays open before closing automatically.
+Setting this to 0 will cause the gate to stay open until energy runs out.</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">gateOpeningsPerFuelItem<br>
+      </td>
+      <td style="vertical-align: top; font-family: monospace;">24<br>
+      </td>
+      <td style="vertical-align: top;">Maximum
+number of times a gate can be opened using the fuel from one piece of
+naquadah. Will be less for long-distance and cross-dimension
+connections.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">minutesOpenPerFuelItem<br>
+      </td>
+      <td style="vertical-align: top; font-family: monospace;">80<br>
+      </td>
+      <td style="vertical-align: top;">Maximum
+number of minutes for which the fuel from one piece of naquadah will
+keep a gate open. Will be less for long-distance and cross-dimension
+connections. </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">distanceFactorMultiplier<br>
+      </td>
+      <td style="vertical-align: top; font-family: monospace;">1.0<br>
+      </td>
+      <td style="vertical-align: top;">A coefficient governing the dependence of energy use on distance.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">interDimensionMultiplier<br>
+      </td>
+      <td style="vertical-align: top; font-family: monospace;">4.0<br>
+      </td>
+      <td style="vertical-align: top;">All energy use is multiplied by this factor when connecting between dimensions.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">energyPerFuelItem<br>
+      </td>
+      <td style="vertical-align: top; font-family: monospace;">96000<br>
+      </td>
+      <td style="vertical-align: top;">Number of stargate energy units (SEU) obtained from one piece of naquadah.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">maxEnergyBuffer<br>
+      </td>
+      <td style="vertical-align: top; font-family: monospace;">1000<br>
+      </td>
+      <td style="vertical-align: top;">Capacity of stargate internal energy buffer in SEU.<br>
+      </td>
+    </tr>
+<tr>
+      <td style="vertical-align: top; font-family: monospace;">explosionRadius<br>
+      </td>
+      <td style="vertical-align: top; font-family: monospace;">10<br>
+      </td>
+      <td style="vertical-align: top;">Size of explosion made by destroying an open stargate. Set to 0 to prevent explosions.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">explosionFlame<br>
+      </td>
+      <td style="vertical-align: top; font-family: monospace;">true<br>
+      </td>
+      <td style="vertical-align: top;">Whether a stargate explosion sets things on fire.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">explosionSmoke<br>
+      </td>
+      <td style="vertical-align: top; font-family: monospace;">true<br>
+      </td>
+      <td style="vertical-align: top;">Whether a stargate explosion gives off smoke.<br>
+      </td>
+    </tr><tr>
+      <td style="vertical-align: top; font-family: monospace;">transparency<br>
+      </td>
+      <td style="vertical-align: top; font-family: monospace;">true<br>
+      </td>
+      <td style="vertical-align: top;">If true, the event horizon is rendered with partial transparency.<br>
+      </td>
+    </tr><tr>
+      <td style="vertical-align: top;"><span style="font-family: monospace;">soundVolume</span><br>
+      </td>
+      <td style="vertical-align: top;"><span style="font-family: monospace;">1.0</span><br>
+      </td>
+      <td style="vertical-align: top;">Relative volume of stargate sounds.<br>
+      </td>
+    </tr>
+<tr>
+      <td style="vertical-align: top; font-family: monospace;">iris<br>
+      </td>
+      <td style="vertical-align: top; font-family: monospace;">preserveInventory<br>
+      </td>
+      <td style="vertical-align: top; font-family: monospace;">false<br>
+      </td>
+      <td style="vertical-align: top;">If
+true, prevents the items in a player's inventory from being destroyed
+when the player is killed by an iris. The items will still be dropped,
+however, and armour being worn will take damage from the impact.<br>
+      </td>
+    </tr>
+<tr>
+      <td style="vertical-align: top;"><span style="font-family: monospace;">opencomputers</span><br>
+      </td>
+      <td style="vertical-align: top;"><span style="font-family: monospace;">wirelessRebroadcastStrength</span><br>
+      </td>
+      <td style="vertical-align: top;"><span style="font-family: monospace;">50</span><br>
+      </td>
+      <td style="vertical-align: top;">Strength with which wireless messages relayed through a stargate connection are transmitted on the other side.<br>
+      </td>
+    </tr>
+
+
+
+  </tbody>
+</table>
+
+<br>
+
+<br>
+</body></html>

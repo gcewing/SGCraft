@@ -1,0 +1,13 @@
+--
+--   Receive and display network messages
+--
+
+local component = require("component")
+local event = require("event")
+local m = component.modem
+
+m.open(321)
+while true do
+ local _, _, from, port, _, message = event.pull("modem_message")
+ print("Got a message from " .. from .. " on port " .. port .. ": " .. tostring(message))
+end
