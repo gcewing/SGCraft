@@ -8,25 +8,27 @@ package gcewing.sg;
 
 import net.minecraft.nbt.*;
 import net.minecraft.tileentity.*;
+import net.minecraft.util.BlockPos;
 
 public class SGRingTE extends BaseTileEntity {
 
     public boolean isMerged;
-    public int baseX, baseY, baseZ;
+    public BlockPos basePos = new BlockPos(0, 0, 0);
 
-    @Override
-    public boolean canUpdate() {
-        return false;
-    }
+//     @Override
+//     public boolean canUpdate() {
+//         return false;
+//     }
 
     @Override
     public void readFromNBT(NBTTagCompound nbt) {
         //System.out.printf("SGRingTE.readFromNBT\n");
         super.readFromNBT(nbt);
         isMerged = nbt.getBoolean("isMerged");
-        baseX = nbt.getInteger("baseX");
-        baseY = nbt.getInteger("baseY");
-        baseZ = nbt.getInteger("baseZ");
+        int baseX = nbt.getInteger("baseX");
+        int baseY = nbt.getInteger("baseY");
+        int baseZ = nbt.getInteger("baseZ");
+        basePos = new BlockPos(baseX, baseY, baseZ);
     }
     
     @Override
@@ -34,14 +36,14 @@ public class SGRingTE extends BaseTileEntity {
         //System.out.printf("SGRingTE.writeToNBT\n");
         super.writeToNBT(nbt);
         nbt.setBoolean("isMerged", isMerged);
-        nbt.setInteger("baseX", baseX);
-        nbt.setInteger("baseY", baseY);
-        nbt.setInteger("baseZ", baseZ);
+        nbt.setInteger("baseX", basePos.getX());
+        nbt.setInteger("baseY", basePos.getY());
+        nbt.setInteger("baseZ", basePos.getZ());
     }
     
     public SGBaseTE getBaseTE() {
         if (isMerged) {
-            TileEntity bte = worldObj.getTileEntity(baseX, baseY, baseZ);
+            TileEntity bte = worldObj.getTileEntity(basePos);
             if (bte instanceof SGBaseTE)
                 return (SGBaseTE)bte;
         }

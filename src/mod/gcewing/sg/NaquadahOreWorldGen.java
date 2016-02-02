@@ -9,18 +9,19 @@ package gcewing.sg;
 import java.util.*;
 
 import net.minecraft.block.*;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.*;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.*;
 import net.minecraft.world.chunk.*;
-//import net.minecraft.world.gen.feature.*;
 
-import cpw.mods.fml.common.*;
+import net.minecraftforge.fml.common.*;
 
 public class NaquadahOreWorldGen implements IWorldGenerator {
 
-    static int genUnderLavaOdds = 4;
-    static int maxNodesUnderLava = 8;
-    static int genIsolatedOdds = 8;
+    static int genUnderLavaOdds = 1;
+    static int maxNodesUnderLava = 16;
+    static int genIsolatedOdds = 1;
     static int maxIsolatedNodes = 4;
 
     static boolean debugLava = false;
@@ -34,7 +35,7 @@ public class NaquadahOreWorldGen implements IWorldGenerator {
 
     Block stone = Blocks.stone;
     Block lava = Blocks.lava;
-    Block naquadah = SGCraft.naquadahOre;
+    IBlockState naquadah = SGCraft.naquadahOre.getDefaultState();
     
     public static void configure(BaseConfiguration cfg) {
         genUnderLavaOdds = cfg.getInteger("naquadah", "genUnderLavaOdds", genUnderLavaOdds);
@@ -60,7 +61,7 @@ public class NaquadahOreWorldGen implements IWorldGenerator {
     
     public void regenerate(Chunk chunk) {
         this.chunk = chunk;
-        world = chunk.worldObj;
+        world = chunk.getWorld();
         int chunkX = chunk.xPosition;
         int chunkZ = chunk.zPosition;
         long worldSeed = world.getSeed();
@@ -74,14 +75,27 @@ public class NaquadahOreWorldGen implements IWorldGenerator {
     }
     
     Block getBlock(int x, int y, int z) {
-        return chunk.getBlock(x, y, z);
+        return getBlock(new BlockPos(x, y, z));
     }
     
-    void setBlock(int x, int y, int z, Block id) {
-        chunk.func_150807_a(x, y, z, id, 0);
+    Block getBlock(BlockPos pos) {
+        return chunk.getBlockState(pos).getBlock();
     }
     
-    void generateNode(Block id, int x, int y, int z, int sx, int sy, int sz) {
+    boolean isSolidBlock(int x, int y, int z) {
+        return isSolidBlock(new BlockPos(x, y, z));
+    }
+    
+    boolean isSolidBlock(BlockPos pos) {
+        Block block = getBlock(pos);
+        return block.getMaterial().isSolid();
+    }
+    
+    void setBlockState(BlockPos pos, IBlockState state) {
+        chunk.setBlockState(pos, state);
+    }
+    
+    void generateNode(IBlockState id, int x, int y, int z, int sx, int sy, int sz) {
         int dx = random.nextInt(sx);
         int dy = random.nextInt(sy);
         int dz = random.nextInt(sz);
@@ -92,13 +106,16 @@ public class NaquadahOreWorldGen implements IWorldGenerator {
         for (int i = x; i <= x + dx; i++)
             for (int j = y; j <= y + dy; j++)
                 for (int k = z; k <= z + dz; k++)
-                    if (i < 16 && j < h && k < 16)
-                        if (getBlock(i, j, k) == stone) {
+                    if (i < 16 && j < h && k < 16) {
+                        BlockPos pos = new BlockPos(i, j, k);
+                        //if (getBlock(pos) == stone) {
+                        if (isSolidBlock(pos)) {
                             if (debugRandom && debugLevel >= 2)
                                 System.out.printf("NaquadahOreWorldGen: block at (%d, %d, %d)\n",
                                     x0 + i, j, z0 + k);
-                            setBlock(i, j, k, id);
+                            setBlockState(pos, id);
                         }
+                    }
     }
     
     boolean odds(int n) {
@@ -111,8 +128,9 @@ public class NaquadahOreWorldGen implements IWorldGenerator {
             for (int i = 0; i < n; i++) {
                 int x = random.nextInt(16);
                 int z = random.nextInt(16);
-                for (int y = 0; y < 64; y++)
-                    if (getBlock(x, y, z) == stone && getBlock(x, y+1, z) == lava) {
+                for (int y = 1; y < 64; y++)
+                    //if (getBlock(x, y, z) == stone && getBlock(x, y+1, z) == lava) {
+                    if (isSolidBlock(x, y, z) && getBlock(x, y+1, z) == lava) {
                         if (debugLava)
                             System.out.printf("NaquadahOreWorldGen: generating under lava at (%d, %d, %d)\n", x0+x, y, z0+z);
                         generateNode(naquadah, x, y, z, 3, 1, 3);
@@ -123,9 +141,10 @@ public class NaquadahOreWorldGen implements IWorldGenerator {
             int n = random.nextInt(maxIsolatedNodes) + 1;
             for (int i = 0; i < n; i++) {
                 int x = random.nextInt(16);
-                int y = random.nextInt(64);
+                int y = random.nextInt(16) + 16;
                 int z = random.nextInt(16);
-                if (getBlock(x, y, z) == stone) {
+                //if (getBlock(x, y, z) == stone) {
+                if (isSolidBlock(x, y, z)) {
                     if (debugRandom)
                         System.out.printf("NaquadahOreWorldGen: generating randomly at (%d, %d, %d)\n", x0+x, y, z0+z);
                     generateNode(naquadah, x, y, z, 2, 2, 2);

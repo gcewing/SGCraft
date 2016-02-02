@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------------------------
 //
-//   Greg's Mod Base - Generic Mod
+//   Greg's Mod Base for 1.8 - Generic Mod
 //
 //------------------------------------------------------------------------------------------------
 
@@ -14,12 +14,15 @@ import java.util.*;
 import java.util.jar.*;
 
 import net.minecraft.block.*;
-import net.minecraft.client.renderer.texture.*;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.*;
 import net.minecraft.entity.*;
 import net.minecraft.entity.player.*;
 import net.minecraft.inventory.*;
 import net.minecraft.item.*;
+import net.minecraft.network.Packet;
+import net.minecraft.server.management.ServerConfigurationManager;
+import net.minecraft.server.management.PlayerManager;
 import net.minecraft.tileentity.*;
 import net.minecraft.util.*;
 import net.minecraft.world.*;
@@ -29,20 +32,36 @@ import net.minecraftforge.common.config.*;
 import net.minecraftforge.client.*;
 import net.minecraftforge.oredict.*;
 
-import cpw.mods.fml.common.*;
-import cpw.mods.fml.common.event.*;
-import cpw.mods.fml.common.network.*;
-import cpw.mods.fml.common.registry.*;
-import cpw.mods.fml.common.registry.VillagerRegistry.*;
-import cpw.mods.fml.relauncher.*;
+import net.minecraftforge.fml.common.*;
+import net.minecraftforge.fml.common.event.*;
+import net.minecraftforge.fml.common.network.*;
+import net.minecraftforge.fml.common.registry.*;
+import net.minecraftforge.fml.common.registry.VillagerRegistry.*;
+import net.minecraftforge.fml.relauncher.*;
+
+import gcewing.sg.BaseModClient.IModel;
 
 public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
-	extends BaseIntegration implements IGuiHandler
+	extends BaseSubsystem implements IGuiHandler
 {
 
-	interface IBlock {
-		public void setRenderType(int id);
-		public String getQualifiedRendererClassName();
+	protected Map<ResourceLocation, IModel> modelCache = new HashMap<ResourceLocation, IModel>();
+
+	interface ITextureConsumer {
+		String[] getTextureNames();
+	}
+	
+	interface IBlock extends ITextureConsumer {
+	    String getQualifiedRendererClassName();
+		ModelSpec getModelSpec(IBlockState state);
+		int getNumSubtypes();
+		Trans3 localToGlobalTransformation(IBlockAccess world, BlockPos pos, IBlockState state, Vector3 origin);
+		IBlockState getParticleState(IBlockAccess world, BlockPos pos);
+	}
+	
+	interface IItem extends ITextureConsumer {
+		ModelSpec getModelSpec(ItemStack stack);
+		int getNumSubtypes();
 	}
 	
 	interface ITileEntity {
@@ -63,23 +82,38 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
 		public T object;
 	}
 	
+	public static class ModelSpec {
+		String modelName;
+		String[] textureNames;
+		Vector3 origin;
+		public ModelSpec(String model, String... textures) {
+			this(model, Vector3.zero, textures);
+		}
+		public ModelSpec(String model, Vector3 origin, String... textures) {
+			modelName = model;
+			textureNames = textures;
+			this.origin = origin;
+		}
+	}
+
 	public String modID;
 	public BaseConfiguration config;
 	public String modPackage;
 	public String assetKey;
 	public String resourceDir; // path to resources directory with leading and trailing slashes
-	//public String textureFile; // path to default texture file with leading slash
 	public URL resourceURL; // URL to the resources directory
-	//public BaseMod base;
 	public CLIENT client;
 	public IGuiHandler proxy;
 	public boolean serverSide, clientSide;
-	public CreativeTabs creativeTab; // = CreativeTabs.tabMisc;
-	public boolean debugGui;
+	public CreativeTabs creativeTab;
+	public File cfgFile;
+	public List<Block> registeredBlocks = new ArrayList<Block>();
+	public List<Item> registeredItems = new ArrayList<Item>();
+	public List<BaseSubsystem> subsystems = new ArrayList<BaseSubsystem>();
 
-	File cfgFile;
-	List<IBlock> registeredBlocks = new ArrayList<IBlock>();
-	List<BaseIntegration> integrations = new ArrayList<BaseIntegration>();
+	public boolean debugGui = false;
+	public boolean debugBlockRegistration = false;
+	public boolean debugCreativeTabs = false;
 
 	public String resourcePath(String fileName) {
 		return resourceDir + fileName;
@@ -88,12 +122,13 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
 	public BaseMod() {
 		Class modClass = getClass();
 		modPackage = modClass.getPackage().getName();
-		assetKey = modPackage.replace(".", "_");
+		//assetKey = modPackage.replace(".", "_");
 		modID = getModID(modClass);
+		assetKey = modID.toLowerCase();
 		String resourceRelDir = "assets/" + assetKey + "/";
 		resourceDir = "/" + resourceRelDir;
 		resourceURL = getClass().getClassLoader().getResource(resourceRelDir);
-		integrations.add(this);
+		subsystems.add(this);
 		creativeTab = CreativeTabs.tabMisc;
 	}
 	
@@ -121,17 +156,21 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
 		cfgFile = e.getSuggestedConfigurationFile();
 		loadConfig();
 		configure();
+		for (BaseSubsystem sub : subsystems) {
+			if (sub != this)
+				sub.preInit(e);
+			sub.configure(config);
+			sub.registerBlocks();
+			sub.registerTileEntities();
+			sub.registerItems();
+			sub.registerOres();
+			sub.registerWorldGenerators();
+			sub.registerContainers();
+			sub.registerEntities();
+			sub.registerVillagers();
+		}
 		if (client != null)
 			client.preInit(e);
-		for (BaseIntegration i : integrations) {
-			if (i != this)
-				i.preInit(e);
-			i.configure(config);
-			i.registerBlocks();
-			i.registerTileEntities();
-			i.registerItems();
-			i.registerOres();
-		}
 	}
 	
 	public void init(FMLInitializationEvent e) {
@@ -139,22 +178,18 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
 		FMLCommonHandler.instance().bus().register(this);
 		if (client != null)
 			client.init(e);
-		for (BaseIntegration i : integrations)
-			if (i != this)
-				i.init(e);
+		for (BaseSubsystem sub : subsystems)
+			if (sub != this)
+				sub.init(e);
 	}
 	
 	public void postInit(FMLPostInitializationEvent e) {
-		for (BaseIntegration i : integrations) {
-			if (i != this)
-				i.postInit(e);
-			i.registerRecipes();
-			i.registerRandomItems();
-			i.registerWorldGenerators();
-			i.registerContainers();
-			i.registerEntities();
-			i.registerVillagers();
-			i.registerOther();
+		for (BaseSubsystem sub : subsystems) {
+			if (sub != this)
+				sub.postInit(e);
+			sub.registerRecipes();
+			sub.registerRandomItems();
+			sub.registerOther();
 		}
 		if (client != null)
 			client.postInit(e);
@@ -177,6 +212,50 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
 		return modPackage + "." + name;
 	}
 	
+	//----- BaseSubsystem -----
+	
+	@Override
+	protected void registerModelLocations() {
+		if (client != null)
+			client.registerModelLocations();
+	}
+	
+	@Override
+	protected void registerScreens() {
+		if (client != null)
+			client.registerScreens();
+	}
+	
+	@Override
+	protected void registerBlockRenderers() {
+		if (client != null)
+			client.registerBlockRenderers();
+	}
+	
+	@Override
+	protected void registerItemRenderers() {
+		if (client != null)
+			client.registerItemRenderers();
+	}
+	
+	@Override
+	protected void registerEntityRenderers() {
+		if (client != null)
+			client.registerEntityRenderers();
+	}
+	
+	@Override
+	protected void registerTileEntityRenderers() {
+		if (client != null)
+			client.registerTileEntityRenderers();
+	}
+	
+	@Override
+	protected void registerOtherClient() {
+		if (client != null)
+			client.registerOther();
+	}
+	
 	//-------------------- Configuration ---------------------------------------------------------
 	
 	void configure() {
@@ -190,18 +269,18 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
 
 	//--------------- Third-party mod integration ------------------------------------------------
 
-	public BaseIntegration integrateWith(String modId, String className) {
-		BaseIntegration om = null;
+	public BaseSubsystem integrateWith(String modId, String className) {
+		BaseSubsystem sub = null;
 		if (isModLoaded(modId)) {
-			om = newIntegration(className);
-			integrations.add(om);
+			sub = newSubsystem(className);
+			subsystems.add(sub);
 		}
-		return om;
+		return sub;
 	}
 	
-	BaseIntegration newIntegration(String className) {
+	BaseSubsystem newSubsystem(String className) {
 		try {
-			return (BaseIntegration)Class.forName(className).newInstance();
+			return (BaseSubsystem)Class.forName(className).newInstance();
 		}
 		catch (Exception exc) {
 			throw new RuntimeException(exc);
@@ -229,13 +308,15 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
 	public <ITEM extends Item> ITEM addItem(ITEM item, String name) {
 		String qualName = assetKey + ":" + name;
 		item.setUnlocalizedName(qualName);
-		item.setTextureName(qualName);
 		GameRegistry.registerItem(item, name);
-		System.out.printf("BaseMod.addItem: Registered %s as %s\n", item, name);
+		if (debugBlockRegistration)
+			System.out.printf("BaseMod.addItem: Registered %s as %s\n", item, name);
 		if (creativeTab != null) {
-			System.out.printf("BaseMod.addItem: Setting creativeTab to %s\n", creativeTab);
+			if (debugCreativeTabs)
+				System.out.printf("BaseMod.addItem: Setting creativeTab of %s to %s\n", name, creativeTab);
 			item.setCreativeTab(creativeTab);
 		}
+		registeredItems.add(item);
 		return item;
 	}
 	
@@ -267,18 +348,18 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
 
 	public <BLOCK extends Block> BLOCK addBlock(BLOCK block, String name, Class itemClass) {
 		String qualName = assetKey + ":" + name;
-		block.setBlockName(qualName);
-		block.setBlockTextureName(qualName);
-		System.out.printf("BaseMod.addBlock: name '%s' qualName '%s' %s\n", name, qualName, block);
+		block.setUnlocalizedName(qualName);
+//		block.setBlockTextureName(qualName);
+		//System.out.printf("BaseMod.addBlock: name '%s' qualName '%s' %s\n", name, qualName, block);
 		GameRegistry.registerBlock(block, itemClass, name);
 		if (creativeTab != null) {
-			System.out.printf("BaseMod.addBlock: Setting creativeTab to %s\n", creativeTab);
+			//System.out.printf("BaseMod.addBlock: Setting creativeTab to %s\n", creativeTab);
 			block.setCreativeTab(creativeTab);
 		}
-		if (block instanceof IBlock)
-			registeredBlocks.add((IBlock)block);
+		registeredBlocks.add(block);
 		return block;
 	}
+	
 	
 	//--------------- Ore registration ----------------------------------------------------------
 
@@ -299,8 +380,13 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
 	}
 
 	public static boolean stackMatchesOre(ItemStack stack, String name) {
-		int id = OreDictionary.getOreID(stack);
-		return id == OreDictionary.getOreID(name);
+//		int id = OreDictionary.getOreID(stack);
+//		return id == OreDictionary.getOreID(name);
+		int id2 = OreDictionary.getOreID(name);
+		for (int id1 : OreDictionary.getOreIDs(stack))
+			if (id1 == id2)
+				return true;
+		return false;
 	}
 
 	//--------------- Recipe construction ----------------------------------------------------------
@@ -392,24 +478,9 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
 		return id;
 	}
 	
-	void addTradeHandler(int villagerID, IVillageTradeHandler handler) {
-		VillagerRegistry.instance().registerVillageTradeHandler(villagerID, handler);
-	}
-
-	//--------------- Method stubs ----------------------------------------------------------
-
-	// Moved to BaseIntegration
-
-//	void registerBlocks() {}
-//	void registerItems() {}
-//	void registerOres() {}
-//	void registerRecipes() {}
-//	void registerTileEntities() {}
-//	void registerRandomItems() {}
-//	void registerWorldGenerators() {}
-//	void registerEntities() {}
-//	void registerVillagers() {}
-//	void registerOther() {}
+//	void addTradeHandler(int villagerID, IVillageTradeHandler handler) {
+//		VillagerRegistry.instance().registerVillageTradeHandler(villagerID, handler);
+//	}
 	
 	//--------------- Resources ----------------------------------------------------------
 	
@@ -425,51 +496,77 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
 		return resourceLocation("textures/" + path);
 	}
 
-//	public ResourceLocation blockTextureLocation(String path) {
-//		return resourceLocation("textures/blocks/" + path);
-//	}
-//
-//	public ResourceLocation itemTextureLocation(String path) {
-//		return resourceLocation("textures/items/" + path);
-//	}
-
-	@SideOnly(Side.CLIENT)
-	public IIcon getIcon(IIconRegister reg, String name) {
-		return reg.registerIcon(assetKey + ":" + name);
+	public ResourceLocation modelLocation(String path) {
+		return resourceLocation("models/" + path);
 	}
 
-	public Set<String> listResources(String subdir) {
-		try {
-			Set<String>result = new HashSet<String>();
-			if (resourceURL != null) {
-				String protocol = resourceURL.getProtocol();
-				if (protocol.equals("jar")) {
-					String resPath = resourceURL.getPath();
-					int pling = resPath.lastIndexOf("!");
-					URL jarURL = new URL(resPath.substring(0, pling));
-					String resDirInJar = resPath.substring(pling + 2);
-					String prefix = resDirInJar + subdir + "/";
-					//System.out.printf("BaseMod.listResources: looking for names starting with %s\n", prefix);
-					JarFile jar = new JarFile(new File(jarURL.toURI()));
-					Enumeration<JarEntry> entries = jar.entries();
-					while (entries.hasMoreElements()) {
-						String name = entries.nextElement().getName();
-						if (name.startsWith(prefix) && !name.endsWith("/") && !name.contains("/.")) {
-							//System.out.printf("BaseMod.listResources: name = %s\n", name);
-							result.add(name.substring(prefix.length()));
-						}
-					}
-				}
-				else
-					throw new RuntimeException("Resource URL protocol " + protocol + " not supported");
-			}
-			return result;
+	public IModel getModel(String name) {
+		ResourceLocation loc = modelLocation(name);
+		IModel model = modelCache.get(loc);
+		if (model == null) {
+			model = BaseModel.fromResource(loc);
+			modelCache.put(loc, model);
 		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		return model;
 	}
 	
+//	@SideOnly(Side.CLIENT)
+//	public IIcon getIcon(IIconRegister reg, String name) {
+//		return reg.registerIcon(assetKey + ":" + name);
+//	}
+
+//	public Set<String> listResources(String subdir) {
+//		try {
+//			Set<String>result = new HashSet<String>();
+//			if (resourceURL != null) {
+//				String protocol = resourceURL.getProtocol();
+//				if (protocol.equals("jar")) {
+//					String resPath = resourceURL.getPath();
+//					int pling = resPath.lastIndexOf("!");
+//					URL jarURL = new URL(resPath.substring(0, pling));
+//					String resDirInJar = resPath.substring(pling + 2);
+//					String prefix = resDirInJar + subdir + "/";
+//					//System.out.printf("BaseMod.listResources: looking for names starting with %s\n", prefix);
+//					JarFile jar = new JarFile(new File(jarURL.toURI()));
+//					Enumeration<JarEntry> entries = jar.entries();
+//					while (entries.hasMoreElements()) {
+//						String name = entries.nextElement().getName();
+//						if (name.startsWith(prefix) && !name.endsWith("/") && !name.contains("/.")) {
+//							//System.out.printf("BaseMod.listResources: name = %s\n", name);
+//							result.add(name.substring(prefix.length()));
+//						}
+//					}
+//				}
+//				else
+//					throw new RuntimeException("Resource URL protocol " + protocol + " not supported");
+//			}
+//			return result;
+//		}
+//		catch (Exception e) {
+//			throw new RuntimeException(e);
+//		}
+//	}
+	
+	//------------------------- Network --------------------------------------------------
+	
+	public static void sendTileEntityUpdate(TileEntity te) {
+		Packet packet = te.getDescriptionPacket();
+		if (packet != null) {
+			BlockPos pos = te.getPos();
+			int x = pos.getX() >> 4;
+			int z = pos.getZ() >> 4;
+			//System.out.printf("BaseMod.sendTileEntityUpdate: for chunk coords (%s, %s)\n", x, z);
+			WorldServer world = (WorldServer)te.getWorld();
+			ServerConfigurationManager cm = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager();
+			PlayerManager pm = world.getPlayerManager();
+			for (EntityPlayerMP player : (List<EntityPlayerMP>)cm.playerEntityList)
+				if (pm.isPlayerWatchingChunk(player, x, z)) {
+					//System.out.printf("BaseMod.sendTileEntityUpdate: to %s\n", player);
+					player.playerNetServerHandler.sendPacket(packet);
+				}
+		}
+	}
+
 	//--------------- GUIs - Registration ------------------------------------------------
 
 	protected void registerContainers() {
@@ -504,22 +601,23 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
 	}
 
 	public void openGui(EntityPlayer player, int id, TileEntity te, int param) {
-		openGui(player, id, te.getWorldObj(), te.xCoord, te.yCoord, te.zCoord, param);
+		openGui(player, id, te.getWorld(), te.getPos(), param);
 	}
 
-	public void openGui(EntityPlayer player, Enum id, World world, int x, int y, int z) {
-		openGui(player, id, world, x, y, z, 0);
+	public void openGui(EntityPlayer player, Enum id, World world, BlockPos pos) {
+		openGui(player, id, world, pos, 0);
 	}
 
-	public void openGui(EntityPlayer player, Enum id, World world, int x, int y, int z, int param) {
-		openGui(player, id.ordinal(), world, x, y, z, param);
+	public void openGui(EntityPlayer player, Enum id, World world, BlockPos pos, int param) {
+		openGui(player, id.ordinal(), world, pos, param);
 	}
 
-	public void openGui(EntityPlayer player, int id, World world, int x, int y, int z, int param) {
-		openGui(player, id | (param << 16), world, x, y, z);
+	public void openGui(EntityPlayer player, int id, World world, BlockPos pos, int param) {
+		openGui(player, id | (param << 16), world, pos);
 	}
 	
-	public void openGui(EntityPlayer player, int id, World world, int x, int y, int z) {
+	public void openGui(EntityPlayer player, int id, World world, BlockPos pos) {
+		int x = pos.getX(), y = pos.getY(), z = pos.getZ();
 		if (debugGui)
 			System.out.printf("BaseMod.openGui: for %s with id 0x%x in %s at (%s, %s, %s)\n",
 				this, id, world, x, y, z);
@@ -539,14 +637,16 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
 	 * @param ID The Gui ID Number
 	 * @param player The player viewing the Gui
 	 * @param world The current world
-	 * @param x X Position
-	 * @param y Y Position
-	 * @param z Z Position
+	 * @param pos Position in world
 	 * @return A GuiScreen/Container to be displayed to the user, null if none.
 	 */
 
 	@Override
 	public Object getServerGuiElement(int id, EntityPlayer player, World world, int x, int y, int z) {
+		return getServerGuiElement(id, player, world, new BlockPos(x, y, z));
+	}
+
+	public Object getServerGuiElement(int id, EntityPlayer player, World world, BlockPos pos) {
 		if (debugGui)
 			System.out.printf("BaseMod.getServerGuiElement: for id 0x%x\n", id);
 		int param = id >> 16;
@@ -554,16 +654,16 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
 		Class cls = containerClasses.get(id);
 		Object result;
 		if (cls != null)
-			result = createGuiElement(cls, player, world, x, y, z, param);
+			result = createGuiElement(cls, player, world, pos, param);
 		else
-			result = getGuiContainer(id, player, world, x, y, z, param);
+			result = getGuiContainer(id, player, world, pos, param);
 		if (debugGui)
 			System.out.printf("BaseMod.getServerGuiElement: Returning %s\n", result);
 		setModOf(result);
 		return result;
 	}
 	
-	Container getGuiContainer(int id, EntityPlayer player, World world, int x, int y, int z, int param) {
+	Container getGuiContainer(int id, EntityPlayer player, World world, BlockPos pos, int param) {
 		//  Called when container id not found in registry
 		if (debugGui)
 			System.out.printf("%s: BaseMod.getGuiContainer: No Container class found for gui id %d\n", 
@@ -576,27 +676,27 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
 		return null;
 	}
 	
-	Object createGuiElement(Class cls, EntityPlayer player, World world, int x, int y, int z, int param) {
+	Object createGuiElement(Class cls, EntityPlayer player, World world, BlockPos pos, int param) {
 		try {
 			if (debugGui)
 				System.out.printf("BaseMod.createGuiElement: Looking for create method on %s for %s in %s\n",
 					cls, player, world);
 			Method m = getMethod(cls, "create",
-				EntityPlayer.class, World.class, int.class, int.class, int.class, int.class);
+				EntityPlayer.class, World.class, BlockPos.class, int.class);
 			if (m != null)
-				return m.invoke(null, player, world, x, y, z, param);
-			m = getMethod(cls, "create", EntityPlayer.class, World.class, int.class, int.class, int.class);
+				return m.invoke(null, player, world, pos, param);
+			m = getMethod(cls, "create", EntityPlayer.class, World.class, BlockPos.class);
 			if (m != null)
-				return m.invoke(null, player, world, x, y, z);
+				return m.invoke(null, player, world, pos);
 			if (debugGui)
 				System.out.printf("BaseMod.createGuiElement: Looking for constructor on %s\n", cls);
 			Constructor c = getConstructor(cls,
-				EntityPlayer.class, World.class, int.class, int.class, int.class, int.class);
+				EntityPlayer.class, World.class, BlockPos.class, int.class);
 			if (c != null)
-				return c.newInstance(player, world, x, y, z, param);
-			c = getConstructor(cls, EntityPlayer.class, World.class, int.class, int.class, int.class);
+				return c.newInstance(player, world, pos, param);
+			c = getConstructor(cls, EntityPlayer.class, World.class, BlockPos.class);
 			if (c != null)
-				return c.newInstance(player, world, x, y, z);
+				return c.newInstance(player, world, pos);
 			throw new RuntimeException(String.format("%s: No suitable gui element constructor found for %s\n",
 				modID, cls));
 		}

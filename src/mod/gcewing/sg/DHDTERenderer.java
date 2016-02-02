@@ -13,12 +13,15 @@ import net.minecraft.util.*;
 import net.minecraft.client.renderer.tileentity.*;
 import net.minecraft.tileentity.*;
 
+import gcewing.sg.BaseModClient.*;
+import gcewing.sg.BaseTexture.*;
+
 class DHDTERenderer extends BaseTileEntityRenderer {
 
-    SGModel model;
-    SGModel.Texture mainTexture;
-    SGModel.Texture[] buttonTextures;
-    SGModel.Texture[] textures;
+    IModel model;
+    ITexture mainTexture;
+    ITexture[] buttonTextures;
+    ITexture[] textures;
     
     final static int buttonTextureIndex = 3;
     
@@ -27,29 +30,24 @@ class DHDTERenderer extends BaseTileEntityRenderer {
         ResourceLocation ttLoc = mod.textureLocation("tileentity/dhd_top.png");
         ResourceLocation stLoc = mod.textureLocation("tileentity/dhd_side.png");
         ResourceLocation dtLoc = mod.textureLocation("tileentity/dhd_detail.png");
-        SGModel.TiledTexture detail = new SGModel.TiledTexture(dtLoc, 2, 2);
-        textures = new SGModel.Texture[] {
-            new SGModel.Texture(ttLoc),
-            new SGModel.Texture(stLoc),
+        ITiledTexture detail = new Image(dtLoc).tiled(2, 2);
+        textures = new ITexture[] {
+            new Image(ttLoc),
+            new Image(stLoc),
             detail.tile(1, 1),
             null, // button texture inserted here
         };
-        {
-            SGModel.Texture t = textures[2];
-            System.out.printf("DHDTERenderer: Panel texture: origin %s,%s size %s,%s\n",
-                t.u0, t.v0, t.usize, t.vsize);
-        }
-        SGModel.Texture button = detail.tile(0, 0);
-        buttonTextures = new SGModel.Texture[] {
-            button.tinted(0.5, 0.5,  0.5),
-            button.tinted(0.5, 0.25, 0.0),
-            button.emissive(1.0, 0.5, 0.0),
+        ITexture button = detail.tile(0, 0);
+        buttonTextures = new ITexture[] {
+            button.colored(0.5, 0.5,  0.5),
+            button.colored(0.5, 0.25, 0.0),
+            button.colored(1.0, 0.5, 0.0).emissive(),
         };
-        model = SGModel.fromResource(mod.resourceLocation("models/dhd.json"));
+        model = BaseModel.fromResource(mod.resourceLocation("models/dhd.json"));
         DHDTE.bounds = model.getBounds();
     }
     
-    public void renderTileEntityAt(TileEntity te, double x, double y, double z, float t) {
+    public void render(BaseTileEntity te, float dt, int destroyStage, Trans3 t, IRenderTarget target) {
         DHDTE dte = (DHDTE)te;
         SGBaseTE gte = dte.getLinkedStargateTE();
         int i;
@@ -60,16 +58,7 @@ class DHDTERenderer extends BaseTileEntityRenderer {
         else
             i = 1;
         textures[buttonTextureIndex] = buttonTextures[i];
-        //glPushAttrib(GL_LIGHTING_BIT | GL_TEXTURE_BIT);
-        glPushMatrix();
-        glEnable(GL_RESCALE_NORMAL);
-        glColor3d(1.0, 1.0, 1.0);
-        glTranslated(x + 0.5, y, z + 0.5);
-        glRotatef(90 * dte.getRotation(), 0, 1, 0);
-        model.render(textures);
-        glDisable(GL_RESCALE_NORMAL);
-        glPopMatrix();
-        //glPopAttrib();
+        model.render(t.translate(0, -0.5, 0), target, textures);
     }
 
 }

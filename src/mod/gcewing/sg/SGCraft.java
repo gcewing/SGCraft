@@ -23,18 +23,18 @@ import net.minecraftforge.event.*;
 import net.minecraftforge.event.world.*;
 import net.minecraftforge.event.terraingen.*;
 
-import cpw.mods.fml.common.*;
-import cpw.mods.fml.common.event.*;
-import cpw.mods.fml.common.gameevent.*;
-import cpw.mods.fml.common.eventhandler.*;
-import cpw.mods.fml.common.registry.*;
+import net.minecraftforge.fml.common.*;
+import net.minecraftforge.fml.common.event.*;
+import net.minecraftforge.fml.common.gameevent.*;
+import net.minecraftforge.fml.common.eventhandler.*;
+import net.minecraftforge.fml.common.registry.*;
 
-import ic2.api.item.*;
-import dan200.computercraft.api.*;
-import gcewing.sg.ic2.*;
-import gcewing.sg.rf.*;
-import gcewing.sg.cc.*;
-import gcewing.sg.oc.*;
+//import ic2.api.item.*; //[IC2]
+// import dan200.computercraft.api.*; //[CC]
+// import gcewing.sg.ic2.*; //[IC2]
+// import gcewing.sg.rf.*; //[RF]
+// import gcewing.sg.cc.*; //[CC]
+// import gcewing.sg.oc.*; //[OC]
 
 @Mod(modid = Info.modID, name = Info.modName, version = Info.versionNumber,
     acceptableRemoteVersions = Info.versionBounds)
@@ -66,9 +66,9 @@ public class SGCraft extends BaseMod<SGCraftClient> {
     public static NaquadahOreWorldGen naquadahOreGenerator;
     public static int tokraVillagerID;
     
-    //public static ICCIntegration ccIntegration;
-    public static OCIntegration ocIntegration;
-    public static MystcraftIntegration mystcraftIntegration;
+//     public static ICCIntegration ccIntegration; //[CC]
+//     public static OCIntegration ocIntegration; //[OC]
+//     public static MystcraftIntegration mystcraftIntegration; //[MYST]
 
     public SGCraft() {
         mod = this;
@@ -86,9 +86,9 @@ public class SGCraft extends BaseMod<SGCraftClient> {
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent e) {
         FMLCommonHandler.instance().bus().register(this);
-        integrateWith("ComputerCraft", "gcewing.sg.cc.CCIntegration");
-        ocIntegration = (OCIntegration)integrateWith("OpenComputers", "gcewing.sg.oc.OCIntegration");
-        mystcraftIntegration = (MystcraftIntegration)integrateWith("Mystcraft", "gcewing.sg.MystcraftIntegration");
+//         integrateWith("ComputerCraft", "gcewing.sg.cc.CCIntegration"); //[CC]
+//         ocIntegration = (OCIntegration)integrateWith("OpenComputers", "gcewing.sg.oc.OCIntegration"); //[OC]
+//         mystcraftIntegration = (MystcraftIntegration)integrateWith("Mystcraft", "gcewing.sg.MystcraftIntegration"); //[MYST]
         super.preInit(e);
     }
     
@@ -134,12 +134,12 @@ public class SGCraft extends BaseMod<SGCraftClient> {
         //sgPortalBlock = newBlock("stargatePortal", SGPortalBlock.class);
         naquadahBlock = newBlock("naquadahBlock", NaquadahBlock.class);
         naquadahOre = newBlock("naquadahOre", NaquadahOreBlock.class);
-        if (isModLoaded("IC2")) {
-            ic2PowerUnit = newBlock("ic2PowerUnit", IC2PowerBlock.class, IC2PowerItem.class);
-        }
-        if (isModLoaded("CoFHCore")) {
-            rfPowerUnit = newBlock("rfPowerUnit", RFPowerBlock.class);
-        }
+//         if (isModLoaded("IC2")) { //[IC2]
+//             ic2PowerUnit = newBlock("ic2PowerUnit", IC2PowerBlock.class, IC2PowerItem.class);
+//         }
+//         if (isModLoaded("CoFHCore")) { //[RF]
+//             rfPowerUnit = newBlock("rfPowerUnit", RFPowerBlock.class);
+//         }
 //		System.out.printf("SGCraft.registerBlocks: ccIntegration == %s\n", ccIntegration);
 //		if (ccIntegration != null)
 //			ccIntegration.registerBlocks();
@@ -176,9 +176,9 @@ public class SGCraft extends BaseMod<SGCraftClient> {
         addOre("ingotNaquadahAlloy", naquadahIngot);
     }
     
-    public static ItemStack getIC2Item(String name) {
-        return IC2Items.getItem(name);
-    }
+//     public static ItemStack getIC2Item(String name) { //[IC2]
+//         return IC2Items.getItem(name);
+//     }
     
     @Override
     protected void registerRecipes() {
@@ -216,29 +216,29 @@ public class SGCraft extends BaseMod<SGCraftClient> {
             newRecipe(sgControllerCrystal, 1, "roo", "odr", "oor",
                 'o', orangeDye, 'r', Items.redstone, 'd', Items.diamond);
         }
-        if (isModLoaded("IC2")) {
-            ItemStack rubber = getIC2Item("rubber");
-            ItemStack copperPlate = getIC2Item("platecopper");
-            ItemStack machine = getIC2Item("machine");
-            ItemStack wire = getIC2Item("copperCableItem");
-            ItemStack circuit = getIC2Item("electronicCircuit");
-            newRecipe(ic2Capacitor, 1, "ppp", "rrr", "ppp",
-                'p', copperPlate, 'r', rubber);
-            newRecipe(ic2PowerUnit,  1, "cwc", "wMw", "cec",
-                'c', ic2Capacitor, 'w', wire, 'M', machine, 'e', circuit);
-        }
-        if (isModLoaded("ThermalExpansion")) {
-            //Item cell = GameRegistry.findItem("ThermalExpansion", "Cell");
-            Item frame = GameRegistry.findItem("ThermalExpansion", "Frame");
-            Item coil = GameRegistry.findItem("ThermalExpansion", "material");
-            //ItemStack hardenedEnergyCell = new ItemStack(cell, 1, 2);
-            ItemStack hardenedEnergyFrame = new ItemStack(frame, 1, 4);
-            ItemStack receptionCoil = new ItemStack(coil, 1, 1);
-            ItemStack transmissionCoil = new ItemStack(coil, 1, 2);
-            newRecipe(rfPowerUnit, 1, "ttt", "hrh", "ici",
-                't', transmissionCoil, 'h', hardenedEnergyFrame, 'r', receptionCoil,
-                'i', "ingotInvar", 'c', "ingotCopper");
-        }
+//         if (isModLoaded("IC2")) { //[IC2]
+//             ItemStack rubber = getIC2Item("rubber");
+//             ItemStack copperPlate = getIC2Item("platecopper");
+//             ItemStack machine = getIC2Item("machine");
+//             ItemStack wire = getIC2Item("copperCableItem");
+//             ItemStack circuit = getIC2Item("electronicCircuit");
+//             newRecipe(ic2Capacitor, 1, "ppp", "rrr", "ppp",
+//                 'p', copperPlate, 'r', rubber);
+//             newRecipe(ic2PowerUnit,  1, "cwc", "wMw", "cec",
+//                 'c', ic2Capacitor, 'w', wire, 'M', machine, 'e', circuit);
+//         }
+//         if (isModLoaded("ThermalExpansion")) { //[RF]
+//             //Item cell = GameRegistry.findItem("ThermalExpansion", "Cell");
+//             Item frame = GameRegistry.findItem("ThermalExpansion", "Frame");
+//             Item coil = GameRegistry.findItem("ThermalExpansion", "material");
+//             //ItemStack hardenedEnergyCell = new ItemStack(cell, 1, 2);
+//             ItemStack hardenedEnergyFrame = new ItemStack(frame, 1, 4);
+//             ItemStack receptionCoil = new ItemStack(coil, 1, 1);
+//             ItemStack transmissionCoil = new ItemStack(coil, 1, 2);
+//             newRecipe(rfPowerUnit, 1, "ttt", "hrh", "ici",
+//                 't', transmissionCoil, 'h', hardenedEnergyFrame, 'r', receptionCoil,
+//                 'i', "ingotInvar", 'c', "ingotCopper");
+//         }
 //		if (ccIntegration != null)
 //			ccIntegration.registerRecipes();
 //		for (IntegrationBase om : otherMods)
@@ -258,14 +258,14 @@ public class SGCraft extends BaseMod<SGCraftClient> {
         String[] categories = {ChestGenHooks.MINESHAFT_CORRIDOR,
             ChestGenHooks.PYRAMID_DESERT_CHEST, ChestGenHooks.PYRAMID_JUNGLE_CHEST,
             ChestGenHooks.STRONGHOLD_LIBRARY, ChestGenHooks.VILLAGE_BLACKSMITH};
-        addRandomChestItem(new ItemStack(sgBaseBlock), 1, 1, 2, categories);
-        addRandomChestItem(new ItemStack(sgControllerBlock), 1, 1, 1, categories);
-        addRandomChestItem(new ItemStack(sgRingBlock, 1, 0), 1, 3, 8, categories);
-        addRandomChestItem(new ItemStack(sgRingBlock, 1, 1), 1, 3, 7, categories);
+        //addRandomChestItem(new ItemStack(sgBaseBlock), 1, 1, 2, categories);
+        //addRandomChestItem(new ItemStack(sgControllerBlock), 1, 1, 1, categories);
+        //addRandomChestItem(new ItemStack(sgRingBlock, 1, 0), 1, 3, 8, categories);
+        //addRandomChestItem(new ItemStack(sgRingBlock, 1, 1), 1, 3, 7, categories);
         addRandomChestItem(new ItemStack(sgCoreCrystal), 1, 1, 2, categories);
         addRandomChestItem(new ItemStack(sgControllerCrystal), 1, 1, 1, categories);
-        addRandomChestItem(new ItemStack(sgChevronUpgrade), 1, 1, 1, categories);
-        addRandomChestItem(new ItemStack(sgIrisBlade), 1, 1, 1, categories);
+        //addRandomChestItem(new ItemStack(sgChevronUpgrade), 1, 1, 1, categories);
+        //addRandomChestItem(new ItemStack(sgIrisBlade), 1, 1, 1, categories);
     }
     
     @Override
@@ -275,15 +275,15 @@ public class SGCraft extends BaseMod<SGCraftClient> {
             naquadahOreGenerator = new NaquadahOreWorldGen();
             GameRegistry.registerWorldGenerator(naquadahOreGenerator, 0);
         }
-        MapGenStructureIO.func_143031_a(FeatureUnderDesertPyramid.class,
+        MapGenStructureIO.registerStructureComponent(FeatureUnderDesertPyramid.class,
             "SGCraft:FeatureUnderDesertPyramid");
     }
     
-    @Override
-    protected void registerVillagers() {
-        tokraVillagerID = addVillager("tokra", resourceLocation("textures/skins/tokra.png"));
-        addTradeHandler(tokraVillagerID, new SGTradeHandler());
-    }
+//     @Override //[VILL]
+//     protected void registerVillagers() {
+//         tokraVillagerID = addVillager("tokra", resourceLocation("textures/skins/tokra.png"));
+//         addTradeHandler(tokraVillagerID, new SGTradeHandler());
+//     }
     
     @Override
     protected void registerEntities() {
@@ -313,22 +313,21 @@ public class SGCraft extends BaseMod<SGCraftClient> {
     public void onServerTick(TickEvent.ServerTickEvent e) {
         //System.out.printf("SGCraft.onServerTick\n");
         switch (e.phase) {
-            case START:
-//				if (ccIntegration != null)
-//					ccIntegration.onServerTick();
-                    for (BaseIntegration om : integrations)
-                        if (om instanceof IntegrationBase)
-                            ((IntegrationBase)om).onServerTick();
+            case START: {
+                for (BaseSubsystem om : subsystems)
+                    if (om instanceof IntegrationBase)
+                        ((IntegrationBase)om).onServerTick();
                 break;
+            }
         }
     }
     
     @SubscribeEvent
     public void onChunkUnload(ChunkEvent.Unload e) {
         Chunk chunk = e.getChunk();
-        if (!chunk.worldObj.isRemote) {
+        if (!chunk.getWorld().isRemote) {
             //System.out.printf("SGCraft.onChunkUnload: (%d, %d)\n", chunk.xPosition, chunk.zPosition);
-            for (Object obj : chunk.chunkTileEntityMap.values()) {
+            for (Object obj : chunk.getTileEntityMap().values()) {
                 if (obj instanceof SGBaseTE) {
                     SGBaseTE te = (SGBaseTE)obj;
                     //System.out.printf("SGCraft.onChunkUnload: Disconnecting stargate at (%s, %s, %s)\n",

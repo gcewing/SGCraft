@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------------------------
 //
-//   Greg's Mod Base - 3x3 Matrix
+//   Greg's Mod Base for 1.8 - 3x3 Matrix
 //
 //------------------------------------------------------------------------------------------------
 
@@ -22,6 +22,13 @@ public class Matrix3 {
 		/*4, -X, WEST */ rotZ(-90).mul(rotY(90)),
 		/*5, +X, EAST */ rotZ(90).mul(rotY(-90))
 	};
+	
+	public static Matrix3[][] sideTurnRotations = new Matrix3[6][4];
+	static {
+		for (int side = 0; side < 6; side++)
+			for (int turn = 0; turn < 4; turn++)
+				sideTurnRotations[side][turn] = sideRotations[side].mul(turnRotations[turn]);
+	}
 	
 	public double m[][] = new double[][] {
 		{1, 0, 0},

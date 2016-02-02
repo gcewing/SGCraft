@@ -8,6 +8,7 @@ package gcewing.sg;
 
 import net.minecraft.nbt.*;
 import net.minecraft.tileentity.*;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.*;
 
 import net.minecraftforge.common.*;
@@ -15,32 +16,31 @@ import net.minecraftforge.common.*;
 public class SGLocation {
 
     public int dimension;
-    public int x, y, z;
+    public BlockPos pos;
     
     public SGLocation(TileEntity te) {
-        this(te.getWorldObj().provider.dimensionId, te.xCoord, te.yCoord, te.zCoord);
+        this(te.getWorld().provider.getDimensionId(), te.getPos());
     }
     
-    public SGLocation(int dimension, int x, int y, int z) {
+    public SGLocation(int dimension, BlockPos pos) {
         this.dimension = dimension;
-        this.x = x;
-        this.y = y;
-        this.z = z;
+        this.pos = pos;
     }
     
     public SGLocation(NBTTagCompound nbt) {
         dimension = nbt.getInteger("dimension");
-        x = nbt.getInteger("x");
-        y = nbt.getInteger("y");
-        z = nbt.getInteger("z");
+        int x = nbt.getInteger("x");
+        int y = nbt.getInteger("y");
+        int z = nbt.getInteger("z");
+        pos = new BlockPos(x, y, z);
     }
     
     NBTTagCompound toNBT() {
         NBTTagCompound nbt = new NBTTagCompound();
         nbt.setInteger("dimension", dimension);
-        nbt.setInteger("x", x);
-        nbt.setInteger("y", y);
-        nbt.setInteger("z", z);
+        nbt.setInteger("x", pos.getX());
+        nbt.setInteger("y", pos.getY());
+        nbt.setInteger("z", pos.getZ());
         return nbt;
     }
     
@@ -52,7 +52,7 @@ public class SGLocation {
                 dimension);
                 return null;
         }
-        TileEntity te = world.getTileEntity(x, y, z);
+        TileEntity te = world.getTileEntity(pos);
         if (te instanceof SGBaseTE)
             return (SGBaseTE)te;
         else

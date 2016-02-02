@@ -6,23 +6,10 @@
 
 package gcewing.sg;
 
-public class IntegrationBase extends BaseIntegration {
+public class IntegrationBase extends BaseSubsystem {
 
     protected SGCraft mod = SGCraft.mod;
 
-//	public void init(SGCraft mod) {
-//		this.mod = mod;
-//	}
-//	
-//	public void registerBlocks() {
-//	}
-//	
-//	public void registerItems() {
-//	}
-//	
-//	public void registerRecipes() {
-//	}
-    
     public void onServerTick() {
     }
 

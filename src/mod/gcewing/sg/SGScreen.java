@@ -21,7 +21,7 @@ import net.minecraftforge.client.*;
 
 //------------------------------------------------------------------------------------------------
 
-public class SGScreen extends BaseGuiContainer {
+public class SGScreen extends BaseGui.Screen {
 
     final static String symbolTextureFile = "symbols48.png";
     final static int symbolsPerRowInTexture = 10;

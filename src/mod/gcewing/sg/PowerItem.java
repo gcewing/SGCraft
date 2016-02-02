@@ -27,7 +27,7 @@ public class PowerItem extends ItemBlock {
     
     @Override
     public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean par4) {
-        NBTTagCompound nbt = stack.stackTagCompound;
+        NBTTagCompound nbt = stack.getTagCompound();
         if (nbt != null) {
             double eu = nbt.getDouble("energyBuffer");
             list.add(String.format("%.0f %s / %.0f", eu, unitName, maxEnergy));

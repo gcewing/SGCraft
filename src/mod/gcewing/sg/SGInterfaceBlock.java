@@ -8,13 +8,19 @@ package gcewing.sg;
 
 import net.minecraft.block.material.*;
 import net.minecraft.tileentity.*;
+import net.minecraft.util.*;
 import net.minecraft.world.*;
 import net.minecraftforge.common.util.*;
 
-public class SGInterfaceBlock<TE extends TileEntity> extends Base4WayCtrBlock<TE> {
+public class SGInterfaceBlock<TE extends TileEntity> extends BaseBlock<TE> {
 
     public SGInterfaceBlock(Material material, Class<TE> teClass) {
         super(material, teClass);
+    }
+    
+    @Override
+    public IOrientationHandler getOrientationHandler() {
+        return BaseOrientation.orient4WaysByState;
     }
 
 //	SGBaseTE getBaseTE(World world, int x, int y, int z) {
@@ -27,7 +33,7 @@ public class SGInterfaceBlock<TE extends TileEntity> extends Base4WayCtrBlock<TE
 //	}
     
     @Override
-    public boolean isSideSolid(IBlockAccess world, int x, int y, int z, ForgeDirection side) {
+    public boolean isSideSolid(IBlockAccess world, BlockPos pos, EnumFacing side) {
         return true;
     }
 

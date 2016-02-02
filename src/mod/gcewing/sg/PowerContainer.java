@@ -9,14 +9,15 @@ package gcewing.sg;
 import net.minecraft.entity.player.*;
 import net.minecraft.inventory.*;
 import net.minecraft.tileentity.*;
+import net.minecraft.util.*;
 import net.minecraft.world.*;
 
 public class PowerContainer extends BaseContainer {
 
     PowerTE te;
     
-    public static PowerContainer create(EntityPlayer player, World world, int x, int y, int z) {
-        TileEntity te = world.getTileEntity(x, y, z);
+    public static PowerContainer create(EntityPlayer player, World world, BlockPos pos) {
+        TileEntity te = world.getTileEntity(pos);
         if (te instanceof PowerTE)
             return new PowerContainer(player, (PowerTE)te);
         else

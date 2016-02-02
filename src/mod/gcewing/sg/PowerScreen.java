@@ -12,9 +12,10 @@ import static org.lwjgl.opengl.GL11.*;
 
 import net.minecraft.client.gui.*;
 import net.minecraft.entity.player.*;
+import net.minecraft.util.*;
 import net.minecraft.world.*;
 
-public class PowerScreen extends BaseGuiContainer {
+public class PowerScreen extends BaseGui.Screen {
 
     final static int guiWidth = 128;
     final static int guiHeight = 64;
@@ -22,8 +23,8 @@ public class PowerScreen extends BaseGuiContainer {
 
     PowerTE te;
     
-    public static PowerScreen create(EntityPlayer player, World world, int x, int y, int z) {
-        PowerContainer container = PowerContainer.create(player, world, x, y, z);
+    public static PowerScreen create(EntityPlayer player, World world, BlockPos pos) {
+        PowerContainer container = PowerContainer.create(player, world, pos);
         if (container != null)
             return new PowerScreen(container);
         else

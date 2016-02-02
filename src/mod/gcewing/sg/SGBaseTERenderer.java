@@ -65,7 +65,7 @@ class SGBaseTERenderer extends BaseTileEntityRenderer {
     double u0, v0;
 
     @Override
-    public void renderTileEntityAt(TileEntity te, double x, double y, double z, float t) {
+    public void renderTileEntityAt(TileEntity te, double x, double y, double z, float t, int destroyStage) {
         //System.out.printf("SGBaseTERenderer.renderTileEntityAt (%g,%g,%g)\n", x, y, z);
         SGBaseTE tesg = (SGBaseTE)te;
         if (tesg.isMerged) {
@@ -86,7 +86,8 @@ class SGBaseTERenderer extends BaseTileEntityRenderer {
     }
 
     void renderStargate(SGBaseTE te, float t) {
-        glRotatef(90 * te.getRotation(), 0, 1, 0);
+        //glRotatef(90 * te.turn, 0, 1, 0);
+        BaseGLUtils.glMultMatrix(te.localToGlobalTransformation(Vector3.zero));
         bindTexture(SGCraft.mod.resourceLocation("textures/tileentity/stargate.png"));
         glNormal3f(0, 1, 0);
         renderRing(ringMidRadius - ringOverlap, ringOuterRadius, RingType.Outer, ringZOffset);

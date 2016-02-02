@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------------------------
 //
-//   Greg's Mod Base - Generic Tile Entity
+//   Greg's Mod Base for 1.8 - Generic Tile Entity with Inventory
 //
 //------------------------------------------------------------------------------------------------
 
@@ -11,18 +11,17 @@ import net.minecraft.inventory.*;
 import net.minecraft.item.*;
 import net.minecraft.nbt.*;
 import net.minecraft.tileentity.*;
+import net.minecraft.util.*;
 
 public class BaseTileInventory extends BaseTileEntity implements IInventory, ISidedInventory {
 
-	int[] allSlots;
-
+	protected int[] allSlots;
+	
 	protected IInventory getInventory() {
 		return null;
 	}
 	
-	@Override
-	public void readContentsFromNBT(NBTTagCompound nbt) {
-		super.readContentsFromNBT(nbt);
+	public void readInventoryFromNBT(NBTTagCompound nbt) {
 		IInventory inventory = getInventory();
 		if (inventory != null) {
 			NBTTagList list = nbt.getTagList("inventory", 10);
@@ -35,10 +34,20 @@ public class BaseTileInventory extends BaseTileEntity implements IInventory, ISi
 			}
 		}
 	}
+	
+	@Override
+	public void readFromNBT(NBTTagCompound nbt) {
+		super.readFromNBT(nbt);
+		readInventoryFromNBT(nbt);
+	}
 
 	@Override
-	public void writeContentsToNBT(NBTTagCompound nbt) {
-		super.writeContentsToNBT(nbt);
+	public void writeToNBT(NBTTagCompound nbt) {
+		super.writeToNBT(nbt);
+		writeInventoryToNBT(nbt);
+	}
+
+	public void writeInventoryToNBT(NBTTagCompound nbt) {
 		IInventory inventory = getInventory();
 		if (inventory != null) {
 			NBTTagList list = new NBTTagList();
@@ -55,16 +64,35 @@ public class BaseTileInventory extends BaseTileEntity implements IInventory, ISi
 			nbt.setTag("inventory", list);
 		}
 	}
-
-//------------------------------------- IInventory -----------------------------------------
-
-	void onInventoryChanged(int slot) {
+	
+	protected void onInventoryChanged(int slot) {
 		markDirty();
 	}
 
+//------------------------------------- IInventory -----------------------------------------
+
+	@Override
+	public String getName() {
+	    IInventory inventory = getInventory();
+		return (inventory != null) ? inventory.getName() : "";
+	}
+
+	@Override
+	public boolean hasCustomName() {
+	    IInventory inventory = getInventory();
+		return (inventory != null) && inventory.hasCustomName();
+	}
+
+	@Override
+	public IChatComponent getDisplayName() {
+	    IInventory inventory = getInventory();
+		return (inventory != null) ? inventory.getDisplayName() : null;
+	}
+	
 	/**
 	 * Returns the number of slots in the inventory.
 	 */
+	@Override
 	public int getSizeInventory() {
 		IInventory inventory = getInventory();
 		return (inventory != null) ? inventory.getSizeInventory() : 0;
@@ -73,6 +101,7 @@ public class BaseTileInventory extends BaseTileEntity implements IInventory, ISi
 	/**
 	 * Returns the stack in slot i
 	 */
+	@Override
 	public ItemStack getStackInSlot(int slot) {
 		IInventory inventory = getInventory();
 		return (inventory != null) ? inventory.getStackInSlot(slot) : null;
@@ -82,6 +111,7 @@ public class BaseTileInventory extends BaseTileEntity implements IInventory, ISi
 	 * Removes from an inventory slot (first arg) up to a specified number (second arg) of items and returns them in a
 	 * new stack.
 	 */
+	@Override
 	public ItemStack decrStackSize(int slot, int amount) {
 		IInventory inventory = getInventory();
 		if (inventory != null) {
@@ -93,14 +123,33 @@ public class BaseTileInventory extends BaseTileEntity implements IInventory, ISi
 			return null;
 	}
 
-	/**
-	 * When some containers are closed they call this on each slot, then drop whatever it returns as an EntityItem -
-	 * like when you close a workbench GUI.
-	 */
-	public ItemStack getStackInSlotOnClosing(int slot) {
+//
+//  1.8
+//
+//	/**
+//	 * When some containers are closed they call this on each slot, then drop whatever it returns as an EntityItem -
+//	 * like when you close a workbench GUI.
+//	 */
+//	@Override
+//	public ItemStack getStackInSlotOnClosing(int slot) {
+//		IInventory inventory = getInventory();
+//		if (inventory != null) {
+//			ItemStack result = inventory.getStackInSlotOnClosing(slot);
+//			onInventoryChanged(slot);
+//			return result;
+//		}
+//		else
+//			return null;
+//	}
+
+//
+//  1.8.9
+//
+	@Override
+	public ItemStack removeStackFromSlot(int slot) {
 		IInventory inventory = getInventory();
 		if (inventory != null) {
-			ItemStack result = inventory.getStackInSlotOnClosing(slot);
+			ItemStack result = inventory.removeStackFromSlot(slot);
 			onInventoryChanged(slot);
 			return result;
 		}
@@ -111,6 +160,7 @@ public class BaseTileInventory extends BaseTileEntity implements IInventory, ISi
 	/**
 	 * Sets the given item stack to the specified slot in the inventory (can be crafting or armor sections).
 	 */
+	@Override
 	public void setInventorySlotContents(int slot, ItemStack stack) {
 		IInventory inventory = getInventory();
 		if (inventory != null) {
@@ -119,18 +169,19 @@ public class BaseTileInventory extends BaseTileEntity implements IInventory, ISi
 		}
 	}
 
-	/**
-	 * Returns the name of the inventory.
-	 */
-	public String getInventoryName() {
-		IInventory inventory = getInventory();
-		return (inventory != null) ? inventory.getInventoryName() : "";
-	}
+//	/**
+//	 * Returns the name of the inventory.
+//	 */
+//	public String getInventoryName() {
+//		IInventory inventory = getInventory();
+//		return (inventory != null) ? inventory.getInventoryName() : "";
+//	}
 
 	/**
 	 * Returns the maximum stack size for a inventory slot. Seems to always be 64, possibly will be extended. *Isn't
 	 * this more of a set than a get?*
 	 */
+	@Override
 	public int getInventoryStackLimit() {
 		IInventory inventory = getInventory();
 		return (inventory != null) ? inventory.getInventoryStackLimit() : 0;
@@ -139,23 +190,27 @@ public class BaseTileInventory extends BaseTileEntity implements IInventory, ISi
 	/**
 	 * Do not make give this method the name canInteractWith because it clashes with Container
 	 */
+	@Override
 	public boolean isUseableByPlayer(EntityPlayer player) {
 		IInventory inventory = getInventory();
 		return (inventory != null) ? inventory.isUseableByPlayer(player) : true;
 	}
 
-	public void openInventory() {
+	@Override
+	public void openInventory(EntityPlayer player) {
 		IInventory inventory = getInventory();
 		if (inventory != null)
-			inventory.openInventory();
+			inventory.openInventory(player);
 	}
 
-	public void closeInventory() {
+	@Override
+	public void closeInventory(EntityPlayer player) {
 		IInventory inventory = getInventory();
 		if (inventory != null)
-			inventory.closeInventory();
+			inventory.closeInventory(player);
 	}
 	
+	@Override
 	public boolean isItemValidForSlot(int slot, ItemStack stack) {
 		IInventory inventory = getInventory();
 		if (inventory != null)
@@ -164,12 +219,44 @@ public class BaseTileInventory extends BaseTileEntity implements IInventory, ISi
 			return false;
 	}
 	
-	public boolean hasCustomInventoryName() {
+//	public boolean hasCustomInventoryName() {
+//		IInventory inventory = getInventory();
+//		if (inventory != null)
+//			return inventory.hasCustomInventoryName();
+//		else
+//			return false;
+//	}
+
+	@Override
+	public int getField(int id) {
 		IInventory inventory = getInventory();
 		if (inventory != null)
-			return inventory.hasCustomInventoryName();
+			return inventory.getField(id);
 		else
-			return false;
+			return 0;
+	}
+
+	@Override
+	public void setField(int id, int value) {
+		IInventory inventory = getInventory();
+		if (inventory != null)
+			inventory.setField(id, value);
+	}
+
+	@Override
+	public int getFieldCount() {
+		IInventory inventory = getInventory();
+		if (inventory != null)
+			return inventory.getFieldCount();
+		else
+			return 0;
+	}
+
+	@Override
+	public void clear() {
+		IInventory inventory = getInventory();
+		if (inventory != null)
+			inventory.clear();
 	}
 
 //------------------------------------- ISidedInventory -----------------------------------------
@@ -178,10 +265,11 @@ public class BaseTileInventory extends BaseTileEntity implements IInventory, ISi
 	 * Returns an array containing the indices of the slots that can be accessed by automation on the given side of this
 	 * block.
 	 */
-	public int[] getAccessibleSlotsFromSide(int side) {
+	@Override
+	public int[] getSlotsForFace(EnumFacing side) {
 		IInventory inventory = getInventory();
 		if (inventory instanceof ISidedInventory)
-			return ((ISidedInventory)inventory).getAccessibleSlotsFromSide(side);
+			return ((ISidedInventory)inventory).getSlotsForFace(side);
 		else {
 			if (allSlots == null) {
 				int n = getSizeInventory();
@@ -197,7 +285,8 @@ public class BaseTileInventory extends BaseTileEntity implements IInventory, ISi
 	 * Returns true if automation can insert the given item in the given slot from the given side. Args: Slot, item,
 	 * side
 	 */
-	public boolean canInsertItem(int slot, ItemStack stack, int side) {
+	@Override
+	public boolean canInsertItem(int slot, ItemStack stack, EnumFacing side) {
 		IInventory inventory = getInventory();
 		if (inventory instanceof ISidedInventory)
 			return ((ISidedInventory)inventory).canInsertItem(slot, stack, side);
@@ -209,7 +298,8 @@ public class BaseTileInventory extends BaseTileEntity implements IInventory, ISi
 	 * Returns true if automation can extract the given item in the given slot from the given side. Args: Slot, item,
 	 * side
 	 */
-	public boolean canExtractItem(int slot, ItemStack stack, int side) {
+	@Override
+	public boolean canExtractItem(int slot, ItemStack stack, EnumFacing side) {
 		IInventory inventory = getInventory();
 		if (inventory instanceof ISidedInventory)
 			return ((ISidedInventory)inventory).canExtractItem(slot, stack, side);

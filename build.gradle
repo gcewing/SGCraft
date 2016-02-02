@@ -1,47 +1,43 @@
 buildscript {
     repositories {
-        mavenCentral()
+        jcenter()
         maven {
             name = "forge"
             url = "http://files.minecraftforge.net/maven"
         }
-        maven {
-            name = "sonatype"
-            url = "https://oss.sonatype.org/content/repositories/snapshots/"
-        }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT'
     }
 }
 
-apply plugin: 'forge'
-
-//include "config.gradle"
+apply plugin: 'net.minecraftforge.gradle.forge'
 
 //version = "1.0"
 //group= "com.yourname.modid" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = jarName
 
 minecraft {
-    //version = "1.7.2-10.12.0.1024"
-    //version = "1.7.2-10.12.0.1046"
-    version = "1.7.10-10.13.0.1180"
-    //assetDir = "eclipse/assets"
+    version = "1.8.9-11.15.0.1691"
+    mappings = "stable_20"
 }
 
 sourceSets.main {
-	//compileClasspath += files("lib")
-	compileClasspath += fileTree(dir: "lib").matching{include "*.jar"}
+	compileClasspath += files("lib")
 	java.srcDirs "src/base", "src/mod"
-	resources.srcDirs "src/common/resources", "src/resources"
+	resources.srcDirs "src/resources"
 }
 
-jar {
-	exclude "ic2"
-}
+//jar {
+//	exclude "ic2"
+//}
 
 processResources {
+
+    // this will ensure that this task is redone when the versions change.
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.mcversion
+
     // replace stuff in mcmod.info, nothing else
     from(sourceSets.main.resources.srcDirs) {
         include 'mcmod.info'

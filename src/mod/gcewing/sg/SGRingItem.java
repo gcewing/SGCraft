@@ -18,11 +18,6 @@ public class SGRingItem extends ItemBlock {
     }
     
     @Override
-    public IIcon getIconFromDamage(int i) {
-        return SGCraft.sgRingBlock.getIcon(0, i);
-    }
-    
-    @Override
     public int getMetadata(int i) {
         return i;
     }
@@ -32,8 +27,4 @@ public class SGRingItem extends ItemBlock {
         return String.format("%s.%s", super.getUnlocalizedName(stack), stack.getItemDamage());
     }
     
-//	public static String subItemName(int i) {
-//		return "tile.gcewing.sg.stargateRing." + i;
-//	}
-
 }

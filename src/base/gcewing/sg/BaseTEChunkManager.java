@@ -50,7 +50,7 @@ public class BaseTEChunkManager implements ForgeChunkManager.LoadingCallback {
 					int x = nbt.getInteger("xCoord");
 					int y = nbt.getInteger("yCoord");
 					int z = nbt.getInteger("zCoord");
-					TileEntity te = world.getTileEntity(x, y, z);
+					TileEntity te = world.getTileEntity(new BlockPos(x, y, z));
 					if (debug)
 						System.out.printf("%s: BaseTEChunkManager.ticketsLoaded: Ticket for %s at (%d, %d, %d)\n",
 							base.modPackage, te, x, y, z);
@@ -67,11 +67,12 @@ public class BaseTEChunkManager implements ForgeChunkManager.LoadingCallback {
 		te.releaseChunkTicket();
 		Ticket ticket = getChunkTicket(te);
 		if (ticket != null) {
+		    BlockPos pos = te.getPos();
 			NBTTagCompound nbt = ticket.getModData();
 			nbt.setString("type", "TileEntity");
-			nbt.setInteger("xCoord", te.xCoord);
-			nbt.setInteger("yCoord", te.yCoord);
-			nbt.setInteger("zCoord", te.zCoord);
+			nbt.setInteger("xCoord", pos.getX());
+			nbt.setInteger("yCoord", pos.getY());
+			nbt.setInteger("zCoord", pos.getZ());
 			nbt.setInteger("rangeMinX", minX);
 			nbt.setInteger("rangeMinZ", minZ);
 			nbt.setInteger("rangeMaxX", maxX);
@@ -92,9 +93,10 @@ public class BaseTEChunkManager implements ForgeChunkManager.LoadingCallback {
 		int maxZ = nbt.getInteger("rangeMaxZ");
 		if (debug)
 			System.out.printf("BaseChunkLoadingTE: Forcing range (%s,%s)-(%s,%s) in dimension %s\n",
-				minX, minZ, maxX, maxZ, te.getWorldObj().provider.dimensionId);
-		int chunkX = te.xCoord >> 4;
-		int chunkZ = te.zCoord >> 4;
+				minX, minZ, maxX, maxZ, te.getWorld().provider.getDimensionId());
+		BlockPos pos = te.getPos();
+		int chunkX = pos.getX() >> 4;
+		int chunkZ = pos.getZ() >> 4;
 		for (int i = minX; i <= maxX; i++)
 			for (int j = minZ; j <= maxZ; j++) {
 				int x = chunkX + i, z = chunkZ + j;
@@ -104,7 +106,7 @@ public class BaseTEChunkManager implements ForgeChunkManager.LoadingCallback {
 
 	protected Ticket getChunkTicket(BaseTileEntity te) {
 		if (te.chunkTicket == null)
-			te.chunkTicket = newTicket(te.getWorldObj());
+			te.chunkTicket = newTicket(te.getWorld());
 		return te.chunkTicket;
 	}
 	

@@ -1,6 +1,6 @@
 //------------------------------------------------------
 //
-//   Greg's Mod Base - Configuration
+//   Greg's Mod Base for 1.8 - Configuration
 //
 //------------------------------------------------------
 
@@ -10,7 +10,7 @@ import java.io.*;
 import java.util.*;
 import net.minecraftforge.common.*;
 import net.minecraftforge.common.config.*;
-import cpw.mods.fml.common.registry.*;
+import net.minecraftforge.fml.common.registry.*;
 
 public class BaseConfiguration extends Configuration {
 
@@ -38,9 +38,9 @@ public class BaseConfiguration extends Configuration {
 	}
 	
 	public String[] getStringList(String category, String key, String... defaultValueList) {
-		String defaultValue = BaseUtils.join(",", defaultValueList);
+		String defaultValue = BaseStringUtils.join(",", defaultValueList);
 		String value = getString(category, key, defaultValue);
-		return BaseUtils.split(",", value);
+		return BaseStringUtils.split(",", value);
 	}
 	
 	public int getVillager(String key) {

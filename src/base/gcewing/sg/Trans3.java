@@ -1,35 +1,83 @@
 //------------------------------------------------------------------------------------------------
 //
-//   Greg's Mod Base - 3D Transformation
+//   Greg's Mod Base for 1.8 - 3D Transformation
 //
 //------------------------------------------------------------------------------------------------
 
 package gcewing.sg;
 
+import java.util.*;
 import static java.lang.Math.*;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.util.*;
 import net.minecraftforge.common.util.*;
 
-//import static gcewing.sg.Utils.*;
+import static gcewing.sg.Vector3.getDirectionVec;
 
 public class Trans3 {
 
-	public static Trans3 ident = new Trans3(Vector3.zero, Matrix3.ident, 1.0);
+	public static Trans3 ident = new Trans3(Vector3.zero);
+	public static Trans3 blockCenter = new Trans3(Vector3.blockCenter);
+	
+	public static Trans3 sideTurnRotations[][] = new Trans3[6][4];
+	static {
+		for (int side = 0; side < 6; side++)
+			for (int turn = 0; turn < 4; turn++)
+				sideTurnRotations[side][turn] = new Trans3(Vector3.zero, Matrix3.sideTurnRotations[side][turn]);
+	}
+	
+	public static Trans3 blockCenter(BlockPos pos) {
+	    return new Trans3(Vector3.blockCenter(pos));
+	}
+	
+	public static Trans3 sideTurn(int side, int turn) {
+		return sideTurnRotations[side][turn];
+	}
+	
+	public static Trans3 sideTurn(double x, double y, double z, int side, int turn) {
+		return sideTurn(new Vector3(x, y, z), side, turn);
+	}
+	
+	public static Trans3 blockCenterSideTurn(int side, int turn) {
+	    return sideTurn(Vector3.blockCenter, side, turn);
+	}
 
+	public static Trans3 sideTurn(Vector3 v, int side, int turn) {
+	    return new Trans3(v, Matrix3.sideTurnRotations[side][turn]);
+	}
+	
 	public Vector3 offset;
 	public Matrix3 rotation;
 	public double scaling;
 	
-	Trans3(Vector3 v, Matrix3 m, double s) {
+	public Trans3(Vector3 v) {
+	    this(v, Matrix3.ident);
+	}
+	
+	public Trans3(Vector3 v, Matrix3 m) {
+		this(v, m, 1.0);
+	}
+
+	public Trans3(Vector3 v, Matrix3 m, double s) {
 		offset = v;
 		rotation = m;
 		scaling = s;
 	}
 	
-	Trans3(double dx, double dy, double dz) {
+	public Trans3(double dx, double dy, double dz) {
 		this(new Vector3(dx, dy, dz), Matrix3.ident, 1.0);
+	}
+	
+	public Trans3(BlockPos pos) {
+		this(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
+	}
+	
+	public Trans3 translate(Vector3 v) {
+	    if (v == Vector3.zero)
+	        return this;
+	    else
+	        return translate(v.x, v.y, v.z);
 	}
 	
 	public Trans3 translate(double dx, double dy, double dz) {
@@ -43,8 +91,24 @@ public class Trans3 {
 		return new Trans3(offset, rotation.mul(m), scaling);
 	}
 	
+	public Trans3 rotX(double deg) {
+		return rotate(Matrix3.rotX(deg));
+	}
+	
+	public Trans3 rotY(double deg) {
+		return rotate(Matrix3.rotY(deg));
+	}
+	
+	public Trans3 rotZ(double deg) {
+		return rotate(Matrix3.rotZ(deg));
+	}
+	
 	public Trans3 scale(double s) {
 		return new Trans3(offset, rotation, scaling * s);
+	}
+	
+	public Trans3 side(EnumFacing dir) {
+		return side(dir.ordinal());
 	}
 	
 	public Trans3 side(int i) {
@@ -86,12 +150,32 @@ public class Trans3 {
 		return iv(new Vector3(x, y, z));
 	}
 	
+	public Vector3 v(Vec3i u) {
+		return v(u.getX(), u.getY(), u.getZ());
+	}
+	
+	public Vector3 iv(Vec3i u) {
+		return iv(u.getX(), u.getY(), u.getZ());
+	}
+	
 	public Vector3 v(Vector3 u) {
 		return rotation.mul(u.mul(scaling));
 	}
 	
+	public Vector3 v(EnumFacing f) {
+		return v(getDirectionVec(f));
+	}
+
+	public Vector3 iv(EnumFacing f) {
+		return iv(getDirectionVec(f));
+	}
+
 	public Vector3 iv(Vector3 u) {
 		return rotation.imul(u).mul(1.0/scaling);
+	}
+	
+	public Vector3 iv(Vec3 u) {
+		return iv(u.xCoord, u.yCoord, u.zCoord);
 	}
 	
 	public AxisAlignedBB t(AxisAlignedBB box) {
@@ -113,35 +197,25 @@ public class Trans3 {
 		return rot & 0x3;
 	}
 	
-	static AxisAlignedBB boxEnclosing(Vector3 p, Vector3 q) {
-		return AxisAlignedBB.getBoundingBox(
-			min(p.x, q.x), min(p.y, q.y), min(p.z, q.z),
-			max(p.x, q.x), max(p.y, q.y), max(p.z, q.z));
+	public static AxisAlignedBB boxEnclosing(Vector3 p, Vector3 q) {
+		return AxisAlignedBB.fromBounds(p.x, p.y, p.z, q.x, q.y, q.z);
 	}
 
-	// -------------------------- Forge Directions --------------------------
-	
-	public static ForgeDirection forgeDirection(double dx, double dy, double dz) {
-		if (dy < -0.5) return ForgeDirection.DOWN;
-		if (dy >  0.5) return ForgeDirection.UP;
-		if (dx < -0.5) return ForgeDirection.WEST;
-		if (dx >  0.5) return ForgeDirection.EAST;
-		if (dz < -0.5) return ForgeDirection.NORTH;
-		return ForgeDirection.SOUTH;
+	public EnumFacing t(EnumFacing f) {
+		return v(f).facing();
 	}
 	
-	public static ForgeDirection forgeDirection(Vector3 v) {
-		return forgeDirection(v.x, v.y, v.z);
+	public EnumFacing it(EnumFacing f) {
+		return iv(f).facing();
 	}
 	
-	public ForgeDirection t(ForgeDirection dir) {
-		Vector3 d = v(dir.offsetX, dir.offsetY, dir.offsetZ);
-		ForgeDirection result = forgeDirection(d);
-		return result;
+	public void addBox(Vector3 p0, Vector3 p1, List list) {
+		addBox(p0.x, p0.y, p0.z, p1.x, p1.y, p1.z, list);
 	}
 	
-	public ForgeDirection it(ForgeDirection dir) {
-		return forgeDirection(iv(dir.offsetX, dir.offsetY, dir.offsetZ));
+	public void addBox(double x0, double y0, double z0, double x1, double y1, double z1, List list) {
+		AxisAlignedBB box = boxEnclosing(p(x0, y0, z0), p(x1, y1, z1));
+		list.add(box);
 	}
 
 }

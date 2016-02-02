@@ -11,6 +11,7 @@ import org.lwjgl.opengl.*;
 
 import net.minecraft.client.gui.*;
 import net.minecraft.entity.player.*;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.*;
 
 public class DHDFuelScreen extends SGScreen {
@@ -27,8 +28,8 @@ public class DHDFuelScreen extends SGScreen {
 
     DHDTE te;
     
-    public static DHDFuelScreen create(EntityPlayer player, World world, int x, int y, int z) {
-        DHDTE te = DHDTE.at(world, x, y, z);
+    public static DHDFuelScreen create(EntityPlayer player, World world, BlockPos pos) {
+        DHDTE te = DHDTE.at(world, pos);
         if (te != null)
             return new DHDFuelScreen(player, te);
         else
@@ -46,7 +47,7 @@ public class DHDFuelScreen extends SGScreen {
         drawTexturedRect(0, 0, guiWidth, guiHeight, 0, 0);
         drawFuelGauge();
         int cx = xSize / 2;
-        textColor = 0x004c66;
+        setTextColor(0x004c66);
         drawCenteredString(screenTitle, cx, 8);
         if (this.te.numFuelSlots > 0)
             drawString("Fuel", 150, 96);

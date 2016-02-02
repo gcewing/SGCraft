@@ -23,7 +23,7 @@ public class SGWorldData extends WorldSavedData {
     }
 
     public static SGWorldData forWorld(World world) {
-        MapStorage storage = world.perWorldStorage;
+        MapStorage storage = world.getPerWorldStorage();
         SGWorldData result = (SGWorldData)storage.loadData(SGWorldData.class, key);
         if (result == null) {
             result = new SGWorldData();

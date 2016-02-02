@@ -15,8 +15,8 @@ import net.minecraft.init.*;
 import net.minecraft.item.*;
 import net.minecraft.village.*;
 
-import cpw.mods.fml.common.registry.*;
-import cpw.mods.fml.common.registry.VillagerRegistry.*;
+import net.minecraftforge.fml.common.registry.*;
+import net.minecraftforge.fml.common.registry.VillagerRegistry.*;
 
 public class SGTradeHandler implements IVillageTradeHandler {
 

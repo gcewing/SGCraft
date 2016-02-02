@@ -6,6 +6,7 @@
 
 package gcewing.sg;
 
+import java.io.*;
 import org.lwjgl.input.*;
 import org.lwjgl.opengl.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -29,18 +30,16 @@ public class DHDScreen extends SGScreen {
     final static double dhdRadius3 = dhdWidth * 0.45;
 
     World world;
-    int x, y, z;
+    BlockPos pos;
     int dhdTop, dhdCentreX, dhdCentreY;
     //String enteredAddress = "";
     int closingDelay = 0;
     int addressLength;
     DHDTE cte;
     
-    public DHDScreen(EntityPlayer player, World world, int x, int y, int z) {
+    public DHDScreen(EntityPlayer player, World world, BlockPos pos) {
         this.world = world;
-        this.x = x;
-        this.y = y;
-        this.z = z;
+        this.pos = pos;
         cte = getControllerTE();
         SGBaseTE te = getStargateTE();
         if (te != null)
@@ -55,7 +54,7 @@ public class DHDScreen extends SGScreen {
     }
     
     DHDTE getControllerTE() {
-        TileEntity te = world.getTileEntity(x, y, z);
+        TileEntity te = world.getTileEntity(pos);
         if (te instanceof DHDTE)
             return (DHDTE)te;
         else
@@ -94,7 +93,7 @@ public class DHDScreen extends SGScreen {
     }
     
     @Override
-    protected void mouseClicked(int x, int y, int mouseButton) {
+    protected void mouseClicked(int x, int y, int mouseButton) throws IOException {
         //System.out.printf("DHDScreen.mouseClicked: %d, %d, %d\n", x, y, mouseButton);
         if (mouseButton == 0) {
             int i = findDHDButton(x, y);
@@ -222,7 +221,8 @@ public class DHDScreen extends SGScreen {
     @Override
     protected void drawGuiContainerBackgroundLayer(float var1, int var2, int var3) {
         SGBaseTE te = getStargateTE();
-        GL11.glEnable(GL11.GL_BLEND);
+        glPushAttrib(GL_ENABLE_BIT|GL_COLOR_BUFFER_BIT);
+        glEnable(GL11.GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glDisable(GL_ALPHA_TEST);
         drawBackgroundImage();
@@ -233,6 +233,7 @@ public class DHDScreen extends SGScreen {
                 drawEnteredString();
             }
         }
+        glPopAttrib();
     }
 
     void drawBackgroundImage() {
@@ -254,7 +255,7 @@ public class DHDScreen extends SGScreen {
             setColor(0.5, 0.25, 0.0);
         double rx = dhdWidth * 48 / 512.0;
         double ry = dhdHeight * 48 / 256.0;
-        Tessellator.instance.disableColor();
+//         Tessellator.instance.disableColor();
         drawTexturedRect(dhdCentreX - rx, dhdCentreY - ry - 6, 2 * rx, 1.5 * ry,
             64, 0, 64, 48);
         resetColor();

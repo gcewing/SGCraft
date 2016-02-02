@@ -9,8 +9,10 @@ package gcewing.sg;
 import java.util.*;
 
 import net.minecraft.block.*;
-import net.minecraft.item.*;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.*;
+import net.minecraft.item.*;
+import net.minecraft.util.BlockPos;
 
 import net.minecraftforge.common.*;
 
@@ -28,7 +30,7 @@ public class NaquadahOreBlock extends BlockOre {
     }
     
     @Override
-    public Item getItemDropped(int par1, Random par2Random, int par3) {
+    public Item getItemDropped(IBlockState state, Random rand, int fortune) {
         return SGCraft.naquadah;
     }
     

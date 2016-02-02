@@ -30,7 +30,6 @@ import net.minecraft.tileentity.*;
 import net.minecraft.world.*;
 import net.minecraft.world.chunk.*;
 import net.minecraft.server.*;
-import cpw.mods.fml.server.*;
 
 import net.minecraftforge.common.*;
 
@@ -142,8 +141,8 @@ public class SGAddressing {
             System.out.printf("SGAddressing.addressForLocation: " +
                 "coord range = %d to %d " +
                 "dim range = %d to %d\n", minCoord, maxCoord, minDimension, maxDimension);
-        int chunkx = loc.x >> 4;
-        int chunkz = loc.z >> 4;
+        int chunkx = loc.pos.getX() >> 4;
+        int chunkz = loc.pos.getZ() >> 4;
         if (!inCoordRange(chunkx) || !inCoordRange(chunkz))
             throw coordRangeError;
         if (!inDimensionRange(loc.dimension))
@@ -162,7 +161,7 @@ public class SGAddressing {
             System.out.printf("SGAddressing.findAddressedStargate: %s\n", address);
         validateAddress(address);
         String csyms;
-        int dimension = fromWorld.provider.dimensionId;
+        int dimension = fromWorld.provider.getDimensionId();
         if (address.length() == maxAddressLength) {
             csyms = address.substring(0, numCoordSymbols);
             String dsyms = address.substring(numCoordSymbols);
@@ -184,7 +183,7 @@ public class SGAddressing {
         if (toWorld != null) {
             Chunk chunk = toWorld.getChunkFromChunkCoords(chunkX, chunkZ);
             if (chunk != null)
-                for (Object te : chunk.chunkTileEntityMap.values()) {
+                for (Object te : chunk.getTileEntityMap().values()) {
                     if (te instanceof SGBaseTE)
                         return (SGBaseTE)te;
                 }

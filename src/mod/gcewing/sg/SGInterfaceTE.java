@@ -16,7 +16,7 @@ public class SGInterfaceTE extends BaseTileEntity {
 //	}
 
     public SGBaseTE getBaseTE() {
-        return SGBaseTE.get(getWorldObj(), xCoord, yCoord + 1, zCoord);
+        return SGBaseTE.get(getWorld(), pos.add(0, 1, 0));
     }
     
     // Signature is really prependArgs(Object..., Object[])
@@ -92,7 +92,7 @@ public class SGInterfaceTE extends BaseTileEntity {
         SGBaseTE te = requireBaseTE();
         try {
             address = SGAddressing.normalizeAddress(address);
-            SGBaseTE dte = SGAddressing.findAddressedStargate(address, te.getWorldObj());
+            SGBaseTE dte = SGAddressing.findAddressedStargate(address, te.getWorld());
             if (dte == null)
                 throw new IllegalArgumentException("No stargate at address " + address);
             double distanceFactor = SGBaseTE.distanceFactorForCoordDifference(te, dte);

@@ -1,7 +1,7 @@
 Building with Gradle
 --------------------
 
-1. If you haven't already done so, download forge-1.7.10-10.13.0.1180-src.zip
+1. If you haven't already done so, download forge-1.8.9-11.15.0.1691-mdk.zip
 and unpack it.
 
 2. Unpack the SG Craft source distribution.
@@ -12,14 +12,7 @@ step 1 to the SG Craft source directory:
    gradle
    gradlew (Mac/Unix) or gradlew.bat (Windows)
 
-4. Obtain the following files and put them in the lib directory of the
-SG Craft source:
-
-   CoFHCore-[1.7.10]3.0.0B7-35.jar
-   ComputerCraft1.65.jar
-   OpenComputers-MC1.7.10-1.4.2.16-universal.jar
-   industrialcraft-2-2.2.611-experimental.jar
-   mystcraft-1.7.10-0.11.0.00.jar
+4. Proceed to step 5.
 
 5. In the SG Craft source directory, do:
 
