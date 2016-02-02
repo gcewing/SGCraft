@@ -1,8 +1,0 @@
---
---   Configuration file used by the example programs
---   Computercraft version
---   Change the interface name below to suit
---
-
-interfaceName = "stargate_1"
-sg = peripheral.wrap(interfaceName)
