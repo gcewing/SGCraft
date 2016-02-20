@@ -13,12 +13,14 @@ import net.minecraft.world.gen.structure.*;
 
 import net.minecraftforge.event.terraingen.*;
 
+import static gcewing.sg.BaseUtils.*;
+
 public class FeatureGeneration {
 
     public static boolean augmentStructures = false;
     public static boolean debugStructures = false;
     
-    static Field structureMap = BaseReflectionUtils.getField(MapGenStructure.class,
+    static Field structureMap = getFieldDef(MapGenStructure.class,
         "structureMap", "field_75053_d");
     
     public static void configure(BaseConfiguration config) {
@@ -41,7 +43,7 @@ public class FeatureGeneration {
 
     static MapGenStructure modifyScatteredFeatureGen(MapGenStructure gen) {
         //MapGenStructureAccess.setStructureMap(gen, new SGStructureMap());
-        BaseReflectionUtils.set(gen, structureMap, new SGStructureMap());
+        setField(gen, structureMap, new SGStructureMap());
         return gen;
     }
 

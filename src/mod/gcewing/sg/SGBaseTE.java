@@ -11,6 +11,7 @@ import java.lang.reflect.Method;
 import org.apache.logging.log4j.*;
 import io.netty.channel.*;
 
+import net.minecraft.client.renderer.texture.ITickable;
 import net.minecraft.entity.*;
 import net.minecraft.entity.player.*;
 import net.minecraft.inventory.*;
@@ -29,17 +30,18 @@ import net.minecraft.world.chunk.*;
 import net.minecraftforge.common.*;
 import net.minecraftforge.common.util.*;
 import net.minecraftforge.common.network.*;
-import cpw.mods.fml.common.*;
-import cpw.mods.fml.common.registry.*;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.*;
-import cpw.mods.fml.relauncher.*;
+import cpw.mods.fml.relauncher.Side;
 
 import gcewing.sg.SGAddressing.AddressingError;
-import gcewing.sg.oc.OCWirelessEndpoint;
+import gcewing.sg.oc.OCWirelessEndpoint; //[OC]
+import static gcewing.sg.BaseBlockUtils.*;
 import static gcewing.sg.BaseUtils.*;
+import static gcewing.sg.BaseInventoryUtils.*;
 import static gcewing.sg.Utils.*;
 
-public class SGBaseTE extends BaseTileInventory {
+public class SGBaseTE extends BaseTileInventory implements ITickable {
 
     static boolean debugState = false;
     static boolean debugEnergyUse = false;
@@ -52,12 +54,12 @@ public class SGBaseTE extends BaseTileInventory {
     public final static double ringSymbolAngle = 360.0 / numRingSymbols;
     public final static double irisZPosition = 0.1;
     public final static double irisThickness = 0.2; //0.1;
-    public final static DamageSource irisDamageSource = new IrisDamageSource();
+    public final static DamageSource irisDamageSource = new DamageSource("sgcraft:iris"); //new IrisDamageSource();
     public final static float irisDamageAmount = 1000000;
     
     final static int[] diallingTime = {40, 28}; // ticks
     final static int[] interDiallingTime = {10, 11}; // ticks
-    final static String[] diallingSound = {"gcewing_sg:sg_dial7", "gcewing_sg:sg_dial9"};
+    final static String[] diallingSound = {"sgcraft:sg_dial7", "sgcraft:sg_dial9"};
     final static int transientDuration = 20; // ticks
     final static int disconnectTime = 30; // ticks
     
@@ -93,7 +95,7 @@ public class SGBaseTE extends BaseTileInventory {
     public static boolean transparency = true;
     
     static Random random = new Random();
-    static DamageSource transientDamage = new TransientDamageSource();
+    static DamageSource transientDamage = new DamageSource("sgcraft:transient"); //new TransientDamageSource();
     
     public boolean isMerged;
     public SGState state = SGState.Idle;
@@ -102,13 +104,13 @@ public class SGBaseTE extends BaseTileInventory {
     public int numEngagedChevrons;
     public String dialledAddress = "";
     public boolean isLinkedToController;
-    public int linkedX, linkedY, linkedZ;
+    public BlockPos linkedPos = new BlockPos(0, 0, 0);
     public boolean hasChevronUpgrade;
     public boolean hasIrisUpgrade;
     public IrisState irisState = IrisState.Open;
     public int irisPhase = maxIrisPhase; // 0 = fully closed, maxIrisPhase = fully open
     public int lastIrisPhase = maxIrisPhase;
-    public OCWirelessEndpoint ocWirelessEndpoint;
+    public OCWirelessEndpoint ocWirelessEndpoint; //[OC]
 
     SGLocation connectedLocation;
     boolean isInitiator;
@@ -127,9 +129,6 @@ public class SGBaseTE extends BaseTileInventory {
 
     double ehGrid[][][];
     
-    static Method onEntityRemoved = BaseReflectionUtils.getMethod(World.class, "onEntityRemoved",
-        "func_72847_b", "(Lnet/minecraft/entity/Entity;)V", Entity.class);
-
     public static void configure(BaseConfiguration cfg) {
         energyPerFuelItem = cfg.getDouble("stargate", "energyPerFuelItem", energyPerFuelItem);
         gateOpeningsPerFuelItem = cfg.getInteger("stargate", "gateOpeningsPerFuelItem", gateOpeningsPerFuelItem);
@@ -144,9 +143,11 @@ public class SGBaseTE extends BaseTileInventory {
         energyUsePerTick = energyPerFuelItem / (minutesOpenPerFuelItem * 60 * 20);
         distanceFactorMultiplier = cfg.getDouble("stargate", "distanceFactorMultiplier", distanceFactorMultiplier);
         interDimensionMultiplier = cfg.getDouble("stargate", "interDimensionMultiplier", interDimensionMultiplier);
-        System.out.printf("SGBaseTE: energyPerFuelItem = %s\n", energyPerFuelItem);
-        System.out.printf("SGBaseTE: energyToOpen = %s\n", energyToOpen);
-        System.out.printf("SGBaseTE: energyUsePerTick = %s\n", energyUsePerTick);
+        if (debugEnergyUse) {
+            System.out.printf("SGBaseTE: energyPerFuelItem = %s\n", energyPerFuelItem);
+            System.out.printf("SGBaseTE: energyToOpen = %s\n", energyToOpen);
+            System.out.printf("SGBaseTE: energyUsePerTick = %s\n", energyUsePerTick);
+        }
         ticksToStayOpen = 20 * secondsToStayOpen;
         chunkLoadingRange = cfg.getInteger("options", "chunkLoadingRange", chunkLoadingRange);
         //if (chunkLoadingRange < 0)
@@ -157,8 +158,8 @@ public class SGBaseTE extends BaseTileInventory {
         soundVolume = (float)cfg.getDouble("stargate", "soundVolume", soundVolume);
     }
     
-    public static SGBaseTE get(IBlockAccess world, int x, int y, int z) {
-        TileEntity te = world.getTileEntity(x, y, z);
+    public static SGBaseTE get(IBlockAccess world, BlockPos pos) {
+        TileEntity te = getWorldTileEntity(world, pos);
         if (te instanceof SGBaseTE)
             return (SGBaseTE)te;
         else if (te instanceof SGRingTE)
@@ -169,20 +170,15 @@ public class SGBaseTE extends BaseTileInventory {
     
     @Override
     public String toString() {
-        return String.format("SGBaseTE(%s,%s,%s;%s)", xCoord, yCoord, zCoord,worldObj.provider.dimensionId);
+        return String.format("SGBaseTE(pos=%s,dim=%s)", getPos(), getWorldDimensionId(worldObj));
     }
 
     @Override
     public AxisAlignedBB getRenderBoundingBox() {
-        return AxisAlignedBB.getBoundingBox(
-            xCoord - 2, yCoord, zCoord - 2, xCoord + 3, yCoord + 5, zCoord + 3);
+        int x = getX(), y = getY(), z = getZ();
+        return newAxisAlignedBB(x - 2, y, z - 2, x + 3, y + 5, z + 3);
     }
 
-    @Override
-    public boolean hasCustomInventoryName() {
-        return false;
-    }
-    
     @Override
     public double getMaxRenderDistanceSquared() {
         return 32768.0;
@@ -205,8 +201,8 @@ public class SGBaseTE extends BaseTileInventory {
             SGCraft.chunkManager.clearForcedChunkRange(this);
     }
 
-    public static SGBaseTE at(IBlockAccess world, int x, int y, int z) {
-        TileEntity te = world.getTileEntity(x, y, z);
+    public static SGBaseTE at(IBlockAccess world, BlockPos pos) {
+        TileEntity te = getWorldTileEntity(world, pos);
         if (te instanceof SGBaseTE)
             return (SGBaseTE)te;
         else
@@ -217,13 +213,14 @@ public class SGBaseTE extends BaseTileInventory {
         if (loc != null) {
             World world = SGAddressing.getWorld(loc.dimension);
             if (world != null)
-                return SGBaseTE.at(world, loc.x, loc.y, loc.z);
+                return SGBaseTE.at(world, loc.pos);
         }
         return null;
     }
     
     public static SGBaseTE at(IBlockAccess world, NBTTagCompound nbt) {
-        return SGBaseTE.at(world, nbt.getInteger("x"), nbt.getInteger("y"), nbt.getInteger("z"));
+        BlockPos pos = new BlockPos(nbt.getInteger("x"), nbt.getInteger("y"), nbt.getInteger("z"));
+        return SGBaseTE.at(world, pos);
     }
     
     void setMerged(boolean state) {
@@ -236,9 +233,9 @@ public class SGBaseTE extends BaseTileInventory {
                 if (address != null) {
                     Logger log = LogManager.getLogger();
                     String action = isMerged ? "ADDED" : "REMOVED";
-                    String name = getWorldObj().getWorldInfo().getWorldName();
-                    log.info(String.format("STARGATE %s %s (%s,%s,%s) %s",
-                        action, name, xCoord, yCoord, zCoord, address));
+                    String name = worldObj.getWorldInfo().getWorldName();
+                    log.info(String.format("STARGATE %s %s %s %s",
+                        action, name, getPos(), address));
                 }
             }
             updateIrisEntity();
@@ -256,7 +253,7 @@ public class SGBaseTE extends BaseTileInventory {
 
     public int dimension() {
         if (worldObj != null)
-            return worldObj.provider.dimensionId;
+            return getWorldDimensionId(worldObj);
         else
             return -999;
     }
@@ -271,9 +268,10 @@ public class SGBaseTE extends BaseTileInventory {
         numEngagedChevrons = nbt.getInteger("numEngagedChevrons");
         dialledAddress = nbt.getString("dialledAddress");
         isLinkedToController = nbt.getBoolean("isLinkedToController");
-        linkedX = nbt.getInteger("linkedX");
-        linkedY = nbt.getInteger("linkedY");
-        linkedZ = nbt.getInteger("linkedZ");
+        int x = nbt.getInteger("linkedX");
+        int y = nbt.getInteger("linkedY");
+        int z = nbt.getInteger("linkedZ");
+        linkedPos = new BlockPos(x, y, z);
         hasChevronUpgrade = nbt.getBoolean("hasChevronUpgrade");
         if (nbt.hasKey("connectedLocation"))
             connectedLocation = new SGLocation(nbt.getCompoundTag("connectedLocation"));
@@ -301,9 +299,9 @@ public class SGBaseTE extends BaseTileInventory {
         //nbt.setString("homeAddress", homeAddress);
         nbt.setString("dialledAddress", dialledAddress);
         nbt.setBoolean("isLinkedToController", isLinkedToController);
-        nbt.setInteger("linkedX", linkedX);
-        nbt.setInteger("linkedY", linkedY);
-        nbt.setInteger("linkedZ", linkedZ);
+        nbt.setInteger("linkedX", linkedPos.getX());
+        nbt.setInteger("linkedY", linkedPos.getY());
+        nbt.setInteger("linkedZ", linkedPos.getZ());
         nbt.setBoolean("hasChevronUpgrade", hasChevronUpgrade);
         if (connectedLocation != null)
             nbt.setTag("connectedLocation", connectedLocation.toNBT());
@@ -338,8 +336,8 @@ public class SGBaseTE extends BaseTileInventory {
     }
     
     public boolean applyChevronUpgrade(ItemStack stack, EntityPlayer player) {
-        if (!getWorldObj().isRemote && !hasChevronUpgrade && stack.stackSize > 0) {
-            System.out.printf("SGBaseTE.applyChevronUpgrade: Installing chevron upgrade\n");
+        if (!worldObj.isRemote && !hasChevronUpgrade && stack.stackSize > 0) {
+            //System.out.printf("SGBaseTE.applyChevronUpgrade: Installing chevron upgrade\n");
             hasChevronUpgrade = true;
             stack.stackSize -= 1;
             markDirty();
@@ -349,8 +347,8 @@ public class SGBaseTE extends BaseTileInventory {
     }
     
     public boolean applyIrisUpgrade(ItemStack stack, EntityPlayer player) {
-        if (!getWorldObj().isRemote && !hasIrisUpgrade && stack.stackSize > 0) {
-            System.out.printf("SGBaseTE.applyIrisUpgrade: Installing iris upgrade\n");
+        if (!worldObj.isRemote && !hasIrisUpgrade && stack.stackSize > 0) {
+            //System.out.printf("SGBaseTE.applyIrisUpgrade: Installing iris upgrade\n");
             hasIrisUpgrade = true;
             stack.stackSize -= 1;
             markDirty();
@@ -388,11 +386,6 @@ public class SGBaseTE extends BaseTileInventory {
         return (SGBaseBlock)getBlockType();
     }
     
-    public int getRotation() {
-        //return getBlockMetadata() & SGBaseBlock.rotationMask;
-        return getBlock().rotationInWorld(getBlockMetadata(), this);
-    }
-    
     public double interpolatedRingAngle(double t) {
         return Utils.interpolateAngle(lastRingAngle, ringAngle, t);
     }
@@ -404,6 +397,11 @@ public class SGBaseTE extends BaseTileInventory {
     
     @Override
     public void updateEntity() {
+        tick();
+    }
+
+    @Override
+    public void tick() {
         if (worldObj.isRemote)
             clientUpdate();
         else {
@@ -416,7 +414,7 @@ public class SGBaseTE extends BaseTileInventory {
     @Override
     public void invalidate() {
         super.invalidate();
-        if (!worldObj.isRemote && ocWirelessEndpoint != null)
+        if (!worldObj.isRemote && ocWirelessEndpoint != null)  //[OC]
             ocWirelessEndpoint.remove();
     }
     
@@ -426,8 +424,8 @@ public class SGBaseTE extends BaseTileInventory {
     
     void enterState(SGState newState, int newTimeout) {
         if (debugState)
-            System.out.printf("SGBaseTE: at (%s, %s, %s) in dimension %s entering state %s with timeout %s\n", 
-                xCoord, yCoord, zCoord, worldObj.provider.dimensionId, newState, newTimeout);
+            System.out.printf("SGBaseTE: at %s in dimension %s entering state %s with timeout %s\n", 
+                getPos(), getWorldDimensionId(worldObj), newState, newTimeout);
         SGState oldState = state;
         state = newState;
         timeout = newTimeout;
@@ -435,7 +433,7 @@ public class SGBaseTE extends BaseTileInventory {
         markBlockForUpdate();
         if ((oldState == SGState.Idle) != (newState == SGState.Idle)) {
             updateChunkLoadingStatus();
-            worldObj.notifyBlocksOfNeighborChange(xCoord, yCoord, zCoord, getBlockType());
+            notifyWorldNeighborsOfStateChange(worldObj, getPos(), getBlockType());
         }
         String oldDesc = sgStateDescription(oldState);
         String newDesc = sgStateDescription(newState);
@@ -449,8 +447,10 @@ public class SGBaseTE extends BaseTileInventory {
     }
     
     DHDTE getLinkedControllerTE() {
+        //System.out.printf("SGBaseTE.getLinkedControllerTE: isLinkedToController = %s, linkedPos = %s\n",
+        //    isLinkedToController, linkedPos);
         if (isLinkedToController) {
-            TileEntity cte = worldObj.getTileEntity(linkedX, linkedY, linkedZ);
+            TileEntity cte = getWorldTileEntity(worldObj, linkedPos);
             if (cte instanceof DHDTE)
                 return (DHDTE)cte;
         }
@@ -461,12 +461,12 @@ public class SGBaseTE extends BaseTileInventory {
         int rangeXY = max(DHDTE.linkRangeX, DHDTE.linkRangeY);
         int rangeZ = DHDTE.linkRangeZ;
         if (SGBaseBlock.debugMerge)
-            System.out.printf("SGBaseTE.checkForLink: in range +/-(%d,%d,%d) of (%d,%d,%d)\n",
-                rangeXY, rangeZ, rangeXY, xCoord, yCoord, zCoord);
+            System.out.printf("SGBaseTE.checkForLink: in range +/-(%d,%d,%d) of %s\n",
+                rangeXY, rangeZ, rangeXY, getPos());
         for (int i = -rangeXY; i <= rangeXY; i++)
             for (int j = -rangeZ; j <= rangeZ; j++)
                 for (int k = -rangeXY; k <= rangeXY; k++) {
-                    TileEntity te = worldObj.getTileEntity(xCoord + i, yCoord + j, zCoord + k);
+                    TileEntity te = getWorldTileEntity(worldObj, getPos().add(i, j, k));
                     if (te instanceof DHDTE)
                         ((DHDTE)te).checkForLink();
                 }
@@ -482,8 +482,8 @@ public class SGBaseTE extends BaseTileInventory {
     }
     
     public void clearLinkToController() {
-        System.out.printf("SGBaseTE: Unlinking stargate at (%d, %d, %d) from controller\n",
-            xCoord, yCoord, zCoord);
+        if (SGBaseBlock.debugMerge)
+            System.out.printf("SGBaseTE: Unlinking stargate at %d from controller\n", getPos());
         isLinkedToController = false;
         markDirty();
     }
@@ -496,20 +496,8 @@ public class SGBaseTE extends BaseTileInventory {
                 side(), address, state, player);
         if (address.length() > 0)
             connect(address, player);
-        else {
-//			boolean canDisconnect = disconnectionAllowed();
-//			SGBaseTE dte = getConnectedStargateTE();
-//			boolean validConnection =
-//				(dte != null) && !dte.isInvalid() && (dte.getConnectedStargateTE() == this);
-//			if (canDisconnect || !validConnection) {
-//				if (state != SGState.Disconnecting)
-//					disconnect();
-//			}
-//			else
-//				if (!canDisconnect)
-//					System.out.printf("SGBaseTE.connectOrDisconnect: Not initiator\n");
+        else
             attemptToDisconnect(player);
-        }
     }
     
     public String attemptToDisconnect(EntityPlayer player) {		
@@ -550,10 +538,10 @@ public class SGBaseTE extends BaseTileInventory {
         if (dte == this)
             return diallingFailure(player, "Stargate cannot connect to itself");
         if (debugConnect)
-            System.out.printf("SGBaseTE.connect: to (%s,%s,%s) in dimension %d with state %s\n",
-                dte.xCoord, dte.yCoord, dte.zCoord, dte.getWorldObj().provider.dimensionId,
+            System.out.printf("SGBaseTE.connect: to %s in dimension %d with state %s\n",
+                dte.getPos(), getWorldDimensionId(getTileEntityWorld(dte)),
                 dte.state);
-        if (getWorldObj() == dte.getWorldObj()) {
+        if (worldObj == getTileEntityWorld(dte)) {
             address = SGAddressing.localAddress(address);
             homeAddress = SGAddressing.localAddress(homeAddress);
         }
@@ -573,8 +561,10 @@ public class SGBaseTE extends BaseTileInventory {
     }
     
     public static double distanceFactorForCoordDifference(TileEntity te1, TileEntity te2) {
-        double dx = te1.xCoord - te2.xCoord;
-        double dz = te1.zCoord - te2.zCoord;
+        BlockPos pos1 = getTileEntityPos(te1);
+        BlockPos pos2 = getTileEntityPos(te2);
+        double dx = pos1.getX() - pos2.getX();
+        double dz = pos1.getZ() - pos2.getZ();
         double d = Math.sqrt(dx * dx + dz * dz);
         if (debugEnergyUse)
             System.out.printf("SGBaseTE: Connection distance = %s\n", d);
@@ -582,7 +572,7 @@ public class SGBaseTE extends BaseTileInventory {
         double lm = Math.log(0.05 * 16 * SGAddressing.coordRange);
         double lr = ld / lm;
         double f = 1 + 14 * distanceFactorMultiplier * lr * lr;
-        if (te1.getWorldObj() != te2.getWorldObj())
+        if (getTileEntityWorld(te1) != getTileEntityWorld(te2))
             f *= interDimensionMultiplier;
         return f;
     }
@@ -594,7 +584,7 @@ public class SGBaseTE extends BaseTileInventory {
     String diallingFailure(EntityPlayer player, String mess) {
         if (player != null) {
             if (state == SGState.Idle)
-                playSGSoundEffect("gcewing_sg:sg_abort", 1.0F, 1.0F);
+                playSGSoundEffect("sgcraft:sg_abort", 1.0F, 1.0F);
         }
         return operationFailure(player, mess);
     }
@@ -641,11 +631,11 @@ public class SGBaseTE extends BaseTileInventory {
             if (state == SGState.Connected) {
                 enterState(SGState.Disconnecting, disconnectTime);
                 //sendClientEvent(SGEvent.StartDisconnecting, 0);
-                playSGSoundEffect("gcewing_sg:sg_close", 1.0F, 1.0F);
+                playSGSoundEffect("sgcraft:sg_close", 1.0F, 1.0F);
             }
             else {
                 if (state != SGState.Idle && state != SGState.Disconnecting)
-                    playSGSoundEffect("gcewing_sg:sg_abort", 1.0F, 1.0F);
+                    playSGSoundEffect("sgcraft:sg_abort", 1.0F, 1.0F);
                 enterState(SGState.Idle, 0);
                 //sendClientEvent(SGEvent.FinishDisconnecting, 0);
             }
@@ -668,15 +658,15 @@ public class SGBaseTE extends BaseTileInventory {
     void serverUpdate() {
         if (!loaded) {
             loaded = true;
-            if (SGCraft.ocIntegration != null)
+            if (SGCraft.ocIntegration != null) //[OC]
                 SGCraft.ocIntegration.onSGBaseTEAdded(this);
         }
         if (isMerged) {
             if (debugState && state != SGState.Connected && timeout > 0) {
-                int dimension = worldObj.provider.dimensionId;
+                int dimension = getWorldDimensionId(worldObj);
                 System.out.printf(
-                    "SGBaseTE.serverUpdate at (%d, %d, %d) in dimension %d: state %s, timeout %s\n",
-                    xCoord, yCoord, zCoord, dimension, state, timeout);
+                    "SGBaseTE.serverUpdate at %s in dimension %d: state %s, timeout %s\n",
+                    getPos(), dimension, state, timeout);
             }
             tickEnergyUsage();
             if (timeout > 0) {
@@ -761,35 +751,22 @@ public class SGBaseTE extends BaseTileInventory {
         return true;
     }
     
-//	List<ISGEnergySource> findEnergySources() {
-//		List<ISGEnergySource> result = new ArrayList<ISGEnergySource>();
-//		DHDTE te = getLinkedControllerTE();
-//		if (te != null)
-//			result.add(te);
-//		for (ForgeDirection d : ForgeDirection.VALID_DIRECTIONS) {
-//			TileEntity nte = worldObj.getTileEntity(xCoord + d.offsetX, yCoord + d.offsetY, zCoord + d.offsetZ);
-//			if (nte instanceof ISGEnergySource)
-//				result.add((ISGEnergySource)nte);
-//		}
-//		return result;
-//	}
-    
     List<ISGEnergySource> findEnergySources() {
-        //System.out.printf("SGBaseTe.findEnergySources: for (%d,%d,%d)\n",
-        //	xCoord, yCoord, zCoord);
+        if (debugEnergyUse)
+            System.out.printf("SGBaseTe.findEnergySources: for %s\n", getPos());
         List<ISGEnergySource> result = new ArrayList<ISGEnergySource>();
-        DHDTE te = getLinkedControllerTE();
-        if (te != null)
-            result.add(te);
-        int dz = getBlockMetadata() & 1;
-        int dx = 1 - dz;
+        Trans3 t = localToGlobalTransformation();
         for (int i = -2; i <= 2; i++) {
-            //System.out.printf("SGBaseTE.findEnergySources: Checking (%d,%d,%d)\n",
-            //	xCoord + i * dx, yCoord - 1, zCoord + i * dz);
-            TileEntity nte = worldObj.getTileEntity(xCoord + i * dx, yCoord - 1, zCoord + i * dz);
+            BlockPos bp = t.p(i, -1, 0).blockPos();
+            if (debugEnergyUse)
+                System.out.printf("SGBaseTE.findEnergySources: Checking %s\n", bp);
+            TileEntity nte = getWorldTileEntity(worldObj, bp);
             if (nte instanceof ISGEnergySource)
                 result.add((ISGEnergySource)nte);
         }
+        DHDTE te = getLinkedControllerTE();
+        if (te != null)
+            result.add(te);
         return result;
     }
     
@@ -827,17 +804,13 @@ public class SGBaseTE extends BaseTileInventory {
         }
     }
     
-    public Trans3 localToGlobalTransformation() {
-        return getBlock().localToGlobalTransformation(xCoord, yCoord, zCoord, getBlockMetadata(), this);
-    }
-    
     void performTransientDamage() {
         Trans3 t = localToGlobalTransformation();
         Vector3 p0 = t.p(-1.5, 0.5, 0.5);
         Vector3 p1 = t.p(1.5, 3.5, 5.5);
         Vector3 q0 = p0.min(p1);
         Vector3 q1 = p0.max(p1);
-        AxisAlignedBB box = AxisAlignedBB.getBoundingBox(q0.x, q0.y, q0.z, q1.x, q1.y, q1.z);
+        AxisAlignedBB box = newAxisAlignedBB(q0.x, q0.y, q0.z, q1.x, q1.y, q1.z);
         if (debugTransientDamage) {
             System.out.printf("SGBaseTE.performTransientDamage: players in world:\n");
             for (Entity ent : (List<Entity>)worldObj.loadedEntityList)
@@ -919,7 +892,7 @@ public class SGBaseTE extends BaseTileInventory {
         //System.out.printf("SGBaseTE: Connecting to '%s'\n", dialledAddress);
         if (!isInitiator || useEnergy(energyToOpen * distanceFactor)) {
             enterState(SGState.Transient, transientDuration);
-            playSGSoundEffect("gcewing_sg:sg_open", 1.0F, 1.0F);
+            playSGSoundEffect("sgcraft:sg_open", 1.0F, 1.0F);
         }
         else
             disconnect();
@@ -1077,8 +1050,8 @@ public class SGBaseTE extends BaseTileInventory {
         if (player.capabilities.isCreativeMode)
             sendChatMessage(player, "Destination blocked by iris");
         else {
-            if (!(preserveInventory || player.worldObj.getGameRules().getGameRuleBooleanValue("keepInventory")))
-                player.inventory.clearInventory(null, -1);
+            if (!(preserveInventory || getGameRuleBoolean(player.worldObj.getGameRules(), "keepInventory")))
+                BaseInventoryUtils.clearInventory(player.inventory);
             player.attackEntityFrom(irisDamageSource, irisDamageAmount);
         }
     }
@@ -1094,7 +1067,7 @@ public class SGBaseTE extends BaseTileInventory {
         if (debugTeleport)
             System.out.printf("SGBaseTE.playIrisHitSound: at (%.3f,%.3f,%.3f) volume %.3f pitch %.3f\n",
                 pos.x, pos.y, pos.z, volume, pitch);
-        world.playSoundEffect(pos.x, pos.y, pos.z, "gcewing_sg:iris_hit",
+        world.playSoundEffect(pos.x, pos.y, pos.z, "sgcraft:iris_hit",
             (float)volume, (float)pitch);
     }
     
@@ -1148,18 +1121,16 @@ public class SGBaseTE extends BaseTileInventory {
         // >>>
         player.closeScreen();
         player.playerNetServerHandler.sendPacket(new S07PacketRespawn(player.dimension,
-            player.worldObj.difficultySetting, newWorld.getWorldInfo().getTerrainType(),
+            getWorldDifficulty(player.worldObj), newWorld.getWorldInfo().getTerrainType(),
             player.theItemInWorldManager.getGameType()));
-        if (SGCraft.mystcraftIntegration != null)
+        if (SGCraft.mystcraftIntegration != null) //[MYST]
             SGCraft.mystcraftIntegration.sendAgeData(newWorld, player);
-        // if ((newworld.provider instanceof WorldProviderMyst))
-    //   NetworkUtils.sendAgeData(newworld, player, newworld.provider.dimensionId);
         oldWorld.removePlayerEntityDangerously(player); // Removes player right now instead of waiting for next tick
         player.isDead = false;
         player.setLocationAndAngles(p.x, p.y, p.z, (float)a, player.rotationPitch);
         newWorld.spawnEntityInWorld(player);
         player.setWorld(newWorld);
-        scm.func_72375_a(player, oldWorld);
+        scmPreparePlayer(scm, player, oldWorld);
         player.playerNetServerHandler.setPlayerLocation(p.x, p.y, p.z, (float)a, player.rotationPitch);
         player.theItemInWorldManager.setWorld(newWorld);
         scm.updateTimeAndWeatherForPlayer(player, newWorld);
@@ -1256,8 +1227,8 @@ public class SGBaseTE extends BaseTileInventory {
         if (entity.addedToChunk && world.getChunkProvider().chunkExists(i, j))
             world.getChunkFromChunkCoords(i, j).removeEntity(entity);
         world.loadedEntityList.remove(entity);
-        //SGWorldAccess.onEntityRemoved(world, entity);
-        BaseReflectionUtils.call(world, onEntityRemoved, entity);
+        //BaseReflectionUtils.call(world, onEntityRemoved, entity);
+        world.onEntityRemoved(entity);
     }
     
     static void checkChunk(World world, Entity entity) {
@@ -1477,10 +1448,10 @@ public class SGBaseTE extends BaseTileInventory {
             if (!worldObj.isRemote) {
                 switch (newState) {
                     case Opening:
-                        playSGSoundEffect("gcewing_sg:iris_open", 1.0F, 1.0F);
+                        playSGSoundEffect("sgcraft:iris_open", 1.0F, 1.0F);
                         break;
                     case Closing:
-                        playSGSoundEffect("gcewing_sg:iris_close", 1.0F, 1.0F);
+                        playSGSoundEffect("sgcraft:iris_close", 1.0F, 1.0F);
                         break;
                 }
             }
@@ -1502,7 +1473,7 @@ public class SGBaseTE extends BaseTileInventory {
     
     public void onNeighborBlockChange() {
         if (!worldObj.isRemote) {
-            boolean newInput = BaseBlock.isGettingExternallyPowered(worldObj, xCoord, yCoord, zCoord);
+            boolean newInput = BaseBlockUtils.blockIsGettingExternallyPowered(worldObj, getPos());
             if (redstoneInput != newInput) {
                 redstoneInput = newInput;
                 markDirty();
@@ -1518,18 +1489,16 @@ public class SGBaseTE extends BaseTileInventory {
         if (!worldObj.isRemote) {
             if (isMerged && hasIrisUpgrade) {
                 if (!hasIrisEntity()) {
-                    SGBaseBlock block = (SGBaseBlock)getBlock();
-                    int data = worldObj.getBlockMetadata(xCoord, yCoord, zCoord);
-                    IrisEntity ent = new IrisEntity(this, block.rotationInWorld(data, this));
+                    IrisEntity ent = new IrisEntity(this);
                     worldObj.spawnEntityInWorld(ent);
-                    System.out.printf("SGBaseTE.updateIrisEntity: Spawned %s with bounds %s\n", ent,
-                        ent.boundingBox);
+                    //System.out.printf("SGBaseTE.updateIrisEntity: Spawned %s with bounds %s\n", ent,
+                    //    ent.getEntityBoundingBox());
                 }
             }
             else {
-                System.out.printf("SGBaseTE.updateIrisEntity: Removing iris entities\n");
+                //System.out.printf("SGBaseTE.updateIrisEntity: Removing iris entities\n");
                 for (IrisEntity ent : findIrisEntities()) {
-                    System.out.printf("SGBaseTE.updateIrisEntity: Removing %s\n", ent);
+                    //System.out.printf("SGBaseTE.updateIrisEntity: Removing %s\n", ent);
                     worldObj.removeEntity(ent);
                 }
             }
@@ -1541,23 +1510,19 @@ public class SGBaseTE extends BaseTileInventory {
     }
     
     List<IrisEntity> findIrisEntities() {
-        AxisAlignedBB box = AxisAlignedBB.getBoundingBox(
-            xCoord, yCoord, zCoord, xCoord + 1, yCoord + 2, zCoord + 1);
-        System.out.printf("SGBaseTE.findIrisEntities: in %s\n", box);
+        int x = getX(), y = getY(), z = getZ();
+        AxisAlignedBB box = newAxisAlignedBB(x, y, z, x + 1, y + 2, z + 1);
+        //System.out.printf("SGBaseTE.findIrisEntities: in %s\n", box);
         return (List<IrisEntity>)worldObj.getEntitiesWithinAABB(IrisEntity.class, box);
     }
     
-    ItemStack getCamouflageStack(int x, int y, int z) {
-        //System.out.printf("SGBaseTE.getCamouflageStack: for (%s, %s, %s) base at (%s, %s, %s)\n",
-        //	x, y, z, xCoord, yCoord, zCoord);
-        if (y == yCoord) {
-            int i = -1;
-            switch (getRotation()) {
-                case 0: i = x - xCoord + 2; break;
-                case 1: i = zCoord - z + 2; break;
-                case 2: i = xCoord - x + 2; break;
-                case 3: i = z - zCoord + 2; break;
-            }
+    ItemStack getCamouflageStack(BlockPos cpos) {
+        //System.out.printf("SGBaseTE.getCamouflageStack: for %s from base at %s\n", cpos, pos);
+        Trans3 t = localToGlobalTransformation();
+        Vector3 p = t.ip(Vector3.blockCenter(cpos));
+        //System.out.printf("SGBaseTE.getCamouflageStack: p = %s\n", p);
+        if (p.y == 0) {
+            int i = 2 + p.roundX();
             //System.out.printf("SGBaseTE.getCamouflageStack: i = %s\n", i);
             if (i >= 0 && i < 5)
                 return getStackInSlot(firstCamouflageSlot + i);
@@ -1570,12 +1535,14 @@ public class SGBaseTE extends BaseTileInventory {
     }
     
     @Override
-    void onInventoryChanged(int slot) {
+    protected void onInventoryChanged(int slot) {
+        //System.out.printf("SGBaseTE.onInventoryChanged: %s\n", slot);
         super.onInventoryChanged(slot);
         if (isCamouflageSlot(slot)) {
+            //System.out.printf("SGBaseTE.onInventoryChanged: Camouflage slot changed\n");
             for (int dx = -2; dx <= 2; dx++)
                 for (int dz = -2; dz <= 2; dz++)
-                    worldObj.markBlockForUpdate(xCoord + dx, yCoord, zCoord + dz);
+                    markWorldBlockForUpdate(worldObj, getPos().add(dx, 0, dz));
         }
     }
     
@@ -1609,11 +1576,11 @@ public class SGBaseTE extends BaseTileInventory {
     // TODO: Cache this
     public Collection<BlockRef> adjacentTiles() {
         Collection<BlockRef> result = new ArrayList<BlockRef>();
-        int r = getRotation();
+        int r = turn;
         for (int i = -2; i <= 2; i++) {
             //System.out.printf("SGBaseTE.adjacentTiles: Looking at (%s,%s,%s)\n",
             //	xCoord + rdx[r], yCoord - 1, zCoord + rdz[r]);
-            TileEntity te = worldObj.getTileEntity(xCoord + i * rdx[r], yCoord - 1, zCoord + i * rdz[r]);
+            TileEntity te = getWorldTileEntity(worldObj, getPos().add(i * rdx[r], -1, i * rdz[r]));
             if (te != null) {
                 //System.out.printf("SGBaseTE.adjacentTiles: Found %s\n", te);
                 result.add(new BlockRef(te));
@@ -1682,22 +1649,8 @@ public class SGBaseTE extends BaseTileInventory {
     }
     
     public static SGBaseTE getBaseTE(SGInterfaceTE ite) {
-        return SGBaseTE.get(ite.getWorldObj(), ite.xCoord, ite.yCoord + 1, ite.zCoord);
+        return SGBaseTE.get(getTileEntityWorld(ite), getTileEntityPos(ite).add(0, 1, 0));
     }
-    
-}
-
-//------------------------------------------------------------------------------------------------
-
-class TransientDamageSource extends DamageSource {
-
-    public TransientDamageSource() {
-        super("gcewing_sg:transient");
-    }
-    
-	public String func_151519_b(EntityPlayer player) {
-		return player.getCommandSenderName() + " was torn apart by an event horizon";
-	}
     
 }
 
@@ -1706,36 +1659,19 @@ class TransientDamageSource extends DamageSource {
 class BlockRef {
 
     public IBlockAccess worldObj;
-    int xCoord, yCoord, zCoord;
+    BlockPos pos;
     
     public BlockRef(TileEntity te) {
-        this(te.getWorldObj(), te.xCoord, te.yCoord, te.zCoord);
+        this(getTileEntityWorld(te), getTileEntityPos(te));
     }
     
-    public BlockRef(IBlockAccess world, int x, int y, int z) {
+    public BlockRef(IBlockAccess world, BlockPos pos) {
         worldObj = world;
-        xCoord = x;
-        yCoord = y;
-        zCoord = z;
+        this.pos = pos;
     }
     
     public TileEntity getTileEntity() {
-        return worldObj.getTileEntity(xCoord, yCoord, zCoord);
+        return getWorldTileEntity(worldObj, pos);
     }
-    
-}
-
-//------------------------------------------------------------------------------------------------
-
-
-class IrisDamageSource extends DamageSource {
-
-    public IrisDamageSource() {
-        super("gcewing_sg:iris");
-    }
-    
-	public String func_151519_b(EntityPlayer player) {
-		return player.getCommandSenderName() + " splattered against a stargate iris";
-	}
     
 }

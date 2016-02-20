@@ -1,29 +1,39 @@
 //------------------------------------------------------------------------------------------------
 //
-//   Greg's Mod Base - 3D Vector
+//   Greg's Mod Base for 1.7 Version B - 3D Vector
 //
 //------------------------------------------------------------------------------------------------
 
 package gcewing.sg;
 
+import static java.lang.Math.*;
 import net.minecraft.util.*;
 
 public class Vector3 {
 
-	static Vector3 zero = new Vector3(0, 0, 0);
+	public static Vector3 zero = new Vector3(0, 0, 0);
+	public static Vector3 blockCenter = new Vector3(0.5, 0.5, 0.5);
 
-	static Vector3 unitX = new Vector3(1, 0, 0);
-	static Vector3 unitY = new Vector3(0, 1, 0);
-	static Vector3 unitZ = new Vector3(0, 0, 1);
+	public static Vector3 unitX = new Vector3(1, 0, 0);
+	public static Vector3 unitY = new Vector3(0, 1, 0);
+	public static Vector3 unitZ = new Vector3(0, 0, 1);
 	
-	static Vector3 unitNX = new Vector3(-1, 0, 0);
-	static Vector3 unitNY = new Vector3(0, -1, 0);
-	static Vector3 unitNZ = new Vector3(0, 0, -1);
+	public static Vector3 unitNX = new Vector3(-1, 0, 0);
+	public static Vector3 unitNY = new Vector3(0, -1, 0);
+	public static Vector3 unitNZ = new Vector3(0, 0, -1);
 	
-	static Vector3 unitPYNZ = new Vector3(0, 0.707, -0.707);
-	static Vector3 unitPXPY = new Vector3(0.707, 0.707, 0);
-	static Vector3 unitPYPZ = new Vector3(0, 0.707, 0.707);
-	static Vector3 unitNXPY = new Vector3(-0.707, 0.707, 0);
+	public static Vector3 unitPYNZ = new Vector3(0, 0.707, -0.707);
+	public static Vector3 unitPXPY = new Vector3(0.707, 0.707, 0);
+	public static Vector3 unitPYPZ = new Vector3(0, 0.707, 0.707);
+	public static Vector3 unitNXPY = new Vector3(-0.707, 0.707, 0);
+	
+	public static Vector3 blockCenter(double x, double y, double z) {
+	    return blockCenter.add(x, y, z);
+	}
+
+	public static Vector3 blockCenter(BlockPos pos) {
+	    return blockCenter.add(pos);
+	}
 
 	double x, y, z;
 	
@@ -35,6 +45,18 @@ public class Vector3 {
 	
 	public Vector3(Vec3 v) {
 		this(v.xCoord, v.yCoord, v.zCoord);
+	}
+	
+	public Vector3(BlockPos pos) {
+	    this(pos.x, pos.y, pos.z);
+	}
+
+	public Vector3(Vec3i v) {
+		this(v.getX(), v.getY(), v.getZ());
+	}
+	
+	public Vector3(EnumFacing f) {
+		this(getDirectionVec(f));
 	}
 	
 	public Vec3 toVec3() {
@@ -51,6 +73,10 @@ public class Vector3 {
 	
 	public Vector3 add(Vector3 v) {
 		return add(v.x, v.y, v.z);
+	}
+	
+	public Vector3 add(BlockPos pos) {
+		return add(pos.getX(), pos.getY(), pos.getZ());
 	}
 	
 	public Vector3 sub(double x, double y, double z) {
@@ -70,7 +96,20 @@ public class Vector3 {
 	}
 	
 	public double dot(Vector3 v) {
-		return x * v.x + y * v.y + z * v.z;
+		return dot(v.x, v.y, v.z);
+	}
+	
+	public double dot(double[] v) {
+		return dot(v[0], v[1], v[2]);
+	}
+	
+	public double dot(EnumFacing f) {
+		Vec3i v = getDirectionVec(f);
+		return dot(v.getX(), v.getY(), v.getZ());
+	}
+	
+	public double dot(double vx, double vy, double vz) {
+		return x * vx + y * vy + z * vz;
 	}
 	
 	public Vector3 cross(Vector3 v) {
@@ -129,6 +168,67 @@ public class Vector3 {
 
 	public int floorZ() {
 		return (int)Math.floor(z);
+	}
+
+	public int roundX() {
+		return (int)Math.round(x);
+	}
+
+	public int roundY() {
+		return (int)Math.round(y);
+	}
+
+	public int roundZ() {
+		return (int)Math.round(z);
+	}
+
+	public EnumFacing facing() {
+		return facing(x, y, z);
+	}
+	
+	public BlockPos blockPos() {
+	    return new BlockPos(floorX(), floorY(), floorZ());
+	}
+	
+	// Normals at 45 degrees are biased towards UP or DOWN.
+	// In 1.8 this is important for item lighting in inventory to work well.
+	
+	public static EnumFacing facing(double dx, double dy, double dz) {
+		double ax = abs(dx), ay = abs(dy), az = abs(dz);
+		if (ay >= ax && ay >= az)
+			return dy < 0 ? EnumFacing.DOWN : EnumFacing.UP;
+		else if (ax >= az)
+			return dx < 0 ? EnumFacing.WEST : EnumFacing.EAST;
+		else
+			return dz < 0 ? EnumFacing.NORTH : EnumFacing.SOUTH;
+	}
+
+	public static Vector3[] faceBasis(EnumFacing f) {
+		return faceBases[f.ordinal()];
+	}
+	
+	public static Vector3[][] faceBases = {
+		{unitX, unitZ}, // DOWN
+		{unitX, unitNZ}, // UP
+		{unitNX, unitY}, // NORTH
+		{unitX, unitY}, // SOUTH
+		{unitZ, unitY}, // WEST
+		{unitNZ, unitY}, // EAST
+	};
+	
+	// Workaround for EnumFacing.getDirectionVec being client-side only
+	
+	public static Vec3i[] directionVec = {
+		new Vec3i(0, -1, 0),
+		new Vec3i(0, 1, 0),
+		new Vec3i(0, 0, -1),
+		new Vec3i(0, 0, 1),
+		new Vec3i(-1, 0, 0),
+		new Vec3i(1, 0, 0)
+	};
+	
+	public static Vec3i getDirectionVec(EnumFacing f) {
+		return directionVec[f.ordinal()];
 	}
 
 }

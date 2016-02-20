@@ -12,6 +12,8 @@ import net.minecraft.world.storage.*;
 
 import net.minecraftforge.common.*;
 
+import static gcewing.sg.BaseUtils.*;
+
 public class SGWorldData extends WorldSavedData {
 
     final static String key = "gcewing.sg";
@@ -23,7 +25,7 @@ public class SGWorldData extends WorldSavedData {
     }
 
     public static SGWorldData forWorld(World world) {
-        MapStorage storage = world.perWorldStorage;
+        MapStorage storage = getPerWorldStorage(world);
         SGWorldData result = (SGWorldData)storage.loadData(SGWorldData.class, key);
         if (result == null) {
             result = new SGWorldData();

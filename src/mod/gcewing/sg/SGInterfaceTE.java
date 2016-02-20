@@ -8,15 +8,12 @@ package gcewing.sg;
 
 import net.minecraft.tileentity.*;
 import gcewing.sg.SGAddressing.AddressingError;
+import static gcewing.sg.BaseBlockUtils.*;
 
 public class SGInterfaceTE extends BaseTileEntity {
 
-//	public SGBaseTE getBaseTE() {
-//		return SGBaseTE.getBaseTE(this);
-//	}
-
     public SGBaseTE getBaseTE() {
-        return SGBaseTE.get(getWorldObj(), xCoord, yCoord + 1, zCoord);
+        return SGBaseTE.get(worldObj, getPos().add(0, 1, 0));
     }
     
     // Signature is really prependArgs(Object..., Object[])
@@ -92,7 +89,7 @@ public class SGInterfaceTE extends BaseTileEntity {
         SGBaseTE te = requireBaseTE();
         try {
             address = SGAddressing.normalizeAddress(address);
-            SGBaseTE dte = SGAddressing.findAddressedStargate(address, te.getWorldObj());
+            SGBaseTE dte = SGAddressing.findAddressedStargate(address, getTileEntityWorld(te));
             if (dte == null)
                 throw new IllegalArgumentException("No stargate at address " + address);
             double distanceFactor = SGBaseTE.distanceFactorForCoordDifference(te, dte);
@@ -134,7 +131,7 @@ public class SGInterfaceTE extends BaseTileEntity {
         SGBaseTE te = requireBaseTE();
         try {
             address = SGAddressing.normalizedRelativeAddress(address, te.getHomeAddress());
-            System.out.printf("SGBaseTE.ciDial: dialling symbols %s\n", address);
+            //System.out.printf("SGBaseTE.ciDial: dialling symbols %s\n", address);
             String error = te.connect(address, null);
             if (error != null)
                 throw new IllegalArgumentException(error);

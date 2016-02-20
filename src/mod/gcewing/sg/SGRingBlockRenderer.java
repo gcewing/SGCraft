@@ -7,108 +7,53 @@
 package gcewing.sg;
 
 import net.minecraft.block.*;
+// import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.*;
 import net.minecraft.item.*;
 import net.minecraft.world.*;
 import net.minecraft.world.biome.*;
 import net.minecraft.tileentity.*;
+import net.minecraft.util.*;
 import net.minecraftforge.common.util.*;
 
-public class SGRingBlockRenderer extends BaseBlockRenderer {
+import gcewing.sg.BaseModClient.*;
+import static gcewing.sg.BaseBlockUtils.*;
 
-    static CamouflageBlockAccess camoBlockAccess = new CamouflageBlockAccess();
-    static RenderBlocks camoRenderBlocks = new RenderBlocks(camoBlockAccess);
+public class SGRingBlockRenderer implements ICustomRenderer {
 
-    public boolean renderWorldBlock(IBlockAccess world, int x, int y, int z, Block block,
-        int modelId, RenderBlocks rb)
-    {
-        return renderRingBlock(world, x, y, z, block, modelId, rb, this);
+    public SGRingBlockRenderer() {
+//         System.out.printf("SGRingBlockRenderer: Creating\n");
     }
-    
-    public static boolean renderRingBlock(IBlockAccess world, int x, int y, int z, Block block,
-        int modelId, RenderBlocks rb, BaseBlockRenderer renderer)
+
+    public void renderBlock(IBlockAccess world, BlockPos pos, IBlockState state, IRenderTarget target,
+        EnumWorldBlockLayer layer, Trans3 t)
     {
-        ISGBlock ringBlock = (ISGBlock)block;
-        if (rb.overrideBlockTexture != null || !ringBlock.isMerged(world, x, y, z))
-            return renderer.renderStandardWorldBlock(world, x, y, z, block, modelId, rb);
+        ISGBlock ringBlock = (ISGBlock)state.getBlock();
+        if (target.isRenderingBreakEffects() || (layer == EnumWorldBlockLayer.SOLID && !ringBlock.isMerged(world, pos)))
+            SGCraft.mod.client.renderBlockUsingModelSpec(world, pos, state, target, layer, t);
         else {
-            SGBaseTE te = ringBlock.getBaseTE(world, x, y, z);
+            SGBaseTE te = ringBlock.getBaseTE(world, pos);
             if (te != null) {
-                ItemStack stack = te.getCamouflageStack(x, y, z);
+                ItemStack stack = te.getCamouflageStack(pos);
                 if (stack != null) {
                     Item item = stack.getItem();
                     if (item instanceof ItemBlock) {
-                        Block camoBlock = Block.getBlockFromItem(item);
-                        int camoMeta = stack.getItemDamage() & 0xf;
-                        if (!camoBlock.hasTileEntity(camoMeta)) {
-                            camoBlockAccess.setup(rb.blockAccess, x, y, z, camoMeta);
-                            camoRenderBlocks.renderBlockAllFaces(camoBlock, x, y, z);
-                            return true;
+                        IBlockState camoState = BaseBlockUtils.getBlockStateFromItemStack(stack);
+                        if (blockCanRenderInLayer(camoState.getBlock(), layer)) {
+                            //System.out.printf("SGRingBlockRenderer: Rendering camouflage block %s at %s in layer %s\n",
+                            //    camoState, pos, layer);
+                            SGCraft.mod.client.renderAlternateBlock(world, pos, camoState, target);
                         }
                     }
                 }
             }
-            return false;
         }
     }
-
-}
-
-class CamouflageBlockAccess implements IBlockAccess {
-
-    IBlockAccess base;
-    int targetX, targetY, targetZ;
-    int metadata;
     
-    void setup(IBlockAccess base, int x, int y, int z, int data) {
-        this.base = base;
-        targetX = x;
-        targetY = y;
-        targetZ = z;
-        metadata = data;
-    }
-    
-    public Block getBlock(int x, int y, int z) {
-        return base.getBlock(x, y, z);
-    }
-
-    public TileEntity getTileEntity(int x, int y, int z) {
-        return base.getTileEntity(x, y, z);
-    }
-
-    public int getLightBrightnessForSkyBlocks(int x, int y, int z, int w) {
-        return base.getLightBrightnessForSkyBlocks(x, y, z, w);
-    }
-
-    public int getBlockMetadata(int x, int y, int z) {
-        if (x == targetX && y == targetY && z == targetZ)
-            return metadata;
-        else
-            return base.getBlockMetadata(x, y, z);
-    }
-
-    public int isBlockProvidingPowerTo(int x, int y, int z, int side) {
-        return base.isBlockProvidingPowerTo(x, y, z, side);
-    }
-
-    public boolean isAirBlock(int x, int y, int z) {
-        return base.isAirBlock(x, y, z);
-    }
-
-    public BiomeGenBase getBiomeGenForCoords(int x, int z) {
-        return base.getBiomeGenForCoords(x, z);
-    }
-
-    public int getHeight() {
-        return base.getHeight();
-    }
-
-    public boolean extendedLevelsInChunkCache() {
-        return base.extendedLevelsInChunkCache();
-    }
-
-    public boolean isSideSolid(int x, int y, int z, ForgeDirection side, boolean _default) {
-        return base.isSideSolid(x, y, z, side, _default);
+    public void renderItemStack(ItemStack stack, IRenderTarget target) {
+        if (BaseModClient.debugRenderItem)
+            System.out.printf("SGRingBlockRenderer.renderItemStack: %s\n", stack);
+        SGCraft.mod.client.renderItemStackUsingModelSpec(stack, target);
     }
 
 }

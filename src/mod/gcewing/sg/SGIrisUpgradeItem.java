@@ -9,18 +9,21 @@ package gcewing.sg;
 import net.minecraft.block.*;
 import net.minecraft.item.*;
 import net.minecraft.entity.player.*;
+import net.minecraft.util.*;
 import net.minecraft.world.*;
 
-public class SGIrisUpgradeItem extends Item {
+import static gcewing.sg.BaseBlockUtils.*;
+
+public class SGIrisUpgradeItem extends BaseItem {
 
     @Override
     public boolean onItemUse(ItemStack stack, EntityPlayer player, World world,
-        int x, int y, int z, int par7, float par8, float par9, float par10)
+        BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
     {
-        System.out.printf("SGIrisUpgradeItem.onItemUse: at (%s, %s, %s)\n", x, y, z);
-        Block block = world.getBlock(x, y, z);
+        //System.out.printf("SGIrisUpgradeItem.onItemUse: at %s\n", pos);
+        Block block = getWorldBlock(world, pos);
         if (block instanceof ISGBlock) {
-            SGBaseTE te = ((ISGBlock)block).getBaseTE(world, x, y, z);
+            SGBaseTE te = ((ISGBlock)block).getBaseTE(world, pos);
             if (te != null)
                 return te.applyIrisUpgrade(stack, player);
         }

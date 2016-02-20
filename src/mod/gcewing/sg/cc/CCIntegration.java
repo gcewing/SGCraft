@@ -12,7 +12,7 @@ import net.minecraft.item.*;
 import dan200.computercraft.api.*;
 import gcewing.sg.*;
 
-public class CCIntegration extends IntegrationBase {
+public class CCIntegration extends BaseSubsystem implements IIntegration {
 
     public static Block ccInterface;
     
@@ -27,7 +27,7 @@ public class CCIntegration extends IntegrationBase {
     @Override
     public void registerBlocks() {
         System.out.printf("CCIntegration.registerBlocks\n");
-        ccInterface = mod.newBlock("ccInterface", CCInterfaceBlock.class);
+        ccInterface = SGCraft.mod.newBlock("ccInterface", CCInterfaceBlock.class);
     }
     
 //	@Override
@@ -36,7 +36,7 @@ public class CCIntegration extends IntegrationBase {
     
     @Override
     public void registerRecipes() {
-        mod.newRecipe(ccInterface, 1, "SnS", "SrS", "SSS",
+        SGCraft.mod.newRecipe(ccInterface, 1, "SnS", "SrS", "SSS",
             'S', Blocks.stone, 'n', "ingotNaquadahAlloy", 'r', Items.redstone);
     }
     

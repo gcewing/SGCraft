@@ -30,9 +30,10 @@ import net.minecraft.tileentity.*;
 import net.minecraft.world.*;
 import net.minecraft.world.chunk.*;
 import net.minecraft.server.*;
-import cpw.mods.fml.server.*;
 
 import net.minecraftforge.common.*;
+
+import static gcewing.sg.BaseUtils.*;
 
 public class SGAddressing {
 
@@ -123,8 +124,9 @@ public class SGAddressing {
     
     public static boolean addressesInSameDimension(String a1, String a2) {
         int l1 = a1.length(), l2 = a2.length();
-        System.out.printf("SGAddressing.addressesInSameDimension(%s,%s): %s %s %s %s\n",
-            a1, a2, l1, l2, dimensionSymbolsOf(a1), dimensionSymbolsOf(a2));
+        if (debugAddressing)
+            System.out.printf("SGAddressing.addressesInSameDimension(%s,%s): %s %s %s %s\n",
+                a1, a2, l1, l2, dimensionSymbolsOf(a1), dimensionSymbolsOf(a2));
         return l1 == numCoordSymbols || l2 == numCoordSymbols ||
             dimensionSymbolsOf(a1).equals(dimensionSymbolsOf(a2));
     }
@@ -142,8 +144,8 @@ public class SGAddressing {
             System.out.printf("SGAddressing.addressForLocation: " +
                 "coord range = %d to %d " +
                 "dim range = %d to %d\n", minCoord, maxCoord, minDimension, maxDimension);
-        int chunkx = loc.x >> 4;
-        int chunkz = loc.z >> 4;
+        int chunkx = loc.pos.getX() >> 4;
+        int chunkz = loc.pos.getZ() >> 4;
         if (!inCoordRange(chunkx) || !inCoordRange(chunkz))
             throw coordRangeError;
         if (!inDimensionRange(loc.dimension))
@@ -162,7 +164,7 @@ public class SGAddressing {
             System.out.printf("SGAddressing.findAddressedStargate: %s\n", address);
         validateAddress(address);
         String csyms;
-        int dimension = fromWorld.provider.dimensionId;
+        int dimension = getWorldDimensionId(fromWorld);
         if (address.length() == maxAddressLength) {
             csyms = address.substring(0, numCoordSymbols);
             String dsyms = address.substring(numCoordSymbols);
@@ -184,7 +186,7 @@ public class SGAddressing {
         if (toWorld != null) {
             Chunk chunk = toWorld.getChunkFromChunkCoords(chunkX, chunkZ);
             if (chunk != null)
-                for (Object te : chunk.chunkTileEntityMap.values()) {
+                for (Object te : getChunkTileEntityMap(chunk).values()) {
                     if (te instanceof SGBaseTE)
                         return (SGBaseTE)te;
                 }

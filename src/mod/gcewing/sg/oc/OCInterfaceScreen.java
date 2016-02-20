@@ -8,7 +8,7 @@ package gcewing.sg.oc;
 
 import gcewing.sg.*;
 
-public class OCInterfaceScreen extends BaseGuiContainer {
+public class OCInterfaceScreen extends BaseGui.Screen {
 
     final static int bgUSize = 256;
     final static int bgVSize = 128;

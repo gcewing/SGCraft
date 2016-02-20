@@ -10,6 +10,7 @@ import static java.lang.Math.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL12.*;
 
+import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.tileentity.*;
 import net.minecraft.tileentity.*;
 import net.minecraft.util.*;
@@ -65,7 +66,7 @@ class SGBaseTERenderer extends BaseTileEntityRenderer {
     double u0, v0;
 
     @Override
-    public void renderTileEntityAt(TileEntity te, double x, double y, double z, float t) {
+    public void renderTileEntityAt(TileEntity te, double x, double y, double z, float t, int destroyStage) {
         //System.out.printf("SGBaseTERenderer.renderTileEntityAt (%g,%g,%g)\n", x, y, z);
         SGBaseTE tesg = (SGBaseTE)te;
         if (tesg.isMerged) {
@@ -86,7 +87,8 @@ class SGBaseTERenderer extends BaseTileEntityRenderer {
     }
 
     void renderStargate(SGBaseTE te, float t) {
-        glRotatef(90 * te.getRotation(), 0, 1, 0);
+        //glRotatef(90 * te.turn, 0, 1, 0);
+        BaseGLUtils.glMultMatrix(te.localToGlobalTransformation(Vector3.zero));
         bindTexture(SGCraft.mod.resourceLocation("textures/tileentity/stargate.png"));
         glNormal3f(0, 1, 0);
         renderRing(ringMidRadius - ringOverlap, ringOuterRadius, RingType.Outer, ringZOffset);
@@ -295,7 +297,7 @@ class SGBaseTERenderer extends BaseTileEntityRenderer {
             glColor3d(0.5, 0.5, 0.5);
         else {
             glDisable(GL_LIGHTING);
-            SGModel.setLightingDisabled(true);
+            setLightingDisabled(true);
         }
         glBegin(GL_QUADS);
 
@@ -319,7 +321,16 @@ class SGBaseTERenderer extends BaseTileEntityRenderer {
         glColor3f(1, 1, 1);
         glEnd();
         glEnable(GL_LIGHTING);
-        SGModel.setLightingDisabled(false);
+        setLightingDisabled(false);
+    }
+    
+    protected static void setLightingDisabled(boolean off) {
+        OpenGlHelper.setActiveTexture(OpenGlHelper.lightmapTexUnit);
+        if (off)
+            glDisable(GL_TEXTURE_2D);
+        else
+            glEnable(GL_TEXTURE_2D);
+        OpenGlHelper.setActiveTexture(OpenGlHelper.defaultTexUnit);
     }
     
 //	static ResourceLocation eventHorizonTexture =

@@ -10,6 +10,8 @@ import java.util.*;
 
 import net.minecraft.block.*;
 import net.minecraft.block.material.*;
+// import net.minecraft.block.properties.*;
+// import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.*;
 import net.minecraft.client.renderer.texture.*;
 import net.minecraft.entity.*;
@@ -23,17 +25,20 @@ import net.minecraftforge.common.util.*;
 import cpw.mods.fml.common.registry.*;
 import cpw.mods.fml.relauncher.*;
 
-public class SGRingBlock extends BaseContainerBlock<SGRingTE>  implements ISGBlock {
+import gcewing.sg.BaseMod.ModelSpec;
+import static gcewing.sg.BaseBlockUtils.*;
 
-    //static final int textureBase = 0x02;
-    //static final int topAndBottomTexture = 0x00;
+public class SGRingBlock extends BaseBlock<SGRingTE>  implements ISGBlock {
+
     static final int numSubBlocks = 2;
-    static final int subBlockMask = 0x1;
     
-    //public static Material ringMaterial = new Material(MapColor.stoneColor);
-    
-    IIcon topAndBottomTexture;
-    IIcon sideTextures[] = new IIcon[numSubBlocks];
+    public static IProperty<Integer> VARIANT = PropertyInteger.create("variant", 0, 1);
+
+    static String[] textures = {"stargateBlock", "stargateRing", "stargateChevron"};
+    static ModelSpec models[] = {
+        new ModelSpec("block/sg_ring_block.smeg", "stargateBlock", "stargateRing"),
+        new ModelSpec("block/sg_ring_block.smeg", "stargateBlock", "stargateChevron")
+    };
     
     static String[] subBlockTitles = {
         "Stargate Ring Block",
@@ -47,21 +52,33 @@ public class SGRingBlock extends BaseContainerBlock<SGRingTE>  implements ISGBlo
 //		registerSubItemNames();
     }
     
+	protected void defineProperties() {
+        super.defineProperties();
+        addProperty(VARIANT);
+    }
+    
+    @Override
+    public int getNumSubtypes() {
+        return VARIANT.getAllowedValues().size();
+    }
+
+    @Override
+	public String[] getTextureNames() {
+		return textures;
+	}
+	
+    @Override
+	public ModelSpec getModelSpec(IBlockState state) {
+		return models[state.getValue(VARIANT)];
+	}
+
     @Override
     protected String getRendererClassName() {
         return "SGRingBlockRenderer";
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
-    public void registerBlockIcons(IIconRegister reg) {
-        topAndBottomTexture = getIcon(reg, "stargateBlock");
-        sideTextures[0] = getIcon(reg, "stargateRing");
-        sideTextures[1] = getIcon(reg, "stargateChevron");
-    }
-    
-    @Override
-    public boolean canRenderInPass(int pass) {
+    public boolean canRenderInLayer(EnumWorldBlockLayer layer) {
         return true; // So that translucent camouflage blocks render correctly
     }
     
@@ -71,69 +88,49 @@ public class SGRingBlock extends BaseContainerBlock<SGRingTE>  implements ISGBlo
     }
     
     @Override
-    public boolean shouldCheckWeakPower(IBlockAccess world, int x, int y, int z, int side) {
+    public boolean shouldCheckWeakPower(IBlockAccess world, BlockPos pos, EnumFacing side) {
         return true;
     }
     
     @Override
-    public boolean isSideSolid(IBlockAccess world, int x, int y, int z, ForgeDirection side) {
+    public boolean isSideSolid(IBlockAccess world, BlockPos pos, EnumFacing side) {
         return true;
     }
 
     @Override
-    public boolean canHarvestBlock(EntityPlayer player, int meta) {
+    public boolean canHarvestBlock(IBlockState state, EntityPlayer player) {
         return true;
     }
     
     @Override
-    public int damageDropped(int data) {
-        return data;
+    public int damageDropped(IBlockState state) {
+        return getMetaFromState(state);
     }
 
     @Override
-    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player,
-        int side, float cx, float cy, float cz)
+    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player,
+        EnumFacing side, float cx, float cy, float cz)
     {
         //System.out.printf("SGRingBlock.onBlockActivated at (%d, %d, %d)\n", x, y, z);
-        SGRingTE te = getTileEntity(world, x, y, z);
+        SGRingTE te = getTileEntity(world, pos);
         if (te.isMerged) {
-            System.out.printf("SGRingBlock.onBlockActivated: base at (%d, %d, %d)\n",
-                te.baseX, te.baseY, te.baseZ);
-            Block block = world.getBlock(te.baseX, te.baseY, te.baseZ);
+            //System.out.printf("SGRingBlock.onBlockActivated: base at %s\n", te.basePos);
+            IBlockState baseState = getWorldBlockState(world, te.basePos);
+            Block block = baseState.getBlock();
             if (block instanceof SGBaseBlock)
-                block.onBlockActivated(world, te.baseX, te.baseY, te.baseZ, player,
-                    side, cx, cy, cz);
+                ((SGBaseBlock)block).onBlockActivated(world, te.basePos, baseState, player, side, cx, cy, cz);
             return true;
         }
         return false;
     }
     
     @Override
-    public SGBaseTE getBaseTE(IBlockAccess world, int x, int y, int z) {
-        SGRingTE rte = getTileEntity(world, x, y, z);
+    public SGBaseTE getBaseTE(IBlockAccess world, BlockPos pos) {
+        SGRingTE rte = getTileEntity(world, pos);
         if (rte != null)
             return rte.getBaseTE();
         else
             return null;
-    }
-
-//	@Override
-//	public SGBaseTE getBaseTE(IBlockAccess world, int x, int y, int z) {
-//		SGRingTE rte = getTileEntity(world, x, y, z);
-//		if (rte.isMerged) {
-//			TileEntity bte = world.getTileEntity(rte.baseX, rte.baseY, rte.baseZ);
-//			if (bte instanceof SGBaseTE)
-//				return (SGBaseTE)bte;
-//		}
-//		return null;
-//	}
-
-    @Override
-    public IIcon getIcon(int side, int data) {
-        if (side <= 1)
-            return topAndBottomTexture;
-        else
-            return sideTextures[data & subBlockMask];
     }
     
     @Override
@@ -142,76 +139,62 @@ public class SGRingBlock extends BaseContainerBlock<SGRingTE>  implements ISGBlo
             list.add(new ItemStack(item, 1, i));
     }
     
-//	void registerSubItemNames() {
-//		LanguageRegistry registry = LanguageRegistry.instance();
-//		for (int i = 0; i < SGRingBlock.numSubBlocks; i++) {
-//			String name = SGRingItem.subItemName(i);
-//			String title = subBlockTitles[i];
-//			//System.out.printf("SGRingBlock.registerSubItemNames: %s --> %s\n", name, title);
-//			//registry.addStringLocalization(name + ".name", title);
-//			SGCraft.mod.addNameTranslation(name, title);
-//		}
-//	}
-    
-    public boolean isMerged(IBlockAccess world, int x, int y, int z) {
-        SGRingTE te = getTileEntity(world, x, y, z);
-        return te.isMerged;
+    public boolean isMerged(IBlockAccess world, BlockPos pos) {
+        SGRingTE te = getTileEntity(world, pos);
+        return te != null && te.isMerged;
     }
     
-    public void mergeWith(World world, int x, int y, int z, int xb, int yb, int zb) {
-        SGRingTE te = getTileEntity(world, x, y, z);
+    public void mergeWith(World world, BlockPos pos, BlockPos basePos) {
+        SGRingTE te = getTileEntity(world, pos);
         te.isMerged = true;
-        te.baseX = xb;
-        te.baseY = yb;
-        te.baseZ = zb;
+        te.basePos = basePos;
         //te.onInventoryChanged();
-        world.markBlockForUpdate(x, y, z);
+        markWorldBlockForUpdate(world, pos);
     }
     
-    public void unmergeFrom(World world, int x, int y, int z, int xb, int yb, int zb) {
-        SGRingTE te = getTileEntity(world, x, y, z);
-        if (te.isMerged && te.baseX == xb && te.baseY == yb && te.baseZ == zb) {
+    public void unmergeFrom(World world, BlockPos pos, BlockPos basePos) {
+        SGRingTE te = getTileEntity(world, pos);
+        if (te.isMerged && te.basePos.equals(basePos)) {
             //System.out.printf("SGRingBlock.unmergeFrom: unmerging\n");
             te.isMerged = false;
             //te.onInventoryChanged();
-            world.markBlockForUpdate(x, y, z);
+            markWorldBlockForUpdate(world, pos);
         }
     }
     
     @Override
-    public void onBlockAdded(World world, int x, int y, int z) {
+    public void onBlockAdded(World world, BlockPos pos, IBlockState state) {
         if (SGBaseBlock.debugMerge)
-            System.out.printf("SGRingBlock.onBlockAdded: at (%d,%d,%d)\n", x, y, z);
-        SGRingTE te = getTileEntity(world, x, y, z);
-        updateBaseBlocks(world, x, y, z, te);
+            System.out.printf("SGRingBlock.onBlockAdded: at %s\n", pos);
+        SGRingTE te = getTileEntity(world, pos);
+        updateBaseBlocks(world, pos, te);
     }
     
     @Override
-    public void breakBlock(World world, int x, int y, int z, Block id, int data) {
-        SGRingTE te = getTileEntity(world, x, y, z);
-        super.breakBlock(world, x, y, z, id, data);
+    public void breakBlock(World world, BlockPos pos, IBlockState state) {
+        SGRingTE te = getTileEntity(world, pos);
+        super.breakBlock(world, pos, state);
         if (te != null && te.isMerged)
-            updateBaseBlocks(world, x, y, z, te);
+            updateBaseBlocks(world, pos, te);
     }
     
-    void updateBaseBlocks(World world, int x, int y, int z, SGRingTE te) {
-        //System.out.printf("SGRingBlock.updateBaseBlocks: merged = %s, base = (%d,%d,%d)\n",
-        //	te.isMerged, te.baseX, te.baseY, te.baseZ);
+    void updateBaseBlocks(World world, BlockPos pos, SGRingTE te) {
+        if (SGBaseBlock.debugMerge)
+            System.out.printf("SGRingBlock.updateBaseBlocks: merged = %s, base = %s\n",
+                te.isMerged, te.basePos);
         for (int i = -2; i <= 2; i++)
             for (int j = -4; j <= 0; j++)
                 for (int k = -2; k <= 2; k++) {
-                    int xb = x + i;
-                    int yb = y + j;
-                    int zb = z + k;
-                    Block block = world.getBlock(xb, yb, zb);
+                    BlockPos bp = pos.add(i, j, k);
+                    Block block = getWorldBlock(world, bp);
                     if (block instanceof SGBaseBlock) {
-                        //System.out.printf("SGRingBlock.updateBaseBlocks: found base at (%d,%d,%d)\n",
-                        //	xb, yb, zb);
+                         if (SGBaseBlock.debugMerge)
+                            System.out.printf("SGRingBlock.updateBaseBlocks: found base at %s\n", bp);
                         SGBaseBlock base = (SGBaseBlock)block;
                         if (!te.isMerged)
-                            base.checkForMerge(world, xb, yb, zb);
-                        else if (te.baseX == xb && te.baseY == yb && te.baseZ == zb)
-                            base.unmerge(world, xb, yb, zb);
+                            base.checkForMerge(world, bp);
+                        else if (te.basePos.equals(bp))
+                            base.unmerge(world, bp);
                 }
         }
     }

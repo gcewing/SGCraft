@@ -10,20 +10,22 @@ import java.util.*;
 
 import net.minecraft.block.*;
 import net.minecraft.block.material.*;
+// import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.texture.*;
 import net.minecraft.entity.*;
 import net.minecraft.entity.player.*;
 import net.minecraft.item.*;
 import net.minecraft.nbt.*;
+import net.minecraft.util.*;
 import net.minecraft.world.*;
 import net.minecraftforge.common.util.*;
 
-public class PowerBlock<TE extends PowerTE> extends BaseContainerBlock<TE> {
+public class PowerBlock<TE extends PowerTE> extends BaseBlock<TE> {
 
     PowerTE lastRemovedTE;
 
-    public PowerBlock(Class teClass) {
-        super(SGCraft.machineMaterial, teClass);
+    public PowerBlock(Class teClass, IOrientationHandler orient) {
+        super(SGCraft.machineMaterial, orient, teClass);
         setHardness(1.5F);
         setResistance(10.0F);
         setStepSound(soundTypeMetal);
@@ -31,39 +33,34 @@ public class PowerBlock<TE extends PowerTE> extends BaseContainerBlock<TE> {
     }
     
     @Override
-    public boolean shouldCheckWeakPower(IBlockAccess world, int x, int y, int z, int side) {
+    public boolean shouldCheckWeakPower(IBlockAccess world, BlockPos pos, EnumFacing side) {
         return true;
-    }
-
-    @Override
-    public String getQualifiedRendererClassName() {
-        return "gcewing.sg.BaseBlockRenderer";
     }
     
     @Override
-    public void breakBlock(World world, int x, int y, int z, Block block, int data) {
-        lastRemovedTE = getTileEntity(world, x, y, z);
-        super.breakBlock(world, x, y, z, block, data);
+    public void breakBlock(World world, BlockPos pos, IBlockState state) {
+        lastRemovedTE = getTileEntity(world, pos);
+        super.breakBlock(world, pos, state);
     }
 
     @Override
-    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player,
-        int side, float cx, float cy, float cz)
+    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player,
+        EnumFacing side, float cx, float cy, float cz)
     {
-        SGCraft.mod.openGui(player, SGGui.PowerUnit, world, x, y, z);
+        SGCraft.mod.openGui(player, SGGui.PowerUnit, world, pos);
         return true;
     }
     
     @Override
-    public ArrayList<ItemStack> getDrops(World world, int x, int y, int z, int metadata, int fortune) {
+    public ArrayList<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
         ArrayList<ItemStack> ret = new ArrayList<ItemStack>();
-        Item item = getItemDropped(metadata, world.rand, fortune);
+        Item item = getItemDropped(state, ((World)world).rand, fortune);
         ItemStack stack = new ItemStack(item, 1);
         PowerTE te = lastRemovedTE;
         if (te != null && te.energyBuffer > 0) {
             NBTTagCompound nbt = new NBTTagCompound();
             te.writeContentsToNBT(nbt);
-            stack.stackTagCompound = nbt;
+            stack.setTagCompound(nbt);
             lastRemovedTE = null;
         }
         ret.add(stack);
@@ -71,9 +68,11 @@ public class PowerBlock<TE extends PowerTE> extends BaseContainerBlock<TE> {
     }
     
     @Override
-    public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase player, ItemStack stack) {
-        PowerTE te = getTileEntity(world, x, y, z);
-        NBTTagCompound nbt = stack.stackTagCompound;
+    public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase player,
+        ItemStack stack)
+    {
+        PowerTE te = getTileEntity(world, pos);
+        NBTTagCompound nbt = stack.getTagCompound();
         if (te != null && nbt != null)
             te.readContentsFromNBT(nbt);
     }

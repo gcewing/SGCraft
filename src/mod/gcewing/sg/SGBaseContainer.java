@@ -8,6 +8,7 @@ package gcewing.sg;
 
 import net.minecraft.entity.player.*;
 import net.minecraft.inventory.*;
+import net.minecraft.util.*;
 import net.minecraft.world.*;
 
 public class SGBaseContainer extends BaseContainer {
@@ -22,8 +23,8 @@ public class SGBaseContainer extends BaseContainer {
 
     SGBaseTE te;
 
-    public static SGBaseContainer create(EntityPlayer player, World world, int x, int y, int z) {
-        SGBaseTE te = SGBaseTE.at(world, x, y, z);
+    public static SGBaseContainer create(EntityPlayer player, World world, BlockPos pos) {
+        SGBaseTE te = SGBaseTE.at(world, pos);
         if (te != null)
             return new SGBaseContainer(player, te);
         else

@@ -41,6 +41,7 @@ public class OCInterfaceTE extends SGInterfaceTE
         node = Network.newNode(this, Visibility.Network)
             .withComponent("stargate", Visibility.Network)
             .create();
+        System.out.printf("OCInterfaceTE: Created node %s\n", node);
     }
 
     //@Override	
@@ -204,6 +205,7 @@ public class OCInterfaceTE extends SGInterfaceTE
         // network our node is in, in which case `node` is the added node.
         // If our node is added to an existing network, this is called for each
         // node already in said network.
+        System.out.printf("OCInterfaceTE.onConnect: %s\n", node);
     }
 
     @Override
@@ -215,6 +217,7 @@ public class OCInterfaceTE extends SGInterfaceTE
         // network our node is in, in which case `node` is the removed node.
         // If a net-split occurs this is called for each node that is no longer
         // connected to our node.
+        System.out.printf("OCInterfaceTE.onDisconnect: %s\n", node);
     }
 
     @Override
@@ -304,7 +307,7 @@ public class OCInterfaceTE extends SGInterfaceTE
     // -------------------------- IComputerInterface --------------------------
 
     public void postEvent(TileEntity source, String name, Object... args) {
-        System.out.printf("OCInterfaceTE.postEvent: %s to %s\n", name, node);
+        //System.out.printf("OCInterfaceTE.postEvent: %s to %s\n", name, node);
         if (node != null)
             node.sendToReachable("computer.signal", prependArgs(name, args));
     }

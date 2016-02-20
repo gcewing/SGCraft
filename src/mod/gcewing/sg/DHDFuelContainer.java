@@ -9,6 +9,7 @@ package gcewing.sg;
 import net.minecraft.entity.player.*;
 import net.minecraft.inventory.*;
 import net.minecraft.item.*;
+// import net.minecraft.util.BlockPos;
 import net.minecraft.world.*;
 
 public class DHDFuelContainer extends BaseContainer {
@@ -21,8 +22,8 @@ public class DHDFuelContainer extends BaseContainer {
 
     DHDTE te;
     
-    public static DHDFuelContainer create(EntityPlayer player, World world, int x, int y, int z) {
-        DHDTE te = DHDTE.at(world, x, y, z);
+    public static DHDFuelContainer create(EntityPlayer player, World world, BlockPos pos) {
+        DHDTE te = DHDTE.at(world, pos);
         if (te != null)
             return new DHDFuelContainer(player, te);
         else

@@ -12,6 +12,7 @@ import net.minecraft.inventory.*;
 import net.minecraft.world.*;
 
 import gcewing.sg.*;
+import static gcewing.sg.BaseBlockUtils.*;
 
 public class OCInterfaceContainer extends BaseContainer {
 
@@ -22,9 +23,9 @@ public class OCInterfaceContainer extends BaseContainer {
 
     OCInterfaceTE te;
 
-    public OCInterfaceContainer(EntityPlayer player, World world, int x, int y, int z) {
+    public OCInterfaceContainer(EntityPlayer player, World world, BlockPos pos) {
         super(guiWidth, guiHeight);
-        te = (OCInterfaceTE)world.getTileEntity(x, y, z);
+        te = (OCInterfaceTE)getWorldTileEntity(world, pos);
         addPlayerSlots(player);
         addSlots(te, slotsLeft, slotsTop, 1, UpgradeSlot.class);
     }

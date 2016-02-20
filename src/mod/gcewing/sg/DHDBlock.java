@@ -8,6 +8,7 @@ package gcewing.sg;
 
 import net.minecraft.block.*;
 import net.minecraft.block.material.*;
+// import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.texture.*;
 import net.minecraft.creativetab.*;
 import net.minecraft.entity.*;
@@ -17,9 +18,17 @@ import net.minecraft.tileentity.*;
 import net.minecraft.util.*;
 import net.minecraft.world.*;
 
-public class DHDBlock extends Base4WayCtrBlock<DHDTE> {
+import gcewing.sg.BaseMod.ModelSpec;
 
-	IIcon topTexture, bottomTexture, sideTexture;
+public class DHDBlock extends BaseBlock<DHDTE> {
+
+    protected static String[] textures = {
+        "dhd_top",
+        "dhd_side",
+        "stargateBlock",
+        "dhd_button_dim",
+    };
+    protected static ModelSpec model = new ModelSpec("dhd.json", new Vector3(0, -0.5, 0), textures);
 
     public DHDBlock() {
         super(Material.rock /*SGRingBlock.ringMaterial*/, DHDTE.class);
@@ -27,6 +36,21 @@ public class DHDBlock extends Base4WayCtrBlock<DHDTE> {
         setCreativeTab(CreativeTabs.tabMisc);
     }
     
+    @Override
+    public String[] getTextureNames() {
+        return textures;
+    }
+    
+    @Override
+    public ModelSpec getModelSpec(IBlockState state) {
+        return model;
+    }
+    
+    @Override
+	public IOrientationHandler getOrientationHandler() {
+		return BaseOrientation.orient4WaysByState;
+	}
+
     @Override
     public int getRenderType() {
         return -1;
@@ -37,47 +61,31 @@ public class DHDBlock extends Base4WayCtrBlock<DHDTE> {
         return false;
     }
 
-//	@Override
-//	public void registerBlockIcons(IIconRegister reg) {
-//		topTexture = getIcon(reg, "controller_top");
-//		bottomTexture = getIcon(reg, "controller_bottom");
-//		sideTexture = getIcon(reg, "controller_side");
-//	}
-//	
-//	@Override
-//	public IIcon getIcon(int side, int data) {
-//		switch (side) {
-//			case 0: return bottomTexture;
-//			case 1: return topTexture;
-//			default: return sideTexture;
-//		}
-//	}
-
     @Override
-    public void onBlockAdded(World world, int x, int y, int z) {
+    public void onBlockAdded(World world, BlockPos pos, IBlockState state) {
         if (SGBaseBlock.debugMerge)
-            System.out.printf("DHDBlock.onBlockAdded: at (%d,%d,%d)\n", x, y, z);
-        checkForLink(world, x, y, z);
+            System.out.printf("DHDBlock.onBlockAdded: at %d\n", pos);
+        checkForLink(world, pos);
     }
 
     @Override
-    public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase player, ItemStack stack) {
-        super.onBlockPlacedBy(world, x, y, z, player, stack);
-        checkForLink(world, x, y, z);
+    public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase player, ItemStack stack) {
+        super.onBlockPlacedBy(world, pos, state, player, stack);
+        checkForLink(world, pos);
     }
 
     @Override
-    public boolean canHarvestBlock(EntityPlayer player, int meta) {
+//     public boolean canHarvestBlock(IBlockAccess world, BlockPos pos, EntityPlayer player) {
+    public boolean canHarvestBlock(IBlockState state, EntityPlayer player) {
         return true;
     }
 
     @Override
-    public void breakBlock(World world, int x, int y, int z, Block id, int data) {
-        DHDTE cte = getTileEntity(world, x, y, z);
-        super.breakBlock(world, x, y, z, id, data);
+    public void breakBlock(World world, BlockPos pos, IBlockState state) {
+        DHDTE cte = getTileEntity(world, pos);
+        super.breakBlock(world, pos, state);
         if (cte == null) {
-            System.out.printf("DHDBlock.breakBlock: No tile entity at (%d,%d,%d)\n",
-                x, y, z);
+            System.out.printf("DHDBlock.breakBlock: No tile entity at %d\n", pos);
         }
         else if (cte.isLinkedToStargate) {
             SGBaseTE gte = cte.getLinkedStargateTE();
@@ -87,22 +95,21 @@ public class DHDBlock extends Base4WayCtrBlock<DHDTE> {
     }
     
     @Override
-    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player,
-        int side, float cx, float cy, float cz)
+    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player,
+        EnumFacing side, float cx, float cy, float cz)
     {
         SGGui id = cy > 0.5 ? SGGui.SGController : SGGui.DHDFuel;
-        SGCraft.mod.openGui(player, id, world, x, y, z);
+        SGCraft.mod.openGui(player, id, world, pos);
         return true;
     }
     
-    public void checkForLink(World world, int x, int y, int z) {
-        //System.out.printf("DHDBlock.checkForLink at (%s, %s, %s)\n", x, y, z);
-        DHDTE te = getTileEntity(world, x, y, z);
+    public void checkForLink(World world, BlockPos pos) {
+        //System.out.printf("DHDBlock.checkForLink at %s\n", pos);
+        DHDTE te = getTileEntity(world, pos);
         if (te != null)
             te.checkForLink();
         else
-            System.out.printf("DHDBlock.breakBlock: No tile entity at (%d,%d,%d)\n",
-                x, y, z);
+            System.out.printf("DHDBlock.breakBlock: No tile entity at %d\n", pos);
     }
     
 }

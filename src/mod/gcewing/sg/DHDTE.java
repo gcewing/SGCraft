@@ -6,6 +6,7 @@
 
 package gcewing.sg;
 
+// import net.minecraft.block.state.IBlockState;
 import net.minecraft.inventory.*;
 import net.minecraft.item.*;
 import net.minecraft.nbt.*;
@@ -13,10 +14,14 @@ import net.minecraft.tileentity.*;
 import net.minecraft.world.*;
 import net.minecraft.util.*;
 
+import static gcewing.sg.BaseBlockUtils.*;
 import static gcewing.sg.BaseUtils.*;
 import static gcewing.sg.Utils.*;
 
 public class DHDTE extends BaseTileInventory implements ISGEnergySource {
+
+    // Debug options
+    public static boolean debugLink = false;
 
     // Configuration options
     public static int linkRangeX = 5; // either side
@@ -30,7 +35,7 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
 
     // Persisted fields
     public boolean isLinkedToStargate;
-    public int linkedX, linkedY, linkedZ;
+    public BlockPos linkedPos = new BlockPos(0, 0, 0);
     public String enteredAddress = "";
     IInventory inventory = new InventoryBasic("DHD", false, numSlots);
     
@@ -46,8 +51,8 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
         maxEnergyBuffer = SGBaseTE.energyPerFuelItem;
     }
     
-    public static DHDTE at(IBlockAccess world, int x, int y, int z) {
-        TileEntity te = world.getTileEntity(x, y, z);
+    public static DHDTE at(IBlockAccess world, BlockPos pos) {
+        TileEntity te = getWorldTileEntity(world, pos);
         if (te instanceof DHDTE)
             return (DHDTE)te;
         else
@@ -55,7 +60,8 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
     }
     
     public static DHDTE at(IBlockAccess world, NBTTagCompound nbt) {
-        return DHDTE.at(world, nbt.getInteger("x"), nbt.getInteger("y"), nbt.getInteger("z"));
+        BlockPos pos = new BlockPos(nbt.getInteger("x"), nbt.getInteger("y"), nbt.getInteger("z"));
+        return DHDTE.at(world, pos);
     }
     
     public void setEnteredAddress(String address) {
@@ -64,14 +70,14 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
         markBlockForUpdate();
     }
     
-    @Override
-    public boolean canUpdate() {
-        return false;
-    }
+//     @Override
+//     public boolean canUpdate() {
+//         return false;
+//     }
     
     @Override
     public AxisAlignedBB getRenderBoundingBox() {
-        return bounds.addCoord(xCoord + 0.5, yCoord, zCoord + 0.5);
+        return bounds.addCoord(getX() + 0.5, getY(), getZ() + 0.5);
     }
 
     @Override
@@ -88,22 +94,25 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
         return (DHDBlock)getBlockType();
     }
     
-    public Trans3 localToGlobalTransformation() {
-        return getBlock().localToGlobalTransformation(xCoord, yCoord, zCoord, getBlockMetadata(), this);
-    }
+//     public Trans3 localToGlobalTransformation() {
+//         World world = getWorld();
+//         IBlockState state = world.getBlockState(pos);
+//         return getBlock().localToGlobalTransformation(world, pos, state);
+//     }
     
-    public int getRotation() {
-        return getBlock().rotationInWorld(getBlockMetadata(), this);
-    }
+//     public int getRotation() {
+//         return getBlock().rotationInWorld(getBlockMetadata(), this);
+//     }
 
     @Override
     public void readFromNBT(NBTTagCompound nbt) {
         super.readFromNBT(nbt);
         isLinkedToStargate = nbt.getBoolean("isLinkedToStargate");
         energyInBuffer = nbt.getDouble("energyInBuffer");
-        linkedX = nbt.getInteger("linkedX");
-        linkedY = nbt.getInteger("linkedY");
-        linkedZ = nbt.getInteger("linkedZ");
+        int x = nbt.getInteger("linkedX");
+        int y = nbt.getInteger("linkedY");
+        int z = nbt.getInteger("linkedZ");
+        linkedPos = new BlockPos(x, y, z);
         enteredAddress = nbt.getString("enteredAddress");
     }
 
@@ -112,15 +121,15 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
         super.writeToNBT(nbt);
         nbt.setBoolean("isLinkedToStargate", isLinkedToStargate);
         nbt.setDouble("energyInBuffer", energyInBuffer);
-        nbt.setInteger("linkedX", linkedX);
-        nbt.setInteger("linkedY", linkedY);
-        nbt.setInteger("linkedZ", linkedZ);
+        nbt.setInteger("linkedX", linkedPos.getX());
+        nbt.setInteger("linkedY", linkedPos.getY());
+        nbt.setInteger("linkedZ", linkedPos.getZ());
         nbt.setString("enteredAddress", enteredAddress);
     }
 
     SGBaseTE getLinkedStargateTE() {
         if (isLinkedToStargate) {
-            TileEntity gte = worldObj.getTileEntity(linkedX, linkedY, linkedZ);
+            TileEntity gte = getWorldTileEntity(worldObj, linkedPos);
             if (gte instanceof SGBaseTE)
                 return (SGBaseTE)gte;
         }
@@ -128,9 +137,9 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
     }
 
     void checkForLink() {
-        if (SGBaseBlock.debugMerge)
-            System.out.printf("DHDTE.checkForLink at (%d,%d,%d): isLinkedToStargate = %s\n",
-                xCoord, yCoord, zCoord, isLinkedToStargate);
+        if (debugLink)
+            System.out.printf("DHDTE.checkForLink at %s: isLinkedToStargate = %s\n",
+                getPos(), isLinkedToStargate);
         if (!isLinkedToStargate) {
             Trans3 t = localToGlobalTransformation();
             for (int i = -linkRangeX; i <= linkRangeX; i++)
@@ -139,11 +148,14 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
                         Vector3 p = t.p(i, j, -k);
                         //System.out.printf("DHDTE: Looking for stargate at (%d,%d,%d)\n",
                         //	p.floorX(), p.floorY(), p.floorZ());
-                        TileEntity te = worldObj.getTileEntity(p.floorX(), p.floorY(), p.floorZ());
+                        BlockPos bp = new BlockPos(p.floorX(), p.floorY(), p.floorZ());
+                        if (debugLink)
+                            System.out.printf("DHDTE.checkForLink: probing %s\n", bp);
+                        TileEntity te = getWorldTileEntity(worldObj, bp);
                         if (te instanceof SGBaseTE) {
-                            if (SGBaseBlock.debugMerge)
-                                System.out.printf("DHDTE.checkForLink: Found stargate at (%d,%d,%d)\n",
-                                    te.xCoord, te.yCoord, te.zCoord);
+                            if (debugLink)
+                                System.out.printf("DHDTE.checkForLink: Found stargate at %s\n",
+                                    getTileEntityPos(te));
                             if (linkToStargate((SGBaseTE)te))
                                 return;
                         }
@@ -153,18 +165,14 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
     
     boolean linkToStargate(SGBaseTE gte) {
         if (!isLinkedToStargate && !gte.isLinkedToController && gte.isMerged) {
-            if (SGBaseBlock.debugMerge)
+            if (debugLink)
                 System.out.printf(
-                    "DHDTE.linkToStargate: Linking controller at (%d, %d, %d) with stargate at (%d, %d, %d)\n",
-                    xCoord, yCoord, zCoord, gte.xCoord, gte.yCoord, gte.zCoord);
-            linkedX = gte.xCoord;
-            linkedY = gte.yCoord;
-            linkedZ = gte.zCoord;
+                    "DHDTE.linkToStargate: Linking controller at %s with stargate at %s\n",
+                    getPos(), getTileEntityPos(gte));
+            linkedPos = gte.getPos();
             isLinkedToStargate = true;
             markBlockForUpdate();
-            gte.linkedX = xCoord;
-            gte.linkedY = yCoord;
-            gte.linkedZ = zCoord;
+            gte.linkedPos = getPos();
             gte.isLinkedToController = true;
             gte.markBlockForUpdate();
             return true;
@@ -173,8 +181,8 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
     }
     
     public void clearLinkToStargate() {
-        System.out.printf("DHDTE: Unlinking controller at (%d, %d, %d) from stargate\n",
-            xCoord, yCoord, zCoord);
+        if (debugLink)
+            System.out.printf("DHDTE: Unlinking controller at %s from stargate\n", getPos());
         isLinkedToStargate = false;
         markBlockForUpdate();
     }

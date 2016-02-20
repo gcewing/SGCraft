@@ -11,9 +11,6 @@ import net.minecraft.tileentity.*;
 import net.minecraftforge.common.*;
 import net.minecraftforge.common.util.*;
 
-import ic2.api.energy.event.*;
-import ic2.api.energy.tile.*;
-
 import static gcewing.sg.BaseUtils.*;
 import static gcewing.sg.Utils.*;
 

@@ -11,6 +11,7 @@ import org.lwjgl.opengl.*;
 
 import net.minecraft.client.gui.*;
 import net.minecraft.entity.player.*;
+import net.minecraft.util.*;
 import net.minecraft.world.*;
 
 public class SGBaseScreen extends SGScreen {
@@ -30,8 +31,8 @@ public class SGBaseScreen extends SGScreen {
     String formattedAddress;
     boolean addressValid;
     
-    public static SGBaseScreen create(EntityPlayer player, World world, int x, int y, int z) {
-        SGBaseTE te = SGBaseTE.at(world, x, y, z);
+    public static SGBaseScreen create(EntityPlayer player, World world, BlockPos pos) {
+        SGBaseTE te = SGBaseTE.at(world, pos);
         if (te != null)
             return new SGBaseScreen(player, te);
         else
@@ -42,8 +43,10 @@ public class SGBaseScreen extends SGScreen {
         super(new SGBaseContainer(player, te), guiWidth, guiHeight);
         this.te = te;
         getAddress();
-        if (addressValid)
+        if (addressValid) {
+            //System.out.printf("SGBaseScreen: Copying address %s to clipboard\n", formattedAddress);
             setClipboardString(formattedAddress);
+        }
     }
     
     @Override
@@ -75,7 +78,7 @@ public class SGBaseScreen extends SGScreen {
         int cx = xSize / 2;
         if (addressValid)
             drawAddressSymbols(cx, 22, address);
-        textColor = 0x004c66;
+        setTextColor(0x004c66);
         drawCenteredString(screenTitle, cx, 8);
         drawCenteredString(formattedAddress, cx, 72);
 //		if (this.te.numFuelSlots > 0)

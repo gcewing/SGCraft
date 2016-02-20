@@ -9,12 +9,11 @@ package gcewing.sg;
 import net.minecraft.block.*;
 import net.minecraft.block.material.*;
 
-public class NaquadahBlock extends BlockCompressed {
-
-    //static int texture = 0x43;
+public class NaquadahBlock extends BaseBlock {
 
     public NaquadahBlock() {
-        super(MapColor.greenColor);
+        super(Material.rock);
+        mapColor = MapColor.greenColor;
         setHardness(5.0F);
         setResistance(10.0F);
         setStepSound(soundTypeMetal);
