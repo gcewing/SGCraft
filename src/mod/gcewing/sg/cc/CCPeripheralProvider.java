@@ -25,13 +25,13 @@ public class CCPeripheralProvider implements IPeripheralProvider {
             return null;
     }
 
-//	@Override
-//	public IPeripheral getPeripheral(World world, int x, int y, int z, int side) {
-//		TileEntity te = world.getTileEntity(x, y, z);
-//		if (te instanceof IPeripheral)
-//			return (IPeripheral)te;
-//		else
-//			return null;
-//	}
+//  @Override
+//  public IPeripheral getPeripheral(World world, int x, int y, int z, int side) {
+//      TileEntity te = world.getTileEntity(x, y, z);
+//      if (te instanceof IPeripheral)
+//          return (IPeripheral)te;
+//      else
+//          return null;
+//  }
 
 }

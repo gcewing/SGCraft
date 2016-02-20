@@ -114,7 +114,7 @@ public class SGCraft extends BaseMod<SGCraftClient> {
         super.postInit(e);
     }
 
-    @Override	
+    @Override   
     protected SGCraftClient initClient() {
         return new SGCraftClient(this);
     }
@@ -126,7 +126,7 @@ public class SGCraft extends BaseMod<SGCraftClient> {
         SGBaseTE.configure(config);
         FeatureGeneration.configure(config);
         addOresToExistingWorlds = config.getBoolean("options", "addOresToExistingWorlds", false);
-    }		
+    }       
 
     @Override
     protected void registerOther() {
@@ -308,21 +308,21 @@ public class SGCraft extends BaseMod<SGCraftClient> {
                 if (obj instanceof SGBaseTE) {
                     SGBaseTE te = (SGBaseTE)obj;
                     //System.out.printf("SGCraft.onChunkUnload: Disconnecting stargate at (%s, %s, %s)\n",
-                    //	te.xCoord, te.yCoord, te.zCoord);
+                    //  te.xCoord, te.yCoord, te.zCoord);
                     te.disconnect();
                 }
             }
         }
     }
 
-//	@SubscribeEvent
-//	void onWorldLoad(WorldEvent.Load e) {
-//		System.out.printf("SGCraft: World loaded: %s\n", e.world);
-//	}
-//	
-//	@SubscribeEvent
-//	void onWorldUnload(WorldEvent.Unload e) {
-//		System.out.printf("SGCraft: World unloaded: %s\n", e.world);
-//	}
+//  @SubscribeEvent
+//  void onWorldLoad(WorldEvent.Load e) {
+//      System.out.printf("SGCraft: World loaded: %s\n", e.world);
+//  }
+//  
+//  @SubscribeEvent
+//  void onWorldUnload(WorldEvent.Unload e) {
+//      System.out.printf("SGCraft: World unloaded: %s\n", e.world);
+//  }
 
 }

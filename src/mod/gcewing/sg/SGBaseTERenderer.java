@@ -159,23 +159,23 @@ class SGBaseTERenderer extends BaseTileEntityRenderer {
         glEnd();
     }
     
-//	void renderChevrons(SGBaseTE te) {
-//		int n = te.getNumChevrons();
-//		int m = 7; // Number of chevron positions
-//		if (n > 7 || te.hasBaseCamouflage())
-//			m = 9;
-//		int i0 = (m - n) / 2; // Index of first occupied chevron position
-//		float a = 360.0F / (m + 1); // Angle between chevrons
-//		glNormal3f(0, 0, 1);
-//		for (int k = 0; k < n; k++) {
-//			int i = i0 + k;
-//			glPushMatrix();
-//			glRotatef(-90 - (i + 1) * a, 0, 0, 1);
-//			int l = i - te.firstEngagedChevron;
-//			chevron(l >= 0 && l < te.numEngagedChevrons);
-//			glPopMatrix();
-//		}
-//	}
+//  void renderChevrons(SGBaseTE te) {
+//      int n = te.getNumChevrons();
+//      int m = 7; // Number of chevron positions
+//      if (n > 7 || te.hasBaseCamouflage())
+//          m = 9;
+//      int i0 = (m - n) / 2; // Index of first occupied chevron position
+//      float a = 360.0F / (m + 1); // Angle between chevrons
+//      glNormal3f(0, 0, 1);
+//      for (int k = 0; k < n; k++) {
+//          int i = i0 + k;
+//          glPushMatrix();
+//          glRotatef(-90 - (i + 1) * a, 0, 0, 1);
+//          int l = i - te.firstEngagedChevron;
+//          chevron(l >= 0 && l < te.numEngagedChevrons);
+//          glPopMatrix();
+//      }
+//  }
     
     void renderChevrons(SGBaseTE te) {
         int numChevrons = te.getNumChevrons();
@@ -333,8 +333,8 @@ class SGBaseTERenderer extends BaseTileEntityRenderer {
         OpenGlHelper.setActiveTexture(OpenGlHelper.defaultTexUnit);
     }
     
-//	static ResourceLocation eventHorizonTexture =
-//		new ResourceLocation("minecraft", "textures/misc/underwater.png");
+//  static ResourceLocation eventHorizonTexture =
+//      new ResourceLocation("minecraft", "textures/misc/underwater.png");
     
     void renderEventHorizon(SGBaseTE te) {
         //bindTextureByName("/misc/water.png");
@@ -376,7 +376,7 @@ class SGBaseTERenderer extends BaseTileEntityRenderer {
         if (r >= rclip)
             z = min(z, 0);
         return z;
-    }		
+    }       
     
     void renderIris(SGBaseTE te, double t) {
         bindTexture(SGCraft.mod.resourceLocation("textures/tileentity/iris.png"));
@@ -391,8 +391,8 @@ class SGBaseTERenderer extends BaseTileEntityRenderer {
     
     void renderIrisBlade(SGBaseTE te, double a, double t) {
         double aa = a * 60;
-//		double s = sin(aa);
-//		double c = cos(aa);
+//      double s = sin(aa);
+//      double c = cos(aa);
         double r  = 2.31;
         double w1 = 2.40;
         double w2 = 1.85;

@@ -47,8 +47,8 @@ public class SGChunkData {
         SGChunkData data = SGChunkData.forChunk(chunk);
         data.readFromNBT(e.getData());
         //if (data.oresGenerated)
-        //	System.out.printf("SGChunkData.onChunkLoad: Ores already added to chunk (%d, %d)\n",
-        //		chunk.xPosition, chunk.zPosition);
+        //  System.out.printf("SGChunkData.onChunkLoad: Ores already added to chunk (%d, %d)\n",
+        //      chunk.xPosition, chunk.zPosition);
         if (!data.oresGenerated && SGCraft.addOresToExistingWorlds) {
             if (debug)
                 System.out.printf("SGChunkData.onChunkLoad: Adding ores to chunk (%d, %d)\n", chunk.xPosition, chunk.zPosition);

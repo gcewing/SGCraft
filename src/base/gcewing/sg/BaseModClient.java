@@ -137,10 +137,10 @@ public class BaseModClient<MOD extends BaseMod<? extends BaseModClient>> impleme
     
     //-------------- Renderer registration --------------------------------------------------------
     
-	protected void registerBlockRenderers() {}
-	protected void registerItemRenderers() {}
-	protected void registerEntityRenderers() {}
-	protected void registerTileEntityRenderers() {}
+    protected void registerBlockRenderers() {}
+    protected void registerItemRenderers() {}
+    protected void registerEntityRenderers() {}
+    protected void registerTileEntityRenderers() {}
 
     public void addTileEntityRenderer(Class <? extends TileEntity> teClass, TileEntitySpecialRenderer renderer) {
         ClientRegistry.bindTileEntitySpecialRenderer(teClass, renderer);
@@ -405,7 +405,7 @@ public class BaseModClient<MOD extends BaseMod<? extends BaseModClient>> impleme
     
     public void addItemRenderer(Item item, ICustomRenderer renderer) {
         itemRenderers.put(item, renderer);
-// 		MinecraftForgeClient.registerItemRenderer(item, getItemRenderDispatcher());
+//      MinecraftForgeClient.registerItemRenderer(item, getItemRenderDispatcher());
     }
     
     //--------------- Model Locations ----------------------------------------------------

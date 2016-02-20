@@ -67,11 +67,11 @@ public class CCSGPeripheral implements IPeripheral {
             }
         },
         
-//		new SGMethod("direction") {
-//			Object[] call(SGInterfaceTE te, Object[] args) {
-//				return new Object[] {te.ciDirection()};
-//			}
-//		},
+//      new SGMethod("direction") {
+//          Object[] call(SGInterfaceTE te, Object[] args) {
+//              return new Object[] {te.ciDirection()};
+//          }
+//      },
         
         new SGMethod("irisState") {
             Object[] call(SGInterfaceTE te, Object[] args) {
@@ -113,9 +113,9 @@ public class CCSGPeripheral implements IPeripheral {
         //System.out.printf("CCInterfaceTE: Created\n");
     }
     
-//	SGBaseTE getBaseTE() {
-//		return SGBaseTE.get(worldObj, xCoord, yCoord + 1, zCoord);
-//	}
+//  SGBaseTE getBaseTE() {
+//      return SGBaseTE.get(worldObj, xCoord, yCoord + 1, zCoord);
+//  }
     
     CCInterfaceTE getInterfaceTE() {
         TileEntity te = worldObj.getTileEntity(xCoord, yCoord, zCoord);

@@ -364,12 +364,12 @@ public class BaseBlock<TE extends TileEntity>
     
     // -------------------------------------------------------------------
 
-	public IBlockState onBlockPlaced(World world, BlockPos pos, EnumFacing side, 
-		float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
-	{
-		return getOrientationHandler().onBlockPlaced(this, world, pos, side,
-			hitX, hitY, hitZ, getStateFromMeta(meta), placer);
-	}
+    public IBlockState onBlockPlaced(World world, BlockPos pos, EnumFacing side, 
+        float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
+    {
+        return getOrientationHandler().onBlockPlaced(this, world, pos, side,
+            hitX, hitY, hitZ, getStateFromMeta(meta), placer);
+    }
 
     @Override
     public void onBlockAdded(World world, int x, int y, int z) {
@@ -493,15 +493,15 @@ public class BaseBlock<TE extends TileEntity>
         return super.shouldCheckWeakPower(world, pos.x, pos.y, pos.z, side.ordinal());
     }
 
-	public void spawnAsEntity(World world, BlockPos pos, ItemStack stack) {
-	    dropBlockAsItem(world, pos.x, pos.y, pos.z, stack);
-	}
-	
-	@Override
-	public int damageDropped(int meta) {
-	    return damageDropped(getStateFromMeta(meta));
-	}
-	
+    public void spawnAsEntity(World world, BlockPos pos, ItemStack stack) {
+        dropBlockAsItem(world, pos.x, pos.y, pos.z, stack);
+    }
+    
+    @Override
+    public int damageDropped(int meta) {
+        return damageDropped(getStateFromMeta(meta));
+    }
+    
     public int damageDropped(IBlockState state) {
         return 0;
     }

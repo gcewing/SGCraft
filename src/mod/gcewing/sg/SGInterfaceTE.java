@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------------------------
 //
-//	 SG Craft - Base class for stargate computer interface tile entities
+//   SG Craft - Base class for stargate computer interface tile entities
 //
 //------------------------------------------------------------------------------------------------
 

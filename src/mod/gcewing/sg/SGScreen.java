@@ -48,8 +48,8 @@ public class SGScreen extends BaseGui.Screen {
     void drawAddressSymbols(int x, int y, String address) {
         int x0 = x - address.length() * cellSize / 2;
         int y0 = y + frameHeight / 2 - cellSize / 2;
-//		bindSGTexture("symbol_frame.png", 256, 64);
-//		drawTexturedRect(x - frameWidth / 2, y, frameWidth, frameHeight, 0, 0);
+//      bindSGTexture("symbol_frame.png", 256, 64);
+//      drawTexturedRect(x - frameWidth / 2, y, frameWidth, frameHeight, 0, 0);
         bindSGTexture(symbolTextureFile,
             symbolTextureWidth * cellSize / symbolWidthInTexture,
             symbolTextureHeight * cellSize / symbolHeightInTexture);
@@ -69,13 +69,13 @@ public class SGScreen extends BaseGui.Screen {
         drawCenteredString(this.fontRendererObj, address, x, y, 0xffffff);
     }
     
-//	void drawAddressString(int x, int y, String address, String caret) {
-//		drawCenteredString(this.fontRendererObj, padAddress(address, caret), x, y, 0xffffff);
-//	}
+//  void drawAddressString(int x, int y, String address, String caret) {
+//      drawCenteredString(this.fontRendererObj, padAddress(address, caret), x, y, 0xffffff);
+//  }
     
-//	String padAddress(String address, String caret) {
-//		return SGAddressing.padAddress(address, caret, );
-//	}
+//  String padAddress(String address, String caret) {
+//      return SGAddressing.padAddress(address, caret, );
+//  }
     
     void bindSGTexture(String name) {
         bindSGTexture(name, 1, 1);

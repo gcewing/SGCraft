@@ -147,7 +147,7 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
                     for (int k = 1; k <= linkRangeZ; k++) {
                         Vector3 p = t.p(i, j, -k);
                         //System.out.printf("DHDTE: Looking for stargate at (%d,%d,%d)\n",
-                        //	p.floorX(), p.floorY(), p.floorZ());
+                        //  p.floorX(), p.floorY(), p.floorZ());
                         BlockPos bp = new BlockPos(p.floorX(), p.floorY(), p.floorZ());
                         if (debugLink)
                             System.out.printf("DHDTE.checkForLink: probing %s\n", bp);
