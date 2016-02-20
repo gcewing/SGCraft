@@ -49,17 +49,17 @@ public class DHDFuelContainer extends BaseContainer {
         }
     }
     
-//	@Override
-//	void sendStateTo(ICrafting crafter) {
-//		crafter.sendProgressBarUpdate(this, 0, (int)((10000 * te.energyInBuffer) / te.maxEnergyBuffer));
-//	}
+//  @Override
+//  void sendStateTo(ICrafting crafter) {
+//      crafter.sendProgressBarUpdate(this, 0, (int)((10000 * te.energyInBuffer) / te.maxEnergyBuffer));
+//  }
 //
-//	@Override
-//	public void updateProgressBar(int i, int value) {
-//		switch (i) {
-//			case 0: te.energyInBuffer = (value * te.maxEnergyBuffer) / 10000; break;
-//		}
-//	}
+//  @Override
+//  public void updateProgressBar(int i, int value) {
+//      switch (i) {
+//          case 0: te.energyInBuffer = (value * te.maxEnergyBuffer) / 10000; break;
+//      }
+//  }
 
 }
 

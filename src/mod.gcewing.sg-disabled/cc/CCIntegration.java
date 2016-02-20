@@ -16,13 +16,13 @@ public class CCIntegration extends IntegrationBase {
 
     public static Block ccInterface;
     
-//	@Override
-//	public void init(SGCraft mod) {
-//		System.out.printf("CCIntegration.init\n");
-//		this.mod = mod;
-//		ComputerCraftAPI.registerPeripheralProvider(new CCPeripheralProvider());
-//		CCMethodQueue.init();
-//	}
+//  @Override
+//  public void init(SGCraft mod) {
+//      System.out.printf("CCIntegration.init\n");
+//      this.mod = mod;
+//      ComputerCraftAPI.registerPeripheralProvider(new CCPeripheralProvider());
+//      CCMethodQueue.init();
+//  }
     
     @Override
     public void registerBlocks() {
@@ -30,9 +30,9 @@ public class CCIntegration extends IntegrationBase {
         ccInterface = mod.newBlock("ccInterface", CCInterfaceBlock.class);
     }
     
-//	@Override
-//	public void registerItems() {
-//	}
+//  @Override
+//  public void registerItems() {
+//  }
     
     @Override
     public void registerRecipes() {

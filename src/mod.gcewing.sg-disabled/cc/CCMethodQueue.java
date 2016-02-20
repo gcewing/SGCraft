@@ -33,7 +33,7 @@ public class CCMethodQueue {
         throws LuaException, InterruptedException
     {
         //System.out.printf("CCMethodQueue.tick: Queueing %s from %s\n", method,
-        //	Thread.currentThread().getName());
+        //  Thread.currentThread().getName());
         CCCall item = new CCCall(cpu, ctx, target, method, args);
         items.add(item);
         item.lock.acquire();
@@ -47,7 +47,7 @@ public class CCMethodQueue {
     void tick() {
         int n = items.size();
         //System.out.printf("CCMethodQueue.tick from %s: %s items in queue\n",
-        //	Thread.currentThread().getName(), n);
+        //  Thread.currentThread().getName(), n);
         while (n-- > 0) {
             CCCall item = items.poll();
             if (item == null)

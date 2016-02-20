@@ -93,14 +93,14 @@ public class IrisEntity extends Entity implements IEntityAdditionalSpawnData {
         return false;
     }
     
-//	@Override
-//	public boolean hitByEntity(Entity e) {
-//		if (!worldObj.isRemote) {
-//			System.out.printf("IrisEntity.hitByEntity: %s with box %s\n", this, boundingBox);
-//			worldObj.removeEntity(this);
-//		}
-//		return false;
-//	}
+//  @Override
+//  public boolean hitByEntity(Entity e) {
+//      if (!worldObj.isRemote) {
+//          System.out.printf("IrisEntity.hitByEntity: %s with box %s\n", this, boundingBox);
+//          worldObj.removeEntity(this);
+//      }
+//      return false;
+//  }
     
     @Override
     public void readEntityFromNBT(NBTTagCompound nbt) {

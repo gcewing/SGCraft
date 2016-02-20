@@ -67,7 +67,7 @@ public class IC2PowerTE extends PowerTE implements IEnergySink {
             loaded = true;
             MinecraftForge.EVENT_BUS.post(new EnergyTileLoadEvent(this));
         }
-    }			
+    }           
     
     void unload() {
         if (!worldObj.isRemote && loaded) {
@@ -103,10 +103,10 @@ public class IC2PowerTE extends PowerTE implements IEnergySink {
         return 0;
     }
     
-//	@Override
-//	public int getMaxSafeInput() {
-//		return maxSafeInput;
-//	}
+//  @Override
+//  public int getMaxSafeInput() {
+//      return maxSafeInput;
+//  }
     
     @Override
     public int getSinkTier() {

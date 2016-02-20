@@ -77,9 +77,9 @@ public class DHDScreen extends SGScreen {
         dhdCentreY = dhdTop + dhdHeight / 2;
     }
     
-//	@Override
-//	public void onGuiClosed() {
-//	}
+//  @Override
+//  public void onGuiClosed() {
+//  }
 
     @Override
     public void updateScreen() {
@@ -111,7 +111,7 @@ public class DHDScreen extends SGScreen {
     
     int findDHDButton(int mx, int my) {
         //System.out.printf("DHDScreen.findDHDButton: mx = %d, my = %d, cx = %d, cy = %d\n",
-        //	mx, my, dhdCentreX, dhdCentreY);
+        //  mx, my, dhdCentreX, dhdCentreY);
         int x = -(mx - dhdCentreX);
         int y = -(my - dhdCentreY);
         // Check top half of orange dome

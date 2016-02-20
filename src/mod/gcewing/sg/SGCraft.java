@@ -74,14 +74,14 @@ public class SGCraft extends BaseMod<SGCraftClient> {
         mod = this;
     }
     
-//	IntegrationBase integrationInstance(String className) {
-//		try {
-//			return (IntegrationBase)Class.forName(className).newInstance();
-//		}
-//		catch (Exception exc) {
-//			throw new RuntimeException(exc);
-//		}
-//	}
+//  IntegrationBase integrationInstance(String className) {
+//      try {
+//          return (IntegrationBase)Class.forName(className).newInstance();
+//      }
+//      catch (Exception exc) {
+//          throw new RuntimeException(exc);
+//      }
+//  }
     
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent e) {
@@ -107,7 +107,7 @@ public class SGCraft extends BaseMod<SGCraftClient> {
         super.postInit(e);
     }
 
-    @Override	
+    @Override   
     protected SGCraftClient initClient() {
         return new SGCraftClient(this);
     }
@@ -119,7 +119,7 @@ public class SGCraft extends BaseMod<SGCraftClient> {
         SGBaseTE.configure(config);
         FeatureGeneration.configure(config);
         addOresToExistingWorlds = config.getBoolean("options", "addOresToExistingWorlds", false);
-    }		
+    }       
 
     @Override
     protected void registerOther() {
@@ -140,11 +140,11 @@ public class SGCraft extends BaseMod<SGCraftClient> {
 //         if (isModLoaded("CoFHCore")) { //[RF]
 //             rfPowerUnit = newBlock("rfPowerUnit", RFPowerBlock.class);
 //         }
-//		System.out.printf("SGCraft.registerBlocks: ccIntegration == %s\n", ccIntegration);
-//		if (ccIntegration != null)
-//			ccIntegration.registerBlocks();
-//		for (IntegrationBase om : otherMods)
-//			om.registerBlocks();
+//      System.out.printf("SGCraft.registerBlocks: ccIntegration == %s\n", ccIntegration);
+//      if (ccIntegration != null)
+//          ccIntegration.registerBlocks();
+//      for (IntegrationBase om : otherMods)
+//          om.registerBlocks();
     }
     
     @Override
@@ -159,10 +159,10 @@ public class SGCraft extends BaseMod<SGCraftClient> {
         if (isModLoaded("IC2")) {
             ic2Capacitor = newItem("ic2Capacitor");
         }
-//		if (ccIntegration != null)
-//			ccIntegration.registerItems();
-//		for (IntegrationBase om : otherMods)
-//			om.registerItems();
+//      if (ccIntegration != null)
+//          ccIntegration.registerItems();
+//      for (IntegrationBase om : otherMods)
+//          om.registerItems();
     }
     
     public static boolean isValidStargateUpgrade(Item item) {
@@ -239,10 +239,10 @@ public class SGCraft extends BaseMod<SGCraftClient> {
 //                 't', transmissionCoil, 'h', hardenedEnergyFrame, 'r', receptionCoil,
 //                 'i', "ingotInvar", 'c', "ingotCopper");
 //         }
-//		if (ccIntegration != null)
-//			ccIntegration.registerRecipes();
-//		for (IntegrationBase om : otherMods)
-//			om.registerRecipes();
+//      if (ccIntegration != null)
+//          ccIntegration.registerRecipes();
+//      for (IntegrationBase om : otherMods)
+//          om.registerRecipes();
     }
     
     @Override
@@ -331,21 +331,21 @@ public class SGCraft extends BaseMod<SGCraftClient> {
                 if (obj instanceof SGBaseTE) {
                     SGBaseTE te = (SGBaseTE)obj;
                     //System.out.printf("SGCraft.onChunkUnload: Disconnecting stargate at (%s, %s, %s)\n",
-                    //	te.xCoord, te.yCoord, te.zCoord);
+                    //  te.xCoord, te.yCoord, te.zCoord);
                     te.disconnect();
                 }
             }
         }
     }
 
-//	@SubscribeEvent
-//	void onWorldLoad(WorldEvent.Load e) {
-//		System.out.printf("SGCraft: World loaded: %s\n", e.world);
-//	}
-//	
-//	@SubscribeEvent
-//	void onWorldUnload(WorldEvent.Unload e) {
-//		System.out.printf("SGCraft: World unloaded: %s\n", e.world);
-//	}
+//  @SubscribeEvent
+//  void onWorldLoad(WorldEvent.Load e) {
+//      System.out.printf("SGCraft: World loaded: %s\n", e.world);
+//  }
+//  
+//  @SubscribeEvent
+//  void onWorldUnload(WorldEvent.Unload e) {
+//      System.out.printf("SGCraft: World unloaded: %s\n", e.world);
+//  }
 
 }

@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------------------------
 //
-//	 SG Craft - Base class for stargate computer interface tile entities
+//   SG Craft - Base class for stargate computer interface tile entities
 //
 //------------------------------------------------------------------------------------------------
 
@@ -11,9 +11,9 @@ import gcewing.sg.SGAddressing.AddressingError;
 
 public class SGInterfaceTE extends BaseTileEntity {
 
-//	public SGBaseTE getBaseTE() {
-//		return SGBaseTE.getBaseTE(this);
-//	}
+//  public SGBaseTE getBaseTE() {
+//      return SGBaseTE.getBaseTE(this);
+//  }
 
     public SGBaseTE getBaseTE() {
         return SGBaseTE.get(getWorld(), pos.add(0, 1, 0));

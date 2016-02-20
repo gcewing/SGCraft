@@ -54,21 +54,21 @@ public class SGBaseScreen extends SGScreen {
         return false;
     }
     
-//	@Override
-//	protected void keyTyped(char c, int key) {
-//		if (key == Keyboard.KEY_ESCAPE)
-//			close();
-//		else if (key == Keyboard.KEY_BACK || key == Keyboard.KEY_DELETE) {
-//			int n = te.homeAddress.length();
-//			if (n > 0)
-//				setAddress(te.homeAddress.substring(0, n - 1));
-//		}
-//		else {
-//			String s = String.valueOf(c).toUpperCase();
-//			if (SGBaseTE.isValidSymbolChar(s) && te.homeAddress.length() < 7)
-//				setAddress(te.homeAddress + s);
-//		}
-//	}
+//  @Override
+//  protected void keyTyped(char c, int key) {
+//      if (key == Keyboard.KEY_ESCAPE)
+//          close();
+//      else if (key == Keyboard.KEY_BACK || key == Keyboard.KEY_DELETE) {
+//          int n = te.homeAddress.length();
+//          if (n > 0)
+//              setAddress(te.homeAddress.substring(0, n - 1));
+//      }
+//      else {
+//          String s = String.valueOf(c).toUpperCase();
+//          if (SGBaseTE.isValidSymbolChar(s) && te.homeAddress.length() < 7)
+//              setAddress(te.homeAddress + s);
+//      }
+//  }
     
     @Override
     protected void drawBackgroundLayer() {
@@ -81,35 +81,35 @@ public class SGBaseScreen extends SGScreen {
         setTextColor(0x004c66);
         drawCenteredString(screenTitle, cx, 8);
         drawCenteredString(formattedAddress, cx, 72);
-//		if (this.te.numFuelSlots > 0)
-//			drawString("Fuel", 150, 96);
-//		if (this.te.numUpgradeSlots > 0)
-//			drawCenteredString("Upgrade", 56, 102);
+//      if (this.te.numFuelSlots > 0)
+//          drawString("Fuel", 150, 96);
+//      if (this.te.numUpgradeSlots > 0)
+//          drawCenteredString("Upgrade", 56, 102);
         if (this.te.numCamouflageSlots > 0)
             drawCenteredString("Base Camouflage", 92, 92);
     }
     
-//	void drawFuelGauge() {
-//		//System.out.printf("SGBaseScreen.drawFuelGauge: energyInBuffer = %s, maxEnergyBuffer = %s\n",
-//		//	te.energyInBuffer, te.maxEnergyBuffer);
-//		double level = fuelGaugeHeight * te.energyInBuffer / te.maxEnergyBuffer;
-//		if (level > fuelGaugeHeight)
-//			level = fuelGaugeHeight;
-//		//System.out.printf("SGBaseScreen.drawFuelGauge: level = %s\n", level);
-//		GL11.glEnable(GL11.GL_BLEND);
-//		drawTexturedRect(fuelGaugeX, fuelGaugeY + fuelGaugeHeight - level,
-//			fuelGaugeWidth, level, fuelGaugeU, fuelGaugeV);
-//		GL11.glDisable(GL11.GL_BLEND);
-//	}
+//  void drawFuelGauge() {
+//      //System.out.printf("SGBaseScreen.drawFuelGauge: energyInBuffer = %s, maxEnergyBuffer = %s\n",
+//      //  te.energyInBuffer, te.maxEnergyBuffer);
+//      double level = fuelGaugeHeight * te.energyInBuffer / te.maxEnergyBuffer;
+//      if (level > fuelGaugeHeight)
+//          level = fuelGaugeHeight;
+//      //System.out.printf("SGBaseScreen.drawFuelGauge: level = %s\n", level);
+//      GL11.glEnable(GL11.GL_BLEND);
+//      drawTexturedRect(fuelGaugeX, fuelGaugeY + fuelGaugeHeight - level,
+//          fuelGaugeWidth, level, fuelGaugeU, fuelGaugeV);
+//      GL11.glDisable(GL11.GL_BLEND);
+//  }
     
-//	String getAddress() {
-//		try {
-//			return te.getHomeAddress();
-//		}
-//		catch (SGAddressing.AddressingError e) {
-//			return e.getMessage();
-//		}
-//	}
+//  String getAddress() {
+//      try {
+//          return te.getHomeAddress();
+//      }
+//      catch (SGAddressing.AddressingError e) {
+//          return e.getMessage();
+//      }
+//  }
     
     void getAddress() {
         try {

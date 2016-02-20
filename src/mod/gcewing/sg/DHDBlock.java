@@ -47,9 +47,9 @@ public class DHDBlock extends BaseBlock<DHDTE> {
     }
     
     @Override
-	public IOrientationHandler getOrientationHandler() {
-		return BaseOrientation.orient4WaysByState;
-	}
+    public IOrientationHandler getOrientationHandler() {
+        return BaseOrientation.orient4WaysByState;
+    }
 
     @Override
     public int getRenderType() {

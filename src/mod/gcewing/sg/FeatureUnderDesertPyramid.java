@@ -70,7 +70,7 @@ public class FeatureUnderDesertPyramid extends StructureComponent {
         sgRings[0] = SGCraft.sgRingBlock.getDefaultState();
         sgRings[1] = sgRings[0].withProperty(SGRingBlock.VARIANT, 1);
         //System.out.printf("SGCraft: FeatureUnderDesertPyramid.addComponentParts: " +
-        //	"Filling (%d,%d,%d)-(%d,%d,%d)\n", box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ);
+        //  "Filling (%d,%d,%d)-(%d,%d,%d)\n", box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ);
         // Main chamber
         fillWithBlocks(world, clip, 0, 0, 0, 10, 7, 10, sandstone, air, false);
         // Stairwell
@@ -119,9 +119,9 @@ public class FeatureUnderDesertPyramid extends StructureComponent {
         SGBaseTE te = (SGBaseTE)world.getTileEntity(new BlockPos(baseX, baseY, baseZ));
         if (te != null)
             te.hasChevronUpgrade = true;
-//		else
-//			System.out.printf("FeatureUnderDesertPyramid.addComponentParts: No tile entity at (%d,%d,%d)\n",
-//				baseX, baseY, baseZ);
+//      else
+//          System.out.printf("FeatureUnderDesertPyramid.addComponentParts: No tile entity at (%d,%d,%d)\n",
+//              baseX, baseY, baseZ);
         // Controller
         setBlockState(world, dhd, 5, 1, 7, clip);
         return true;

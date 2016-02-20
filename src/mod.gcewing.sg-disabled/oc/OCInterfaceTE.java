@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------------------------
 //
-//	 SG Craft - Open Computers Interface Tile Entity
+//   SG Craft - Open Computers Interface Tile Entity
 //
 //------------------------------------------------------------------------------------------------
 
@@ -43,7 +43,7 @@ public class OCInterfaceTE extends SGInterfaceTE
             .create();
     }
 
-    //@Override	
+    //@Override 
     protected IInventory getInventory() {
         return inventory;
     }
@@ -55,7 +55,7 @@ public class OCInterfaceTE extends SGInterfaceTE
     
     static boolean isNetworkCard(ItemStack stack) {
         //System.out.printf("OCInterfaceTE.isNetworkCard: comparing %s with %s\n",
-        //	stack, OCIntegration.networkCard);
+        //  stack, OCIntegration.networkCard);
         return stack != null && OCIntegration.networkCard.isItemEqual(stack);
     }
     
@@ -67,7 +67,7 @@ public class OCInterfaceTE extends SGInterfaceTE
         }
     }
 
-    @Override	
+    @Override   
     public void rebroadcastNetworkPacket(Object packet) {
         if (packet instanceof Packet && hasNetworkCard()) {
             if (node != null) {
@@ -118,10 +118,10 @@ public class OCInterfaceTE extends SGInterfaceTE
         return null;
     }
     
-//	@Callback
-//	public Object[] direction(Context ctx, Arguments args) {
-//		return new Object[]{ciDirection()};
-//	}
+//  @Callback
+//  public Object[] direction(Context ctx, Arguments args) {
+//      return new Object[]{ciDirection()};
+//  }
     
     @Callback
     public Object[] irisState(Context ctx, Arguments args) {
@@ -148,7 +148,7 @@ public class OCInterfaceTE extends SGInterfaceTE
             objs[i] = args.checkAny(i);
         ciSendMessage(objs);
         return null;
-    }		
+    }       
         
     // -------------------------- Environment --------------------------
 
@@ -246,7 +246,7 @@ public class OCInterfaceTE extends SGInterfaceTE
         if (!addedToNetwork) {
             addedToNetwork = true;
             Network.joinOrCreateNetwork(this);
-//			Network.joinWirelessNetwork(this);
+//          Network.joinWirelessNetwork(this);
         }
     }
 
@@ -269,7 +269,7 @@ public class OCInterfaceTE extends SGInterfaceTE
     void onRemoved() {
         if (node != null)
             node.remove();
-//		Network.leaveWirelessNetwork(this);
+//      Network.leaveWirelessNetwork(this);
     }
     
     // ----------------------------------------------------------------------- //
@@ -321,7 +321,7 @@ public class OCInterfaceTE extends SGInterfaceTE
     public int getSizeInventory() {
         IInventory inventory = getInventory();
         return (inventory != null) ? inventory.getSizeInventory() : 0;
-    }	
+    }   
 
     /**
      * Returns the stack in slot i

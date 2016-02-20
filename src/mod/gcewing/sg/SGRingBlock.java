@@ -56,10 +56,10 @@ public class SGRingBlock extends BaseBlock<SGRingTE>  implements ISGBlock {
         super(Material.rock, SGRingTE.class);
         setHardness(1.5F);
         setCreativeTab(CreativeTabs.tabMisc);
-//		registerSubItemNames();
+//      registerSubItemNames();
     }
     
-	protected void defineProperties() {
+    protected void defineProperties() {
         super.defineProperties();
         addProperty(VARIANT);
     }
@@ -70,14 +70,14 @@ public class SGRingBlock extends BaseBlock<SGRingTE>  implements ISGBlock {
     }
 
     @Override
-	public String[] getTextureNames() {
-		return textures;
-	}
-	
+    public String[] getTextureNames() {
+        return textures;
+    }
+    
     @Override
-	public ModelSpec getModelSpec(IBlockState state) {
-		return models[state.getValue(VARIANT)];
-	}
+    public ModelSpec getModelSpec(IBlockState state) {
+        return models[state.getValue(VARIANT)];
+    }
 
     @Override
     protected String getRendererClassName() {

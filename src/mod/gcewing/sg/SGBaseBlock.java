@@ -75,15 +75,15 @@ public class SGBaseBlock extends BaseBlock<SGBaseTE> implements ISGBlock {
     }
     
     @Override
-	public String[] getTextureNames() {
-		return textures;
-	}
-	
+    public String[] getTextureNames() {
+        return textures;
+    }
+    
     @Override
-	public ModelSpec getModelSpec(IBlockState state) {
-		return model;
-	}
-	
+    public ModelSpec getModelSpec(IBlockState state) {
+        return model;
+    }
+    
     @Override
     public SGBaseTE getBaseTE(IBlockAccess world, BlockPos pos) {
         return getTileEntity(world, pos);
@@ -151,7 +151,7 @@ public class SGBaseBlock extends BaseBlock<SGBaseTE> implements ISGBlock {
             if (debugMerge)
                 System.out.printf("SGBaseBlock.onBlockActivated: %s: isMerged = %s\n", Side, te.isMerged);
             //if (!world.isRemote)
-            //	te.dumpChunkLoadingState("SGBaseBlock.onBlockActivated");
+            //  te.dumpChunkLoadingState("SGBaseBlock.onBlockActivated");
             if (te.isMerged) {
                 SGCraft.mod.openGui(player, SGGui.SGBase, world, pos);
                 return true;
@@ -269,26 +269,26 @@ public class SGBaseBlock extends BaseBlock<SGBaseTE> implements ISGBlock {
             explode(world, new Vector3(pos).add(0.5, 2.5, 0.5), explosionRadius);
     }
     
-//	static DamageSource explodingStargateDamage = new ExplodingStargateDamage();
+//  static DamageSource explodingStargateDamage = new ExplodingStargateDamage();
     
     void explode(World world, Vector3 p, double s) {
-//		DamageSource oldDamage = DamageSource.explosion;
-//		DamageSource.explosion = explodingStargateDamage;
-//		try {
+//      DamageSource oldDamage = DamageSource.explosion;
+//      DamageSource.explosion = explodingStargateDamage;
+//      try {
                 world.newExplosion(null, p.x, p.y, p.z, (float)s, fieryExplosion, smokyExplosion);
-//		}
-//		finally {
-//			DamageSource.explosion = oldDamage;
-//		}
-//		AxisAlignedBB box = AxisAlignedBB.getBoundingBox(x - s, y - s, z - s, x + s, y + s, z + s);
-//		List<EntityLiving> ents = world.getEntitiesWithinAABB(EntityLiving.class, box);
-//		for (EntityLiving ent : ents) {
-//			double dx = ent.posX - x, dy = ent.posY - y, dz = ent.posZ - z;
-//			double rsq = Math.max(1.0, dx * dx + dy * dy + dz * dz);
-//			int damage = (int)(1000 / rsq);
-//			System.out.printf("SGBaseBlock.explode: damaging %s by %s\n", ent, damage);
-//			ent.attackEntityFrom(DamageSource.explosion, damage);
-//		}
+//      }
+//      finally {
+//          DamageSource.explosion = oldDamage;
+//      }
+//      AxisAlignedBB box = AxisAlignedBB.getBoundingBox(x - s, y - s, z - s, x + s, y + s, z + s);
+//      List<EntityLiving> ents = world.getEntitiesWithinAABB(EntityLiving.class, box);
+//      for (EntityLiving ent : ents) {
+//          double dx = ent.posX - x, dy = ent.posY - y, dz = ent.posZ - z;
+//          double rsq = Math.max(1.0, dx * dx + dy * dy + dz * dz);
+//          int damage = (int)(1000 / rsq);
+//          System.out.printf("SGBaseBlock.explode: damaging %s by %s\n", ent, damage);
+//          ent.attackEntityFrom(DamageSource.explosion, damage);
+//      }
     }
     
     void unmergeRing(World world, BlockPos pos) {
@@ -333,12 +333,12 @@ public class SGBaseBlock extends BaseBlock<SGBaseTE> implements ISGBlock {
 
 //class ExplodingStargateDamage extends DamageSource {
 //
-//	public ExplodingStargateDamage() {
-//		super("sgExplosion");
-//	}
-//	
-//	public String getDeathMessage(EntityPlayer player) {
-//		return player.username + " was killed by an exploding stargate";
-//	}
-//	
+//  public ExplodingStargateDamage() {
+//      super("sgExplosion");
+//  }
+//  
+//  public String getDeathMessage(EntityPlayer player) {
+//      return player.username + " was killed by an exploding stargate";
+//  }
+//  
 //}
