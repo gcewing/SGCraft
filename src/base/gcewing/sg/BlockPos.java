@@ -36,6 +36,10 @@ public class BlockPos {
         return new BlockPos(x + v.getX(), y + v.getY(), z + v.getZ());
     }
     
+    public boolean equals(BlockPos other) {
+        return this.x == other.x && this.y == other.y && this.z == other.z;
+    }
+    
     @Override
     public String toString() {
         return String.format("(%s,%s,%s)", x, y, z);

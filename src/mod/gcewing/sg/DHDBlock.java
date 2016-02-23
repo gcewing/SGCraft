@@ -64,7 +64,7 @@ public class DHDBlock extends BaseBlock<DHDTE> {
     @Override
     public void onBlockAdded(World world, BlockPos pos, IBlockState state) {
         if (SGBaseBlock.debugMerge)
-            System.out.printf("DHDBlock.onBlockAdded: at %d\n", pos);
+            System.out.printf("DHDBlock.onBlockAdded: at %s\n", pos);
         checkForLink(world, pos);
     }
 
@@ -75,7 +75,6 @@ public class DHDBlock extends BaseBlock<DHDTE> {
     }
 
     @Override
-//     public boolean canHarvestBlock(IBlockAccess world, BlockPos pos, EntityPlayer player) {
     public boolean canHarvestBlock(IBlockState state, EntityPlayer player) {
         return true;
     }

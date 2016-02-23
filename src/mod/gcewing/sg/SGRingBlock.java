@@ -154,10 +154,13 @@ public class SGRingBlock extends BaseBlock<SGRingTE>  implements ISGBlock {
     
     public void unmergeFrom(World world, BlockPos pos, BlockPos basePos) {
         SGRingTE te = getTileEntity(world, pos);
+        if (SGBaseBlock.debugMerge)
+            System.out.printf("SGRingBlock.unmergeFrom: ring at %s base at %s te.isMerged = %s te.basePos = %s\n",
+                pos, basePos, te.isMerged, te.basePos);
         if (te.isMerged && te.basePos.equals(basePos)) {
-            //System.out.printf("SGRingBlock.unmergeFrom: unmerging\n");
+            if (SGBaseBlock.debugMerge)
+                System.out.printf("SGRingBlock.unmergeFrom: unmerging\n");
             te.isMerged = false;
-            //te.onInventoryChanged();
             markWorldBlockForUpdate(world, pos);
         }
     }

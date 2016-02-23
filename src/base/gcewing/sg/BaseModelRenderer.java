@@ -22,7 +22,7 @@ public class BaseModelRenderer implements ICustomRenderer {
     protected ITexture[] textures;
     protected Vector3 origin;
     
-    private static Trans3 itemTrans = Trans3.blockCenterSideTurn(0, 0);
+//     private static Trans3 itemTrans = Trans3.blockCenterSideTurn(0, 0);
 
     public BaseModelRenderer(IModel model, ITexture... textures) {
         this(model, Vector3.zero, textures);
@@ -42,14 +42,14 @@ public class BaseModelRenderer implements ICustomRenderer {
         model.render(t2, target, textures);
     }
     
-    public void renderItemStack(ItemStack stack, IRenderTarget target) {
+    public void renderItemStack(ItemStack stack, IRenderTarget target, Trans3 t) {
         if (debugRenderModel) {
             System.out.printf("BaseModelRenderer.renderItemStack: %s\n", stack);
             System.out.printf("BaseModelRenderer.renderItemStack: model = %s\n", model);
             for (int i = 0; i < textures.length; i++)
                 System.out.printf("BaseModelRenderer.renderItemStack: textures[%s] = %s\n", i, textures[i]);
         }
-        model.render(itemTrans.translate(origin), target, textures);
+        model.render(t.translate(origin), target, textures);
     }
 
 }

@@ -165,9 +165,10 @@ public class SGInterfaceTE extends BaseTileEntity {
     }
     
     public void ciSendMessage(Object[] args) {
-        SGBaseTE te = getBaseTE();
-        if (te != null)
-            te.sendMessage(args);
+        SGBaseTE te = requireBaseTE();
+        String error = te.sendMessage(args);
+        if (error != null)
+            throw new IllegalArgumentException(error);
     }
 
 }

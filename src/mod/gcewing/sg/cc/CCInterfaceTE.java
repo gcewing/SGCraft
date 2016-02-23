@@ -20,11 +20,8 @@ public class CCInterfaceTE extends SGInterfaceTE implements IComputerInterface {
 
     public void postEvent(TileEntity source, String name, Object... args) {
         //System.out.printf("CCInterfaceTE.postEvent: %s\n", name);
-        for (IComputerAccess cpu : attachedComputers) {
-            //System.out.printf("CCInterfaceTE.postEvent: to %s\n", cpu);
-            //cpu.queueEvent(name, new Object[]{args});
+        for (IComputerAccess cpu : attachedComputers)
             cpu.queueEvent(name, prependArgs(cpu.getAttachmentName(), args));
-        }
     }
     
 }

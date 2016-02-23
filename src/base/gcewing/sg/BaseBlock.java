@@ -150,7 +150,6 @@ public class BaseBlock<TE extends TileEntity>
             int i = numProperties++;
             properties[i] = property;
             Object[] values = BaseUtils.arrayOf(property.getAllowedValues());
-            //Arrays.sort(values);
             propertyValues[i] = values;
         }
         else
@@ -213,15 +212,12 @@ public class BaseBlock<TE extends TileEntity>
         for (int i = numProperties - 1; i >= 0; i--) {
             Object value = state.getValue(properties[i]);
             Object[] values = propertyValues[i];
-            //int k = Arrays.binarySearch(values, value);
             int k = values.length - 1;
             while (k > 0 && !values[k].equals(value))
                 --k;
             if (debugState)
                 System.out.printf("BaseBlock.getMetaFromState: property %s value %s --> %s of %s\n",
                     i, value, k, values.length);
-            //if (k < 0)
-            //    k = 0;
             meta = meta * values.length + k;
         }
         if (debugState)

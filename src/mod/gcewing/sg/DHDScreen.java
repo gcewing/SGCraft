@@ -95,8 +95,8 @@ public class DHDScreen extends SGScreen {
     }
     
     @Override
-    public void mousePressed(int x, int y, int mouseButton) {
-        System.out.printf("DHDScreen.mousePressed: %d, %d, %d\n", x, y, mouseButton);
+    protected void mousePressed(int x, int y, int mouseButton) {
+        //System.out.printf("DHDScreen.mousePressed: %d, %d, %d\n", x, y, mouseButton);
         if (mouseButton == 0) {
             int i = findDHDButton(x, y);
             if (i >= 0) {
@@ -140,12 +140,12 @@ public class DHDScreen extends SGScreen {
             i0 = 27; nb = 11;
         }
         int i = i0 + (int)Math.floor(a * nb / 360);
-        System.out.printf("DHDScreen.findDHDButton: i = %d\n", i);
+        //System.out.printf("DHDScreen.findDHDButton: i = %d\n", i);
         return i;
     }
     
     void dhdButtonPressed(int i) {
-        System.out.printf("DHDScreen.dhdButtonPressed: %d\n", i);
+        //System.out.printf("DHDScreen.dhdButtonPressed: %d\n", i);
         buttonSound();
         if (i == 0)
             orangeButtonPressed(false);
@@ -181,9 +181,7 @@ public class DHDScreen extends SGScreen {
     
     void orangeButtonPressed(boolean connectOnly) {
         SGBaseTE te = getStargateTE();
-        System.out.printf("DHDScreen.orangeButtonPressed: connectOnly = %s, te = %s\n", connectOnly, te);
         if (te != null) {
-            System.out.printf("DHDScreen.orangeButtonPressed: state = %s\n", te.state);
             if (te.state == SGState.Idle)
                 sendConnectOrDisconnect(te, getEnteredAddress());
             else if (!connectOnly)
@@ -192,7 +190,6 @@ public class DHDScreen extends SGScreen {
     }
     
     void sendConnectOrDisconnect(SGBaseTE te, String address) {
-        System.out.printf("DHDScreen.sendConnectOrDisconnect: %s %s\n", te, address);
         SGChannel.sendConnectOrDisconnectToServer(te, address);
         closeAfterDelay(10);
     }

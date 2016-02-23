@@ -108,7 +108,7 @@ public class SGBaseBlock extends BaseBlock<SGBaseTE> implements ISGBlock {
     @Override
     public void onBlockAdded(World world, BlockPos pos, IBlockState state) {
         if (SGBaseBlock.debugMerge)
-            System.out.printf("SGBaseBlock.onBlockAdded: at %d\n", pos);
+            System.out.printf("SGBaseBlock.onBlockAdded: at %s\n", pos);
         checkForMerge(world, pos);
     }
     
@@ -252,7 +252,7 @@ public class SGBaseBlock extends BaseBlock<SGBaseTE> implements ISGBlock {
     
     void unmergeRingBlock(World world, BlockPos pos, BlockPos ringPos) {
         //System.out.printf("SGBaseBlock.unmergeRingBlock at (%d,%d,%d)\n", xr, yr, zr);
-        Block block = getWorldBlock(world, pos);
+        Block block = getWorldBlock(world, ringPos);
         if (debugMerge)
             System.out.printf("SGBaseBlock.unmergeRingBlock: found %s at %s\n", block, ringPos);
         if (block instanceof SGRingBlock) {

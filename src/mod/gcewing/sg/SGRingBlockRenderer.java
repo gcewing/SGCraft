@@ -50,10 +50,10 @@ public class SGRingBlockRenderer implements ICustomRenderer {
         }
     }
     
-    public void renderItemStack(ItemStack stack, IRenderTarget target) {
+    public void renderItemStack(ItemStack stack, IRenderTarget target, Trans3 t) {
         if (BaseModClient.debugRenderItem)
             System.out.printf("SGRingBlockRenderer.renderItemStack: %s\n", stack);
-        SGCraft.mod.client.renderItemStackUsingModelSpec(stack, target);
+        SGCraft.mod.client.renderItemStackUsingModelSpec(stack, target, t);
     }
 
 }

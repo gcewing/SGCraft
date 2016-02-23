@@ -31,6 +31,7 @@ public class OCInterfaceTE extends SGInterfaceTE
     implements IComputerInterface, Environment, IInventory
 {
 
+    static boolean debugConnection = false;
     static boolean debugNetworking = false;
     
     final static int numUpgradeSlots = 1;
@@ -41,7 +42,7 @@ public class OCInterfaceTE extends SGInterfaceTE
         node = Network.newNode(this, Visibility.Network)
             .withComponent("stargate", Visibility.Network)
             .create();
-        System.out.printf("OCInterfaceTE: Created node %s\n", node);
+        //System.out.printf("OCInterfaceTE: Created node %s\n", node);
     }
 
     //@Override 
@@ -81,74 +82,86 @@ public class OCInterfaceTE extends SGInterfaceTE
 
     // -------------------------- Methods --------------------------
     
+    protected static Object[] success = {true};
+    
+    protected static Object[] failure(Exception e) {
+        return new Object[] {null, e.getMessage()};
+    }
+    
     @Callback
     public Object[] stargateState(Context ctx, Arguments args) {
-        CIStargateState result = ciStargateState();
-        return new Object[]{result.state, result.chevrons, result.direction};
+        try {
+            CIStargateState result = ciStargateState();
+            return new Object[]{result.state, result.chevrons, result.direction};
+        }
+        catch (Exception e) {return failure(e);}
     }
     
     @Callback
     public Object[] energyAvailable(Context ctx, Arguments args) {
-        return new Object[]{ciEnergyAvailable()};
+        try {return new Object[]{ciEnergyAvailable()};}
+        catch (Exception e) {return failure(e);}
     }
     
     @Callback
     public Object[] energyToDial(Context ctx, Arguments args) {
-        return new Object[]{ciEnergyToDial(args.checkString(0))};
+        try {return new Object[]{ciEnergyToDial(args.checkString(0))};}
+        catch (Exception e) {return failure(e);}
     }
     
     @Callback
     public Object[] localAddress(Context ctx, Arguments args) {
-        return new Object[]{ciLocalAddress()};
+        try {return new Object[]{ciLocalAddress()};}
+        catch (Exception e) {return failure(e);}
     }
     
     @Callback
     public Object[] remoteAddress(Context ctx, Arguments args) {
-        return new Object[]{ciRemoteAddress()};
+        try {return new Object[]{ciRemoteAddress()};}
+        catch (Exception e) {return failure(e);}
     }
     
     @Callback
     public Object[] dial(Context ctx, Arguments args) {
-        ciDial(args.checkString(0));
-        return null;
+        try {ciDial(args.checkString(0)); return success;}
+        catch (Exception e) {return failure(e);}
     }
     
     @Callback
     public Object[] disconnect(Context ctx, Arguments args) {
-        ciDisconnect();
-        return null;
+        try {ciDisconnect(); return success;}
+        catch (Exception e) {return failure(e);}
     }
-    
-//  @Callback
-//  public Object[] direction(Context ctx, Arguments args) {
-//      return new Object[]{ciDirection()};
-//  }
     
     @Callback
     public Object[] irisState(Context ctx, Arguments args) {
-        return new Object[]{ciIrisState()};
+        try {return new Object[]{ciIrisState()};}
+        catch (Exception e) {return failure(e);}
     }
     
     @Callback
     public Object[] openIris(Context ctx, Arguments args) {
-        ciOpenIris();
-        return null;
+        try {ciOpenIris(); return success;}
+        catch (Exception e) {return failure(e);}
     }
     
     @Callback
     public Object[] closeIris(Context ctx, Arguments args) {
-        ciCloseIris();
-        return null;
+        try {ciCloseIris(); return success;}
+        catch (Exception e) {return failure(e);}
     }
 
     @Callback
     public Object[] sendMessage(Context ctx, Arguments args) {
-        int n = args.count();
-        Object[] objs = new Object[n];
-        for (int i = 0; i < n; i++)
-            objs[i] = args.checkAny(i);
-        ciSendMessage(objs);
-        return null;
+        try {
+            int n = args.count();
+            Object[] objs = new Object[n];
+            for (int i = 0; i < n; i++)
+                objs[i] = args.checkAny(i);
+            ciSendMessage(objs);
+            return success;
+        }
+        catch (Exception e) {return failure(e);}
     }       
         
     // -------------------------- Environment --------------------------
@@ -205,7 +218,8 @@ public class OCInterfaceTE extends SGInterfaceTE
         // network our node is in, in which case `node` is the added node.
         // If our node is added to an existing network, this is called for each
         // node already in said network.
-        System.out.printf("OCInterfaceTE.onConnect: %s\n", node);
+        if (debugConnection)
+            System.out.printf("OCInterfaceTE.onConnect: %s\n", node);
     }
 
     @Override
@@ -217,7 +231,8 @@ public class OCInterfaceTE extends SGInterfaceTE
         // network our node is in, in which case `node` is the removed node.
         // If a net-split occurs this is called for each node that is no longer
         // connected to our node.
-        System.out.printf("OCInterfaceTE.onDisconnect: %s\n", node);
+        if (debugConnection)
+            System.out.printf("OCInterfaceTE.onDisconnect: %s\n", node);
     }
 
     @Override

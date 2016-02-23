@@ -337,11 +337,10 @@ public class BaseModClient<MOD extends BaseMod<? extends BaseModClient>> impleme
     public interface ICustomRenderer {
         void renderBlock(IBlockAccess world, BlockPos pos, IBlockState state, IRenderTarget target,
             EnumWorldBlockLayer layer, Trans3 t);
-        void renderItemStack(ItemStack stack, IRenderTarget target);
+        void renderItemStack(ItemStack stack, IRenderTarget target, Trans3 t);
     }
     
     public interface ITexture {
-        //TextureAtlasSprite getIcon();
         ResourceLocation location();
         int tintIndex();
         double red();
@@ -512,6 +511,11 @@ public class BaseModClient<MOD extends BaseMod<? extends BaseModClient>> impleme
 
     protected static BaseGLRenderTarget glTarget = new BaseGLRenderTarget();
 
+    protected static Trans3 entityTrans = Trans3.blockCenter;
+    protected static Trans3 equippedTrans = Trans3.blockCenter;
+    protected static Trans3 firstPersonTrans = Trans3.blockCenterSideTurn(0, 3);
+    protected static Trans3 inventoryTrans = Trans3.blockCenter;
+    
     protected class ItemRenderDispatcher implements IItemRenderer {
     
         public boolean handleRenderType(ItemStack item, ItemRenderType type) {
@@ -523,21 +527,6 @@ public class BaseModClient<MOD extends BaseMod<? extends BaseModClient>> impleme
         }
         
         public void renderItem(ItemRenderType type, ItemStack stack, Object... data) {
-//             EntityLiving entity = null;
-//             RenderBlocks rb = null;
-            switch (type) {
-                case ENTITY:
-                case EQUIPPED:
-                case EQUIPPED_FIRST_PERSON:
-//                     rb = (RenderBlocks)data[0];
-//                     entity = (EntityLiving)data[1];
-//                     break;
-                case INVENTORY:
-//                     rb = (RenderBlocks)data[0];
-                    break;
-                default:
-                    return;
-            }
             if (debugRenderItem) System.out.printf("BaseModClient.ItemRenderDispatcher.renderItem: %s %s\n", type, stack);
             ICustomRenderer renderer = itemRenderers.get(stack.getItem());
             if (debugRenderItem) System.out.printf("BaseModClient.ItemRenderDispatcher.renderItem: Custom renderer = %s\n", renderer);
@@ -546,8 +535,16 @@ public class BaseModClient<MOD extends BaseMod<? extends BaseModClient>> impleme
                 if (debugRenderItem) System.out.printf("BaseModClient.ItemRenderDispatcher.renderItem: Model renderer = %s\n", renderer);
             }
             if (renderer != null) {
+                Trans3 t;
+                switch (type) {
+                    case ENTITY: t = entityTrans; break;
+                    case EQUIPPED: t = equippedTrans; break;
+                    case EQUIPPED_FIRST_PERSON: t = firstPersonTrans; break;
+                    case INVENTORY: t = inventoryTrans; break;
+                    default: return;
+                }
                 glTarget.start(false);
-                renderer.renderItemStack(stack, glTarget);
+                renderer.renderItemStack(stack, glTarget, t);
                 glTarget.finish();
             }
         }
@@ -632,11 +629,11 @@ public class BaseModClient<MOD extends BaseMod<? extends BaseModClient>> impleme
     }
     
     // Call this from renderItemStack of an ICustomRenderer to fall back to model spec
-    public void renderItemStackUsingModelSpec(ItemStack stack, IRenderTarget target) {
+    public void renderItemStackUsingModelSpec(ItemStack stack, IRenderTarget target, Trans3 t) {
         ICustomRenderer rend = getModelRendererForItemStack(stack);
         if (debugRenderItem) System.out.printf("BaseModClient.renderItemStackUsingModelSpec: renderer = %s\n", rend);
         if (rend != null)
-            rend.renderItemStack(stack, target);
+            rend.renderItemStack(stack, target, t);
     }
 
     public IModel getModel(String name) {

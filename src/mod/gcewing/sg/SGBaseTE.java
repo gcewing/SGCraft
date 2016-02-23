@@ -11,7 +11,6 @@ import java.lang.reflect.Method;
 import org.apache.logging.log4j.*;
 import io.netty.channel.*;
 
-import net.minecraft.client.renderer.texture.ITickable;
 import net.minecraft.entity.*;
 import net.minecraft.entity.player.*;
 import net.minecraft.inventory.*;
@@ -41,7 +40,7 @@ import static gcewing.sg.BaseUtils.*;
 import static gcewing.sg.BaseInventoryUtils.*;
 import static gcewing.sg.Utils.*;
 
-public class SGBaseTE extends BaseTileInventory implements ITickable {
+public class SGBaseTE extends BaseTileInventory {
 
     static boolean debugState = false;
     static boolean debugEnergyUse = false;
@@ -54,7 +53,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
     public final static double ringSymbolAngle = 360.0 / numRingSymbols;
     public final static double irisZPosition = 0.1;
     public final static double irisThickness = 0.2; //0.1;
-    public final static DamageSource irisDamageSource = new DamageSource("sgcraft:iris"); //new IrisDamageSource();
+    public final static DamageSource irisDamageSource = new DamageSource("sgcraft:iris");
     public final static float irisDamageAmount = 1000000;
     
     final static int[] diallingTime = {40, 28}; // ticks
@@ -95,7 +94,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
     public static boolean transparency = true;
     
     static Random random = new Random();
-    static DamageSource transientDamage = new DamageSource("sgcraft:transient"); //new TransientDamageSource();
+    static DamageSource transientDamage = new DamageSource("sgcraft:transient");
     
     public boolean isMerged;
     public SGState state = SGState.Idle;
@@ -400,7 +399,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
         tick();
     }
 
-    @Override
+//    @Override
     public void tick() {
         if (worldObj.isRemote)
             clientUpdate();
@@ -438,7 +437,6 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
         String oldDesc = sgStateDescription(oldState);
         String newDesc = sgStateDescription(newState);
         if (!oldDesc.equals(newDesc))
-            //postEvent("sgStargateStateChange", "oldState", oldDesc, "newState", newDesc);
             postEvent("sgStargateStateChange", newDesc, oldDesc);
     }
     
@@ -483,7 +481,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
     
     public void clearLinkToController() {
         if (SGBaseBlock.debugMerge)
-            System.out.printf("SGBaseTE: Unlinking stargate at %d from controller\n", getPos());
+            System.out.printf("SGBaseTE: Unlinking stargate at %s from controller\n", getPos());
         isLinkedToController = false;
         markDirty();
     }
@@ -651,7 +649,6 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
         isInitiator = initiator;
         markDirty();
         startDiallingNextSymbol();
-        //postEvent(initiator ? "sgDialOut" : "sgDialIn", "address", address);
         postEvent(initiator ? "sgDialOut" : "sgDialIn", address);
     }
 
@@ -870,9 +867,6 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
     
     void finishDiallingSymbol() {
         ++numEngagedChevrons;
-//      postEvent("sgChevronEngaged",
-//          "chevron", numEngagedChevrons,
-//          "symbol", dialledAddress.substring(numEngagedChevrons - 1, numEngagedChevrons));
         String symbol = dialledAddress.substring(numEngagedChevrons - 1, numEngagedChevrons);
         postEvent("sgChevronEngaged", numEngagedChevrons, symbol);
         if (undialledDigitsRemaining())
@@ -1456,7 +1450,6 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
                 }
             }
             if (!oldDesc.equals(newDesc))
-                //postEvent("sgIrisStateChange", "oldState", oldDesc, "newState", newDesc);
                 postEvent("sgIrisStateChange", newDesc, oldDesc);
         }
     }
@@ -1568,23 +1561,17 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
     public boolean hasBaseCamouflageAt(int i) {
         return numItemsInSlot(firstCamouflageSlot + i) > 0;
     }
-
-    static int rdx[] = {1, 0, -1, 0};
-    static int rdz[] = {0, -1, 0, 1};
     
     // Find locations of tile entities that could connect to the stargate ring.
     // TODO: Cache this
     public Collection<BlockRef> adjacentTiles() {
         Collection<BlockRef> result = new ArrayList<BlockRef>();
-        int r = turn;
+        Trans3 t = localToGlobalTransformation();
         for (int i = -2; i <= 2; i++) {
-            //System.out.printf("SGBaseTE.adjacentTiles: Looking at (%s,%s,%s)\n",
-            //  xCoord + rdx[r], yCoord - 1, zCoord + rdz[r]);
-            TileEntity te = getWorldTileEntity(worldObj, getPos().add(i * rdx[r], -1, i * rdz[r]));
-            if (te != null) {
-                //System.out.printf("SGBaseTE.adjacentTiles: Found %s\n", te);
+            BlockPos bp = t.p(i, -1, 0).blockPos();
+            TileEntity te = getWorldTileEntity(worldObj, bp);
+            if (te != null)
                 result.add(new BlockRef(te));
-            }
         }
         return result;
     }
@@ -1605,22 +1592,22 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
         }
     }
     
-    public void sendMessage(Object[] args) {
+    public String sendMessage(Object[] args) {
         SGBaseTE dte = getConnectedStargateTE();
-        if (dte != null)
+        if (dte != null) {
             dte.postEvent("sgMessageReceived", args);
+            return null;
+        }
+        else
+            return "Stargate not connected";
     }
     
     void postEvent(String name, Object... args) {
-        //System.out.printf("SGBaseTE.postEvent: %s from (%s,%s,%s)\n", name,
-        //  xCoord, yCoord, zCoord);
+        //System.out.printf("SGBaseTE.postEvent: %s from %s\n", name, getTileEntityPos(this));
         for (BlockRef b : adjacentTiles()) {
             TileEntity te = b.getTileEntity();
-            if (te instanceof IComputerInterface) {
-                //System.out.printf("SGBaseTE.postEvent: to TE at (%s,%s,%s)\n",
-                //  b.xCoord, b.yCoord, b.zCoord);
+            if (te instanceof IComputerInterface)
                 ((IComputerInterface)te).postEvent(this, name, args);
-            }
         }
     }
     

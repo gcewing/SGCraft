@@ -22,6 +22,8 @@ import static gcewing.sg.BaseUtils.*;
 
 public class IrisEntity extends BaseEntity implements IEntityAdditionalSpawnData {
 
+    public static boolean debugIrisEntity = false;
+
     BlockPos blockPos;
     
     public IrisEntity(World world) {
@@ -48,7 +50,8 @@ public class IrisEntity extends BaseEntity implements IEntityAdditionalSpawnData
     }
     
     void init(BlockPos pos, AxisAlignedBB box) {
-        //System.out.printf("IrisEntity.init: %s at %s box %s\n", this, pos, box);
+        if (debugIrisEntity)
+            System.out.printf("IrisEntity.init: %s at %s box %s\n", this, pos, box);
         this.blockPos = pos;
         setPosition(box.minX, box.minY, box.minZ);
         setBoundingBox(box);
@@ -93,7 +96,8 @@ public class IrisEntity extends BaseEntity implements IEntityAdditionalSpawnData
     
     @Override
     public void readEntityFromNBT(NBTTagCompound nbt) {
-        //System.out.printf("IrisEntity.readEntityFromNBT\n");
+        if (debugIrisEntity)
+            System.out.printf("IrisEntity.readEntityFromNBT: %s\n", nbt);
         int blockX = nbt.getInteger("blockX");
         int blockY = nbt.getInteger("blockY");
         int blockZ = nbt.getInteger("blockZ");
@@ -110,7 +114,6 @@ public class IrisEntity extends BaseEntity implements IEntityAdditionalSpawnData
     
     @Override
     public void writeEntityToNBT(NBTTagCompound nbt) {
-        //System.out.printf("IrisEntity.writeEntityToNBT\n");
         nbt.setInteger("blockX", blockPos.getX());
         nbt.setInteger("blockY", blockPos.getY());
         nbt.setInteger("blockZ", blockPos.getZ());
@@ -121,6 +124,8 @@ public class IrisEntity extends BaseEntity implements IEntityAdditionalSpawnData
         nbt.setDouble("maxX", box.maxX);
         nbt.setDouble("maxY", box.maxY);
         nbt.setDouble("maxZ", box.maxZ);
+        if (debugIrisEntity)
+            System.out.printf("IrisEntity.writeEntityToNBT: %s\n", nbt);
     }
 
     @Override

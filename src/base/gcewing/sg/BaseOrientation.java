@@ -19,7 +19,8 @@ import static gcewing.sg.BaseUtils.*;
 
 public class BaseOrientation {
 
-    public static boolean debugPlacement = true;
+    public static boolean debugPlacement = false;
+    public static boolean debugOrientation = false;
 
     public static IOrientationHandler orient4WaysByState = new Orient4WaysByState();
     public static IOrientationHandler orient24WaysByTE = new Orient24WaysByTE();
@@ -50,7 +51,7 @@ public class BaseOrientation {
         
         public Trans3 localToGlobalTransformation(IBlockAccess world, BlockPos pos, IBlockState state, Vector3 origin) {
             EnumFacing f = (EnumFacing)state.getValue(FACING);
-            if (BaseModClient.debugRenderBlock)
+            if (debugOrientation)
                 System.out.printf("BaseOrientation.Orient4WaysByState.localToGlobalTransformation: for %s: facing = %s\n",
                     state, f);
             int i;
