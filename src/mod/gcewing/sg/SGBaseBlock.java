@@ -31,12 +31,6 @@ public class SGBaseBlock extends BaseBlock<SGBaseTE> implements ISGBlock {
     static boolean fieryExplosion = true;
     static boolean smokyExplosion = true;
 
-    static final int mergedBit = 0x8;
-    
-    static int southSide[] = {3, 5, 2, 4};
-    static int unitX[] = {1, 0, -1, 0};
-    static int unitZ[] = {0, -1, 0, 1};
-    
     static int pattern[][] = {
         {2, 1, 2, 1, 2},
         {1, 0, 0, 0, 1},
@@ -45,11 +39,7 @@ public class SGBaseBlock extends BaseBlock<SGBaseTE> implements ISGBlock {
         {2, 1, 0, 1, 2},
     };
 
-//     IIcon topAndBottomTexture; // = 0x00;
-//     IIcon frontTexture; // = 0x01;
-//     IIcon sideTexture; // = 0x02;
-
-    protected static String[] textures = {"blocks/stargateBlock", "blocks/stargateRing", "blocks/stargateBase_front"};
+    protected static String[] textures = {"stargateBlock", "stargateRing", "stargateBase_front"};
     protected static ModelSpec model = new ModelSpec("block/sg_base_block.smeg", textures);
     
     public static void configure(BaseConfiguration config) {
@@ -94,14 +84,6 @@ public class SGBaseBlock extends BaseBlock<SGBaseTE> implements ISGBlock {
         return "SGRingBlockRenderer";
     }
 
-//     @SideOnly(Side.CLIENT)
-//     @Override
-//     public void registerBlockIcons(IIconRegister reg) {
-//         topAndBottomTexture = getIcon(reg, "stargateBlock");
-//         frontTexture = getIcon(reg, "stargateBase_front");
-//         sideTexture = getIcon(reg, "stargateRing");
-//     }
-    
     @Override
     public boolean isOpaqueCube() {
         return false;
@@ -129,16 +111,16 @@ public class SGBaseBlock extends BaseBlock<SGBaseTE> implements ISGBlock {
         checkForMerge(world, pos);
     }
 
-    @Override
-    public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase player, ItemStack stack) {
-        int data = Math.round((180 - player.rotationYaw) / 90) & 3;
-        world.setBlockState(pos, state);
-        if (!world.isRemote) {
-            if (debugMerge)
-                System.out.printf("SGBaseBlock.onBlockPlacedBy: yaw = %.1f state = %s\n", player.rotationYaw, state);
-            checkForMerge(world, pos);
-        }
-    }
+//     @Override
+//     public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase player, ItemStack stack) {
+//         int data = Math.round((180 - player.rotationYaw) / 90) & 3;
+//         world.setBlockState(pos, state);
+//         if (!world.isRemote) {
+//             if (debugMerge)
+//                 System.out.printf("SGBaseBlock.onBlockPlacedBy: yaw = %.1f state = %s\n", player.rotationYaw, state);
+//             checkForMerge(world, pos);
+//         }
+//     }
     
     @Override
     public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player,
@@ -172,19 +154,10 @@ public class SGBaseBlock extends BaseBlock<SGBaseTE> implements ISGBlock {
             te.onNeighborBlockChange();
     }
     
-    int getRotation(World world, BlockPos pos) {
-        return getTileEntity(world, pos).turn;
-    }
-    
     void checkForMerge(World world, BlockPos pos) {
         if (debugMerge)
             System.out.printf("SGBaseBlock.checkForMerge at %s\n", pos);
         if (!isMerged(world, pos)) {
-//             int rot = getRotation(world, pos);
-//             int dx = unitX[rot];
-//             int dz = unitZ[rot];
-//             if (debugMerge)
-//                 System.out.printf("SGBaseBlock: rot = %d, dx = %d, dz = %d\n", rot, dx, dz);
             Trans3 t = localToGlobalTransformation(world, pos);
             for (int i = -2; i <= 2; i++)
                 for (int j = 0; j <= 4; j++) 
@@ -269,26 +242,8 @@ public class SGBaseBlock extends BaseBlock<SGBaseTE> implements ISGBlock {
             explode(world, new Vector3(pos).add(0.5, 2.5, 0.5), explosionRadius);
     }
     
-//  static DamageSource explodingStargateDamage = new ExplodingStargateDamage();
-    
     void explode(World world, Vector3 p, double s) {
-//      DamageSource oldDamage = DamageSource.explosion;
-//      DamageSource.explosion = explodingStargateDamage;
-//      try {
-                world.newExplosion(null, p.x, p.y, p.z, (float)s, fieryExplosion, smokyExplosion);
-//      }
-//      finally {
-//          DamageSource.explosion = oldDamage;
-//      }
-//      AxisAlignedBB box = AxisAlignedBB.getBoundingBox(x - s, y - s, z - s, x + s, y + s, z + s);
-//      List<EntityLiving> ents = world.getEntitiesWithinAABB(EntityLiving.class, box);
-//      for (EntityLiving ent : ents) {
-//          double dx = ent.posX - x, dy = ent.posY - y, dz = ent.posZ - z;
-//          double rsq = Math.max(1.0, dx * dx + dy * dy + dz * dz);
-//          int damage = (int)(1000 / rsq);
-//          System.out.printf("SGBaseBlock.explode: damaging %s by %s\n", ent, damage);
-//          ent.attackEntityFrom(DamageSource.explosion, damage);
-//      }
+        world.newExplosion(null, p.x, p.y, p.z, (float)s, fieryExplosion, smokyExplosion);
     }
     
     void unmergeRing(World world, BlockPos pos) {
@@ -307,8 +262,6 @@ public class SGBaseBlock extends BaseBlock<SGBaseTE> implements ISGBlock {
             //System.out.printf("SGBaseBlock: unmerging ring block\n");
             ((SGRingBlock)block).unmergeFrom(world, ringPos, pos);
         }
-//         else if (block instanceof SGPortalBlock)
-//             world.setBlock(xr, yr, zr, Blocks.air, 0, 0x3);
     }
     
     @Override
@@ -328,17 +281,3 @@ public class SGBaseBlock extends BaseBlock<SGBaseTE> implements ISGBlock {
     }
     
 }
-
-//------------------------------------------------------------------------------------------------
-
-//class ExplodingStargateDamage extends DamageSource {
-//
-//  public ExplodingStargateDamage() {
-//      super("sgExplosion");
-//  }
-//  
-//  public String getDeathMessage(EntityPlayer player) {
-//      return player.username + " was killed by an exploding stargate";
-//  }
-//  
-//}

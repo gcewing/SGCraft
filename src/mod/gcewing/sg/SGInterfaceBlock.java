@@ -15,7 +15,7 @@ import net.minecraftforge.common.util.*;
 public class SGInterfaceBlock<TE extends TileEntity> extends BaseBlock<TE> {
 
     public SGInterfaceBlock(Material material, Class<TE> teClass) {
-        super(material, teClass);
+        super(material, BaseOrientation.orient4WaysByState, teClass);
     }
     
     @Override
@@ -23,14 +23,14 @@ public class SGInterfaceBlock<TE extends TileEntity> extends BaseBlock<TE> {
         return BaseOrientation.orient4WaysByState;
     }
 
-//  SGBaseTE getBaseTE(World world, int x, int y, int z) {
-//      for (ForgeDirection d : ForgeDirection.VALID_DIRECTIONS) {
-//          TileEntity te = world.getTileEntity(x + d.offsetX, y + d.offsetY, z + d.offsetZ);
-//          if (te instanceof SGRingTE)
-//              return ((SGRingTE)te).getBaseTE();
-//      }
-//      return null;
-//  }
+//     SGBaseTE getBaseTE(World world, int x, int y, int z) {
+//         for (EnumFacing d : EnumFacing.VALUES) {
+//             TileEntity te = world.getTileEntity(x + d.offsetX, y + d.offsetY, z + d.offsetZ);
+//             if (te instanceof SGRingTE)
+//                 return ((SGRingTE)te).getBaseTE();
+//         }
+//         return null;
+//     }
     
     @Override
     public boolean isSideSolid(IBlockAccess world, BlockPos pos, EnumFacing side) {

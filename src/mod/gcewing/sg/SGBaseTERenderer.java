@@ -10,6 +10,7 @@ import static java.lang.Math.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL12.*;
 
+import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.tileentity.*;
 import net.minecraft.tileentity.*;
 import net.minecraft.util.*;
@@ -296,7 +297,7 @@ class SGBaseTERenderer extends BaseTileEntityRenderer {
             glColor3d(0.5, 0.5, 0.5);
         else {
             glDisable(GL_LIGHTING);
-            SGModel.setLightingDisabled(true);
+            setLightingDisabled(true);
         }
         glBegin(GL_QUADS);
 
@@ -320,12 +321,18 @@ class SGBaseTERenderer extends BaseTileEntityRenderer {
         glColor3f(1, 1, 1);
         glEnd();
         glEnable(GL_LIGHTING);
-        SGModel.setLightingDisabled(false);
+        setLightingDisabled(false);
     }
     
-//  static ResourceLocation eventHorizonTexture =
-//      new ResourceLocation("minecraft", "textures/misc/underwater.png");
-    
+    protected static void setLightingDisabled(boolean off) {
+        OpenGlHelper.setActiveTexture(OpenGlHelper.lightmapTexUnit);
+        if (off)
+            glDisable(GL_TEXTURE_2D);
+        else
+            glEnable(GL_TEXTURE_2D);
+        OpenGlHelper.setActiveTexture(OpenGlHelper.defaultTexUnit);
+    }
+
     void renderEventHorizon(SGBaseTE te) {
         //bindTextureByName("/misc/water.png");
         //bindTexture(eventHorizonTexture);

@@ -19,12 +19,7 @@ import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 
 public class IrisEntity extends Entity implements IEntityAdditionalSpawnData {
 
-
-        
-
-
     BlockPos blockPos;
-    int rot;
     
     public IrisEntity(World world) {
         super(world);
@@ -92,15 +87,6 @@ public class IrisEntity extends Entity implements IEntityAdditionalSpawnData {
     public boolean canBePushed() {
         return false;
     }
-    
-//  @Override
-//  public boolean hitByEntity(Entity e) {
-//      if (!worldObj.isRemote) {
-//          System.out.printf("IrisEntity.hitByEntity: %s with box %s\n", this, boundingBox);
-//          worldObj.removeEntity(this);
-//      }
-//      return false;
-//  }
     
     @Override
     public void readEntityFromNBT(NBTTagCompound nbt) {

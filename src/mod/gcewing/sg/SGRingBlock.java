@@ -29,22 +29,14 @@ import gcewing.sg.BaseMod.ModelSpec;
 
 public class SGRingBlock extends BaseBlock<SGRingTE>  implements ISGBlock {
 
-    //static final int textureBase = 0x02;
-    //static final int topAndBottomTexture = 0x00;
     static final int numSubBlocks = 2;
-//     static final int subBlockMask = 0x1;
-    
-    //public static Material ringMaterial = new Material(MapColor.stoneColor);
-    
-//     IIcon topAndBottomTexture;
-//     IIcon sideTextures[] = new IIcon[numSubBlocks];
 
     public static IProperty<Integer> VARIANT = PropertyInteger.create("variant", 0, 1);
 
-    static String[] textures = {"blocks/stargateBlock", "blocks/stargateRing", "blocks/stargateChevron"};
+    static String[] textures = {"stargateBlock", "stargateRing", "stargateChevron"};
     static ModelSpec models[] = {
-        new ModelSpec("block/sg_ring_block.smeg", "blocks/stargateBlock", "blocks/stargateRing"),
-        new ModelSpec("block/sg_ring_block.smeg", "blocks/stargateBlock", "blocks/stargateChevron")
+        new ModelSpec("block/sg_ring_block.smeg", "stargateBlock", "stargateRing"),
+        new ModelSpec("block/sg_ring_block.smeg", "stargateBlock", "stargateChevron")
     };
     
     static String[] subBlockTitles = {
@@ -83,14 +75,6 @@ public class SGRingBlock extends BaseBlock<SGRingTE>  implements ISGBlock {
     protected String getRendererClassName() {
         return "SGRingBlockRenderer";
     }
-
-//     @SideOnly(Side.CLIENT)
-//     @Override
-//     public void registerBlockIcons(IIconRegister reg) {
-//         topAndBottomTexture = getIcon(reg, "stargateBlock");
-//         sideTextures[0] = getIcon(reg, "stargateRing");
-//         sideTextures[1] = getIcon(reg, "stargateChevron");
-//     }
     
     @Override
     public boolean canRenderInLayer(EnumWorldBlockLayer layer) {

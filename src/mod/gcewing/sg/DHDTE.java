@@ -14,6 +14,7 @@ import net.minecraft.tileentity.*;
 import net.minecraft.world.*;
 import net.minecraft.util.*;
 
+import static gcewing.sg.BaseBlockUtils.*;
 import static gcewing.sg.BaseUtils.*;
 import static gcewing.sg.Utils.*;
 
@@ -51,7 +52,7 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
     }
     
     public static DHDTE at(IBlockAccess world, BlockPos pos) {
-        TileEntity te = world.getTileEntity(pos);
+        TileEntity te = getWorldTileEntity(world, pos);
         if (te instanceof DHDTE)
             return (DHDTE)te;
         else
@@ -76,7 +77,7 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
     
     @Override
     public AxisAlignedBB getRenderBoundingBox() {
-        return bounds.addCoord(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
+        return bounds.addCoord(getX() + 0.5, getY(), getZ() + 0.5);
     }
 
     @Override
@@ -128,7 +129,7 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
 
     SGBaseTE getLinkedStargateTE() {
         if (isLinkedToStargate) {
-            TileEntity gte = worldObj.getTileEntity(linkedPos);
+            TileEntity gte = getWorldTileEntity(worldObj, linkedPos);
             if (gte instanceof SGBaseTE)
                 return (SGBaseTE)gte;
         }

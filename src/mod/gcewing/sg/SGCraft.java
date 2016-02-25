@@ -10,6 +10,7 @@ import java.util.*;
 
 import net.minecraft.block.*;
 import net.minecraft.block.material.*;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.*;
 import net.minecraft.item.*;
 import net.minecraft.tileentity.*;
@@ -30,11 +31,11 @@ import net.minecraftforge.fml.common.eventhandler.*;
 import net.minecraftforge.fml.common.registry.*;
 
 //import ic2.api.item.*; //[IC2]
-// import dan200.computercraft.api.*; //[CC]
+import dan200.computercraft.api.*; //[CC]
 // import gcewing.sg.ic2.*; //[IC2]
 // import gcewing.sg.rf.*; //[RF]
-// import gcewing.sg.cc.*; //[CC]
-// import gcewing.sg.oc.*; //[OC]
+import gcewing.sg.cc.*; //[CC]
+import gcewing.sg.oc.*; //[OC]
 
 @Mod(modid = Info.modID, name = Info.modName, version = Info.versionNumber,
     acceptableRemoteVersions = Info.versionBounds)
@@ -66,28 +67,24 @@ public class SGCraft extends BaseMod<SGCraftClient> {
     public static NaquadahOreWorldGen naquadahOreGenerator;
     public static int tokraVillagerID;
     
-//     public static ICCIntegration ccIntegration; //[CC]
-//     public static OCIntegration ocIntegration; //[OC]
+    public static IIntegration ccIntegration; //[CC]
+    public static OCIntegration ocIntegration; //[OC]
 //     public static MystcraftIntegration mystcraftIntegration; //[MYST]
 
     public SGCraft() {
         mod = this;
+        creativeTab = new CreativeTabs("gcewing_sg:sgcraft") {
+            public Item getTabIconItem() {
+                return Item.getItemFromBlock(sgBaseBlock);
+            }
+        };
     }
-    
-//  IntegrationBase integrationInstance(String className) {
-//      try {
-//          return (IntegrationBase)Class.forName(className).newInstance();
-//      }
-//      catch (Exception exc) {
-//          throw new RuntimeException(exc);
-//      }
-//  }
     
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent e) {
         FMLCommonHandler.instance().bus().register(this);
-//         integrateWith("ComputerCraft", "gcewing.sg.cc.CCIntegration"); //[CC]
-//         ocIntegration = (OCIntegration)integrateWith("OpenComputers", "gcewing.sg.oc.OCIntegration"); //[OC]
+        ccIntegration = (CCIntegration)integrateWith("ComputerCraft", "gcewing.sg.cc.CCIntegration"); //[CC]
+        ocIntegration = (OCIntegration)integrateWith("OpenComputers", "gcewing.sg.oc.OCIntegration"); //[OC]
 //         mystcraftIntegration = (MystcraftIntegration)integrateWith("Mystcraft", "gcewing.sg.MystcraftIntegration"); //[MYST]
         super.preInit(e);
     }
@@ -175,10 +172,6 @@ public class SGCraft extends BaseMod<SGCraftClient> {
         addOre("naquadah", naquadah);
         addOre("ingotNaquadahAlloy", naquadahIngot);
     }
-    
-//     public static ItemStack getIC2Item(String name) { //[IC2]
-//         return IC2Items.getItem(name);
-//     }
     
     @Override
     protected void registerRecipes() {
@@ -315,8 +308,8 @@ public class SGCraft extends BaseMod<SGCraftClient> {
         switch (e.phase) {
             case START: {
                 for (BaseSubsystem om : subsystems)
-                    if (om instanceof IntegrationBase)
-                        ((IntegrationBase)om).onServerTick();
+                    if (om instanceof IIntegration)
+                        ((IIntegration)om).onServerTick();
                 break;
             }
         }

@@ -122,8 +122,9 @@ public class SGAddressing {
     
     public static boolean addressesInSameDimension(String a1, String a2) {
         int l1 = a1.length(), l2 = a2.length();
-        System.out.printf("SGAddressing.addressesInSameDimension(%s,%s): %s %s %s %s\n",
-            a1, a2, l1, l2, dimensionSymbolsOf(a1), dimensionSymbolsOf(a2));
+        if (debugAddressing)
+            System.out.printf("SGAddressing.addressesInSameDimension(%s,%s): %s %s %s %s\n",
+                a1, a2, l1, l2, dimensionSymbolsOf(a1), dimensionSymbolsOf(a2));
         return l1 == numCoordSymbols || l2 == numCoordSymbols ||
             dimensionSymbolsOf(a1).equals(dimensionSymbolsOf(a2));
     }

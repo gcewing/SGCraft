@@ -153,10 +153,10 @@ public class BaseModClient<MOD extends BaseMod<? extends BaseModClient>> impleme
 //         // Make calls to addBlockRenderer(), addItemRenderer() and addTileEntityRenderer() here
 //     }
     
-	protected void registerBlockRenderers() {}
-	protected void registerItemRenderers() {}
-	protected void registerEntityRenderers() {}
-	protected void registerTileEntityRenderers() {}
+    protected void registerBlockRenderers() {}
+    protected void registerItemRenderers() {}
+    protected void registerEntityRenderers() {}
+    protected void registerTileEntityRenderers() {}
 
     public void addTileEntityRenderer(Class <? extends TileEntity> teClass, TileEntitySpecialRenderer renderer) {
         ClientRegistry.bindTileEntitySpecialRenderer(teClass, renderer);
@@ -169,8 +169,9 @@ public class BaseModClient<MOD extends BaseMod<? extends BaseModClient>> impleme
     public void addEntityRenderer(Class<? extends Entity> entityClass, Class<? extends Render> rendererClass) {
         Object renderer;
         try {
-            Constructor ctor = rendererClass.getConstructor(RenderManager.class);
-            renderer = ctor.newInstance(Minecraft.getMinecraft().getRenderManager());
+            //Constructor ctor = rendererClass.getConstructor(RenderManager.class);
+            //renderer = ctor.newInstance(Minecraft.getMinecraft().getRenderManager());
+            renderer = rendererClass.newInstance();
         }
         catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
@@ -304,11 +305,10 @@ public class BaseModClient<MOD extends BaseMod<? extends BaseModClient>> impleme
     public interface ICustomRenderer {
         void renderBlock(IBlockAccess world, BlockPos pos, IBlockState state, IRenderTarget target,
             EnumWorldBlockLayer layer, Trans3 t);
-        void renderItemStack(ItemStack stack, IRenderTarget target);
+        void renderItemStack(ItemStack stack, IRenderTarget target, Trans3 t);
     }
     
     public interface ITexture {
-        //TextureAtlasSprite getIcon();
         ResourceLocation location();
         int tintIndex();
         double red();
@@ -453,7 +453,7 @@ public class BaseModClient<MOD extends BaseMod<? extends BaseModClient>> impleme
             if (block instanceof IBlock) {
                 String[] textures = ((IBlock)block).getTextureNames();
                 if (textures != null && textures.length > 0)
-                    return getIcon(textures[0]);
+                    return getIcon(0, textures[0]);
             }
             return null;
         }
@@ -529,7 +529,7 @@ public class BaseModClient<MOD extends BaseMod<? extends BaseModClient>> impleme
         return rend;
     }
     
-    protected ICustomRenderer getCustomRendererForSpec(ModelSpec spec) {
+    protected ICustomRenderer getCustomRendererForSpec(int textureType, ModelSpec spec) {
         //System.out.printf("BaseModClient.getCustomRendererForSpec: %s", spec.modelName);
         //for (int i = 0; i < spec.textureNames.length; i++)
         //  System.out.printf(" %s", spec.textureNames[i]);
@@ -537,7 +537,7 @@ public class BaseModClient<MOD extends BaseMod<? extends BaseModClient>> impleme
         IModel model = getModel(spec.modelName);
         ITexture[] textures = new ITexture[spec.textureNames.length];
         for (int i = 0; i < textures.length; i++)
-            textures[i] = getTexture(spec.textureNames[i]);
+            textures[i] = getTexture(textureType, spec.textureNames[i]);
         //for (int i = 0; i < spec.textureNames.length; i++)
         //  System.out.printf("BaseModClient.getCustomRendererForSpec: texture[%s] = %s\n",
         //      i, textures[i]);
@@ -552,7 +552,7 @@ public class BaseModClient<MOD extends BaseMod<? extends BaseModClient>> impleme
             if (block instanceof IBlock) {
                 ModelSpec spec = ((IBlock)block).getModelSpec(astate);
                 if (spec != null) {
-                    rend = getCustomRendererForSpec(spec);
+                    rend = getCustomRendererForSpec(0, spec);
                     stateRendererCache.put(astate, rend);
                 }
             }
@@ -568,26 +568,34 @@ public class BaseModClient<MOD extends BaseMod<? extends BaseModClient>> impleme
             rend.renderBlock(world, pos, state, target, layer, t);
     }
     
-    public void renderItemStackUsingModelSpec(ItemStack stack, IRenderTarget target) {
+    // Call this from renderItemStack of an ICustomRenderer to fall back to model spec
+    public void renderItemStackUsingModelSpec(ItemStack stack, IRenderTarget target, Trans3 t) {
         IBlockState state = BaseBlockUtils.getBlockStateFromItemStack(stack);
         IBlock block = (IBlock)state.getBlock();
         ModelSpec spec = block.getModelSpec(state);
-        ICustomRenderer rend = getCustomRendererForSpec(spec);
-        rend.renderItemStack(stack, target);
+        ICustomRenderer rend = getCustomRendererForSpec(0, spec);
+        rend.renderItemStack(stack, target, t);
     }
 
     public IModel getModel(String name) {
         return base.getModel(name);
     }
+    
+    protected static String[] texturePrefixes = {"blocks/", "textures/"};
+    
+    public ResourceLocation textureResourceLocation(int type, String name) {
+        // TextureMap adds "textures/"
+        return base.resourceLocation(texturePrefixes[type] + name);
+    }
 
-    public ITexture getTexture(String name) {
-        // Cache is keyed by texture name without "textures/"
-        ResourceLocation loc = base.resourceLocation(name);
+    public ITexture getTexture(int type, String name) {
+        // Cache is keyed by resource locaton without "textures/"
+        ResourceLocation loc = textureResourceLocation(type, name);
         return textureCache.get(loc);
     }
     
-    public TextureAtlasSprite getIcon(String name) {
-        return ((BaseTexture.Sprite)getTexture(name)).icon;
+    public TextureAtlasSprite getIcon(int type, String name) {
+        return ((BaseTexture.Sprite)getTexture(type, name)).icon;
     }
 
     @SubscribeEvent
@@ -596,13 +604,13 @@ public class BaseModClient<MOD extends BaseMod<? extends BaseModClient>> impleme
         textureCache.clear();
         for (Block block : base.registeredBlocks) {
             //System.out.printf("BaseModClient.onTextureStitchEvent: Block %s\n", block.getUnlocalizedName());
-            registerSprites(e.map, block);
+            registerSprites(0, e.map, block);
         }
         for (Item item : base.registeredItems)
-            registerSprites(e.map, item);
+            registerSprites(1, e.map, item);
     }
     
-    protected void registerSprites(TextureMap reg, Object obj) {
+    protected void registerSprites(int textureType, TextureMap reg, Object obj) {
         if (debugModelRegistration)
             System.out.printf("BaseModClient.registerSprites: for %s\n", obj);
         if (obj instanceof ITextureConsumer) {
@@ -612,7 +620,7 @@ public class BaseModClient<MOD extends BaseMod<? extends BaseModClient>> impleme
             if (names != null) {
                 customRenderingRequired = true;
                 for (String name : names) {
-                    ResourceLocation loc = base.resourceLocation(name); // TextureMap adds "textures/"
+                    ResourceLocation loc = textureResourceLocation(textureType, name);
                     if (textureCache.get(loc) == null) {
                         TextureAtlasSprite icon = reg.registerSprite(loc);
                         ITexture texture = BaseTexture.fromSprite(icon);
@@ -797,6 +805,8 @@ public class BaseModClient<MOD extends BaseMod<? extends BaseModClient>> impleme
     
     //------------------------------------------------------------------------------------------------
     
+    protected static Trans3 itemTrans = Trans3.blockCenterSideTurn(0, 2);
+
     protected class CustomItemRenderDispatch extends CustomRenderDispatch implements ISmartItemModel {
     
         public CustomItemRenderDispatch() {
@@ -812,7 +822,7 @@ public class BaseModClient<MOD extends BaseMod<? extends BaseModClient>> impleme
             if (rend == null && item instanceof IItem) {
                 ModelSpec spec = ((IItem)item).getModelSpec(stack);
                 if (spec != null)
-                    rend = getCustomRendererForSpec(spec);
+                    rend = getCustomRendererForSpec(1, spec);
             }
             if (rend == null) {
                 Block block = Block.getBlockFromItem(item);
@@ -822,7 +832,7 @@ public class BaseModClient<MOD extends BaseMod<? extends BaseModClient>> impleme
             if (rend != null) {
                 GlStateManager.shadeModel(GL_SMOOTH);
                 BaseBakedRenderTarget target = new BaseBakedRenderTarget();
-                rend.renderItemStack(stack, target);
+                rend.renderItemStack(stack, target, itemTrans);
                 return target.getBakedModel();
             }
             else

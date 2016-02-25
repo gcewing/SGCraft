@@ -30,7 +30,8 @@ public class FeatureGeneration {
     }
 
     public static void onInitMapGen(InitMapGenEvent e) {
-        System.out.printf("SGCraft: FeatureGeneration.onInitMapGen: %s\n", e.type);
+        if (debugStructures)
+            System.out.printf("SGCraft: FeatureGeneration.onInitMapGen: %s\n", e.type);
         if (augmentStructures) {
             switch (e.type) {
                 case SCATTERED_FEATURE:

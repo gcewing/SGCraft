@@ -23,10 +23,10 @@ import gcewing.sg.BaseMod.ModelSpec;
 public class DHDBlock extends BaseBlock<DHDTE> {
 
     protected static String[] textures = {
-        "tileentity/dhd_top",
-        "tileentity/dhd_side",
-        "blocks/stargateBlock",
-        "tileentity/dhd_button_dim",
+        "dhd_top",
+        "dhd_side",
+        "stargateBlock",
+        "dhd_button_dim",
     };
     protected static ModelSpec model = new ModelSpec("dhd.json", new Vector3(0, -0.5, 0), textures);
 

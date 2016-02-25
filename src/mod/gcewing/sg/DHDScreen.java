@@ -21,6 +21,8 @@ import net.minecraft.world.*;
 
 import net.minecraftforge.client.*;
 
+import static gcewing.sg.BaseBlockUtils.*;
+
 public class DHDScreen extends SGScreen {
 
     final static int dhdWidth = 320;
@@ -54,7 +56,7 @@ public class DHDScreen extends SGScreen {
     }
     
     DHDTE getControllerTE() {
-        TileEntity te = world.getTileEntity(pos);
+        TileEntity te = getWorldTileEntity(world, pos);
         if (te instanceof DHDTE)
             return (DHDTE)te;
         else
@@ -93,8 +95,8 @@ public class DHDScreen extends SGScreen {
     }
     
     @Override
-    protected void mouseClicked(int x, int y, int mouseButton) throws IOException {
-        //System.out.printf("DHDScreen.mouseClicked: %d, %d, %d\n", x, y, mouseButton);
+    protected void mousePressed(int x, int y, int mouseButton) {
+        //System.out.printf("DHDScreen.mousePressed: %d, %d, %d\n", x, y, mouseButton);
         if (mouseButton == 0) {
             int i = findDHDButton(x, y);
             if (i >= 0) {
@@ -102,7 +104,6 @@ public class DHDScreen extends SGScreen {
                 return;
             }
         }
-        super.mouseClicked(x, y, mouseButton);
     }
     
     void closeAfterDelay(int ticks) {

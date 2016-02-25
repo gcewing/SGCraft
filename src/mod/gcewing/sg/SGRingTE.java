@@ -15,11 +15,6 @@ public class SGRingTE extends BaseTileEntity {
     public boolean isMerged;
     public BlockPos basePos = new BlockPos(0, 0, 0);
 
-//     @Override
-//     public boolean canUpdate() {
-//         return false;
-//     }
-
     @Override
     public void readFromNBT(NBTTagCompound nbt) {
         //System.out.printf("SGRingTE.readFromNBT\n");

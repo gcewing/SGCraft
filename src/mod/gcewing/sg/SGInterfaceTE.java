@@ -11,10 +11,6 @@ import gcewing.sg.SGAddressing.AddressingError;
 
 public class SGInterfaceTE extends BaseTileEntity {
 
-//  public SGBaseTE getBaseTE() {
-//      return SGBaseTE.getBaseTE(this);
-//  }
-
     public SGBaseTE getBaseTE() {
         return SGBaseTE.get(getWorld(), pos.add(0, 1, 0));
     }
@@ -168,9 +164,10 @@ public class SGInterfaceTE extends BaseTileEntity {
     }
     
     public void ciSendMessage(Object[] args) {
-        SGBaseTE te = getBaseTE();
-        if (te != null)
-            te.sendMessage(args);
+        SGBaseTE te = requireBaseTE();
+        String error = te.sendMessage(args);
+        if (error != null)
+            throw new IllegalArgumentException(error);
     }
 
 }

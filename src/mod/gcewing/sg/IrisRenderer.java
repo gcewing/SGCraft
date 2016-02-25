@@ -16,19 +16,10 @@ import net.minecraft.tileentity.*;
 import net.minecraft.world.*;
 import net.minecraft.util.*;
 
-public class IrisRenderer extends Render<IrisEntity> {
-
-    public IrisRenderer(RenderManager renderManager) {
-        super(renderManager);
-    }
+public class IrisRenderer extends BaseEntityRenderer<IrisEntity> {
 
     @Override
-    public void doRender(IrisEntity entity, double d0, double d1, double d2, float f, float f1) {
+    public void renderEntity(IrisEntity entity, double x, double y, double z, float yaw, float dt) {
     }
-    
-    @Override
-    protected ResourceLocation getEntityTexture(IrisEntity e) {
-        return null;
-    }
-    
+
 }

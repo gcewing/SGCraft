@@ -21,7 +21,7 @@ import gcewing.sg.BaseModClient.*;
 public class SGRingBlockRenderer implements ICustomRenderer {
 
     public SGRingBlockRenderer() {
-        System.out.printf("SGRingBlockRenderer: Creating\n");
+//         System.out.printf("SGRingBlockRenderer: Creating\n");
     }
 
     public void renderBlock(IBlockAccess world, BlockPos pos, IBlockState state, IRenderTarget target,
@@ -49,8 +49,8 @@ public class SGRingBlockRenderer implements ICustomRenderer {
         }
     }
     
-    public void renderItemStack(ItemStack stack, IRenderTarget target) {
-        SGCraft.mod.client.renderItemStackUsingModelSpec(stack, target);
+    public void renderItemStack(ItemStack stack, IRenderTarget target, Trans3 t) {
+        SGCraft.mod.client.renderItemStackUsingModelSpec(stack, target, t);
     }
 
 }

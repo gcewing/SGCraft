@@ -17,8 +17,8 @@ public class SGChannel extends BaseDataChannel {
     public SGChannel(String name) {
         super(name);
         channel = this;
-        for (Object h : handlers)
-            System.out.printf("SGChannel: handlers include %s\n", h);
+//         for (Object h : handlers)
+//             System.out.printf("SGChannel: handlers include %s\n", h);
     }
 
     public static void sendConnectOrDisconnectToServer(SGBaseTE te, String address) {
