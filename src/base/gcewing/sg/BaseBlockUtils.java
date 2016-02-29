@@ -13,11 +13,15 @@ import net.minecraft.block.*;
 import net.minecraft.block.material.*;
 // import net.minecraft.block.state.*;
 import net.minecraft.client.renderer.texture.*;
+import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.*;
 import net.minecraft.util.*;
 import net.minecraft.world.*;
 import net.minecraftforge.common.util.*;
+
+import cpw.mods.fml.relauncher.*;
 
 import static gcewing.sg.BaseUtils.*;
 
@@ -94,10 +98,10 @@ public class BaseBlockUtils {
             return new MetaBlockState(block, meta);
     }
     
-    public static void setWorldBlockState(World world, BlockPos pos, IBlockState state) {
-        BaseBlock block = (BaseBlock)world.getBlock(pos.x, pos.y, pos.z);
-        int meta = block.getMetaFromState(state);
-        world.setBlock(pos.x, pos.y, pos.z, block, meta, 3);
+    public static boolean setWorldBlockState(World world, BlockPos pos, IBlockState state, int flags) {
+        Block block = state.getBlock();
+        int meta = getMetaFromBlockState(state);
+        return world.setBlock(pos.x, pos.y, pos.z, block, meta, flags);
     }
     
     public static void markWorldBlockForUpdate(World world, BlockPos pos) {
@@ -128,11 +132,71 @@ public class BaseBlockUtils {
                 case SOLID:
                     return block.canRenderInPass(0);
                 case TRANSLUCENT:
-                    return block.canRenderInPass(2);
+                    return block.canRenderInPass(1);
                 default:
                     return false;
             }
     }
+    
+    public static IBlockState getDefaultBlockState(Block block) {
+        if (block instanceof BaseBlock)
+            return ((BaseBlock)block).getDefaultState();
+        else
+            return new MetaBlockState(block, 0);
+    }
+
+    public static void playWorldAuxSFX(World world, int fxId, BlockPos pos, IBlockState state) {
+        Block block = state.getBlock();
+        int meta = getMetaFromBlockState(state);
+        int stateId = (meta << 12) | Block.getIdFromBlock(block);
+        world.playAuxSFX(fxId, pos.getX(), pos.getY(), pos.getZ(), stateId);
+    }
+    
+    public static float getBlockHardness(Block block, World world, BlockPos pos) {
+        return block.getBlockHardness(world, pos.x, pos.y, pos.z);
+    }
+    
+    public static String getBlockHarvestTool(IBlockState state) {
+        Block block = state.getBlock();
+        int meta = getMetaFromBlockState(state);
+        return block.getHarvestTool(meta);
+    }
+    
+    public static int getBlockHarvestLevel(IBlockState state) {
+        Block block = state.getBlock();
+        int meta = getMetaFromBlockState(state);
+        return block.getHarvestLevel(meta);
+    }
+
+    public static float getPlayerBreakSpeed(EntityPlayer player, IBlockState state, BlockPos pos) {
+        Block block = state.getBlock();
+        int meta = getMetaFromBlockState(state);
+        return player.getBreakSpeed(block, false, meta, pos.x, pos.y, pos.z);
+    }
+    
+    @SideOnly(Side.CLIENT)
+    public static TextureAtlasSprite getSpriteForBlockState(IBlockState state) {
+        Block block = state.getBlock();
+        int meta = getMetaFromBlockState(state);
+        return (TextureAtlasSprite)block.getIcon(2, meta);
+    }
+    
+    public static void spawnBlockStackAsEntity(World world, BlockPos pos, ItemStack stack) {
+        float var6 = 0.7F;
+        double var7 = (double)(world.rand.nextFloat() * var6) + (double)(1.0F - var6) * 0.5D;
+        double var9 = (double)(world.rand.nextFloat() * var6) + (double)(1.0F - var6) * 0.5D;
+        double var11 = (double)(world.rand.nextFloat() * var6) + (double)(1.0F - var6) * 0.5D;
+        EntityItem var13 = new EntityItem(world, pos.x + var7, pos.y + var9, pos.z + var11, stack);
+        var13.delayBeforeCanPickup = 10;
+        world.spawnEntityInWorld(var13);
+    }
+
+    public static ItemStack blockStackWithState(IBlockState state, int size) {
+        Block block = state.getBlock();
+        int meta = getMetaFromBlockState(state);
+        return new ItemStack(block, size, meta);
+    }
+    
     
     //------------------------------------------------------------------------------------------------
 

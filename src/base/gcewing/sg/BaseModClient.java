@@ -423,7 +423,7 @@ public class BaseModClient<MOD extends BaseMod<? extends BaseModClient>> impleme
 
     //------------------------------------------------------------------------------------------------
     
-    protected static EnumWorldBlockLayer[][] passLayers = {
+    public static EnumWorldBlockLayer[][] passLayers = {
         {EnumWorldBlockLayer.SOLID, EnumWorldBlockLayer.CUTOUT_MIPPED, EnumWorldBlockLayer.CUTOUT,
             EnumWorldBlockLayer.TRANSLUCENT},
         {EnumWorldBlockLayer.SOLID, EnumWorldBlockLayer.CUTOUT_MIPPED, EnumWorldBlockLayer.CUTOUT},
@@ -654,17 +654,19 @@ public class BaseModClient<MOD extends BaseMod<? extends BaseModClient>> impleme
     public void onTextureStitchEventPre(TextureStitchEvent.Pre e) {
         int type = e.map.getTextureType();
 //         System.out.printf("BaseModClient.onTextureStitchEventPre: %s [%s]\n", e.map, type);
-        TextureCache cache = textureCaches[type];
-        cache.clear();
-        switch (type) {
-            case 0:
-                for (Block block : base.registeredBlocks)
-                    registerSprites(e.map, cache, block);
-                break;
-            case 1:
-                for (Item item : base.registeredItems)
-                    registerSprites(e.map, cache, item);
-                break;
+        if (type >= 0 && type <= 1) {
+            TextureCache cache = textureCaches[type];
+            cache.clear();
+            switch (type) {
+                case 0:
+                    for (Block block : base.registeredBlocks)
+                        registerSprites(e.map, cache, block);
+                    break;
+                case 1:
+                    for (Item item : base.registeredItems)
+                        registerSprites(e.map, cache, item);
+                    break;
+            }
         }
     }
     

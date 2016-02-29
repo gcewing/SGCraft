@@ -9,9 +9,12 @@ package gcewing.sg;
 import net.minecraft.block.*;
 import net.minecraft.item.*;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 
 import gcewing.sg.BaseMod.*;
+
+import static gcewing.sg.BaseBlockUtils.*;
 import static gcewing.sg.BaseUtils.*;
 
 public class BaseItemBlock extends ItemBlock implements IItem {
@@ -68,6 +71,24 @@ public class BaseItemBlock extends ItemBlock implements IItem {
         }
         else
             return false;
+    }
+
+    @Override
+    public boolean placeBlockAt(ItemStack stack, EntityPlayer player, World world, int x, int y, int z,
+        int side, float hitX, float hitY, float hitZ, int meta)
+    {
+        BlockPos pos = new BlockPos(x, y, z);
+        IBlockState newState = getBlockStateFromMeta(field_150939_a, meta);
+        return placeBlockAt(stack, player, world, pos, facings[side],
+            hitX, hitY, hitZ, newState);
+    }
+
+	public boolean placeBlockAt(ItemStack stack, EntityPlayer player, World world, BlockPos pos,
+		EnumFacing face, float hitX, float hitY, float hitZ, IBlockState newState)
+    {
+        int meta = getMetaFromBlockState(newState);
+        return super.placeBlockAt(stack, player, world, pos.x, pos.y, pos.z, face.ordinal(),
+            hitX, hitY, hitZ, meta);
     }
 
 }

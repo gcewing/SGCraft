@@ -290,19 +290,16 @@ public class BaseGui {
         
         @Override
         public void mouseClicked(int x, int y, int button) {
-            System.out.printf("BaseGui.Screen.mouseClicked: (%s, %s) button %s\n", x, y, button);
             super.mouseClicked(x, y, button);
-            mousePressed(x, y, button);
+            mousePressed(x - guiLeft, y - guiTop, button);
         }
         
         protected void mousePressed(int x, int y, int button) {
-            mouseWidget = root.dispatchMousePress(x - guiLeft, y - guiTop, button);
-            //System.out.printf("BaseGui.mouseClicked: mouseWidget = %s\n",
-            //  mouseWidget.getClass().getSimpleName());
+            mouseWidget = root.dispatchMousePress(x, y, button);
             if (mouseWidget != null) {
                 closeOldFocus(mouseWidget);
                 focusOn(mouseWidget);
-                mouseWidget.mousePressed(new MouseCoords(mouseWidget, x - guiLeft, y - guiTop), button);
+                mouseWidget.mousePressed(new MouseCoords(mouseWidget, x, y), button);
             }
         }
         

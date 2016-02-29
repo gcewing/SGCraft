@@ -41,6 +41,9 @@ public class BaseBlock<TE extends TileEntity>
 
     public static boolean debugState = false;
     
+    protected static Random RANDOM = new Random();
+    private static TileEntity tileEntityHarvested;
+    
     public Class getDefaultItemClass() {
         return BaseItemBlock.class;
     }
@@ -492,7 +495,7 @@ public class BaseBlock<TE extends TileEntity>
     public void spawnAsEntity(World world, BlockPos pos, ItemStack stack) {
         dropBlockAsItem(world, pos.x, pos.y, pos.z, stack);
     }
-    
+
     @Override
     public int damageDropped(int meta) {
         return damageDropped(getStateFromMeta(meta));
@@ -529,5 +532,162 @@ public class BaseBlock<TE extends TileEntity>
         int meta = getMetaFromState(state);
         return super.getDrops((World)world, pos.x, pos.y, pos.z, meta, fortune);
     }
+    
+    @Override
+    public boolean renderAsNormalBlock() {
+        return isFullCube();
+    }
+    
+    public boolean isFullCube() {
+        return super.renderAsNormalBlock();
+    }
+    
+    @Override
+    public MovingObjectPosition collisionRayTrace(World world, int x, int y, int z, Vec3 start, Vec3 end) {
+        return collisionRayTrace(world, new BlockPos(x, y, z), start, end);
+    }
+    
+    public MovingObjectPosition collisionRayTrace(World world, BlockPos pos, Vec3 start, Vec3 end) {
+        return super.collisionRayTrace(world, pos.x, pos.y, pos.z, start, end);
+    }
+    
+    @Override
+    public void setBlockBoundsBasedOnState(IBlockAccess world, int x, int y, int z) {
+        setBlockBoundsBasedOnState(world, new BlockPos(x, y, z));
+    }
+    
+    public void setBlockBoundsBasedOnState(IBlockAccess world, BlockPos pos) {
+        super.setBlockBoundsBasedOnState(world, pos.x, pos.y, pos.z);
+    }
+    
+    @Override
+    public void addCollisionBoxesToList(World world, int x, int y, int z, AxisAlignedBB clip,
+        List result, Entity entity)
+    {
+        BlockPos pos = new BlockPos(x, y, z);
+        IBlockState state = getWorldBlockState(world, pos);
+        addCollisionBoxesToList(world, pos, state, clip, result, entity);
+    }
 
+    
+    public void addCollisionBoxesToList(World world, BlockPos pos, IBlockState state,  AxisAlignedBB clip,
+        List result, Entity entity)
+    {
+        super.addCollisionBoxesToList(world, pos.x, pos.y, pos.z, clip, result, entity);
+    }
+
+    @Override
+    public void onBlockHarvested(World world, int x, int y, int z, int meta, EntityPlayer player) {
+        tileEntityHarvested = world.getTileEntity(x, y, z);
+    }
+
+    @Override
+    public void harvestBlock(World world, EntityPlayer player, int x, int y, int z, int meta) {
+        harvestBlock(world, player, new BlockPos(x, y, z), getStateFromMeta(meta), tileEntityHarvested);
+    }
+    
+    public void harvestBlock(World world, EntityPlayer player, BlockPos pos, IBlockState state, TileEntity te) {
+        super.harvestBlock(world, player, pos.x, pos.y, pos.z, getMetaFromState(state));
+    }
+
+    @Override
+    public ItemStack getPickBlock(MovingObjectPosition target, World world, int x, int y, int z) {
+        return getPickBlock(target, world, new BlockPos(x, y, z));
+    }
+    
+    public ItemStack getPickBlock(MovingObjectPosition target, World world, BlockPos pos) {
+        return super.getPickBlock(target, world, pos.x, pos.y, pos.z);
+    }
+
+    @Override
+    public float getPlayerRelativeBlockHardness(EntityPlayer player, World world, int x, int y, int z) {
+        return getPlayerRelativeBlockHardness(player, world, new BlockPos(x, y, z));
+    }
+    
+    public float getPlayerRelativeBlockHardness(EntityPlayer player, World world, BlockPos pos) {
+        return super.getPlayerRelativeBlockHardness(player, world, pos.x, pos.y, pos.z);
+    }
+
+    @Override
+    public float getBlockHardness(World world, int x, int y, int z) {
+        return getBlockHardness(world, new BlockPos(x, y, z));
+    }
+    
+    public float getBlockHardness(World world, BlockPos pos) {
+        return super.getBlockHardness(world, pos.x, pos.y, pos.z);
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public boolean addHitEffects(World world, MovingObjectPosition target, EffectRenderer er) {
+        BlockPos pos = new BlockPos(target.blockX, target.blockY, target.blockZ);
+        IBlockState state = getParticleState(world, pos);
+        Block block = state.getBlock();
+        int meta = getMetaFromBlockState(state);
+        EntityDiggingFX fx;
+        int i = pos.getX();
+        int j = pos.getY();
+        int k = pos.getZ();
+        float f = 0.1F;
+        double d0 = i + RANDOM.nextDouble() * (getBlockBoundsMaxX() - getBlockBoundsMinX() - (f * 2.0F)) + f + getBlockBoundsMinX();
+        double d1 = j + RANDOM.nextDouble() * (getBlockBoundsMaxY() - getBlockBoundsMinY() - (f * 2.0F)) + f + getBlockBoundsMinY();
+        double d2 = k + RANDOM.nextDouble() * (getBlockBoundsMaxZ() - getBlockBoundsMinZ() - (f * 2.0F)) + f + getBlockBoundsMinZ();
+        switch (target.sideHit) {
+            case 0: d1 = j + getBlockBoundsMinY() - f; break;
+            case 1: d1 = j + getBlockBoundsMaxY() + f; break;
+            case 2: d2 = k + getBlockBoundsMinZ() - f; break;
+            case 3: d2 = k + getBlockBoundsMaxZ() + f; break;
+            case 4: d0 = i + getBlockBoundsMinX() - f; break;
+            case 5: d0 = i + getBlockBoundsMaxX() + f; break;
+        }
+        fx = new EntityDiggingFX(world, d0, d1, d2, 0, 0, 0, block, meta);
+        er.addEffect(fx.multiplyVelocity(0.2F).multipleParticleScaleBy(0.6F));
+        return true;
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public boolean addDestroyEffects(World world, int x, int y, int z, int meta, EffectRenderer er) {
+        BlockPos pos = new BlockPos(x, y, z);
+        IBlockState state = getParticleState(world, pos);
+        Block block = state.getBlock();
+        meta = getMetaFromBlockState(state);
+        EntityDiggingFX fx;
+        byte b0 = 4;
+        for (int i = 0; i < b0; ++i) {
+            for (int j = 0; j < b0; ++j) {
+                for (int k = 0; k < b0; ++k) {
+                    double d0 = pos.getX() + (i + 0.5D) / b0;
+                    double d1 = pos.getY() + (j + 0.5D) / b0;
+                    double d2 = pos.getZ() + (k + 0.5D) / b0;
+                    fx = new EntityDiggingFX(world, d0, d1, d2,
+                        d0 - pos.getX() - 0.5D, d1 - pos.getY() - 0.5D, d2 - pos.getZ() - 0.5D,
+                        block, meta);
+                    er.addEffect(fx);
+                }
+            }
+        }
+        return true;
+    }
+    
+    public IBlockState getParticleState(IBlockAccess world, BlockPos pos) {
+        return getWorldBlockState(world, pos);
+    }
+    
+    // This needs to return the MAXIMUM pass number that the block renders in.
+    @Override
+    public int getRenderBlockPass() {
+        if (canRenderInLayer(EnumWorldBlockLayer.TRANSLUCENT))
+            return 1;
+        else
+            return 0;
+    }
+    
+    @Override
+    public boolean canRenderInPass(int pass) {
+        for (EnumWorldBlockLayer layer : BaseModClient.passLayers[pass + 1])
+            if (canRenderInLayer(layer))
+                return true;
+        return false;
+    }
 }

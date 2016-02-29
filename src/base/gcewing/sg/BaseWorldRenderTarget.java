@@ -117,6 +117,8 @@ public class BaseWorldRenderTarget extends BaseRenderTarget {
                         catch (RuntimeException e) {
                             System.out.printf("BaseWorldRenderTarget.aoLightVertex: getMixedBrightnessForBlock(%s) with weight %s for block at %s: %s\n",
                                 pos, w, blockPos, e);
+                            System.out.printf("BaseWorldRenderTarget.aoLightVertex: v = %s n = %s\n",
+                                v, n);
                             throw e;
                         }
                         float lv;
