@@ -40,7 +40,7 @@ public class BaseWorldRenderTarget extends BaseRenderTarget {
     protected float vr, vg, vb, va; // Colour to be applied to next vertex
     protected int vlm1, vlm2; // Light map values to be applied to next vertex
     
-    public BaseWorldRenderTarget(IBlockAccess world, BlockPos pos, Tessellator tess, TextureAtlasSprite overrideIcon) {
+    public BaseWorldRenderTarget(IBlockAccess world, BlockPos pos, Tessellator tess, IIcon overrideIcon) {
         super(pos.getX(), pos.getY(), pos.getZ(), overrideIcon);
         //System.out.printf("BaseWorldRenderTarget(%s)\n", pos);
         this.world = world;

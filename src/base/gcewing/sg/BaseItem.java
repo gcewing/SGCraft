@@ -29,6 +29,11 @@ public class BaseItem extends Item implements IItem {
     }
     
     @Override
+    public boolean getHasSubtypes() {
+        return getNumSubtypes() > 1;
+    }
+
+    @Override
     public boolean onItemUse(ItemStack stack, EntityPlayer player, World world,
         int x, int y, int z, int side, float hitX, float hitY, float hitZ)
     {

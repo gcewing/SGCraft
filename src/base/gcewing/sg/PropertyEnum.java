@@ -10,7 +10,7 @@ import java.util.Collection;
 import java.util.Map;
 // import net.minecraft.util.IStringSerializable;
 
-public class PropertyEnum<T extends Enum<T>> extends PropertyHelper<T>
+public class PropertyEnum<T extends Enum> extends PropertyHelper<T>
 {
     private final ImmutableSet<T> allowedValues;
     private final Map<String, T> nameToValue = Maps.<String, T>newHashMap();

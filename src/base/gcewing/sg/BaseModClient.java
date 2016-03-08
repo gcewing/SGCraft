@@ -472,7 +472,7 @@ public class BaseModClient<MOD extends BaseMod<? extends BaseModClient>> impleme
                             block, layer);
                     if (baseBlock.canRenderInLayer(layer)) {
                         BaseWorldRenderTarget target = new BaseWorldRenderTarget(world, pos,
-                            Tessellator.instance, (TextureAtlasSprite)rb.overrideBlockTexture);
+                            Tessellator.instance, rb.overrideBlockTexture);
                         Trans3 t = Trans3.blockCenter(pos);
                         renderer.renderBlock(world, pos, state, target, layer, t);
                         if (target.end())
@@ -646,7 +646,7 @@ public class BaseModClient<MOD extends BaseMod<? extends BaseModClient>> impleme
         return textureCaches[type].get(loc);
     }
     
-    public TextureAtlasSprite getIcon(int type, String name) {
+    public IIcon getIcon(int type, String name) {
         return ((BaseTexture.Sprite)getTexture(type, name)).icon;
     }
 
@@ -682,7 +682,7 @@ public class BaseModClient<MOD extends BaseMod<? extends BaseModClient>> impleme
                     if (cache.get(loc) == null) {
                         if (debugModelRegistration)
                             System.out.printf("BaseModClient.registerSprites: %s\n", loc);
-                        TextureAtlasSprite icon = (TextureAtlasSprite)reg.registerIcon(loc.toString());
+                        IIcon icon = reg.registerIcon(loc.toString());
                         ITexture texture = BaseTexture.fromSprite(icon);
                         cache.put(loc, texture);
                     }

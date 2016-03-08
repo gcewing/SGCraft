@@ -27,7 +27,7 @@ public abstract class BaseTexture implements ITexture {
     public boolean isProjected() {return isProjected;}
     public boolean isSolid() {return false;}
     
-    public static Sprite fromSprite(TextureAtlasSprite icon) {
+    public static Sprite fromSprite(IIcon icon) {
         return new Sprite(icon);
     }
     
@@ -110,9 +110,9 @@ public abstract class BaseTexture implements ITexture {
 
     public static class Sprite extends BaseTexture {
 
-        public TextureAtlasSprite icon;
+        public IIcon icon;
         
-        public Sprite(TextureAtlasSprite icon) {
+        public Sprite(IIcon icon) {
             this.icon = icon;
             red = green = blue = 1.0;
         }
@@ -225,7 +225,7 @@ public abstract class BaseTexture implements ITexture {
 
     public static class Debug extends Sprite {
     
-        public Debug(TextureAtlasSprite icon) {
+        public Debug(IIcon icon) {
             super(icon);
         }
     

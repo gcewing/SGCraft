@@ -2,7 +2,7 @@ package gcewing.sg;
 
 import com.google.common.base.Objects;
 
-public abstract class PropertyHelper<T extends Comparable<T>> implements IProperty<T>
+public abstract class PropertyHelper<T extends Comparable> implements IProperty<T>
 {
     private final Class<T> valueClass;
     private final String name;

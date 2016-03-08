@@ -175,10 +175,14 @@ public class BaseBlockUtils {
     }
     
     @SideOnly(Side.CLIENT)
-    public static TextureAtlasSprite getSpriteForBlockState(IBlockState state) {
-        Block block = state.getBlock();
-        int meta = getMetaFromBlockState(state);
-        return (TextureAtlasSprite)block.getIcon(2, meta);
+    public static IIcon getSpriteForBlockState(IBlockState state) {
+        if (state != null) {
+            Block block = state.getBlock();
+            int meta = getMetaFromBlockState(state);
+            return block.getIcon(2, meta);
+        }
+        else
+            return null;
     }
     
     public static void spawnBlockStackAsEntity(World world, BlockPos pos, ItemStack stack) {

@@ -39,7 +39,7 @@ public abstract class BaseRenderTarget implements BaseModClient.IRenderTarget {
     protected boolean expandTrianglesToQuads;
     protected boolean textureOverride;
 
-    public BaseRenderTarget(double x, double y, double z, TextureAtlasSprite overrideIcon) {
+    public BaseRenderTarget(double x, double y, double z, IIcon overrideIcon) {
         blockX = x;
         blockY = y;
         blockZ = z;
@@ -155,8 +155,8 @@ public abstract class BaseRenderTarget implements BaseModClient.IRenderTarget {
             case UP:     u = x;      v = z;      break;
             case NORTH:  u = 1 - x;  v = 1 - y;  break;
             case SOUTH:  u = x;      v = 1 - y;  break;
-            case EAST:   u = 1 - z;  v = 1 - y;  break;
-            case WEST:   u = z;      v = 1 - y;  break;
+            case WEST:   u = 1 - z;  v = 1 - y;  break;
+            case EAST:   u = z;      v = 1 - y;  break;
             default:     u = 0;      v = 0;
         }
         addUVVertex(p, u, v);
