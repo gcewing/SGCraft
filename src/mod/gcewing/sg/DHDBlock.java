@@ -84,7 +84,7 @@ public class DHDBlock extends BaseBlock<DHDTE> {
         DHDTE cte = getTileEntity(world, pos);
         super.breakBlock(world, pos, state);
         if (cte == null) {
-            System.out.printf("DHDBlock.breakBlock: No tile entity at %d\n", pos);
+            System.out.printf("DHDBlock.breakBlock: No tile entity at %s\n", pos);
         }
         else if (cte.isLinkedToStargate) {
             SGBaseTE gte = cte.getLinkedStargateTE();
