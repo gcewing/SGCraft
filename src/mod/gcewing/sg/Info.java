@@ -7,7 +7,7 @@ public class Info {
 
     static final String modName = "SG Craft";
     static final String modID = "SGCraft";
-    static final String versionNumber = "1.11.1";
+    static final String versionNumber = "1.11.2";
     static final String versionBounds = "[1.11,1.12)";
     static final String acceptedMinecraftVersions = "1.7.10";
 
