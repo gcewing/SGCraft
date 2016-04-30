@@ -686,7 +686,7 @@ public class SGBaseTE extends BaseTileInventory {
                     enterState(SGState.Connected, isInitiator ? ticksToStayOpen : 0);
                     break;
                 case Connected:
-                    if (isInitiator)
+                    if (isInitiator && ticksToStayOpen > 0)
                         disconnect();
                     break;
                 case Disconnecting:
