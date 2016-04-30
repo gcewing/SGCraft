@@ -741,9 +741,15 @@ public class BaseModClient<MOD extends BaseMod<? extends BaseModClient>> impleme
     {
         Block block = state.getBlock();
         if (!block.hasTileEntity(state)) {
-            BlockRendererDispatcher disp = getCustomBlockRendererDispatcher();
-            WorldRenderer tess = ((BaseWorldRenderTarget)target).getWorldRenderer();
-            return disp.renderBlock(state, pos, world, tess);
+            try {
+                BlockRendererDispatcher disp = getCustomBlockRendererDispatcher();
+                WorldRenderer tess = ((BaseWorldRenderTarget)target).getWorldRenderer();
+                return disp.renderBlock(state, pos, world, tess);
+            }
+            catch (Exception e) {
+                // Some blocks are averse to being abused this way. Try to avoid crashing in that case.
+                return false;
+            }
         }
         return false;
     }
