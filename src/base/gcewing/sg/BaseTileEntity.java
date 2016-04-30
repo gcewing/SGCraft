@@ -6,6 +6,7 @@
 
 package gcewing.sg;
 
+import net.minecraft.block.*;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.*;
 import net.minecraft.inventory.*;
@@ -55,8 +56,13 @@ public class BaseTileEntity extends TileEntity
     
     public Trans3 localToGlobalTransformation(Vector3 origin) {
         IBlockState state = worldObj.getBlockState(pos);
-        IBlock block = (IBlock)state.getBlock();
-        return block.localToGlobalTransformation(worldObj, pos, state, origin);
+        Block block = state.getBlock();
+        if (block instanceof IBlock)
+            return ((IBlock)block).localToGlobalTransformation(worldObj, pos, state, origin);
+        else {
+            System.out.printf("BaseTileEntity.localToGlobalTransformation: Wrong block type at %s\n", pos);
+            return new Trans3(origin);
+        }
     }
 
     @Override
