@@ -20,15 +20,27 @@ public class SGChunkData {
 
     static boolean debug = false;
 
-    static WeakHashMap <Chunk, SGChunkData> map = new WeakHashMap <Chunk, SGChunkData> ();
+    static HashMap <ChunkCoordIntPair, SGChunkData> map = new HashMap <ChunkCoordIntPair, SGChunkData> ();
     
     public boolean oresGenerated;
     
     public static SGChunkData forChunk(Chunk chunk) {
-        SGChunkData data = map.get(chunk);
+        return forChunk(chunk, null);
+    }
+
+    public static SGChunkData forChunk(Chunk chunk, NBTTagCompound nbt) {
+        //System.out.printf("SGChunkData.forChunk: (%d, %d): %s\n",
+        //    chunk.xPosition, chunk.zPosition, chunk);
+        ChunkCoordIntPair coords = new ChunkCoordIntPair(chunk.xPosition, chunk.zPosition);
+        SGChunkData data = map.get(coords);
         if (data == null) {
+            //System.out.printf("SGChunkData.forChunk: Creating new chunk data\n");
             data = new SGChunkData();
-            map.put(chunk, data);
+            if (nbt != null) {
+                //System.out.printf("SGChunkData.forChunk: Reading from nbt\n");
+                data.readFromNBT(nbt);
+            }
+            map.put(coords, data);
         }
         return data;
     }
@@ -44,8 +56,7 @@ public class SGChunkData {
     public static void onChunkLoad(ChunkDataEvent.Load e) {
         Chunk chunk = e.getChunk();
         //System.out.printf("SGChunkData.onChunkLoad: (%d, %d)\n", chunk.xPosition, chunk.zPosition);
-        SGChunkData data = SGChunkData.forChunk(chunk);
-        data.readFromNBT(e.getData());
+        SGChunkData data = SGChunkData.forChunk(chunk, e.getData());
         //if (data.oresGenerated)
         //  System.out.printf("SGChunkData.onChunkLoad: Ores already added to chunk (%d, %d)\n",
         //      chunk.xPosition, chunk.zPosition);
