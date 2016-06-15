@@ -435,7 +435,10 @@ public class BaseBlock<TE extends TileEntity>
     
     @Override
     public boolean isSideSolid(IBlockAccess world, int x, int y, int z, ForgeDirection side) {
-        return isSideSolid(world, new BlockPos(x, y, z), facings[side.ordinal()]);
+        if (side != ForgeDirection.UNKNOWN)
+            return isSideSolid(world, new BlockPos(x, y, z), facings[side.ordinal()]);
+        else
+            return super.isSideSolid(world, x, y, z, side);
     }
     
     public boolean isSideSolid(IBlockAccess world, BlockPos pos, EnumFacing side) {
