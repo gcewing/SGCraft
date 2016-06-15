@@ -106,6 +106,7 @@ public class NaquadahOreWorldGen implements IWorldGenerator {
     }
 
     void generateChunk() {
+        SGChunkData.forChunk(chunk).oresGenerated = true;
         if (odds(genUnderLavaOdds)) {
             int n = random.nextInt(maxNodesUnderLava) + 1;
             for (int i = 0; i < n; i++) {
@@ -132,7 +133,6 @@ public class NaquadahOreWorldGen implements IWorldGenerator {
                 }
             }
         }
-        SGChunkData.forChunk(chunk).oresGenerated = true;
     }
     
 }
