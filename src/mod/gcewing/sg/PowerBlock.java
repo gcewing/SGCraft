@@ -37,10 +37,10 @@ public class PowerBlock<TE extends PowerTE> extends BaseBlock<TE> {
         return true;
     }
 
-    @Override
-    public String getRendererClassName() {
-        return "BaseBlockRenderer";
-    }
+//     @Override
+//     public String getRendererClassName() {
+//         return "BaseBlockRenderer";
+//     }
     
     @Override
     public void breakBlock(World world, BlockPos pos, IBlockState state) {

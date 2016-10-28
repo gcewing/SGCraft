@@ -8,6 +8,7 @@ package gcewing.sg.ic2;
 
 import net.minecraft.nbt.*;
 import net.minecraft.tileentity.*;
+import net.minecraft.util.*;
 import net.minecraftforge.common.*;
 import net.minecraftforge.common.util.*;
 
@@ -44,7 +45,7 @@ public class IC2PowerTE extends PowerTE implements IEnergySink {
     }
     
     @Override
-    public void updateEntity() {
+    public void onLoad() {
         load();
     }
     
@@ -78,12 +79,14 @@ public class IC2PowerTE extends PowerTE implements IEnergySink {
         }
     }
     
-    //------------------------- IEnergySink -------------------------
+    //------------------------- IEnergyAcceptor -------------------------
     
     @Override
-    public boolean acceptsEnergyFrom(TileEntity emitter, ForgeDirection direction) {
+    public boolean acceptsEnergyFrom(IEnergyEmitter emitter, EnumFacing direction) {
         return true;
     }
+    
+    //------------------------- IEnergySink -------------------------
     
     @Override
     public double getDemandedEnergy() {
@@ -94,7 +97,7 @@ public class IC2PowerTE extends PowerTE implements IEnergySink {
     }
     
     @Override
-    public double injectEnergy(ForgeDirection directionFrom, double amount, double voltage) {
+    public double injectEnergy(EnumFacing directionFrom, double amount, double voltage) {
         energyBuffer += amount;
         markDirty();
         markBlockForUpdate();
@@ -102,11 +105,6 @@ public class IC2PowerTE extends PowerTE implements IEnergySink {
             System.out.printf("SGCraft: IC2PowerTE: Injected %s EU giving %s\n", amount, energyBuffer);
         return 0;
     }
-    
-//  @Override
-//  public int getMaxSafeInput() {
-//      return maxSafeInput;
-//  }
     
     @Override
     public int getSinkTier() {

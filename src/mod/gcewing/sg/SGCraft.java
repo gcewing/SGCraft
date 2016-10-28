@@ -30,7 +30,7 @@ import net.minecraftforge.fml.common.gameevent.*;
 import net.minecraftforge.fml.common.eventhandler.*;
 import net.minecraftforge.fml.common.registry.*;
 
-//import ic2.api.item.*; //[IC2]
+// import ic2.api.item.*; //[IC2]
 import dan200.computercraft.api.*; //[CC]
 // import gcewing.sg.ic2.*; //[IC2]
 // import gcewing.sg.rf.*; //[RF]
@@ -67,6 +67,7 @@ public class SGCraft extends BaseMod<SGCraftClient> {
     public static NaquadahOreWorldGen naquadahOreGenerator;
     public static int tokraVillagerID;
     
+    public static BaseSubsystem ic2Integration; //[IC2]
     public static IIntegration ccIntegration; //[CC]
     public static OCIntegration ocIntegration; //[OC]
 //     public static MystcraftIntegration mystcraftIntegration; //[MYST]
@@ -83,6 +84,7 @@ public class SGCraft extends BaseMod<SGCraftClient> {
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent e) {
         FMLCommonHandler.instance().bus().register(this);
+        ic2Integration = integrateWith("IC2", "gcewing.sg.ic2.IC2Integration"); //[IC2]
         ccIntegration = (CCIntegration)integrateWith("ComputerCraft", "gcewing.sg.cc.CCIntegration"); //[CC]
         ocIntegration = (OCIntegration)integrateWith("OpenComputers", "gcewing.sg.oc.OCIntegration"); //[OC]
 //         mystcraftIntegration = (MystcraftIntegration)integrateWith("Mystcraft", "gcewing.sg.MystcraftIntegration"); //[MYST]

@@ -530,24 +530,25 @@ public class BaseModClient<MOD extends BaseMod<? extends BaseModClient>> impleme
     }
     
     protected ICustomRenderer getCustomRendererForSpec(int textureType, ModelSpec spec) {
-        //System.out.printf("BaseModClient.getCustomRendererForSpec: %s", spec.modelName);
-        //for (int i = 0; i < spec.textureNames.length; i++)
-        //  System.out.printf(" %s", spec.textureNames[i]);
-        //System.out.printf("\n");
+//         System.out.printf("BaseModClient.getCustomRendererForSpec: %s\n", spec.modelName);
+//         for (int i = 0; i < spec.textureNames.length; i++)
+//           System.out.printf(" %s", spec.textureNames[i]);
+//         System.out.printf("\n");
         IModel model = getModel(spec.modelName);
         ITexture[] textures = new ITexture[spec.textureNames.length];
         for (int i = 0; i < textures.length; i++)
             textures[i] = getTexture(textureType, spec.textureNames[i]);
-        //for (int i = 0; i < spec.textureNames.length; i++)
-        //  System.out.printf("BaseModClient.getCustomRendererForSpec: texture[%s] = %s\n",
-        //      i, textures[i]);
+//         System.out.printf("BaseModClient.getCustomRendererForSpec: model = %s\n", model);
+//         for (int i = 0; i < spec.textureNames.length; i++)
+//           System.out.printf("BaseModClient.getCustomRendererForSpec: texture[%s] = %s\n",
+//               i, textures[i]);
         return new BaseModelRenderer(model, spec.origin, textures);
     }
     
     protected ICustomRenderer getCustomRendererForState(IBlockState astate) {
-        //System.out.printf("BaseModClient.getCustomRendererForState: %s\n", astate);
         ICustomRenderer rend = stateRendererCache.get(astate);
         if (rend == null) {
+//             System.out.printf("BaseModClient.getCustomRendererForState: %s\n", astate);
             Block block = astate.getBlock();
             if (block instanceof IBlock) {
                 ModelSpec spec = ((IBlock)block).getModelSpec(astate);
@@ -836,6 +837,8 @@ public class BaseModClient<MOD extends BaseMod<? extends BaseModClient>> impleme
                     rend = getCustomRendererForState(block.getDefaultState());
             }
             if (rend != null) {
+//                 System.out.printf("CustomItemRenderDispatch.handleItemState: %s: Rendering with %s\n",
+//                     stack, rend);
                 GlStateManager.shadeModel(GL_SMOOTH);
                 BaseBakedRenderTarget target = new BaseBakedRenderTarget();
                 rend.renderItemStack(stack, target, itemTrans);

@@ -273,6 +273,8 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
         BaseSubsystem sub = null;
         if (isModLoaded(modId)) {
             sub = newSubsystem(className);
+            sub.mod = this;
+            sub.client = client;
             subsystems.add(sub);
         }
         return sub;

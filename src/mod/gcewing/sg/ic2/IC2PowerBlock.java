@@ -12,7 +12,8 @@ public class IC2PowerBlock extends PowerBlock<IC2PowerTE> {
 
     public IC2PowerBlock() {
         super(IC2PowerTE.class);
-        setPrefixedIconNames("gcewing_sg:ic2PowerUnit", "bottom", "top", "side");
+        setModelAndTextures("block/power.smeg",
+            "ic2PowerUnit-bottom", "ic2PowerUnit-top", "ic2PowerUnit-side");
     }
     
 }

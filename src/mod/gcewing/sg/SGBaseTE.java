@@ -738,14 +738,13 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
     }
     
     List<ISGEnergySource> findEnergySources() {
-        //System.out.printf("SGBaseTe.findEnergySources: for (%d,%d,%d)\n",
-        //  xCoord, yCoord, zCoord);
+//         System.out.printf("SGBaseTe.findEnergySources: for %s\n", getPos());
         List<ISGEnergySource> result = new ArrayList<ISGEnergySource>();
         Trans3 t = localToGlobalTransformation();
         for (int i = -2; i <= 2; i++) {
-            BlockPos bp = t.p(i, 0, 0).blockPos();
-            //System.out.printf("SGBaseTE.findEnergySources: Checking %s\n", bp);
+            BlockPos bp = t.p(i, -1, 0).blockPos();
             TileEntity nte = worldObj.getTileEntity(bp);
+//             System.out.printf("SGBaseTE.findEnergySources: %s at %s\n", nte, bp);
             if (nte instanceof ISGEnergySource)
                 result.add((ISGEnergySource)nte);
         }
