@@ -19,6 +19,7 @@ import net.minecraft.entity.player.*;
 import net.minecraft.item.*;
 import net.minecraft.tileentity.*;
 import net.minecraft.util.*;
+import net.minecraft.util.math.*;
 import net.minecraft.world.*;
 import net.minecraftforge.common.*;
 import net.minecraftforge.common.util.*;
@@ -45,10 +46,9 @@ public class SGRingBlock extends BaseBlock<SGRingTE>  implements ISGBlock {
     };
 
     public SGRingBlock() {
-        super(Material.rock, SGRingTE.class);
+        super(Material.ROCK, SGRingTE.class);
         setHardness(1.5F);
-        setCreativeTab(CreativeTabs.tabMisc);
-//      registerSubItemNames();
+        setCreativeTab(CreativeTabs.MISC);
     }
     
     protected void defineProperties() {
@@ -77,22 +77,22 @@ public class SGRingBlock extends BaseBlock<SGRingTE>  implements ISGBlock {
     }
     
     @Override
-    public boolean canRenderInLayer(EnumWorldBlockLayer layer) {
+    public boolean canRenderInLayer(BlockRenderLayer layer) {
         return true; // So that translucent camouflage blocks render correctly
     }
     
     @Override
-    public boolean isOpaqueCube() {
+    public boolean isOpaqueCube(IBlockState state) {
         return false;
     }
     
     @Override
-    public boolean shouldCheckWeakPower(IBlockAccess world, BlockPos pos, EnumFacing side) {
+    public boolean shouldCheckWeakPower(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side) {
         return true;
     }
     
     @Override
-    public boolean isSideSolid(IBlockAccess world, BlockPos pos, EnumFacing side) {
+    public boolean isSideSolid(IBlockState base_state, IBlockAccess world, BlockPos pos, EnumFacing side) {
         return true;
     }
 
@@ -108,7 +108,7 @@ public class SGRingBlock extends BaseBlock<SGRingTE>  implements ISGBlock {
 
     @Override
     public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player,
-        EnumFacing side, float cx, float cy, float cz)
+         EnumHand hand, ItemStack heldItem, EnumFacing side, float cx, float cy, float cz)
     {
         //System.out.printf("SGRingBlock.onBlockActivated at (%d, %d, %d)\n", x, y, z);
         SGRingTE te = getTileEntity(world, pos);
@@ -117,7 +117,8 @@ public class SGRingBlock extends BaseBlock<SGRingTE>  implements ISGBlock {
             IBlockState baseState = world.getBlockState(te.basePos);
             Block block = baseState.getBlock();
             if (block instanceof SGBaseBlock)
-                block.onBlockActivated(world, te.basePos, baseState, player, side, cx, cy, cz);
+                block.onBlockActivated(world, te.basePos, baseState, player, hand, heldItem, side,
+                    cx, cy, cz);
             return true;
         }
         return false;
@@ -148,7 +149,7 @@ public class SGRingBlock extends BaseBlock<SGRingTE>  implements ISGBlock {
         te.isMerged = true;
         te.basePos = basePos;
         //te.onInventoryChanged();
-        world.markBlockForUpdate(pos);
+        BaseBlockUtils.markBlockForUpdate(world, pos);
     }
     
     public void unmergeFrom(World world, BlockPos pos, BlockPos basePos) {
@@ -157,7 +158,7 @@ public class SGRingBlock extends BaseBlock<SGRingTE>  implements ISGBlock {
             //System.out.printf("SGRingBlock.unmergeFrom: unmerging\n");
             te.isMerged = false;
             //te.onInventoryChanged();
-            world.markBlockForUpdate(pos);
+            BaseBlockUtils.markBlockForUpdate(world, pos);
         }
     }
     

@@ -12,6 +12,7 @@ import net.minecraft.inventory.*;
 import net.minecraft.item.*;
 import net.minecraft.nbt.*;
 import net.minecraft.world.*;
+import net.minecraft.util.*;
 import net.minecraft.tileentity.*;
 
 import li.cil.oc.api.Network;
@@ -28,9 +29,10 @@ import li.cil.oc.api.network.Visibility;
 import gcewing.sg.*;
 
 public class OCInterfaceTE extends SGInterfaceTE
-    implements IComputerInterface, Environment, IInventory
+    implements IComputerInterface, Environment, IInventory, ITickable
 {
 
+    static boolean debugConnection = false;
     static boolean debugNetworking = false;
     
     final static int numUpgradeSlots = 1;
@@ -41,6 +43,7 @@ public class OCInterfaceTE extends SGInterfaceTE
         node = Network.newNode(this, Visibility.Network)
             .withComponent("stargate", Visibility.Network)
             .create();
+        //System.out.printf("OCInterfaceTE: Created node %s\n", node);
     }
 
     //@Override 
@@ -80,74 +83,86 @@ public class OCInterfaceTE extends SGInterfaceTE
 
     // -------------------------- Methods --------------------------
     
+    protected static Object[] success = {true};
+    
+    protected static Object[] failure(Exception e) {
+        return new Object[] {null, e.getMessage()};
+    }
+    
     @Callback
     public Object[] stargateState(Context ctx, Arguments args) {
-        CIStargateState result = ciStargateState();
-        return new Object[]{result.state, result.chevrons, result.direction};
+        try {
+            CIStargateState result = ciStargateState();
+            return new Object[]{result.state, result.chevrons, result.direction};
+        }
+        catch (Exception e) {return failure(e);}
     }
     
     @Callback
     public Object[] energyAvailable(Context ctx, Arguments args) {
-        return new Object[]{ciEnergyAvailable()};
+        try {return new Object[]{ciEnergyAvailable()};}
+        catch (Exception e) {return failure(e);}
     }
     
     @Callback
     public Object[] energyToDial(Context ctx, Arguments args) {
-        return new Object[]{ciEnergyToDial(args.checkString(0))};
+        try {return new Object[]{ciEnergyToDial(args.checkString(0))};}
+        catch (Exception e) {return failure(e);}
     }
     
     @Callback
     public Object[] localAddress(Context ctx, Arguments args) {
-        return new Object[]{ciLocalAddress()};
+        try {return new Object[]{ciLocalAddress()};}
+        catch (Exception e) {return failure(e);}
     }
     
     @Callback
     public Object[] remoteAddress(Context ctx, Arguments args) {
-        return new Object[]{ciRemoteAddress()};
+        try {return new Object[]{ciRemoteAddress()};}
+        catch (Exception e) {return failure(e);}
     }
     
     @Callback
     public Object[] dial(Context ctx, Arguments args) {
-        ciDial(args.checkString(0));
-        return null;
+        try {ciDial(args.checkString(0)); return success;}
+        catch (Exception e) {return failure(e);}
     }
     
     @Callback
     public Object[] disconnect(Context ctx, Arguments args) {
-        ciDisconnect();
-        return null;
+        try {ciDisconnect(); return success;}
+        catch (Exception e) {return failure(e);}
     }
-    
-//  @Callback
-//  public Object[] direction(Context ctx, Arguments args) {
-//      return new Object[]{ciDirection()};
-//  }
     
     @Callback
     public Object[] irisState(Context ctx, Arguments args) {
-        return new Object[]{ciIrisState()};
+        try {return new Object[]{ciIrisState()};}
+        catch (Exception e) {return failure(e);}
     }
     
     @Callback
     public Object[] openIris(Context ctx, Arguments args) {
-        ciOpenIris();
-        return null;
+        try {ciOpenIris(); return success;}
+        catch (Exception e) {return failure(e);}
     }
     
     @Callback
     public Object[] closeIris(Context ctx, Arguments args) {
-        ciCloseIris();
-        return null;
+        try {ciCloseIris(); return success;}
+        catch (Exception e) {return failure(e);}
     }
 
     @Callback
     public Object[] sendMessage(Context ctx, Arguments args) {
-        int n = args.count();
-        Object[] objs = new Object[n];
-        for (int i = 0; i < n; i++)
-            objs[i] = args.checkAny(i);
-        ciSendMessage(objs);
-        return null;
+        try {
+            int n = args.count();
+            Object[] objs = new Object[n];
+            for (int i = 0; i < n; i++)
+                objs[i] = args.checkAny(i);
+            ciSendMessage(objs);
+            return success;
+        }
+        catch (Exception e) {return failure(e);}
     }       
         
     // -------------------------- Environment --------------------------
@@ -204,6 +219,8 @@ public class OCInterfaceTE extends SGInterfaceTE
         // network our node is in, in which case `node` is the added node.
         // If our node is added to an existing network, this is called for each
         // node already in said network.
+        if (debugConnection)
+            System.out.printf("OCInterfaceTE.onConnect: %s\n", node);
     }
 
     @Override
@@ -215,6 +232,8 @@ public class OCInterfaceTE extends SGInterfaceTE
         // network our node is in, in which case `node` is the removed node.
         // If a net-split occurs this is called for each node that is no longer
         // connected to our node.
+        if (debugConnection)
+            System.out.printf("OCInterfaceTE.onDisconnect: %s\n", node);
     }
 
     @Override
@@ -236,8 +255,7 @@ public class OCInterfaceTE extends SGInterfaceTE
     // ----------------------------------------------------------------------- //
 
     @Override
-    public void updateEntity() {
-        super.updateEntity();
+    public void update() {
         // On the first update, try to add our node to nearby networks. We do
         // this in the update logic, not in validate() because we need to access
         // neighboring tile entities, which isn't possible in validate().
@@ -304,20 +322,22 @@ public class OCInterfaceTE extends SGInterfaceTE
     // -------------------------- IComputerInterface --------------------------
 
     public void postEvent(TileEntity source, String name, Object... args) {
-        System.out.printf("OCInterfaceTE.postEvent: %s to %s\n", name, node);
+        //System.out.printf("OCInterfaceTE.postEvent: %s to %s\n", name, node);
         if (node != null)
             node.sendToReachable("computer.signal", prependArgs(name, args));
     }
     
 //------------------------------------- IInventory -----------------------------------------
 
-    void onInventoryChanged(int slot) {
-        markDirty();
-    }
+//     @Override
+//     void onInventoryChanged(int slot) {
+//         markDirty();
+//     }
 
     /**
      * Returns the number of slots in the inventory.
      */
+    @Override
     public int getSizeInventory() {
         IInventory inventory = getInventory();
         return (inventory != null) ? inventory.getSizeInventory() : 0;
@@ -326,6 +346,7 @@ public class OCInterfaceTE extends SGInterfaceTE
     /**
      * Returns the stack in slot i
      */
+    @Override
     public ItemStack getStackInSlot(int slot) {
         IInventory inventory = getInventory();
         return (inventory != null) ? inventory.getStackInSlot(slot) : null;
@@ -335,11 +356,12 @@ public class OCInterfaceTE extends SGInterfaceTE
      * Removes from an inventory slot (first arg) up to a specified number (second arg) of items and returns them in a
      * new stack.
      */
+    @Override
     public ItemStack decrStackSize(int slot, int amount) {
         IInventory inventory = getInventory();
         if (inventory != null) {
             ItemStack result = inventory.decrStackSize(slot, amount);
-            onInventoryChanged(slot);
+            markDirty();
             return result;
         }
         else
@@ -350,11 +372,12 @@ public class OCInterfaceTE extends SGInterfaceTE
      * When some containers are closed they call this on each slot, then drop whatever it returns as an EntityItem -
      * like when you close a workbench GUI.
      */
-    public ItemStack getStackInSlotOnClosing(int slot) {
+    @Override
+    public ItemStack removeStackFromSlot(int slot) {
         IInventory inventory = getInventory();
         if (inventory != null) {
-            ItemStack result = inventory.getStackInSlotOnClosing(slot);
-            onInventoryChanged(slot);
+            ItemStack result = inventory.removeStackFromSlot(slot);
+            markDirty();
             return result;
         }
         else
@@ -364,26 +387,20 @@ public class OCInterfaceTE extends SGInterfaceTE
     /**
      * Sets the given item stack to the specified slot in the inventory (can be crafting or armor sections).
      */
+    @Override
     public void setInventorySlotContents(int slot, ItemStack stack) {
         IInventory inventory = getInventory();
         if (inventory != null) {
             inventory.setInventorySlotContents(slot, stack);
-            onInventoryChanged(slot);
+            markDirty();
         }
-    }
-
-    /**
-     * Returns the name of the inventory.
-     */
-    public String getInventoryName() {
-        IInventory inventory = getInventory();
-        return (inventory != null) ? inventory.getInventoryName() : "";
     }
 
     /**
      * Returns the maximum stack size for a inventory slot. Seems to always be 64, possibly will be extended. *Isn't
      * this more of a set than a get?*
      */
+    @Override
     public int getInventoryStackLimit() {
         IInventory inventory = getInventory();
         return (inventory != null) ? inventory.getInventoryStackLimit() : 0;
@@ -392,23 +409,27 @@ public class OCInterfaceTE extends SGInterfaceTE
     /**
      * Do not make give this method the name canInteractWith because it clashes with Container
      */
+    @Override
     public boolean isUseableByPlayer(EntityPlayer player) {
         IInventory inventory = getInventory();
         return (inventory != null) ? inventory.isUseableByPlayer(player) : true;
     }
 
-    public void openInventory() {
+    @Override
+    public void openInventory(EntityPlayer player) {
         IInventory inventory = getInventory();
         if (inventory != null)
-            inventory.openInventory();
+            inventory.openInventory(player);
     }
 
-    public void closeInventory() {
+    @Override
+    public void closeInventory(EntityPlayer player) {
         IInventory inventory = getInventory();
         if (inventory != null)
-            inventory.closeInventory();
+            inventory.closeInventory(player);
     }
     
+    @Override
     public boolean isItemValidForSlot(int slot, ItemStack stack) {
         IInventory inventory = getInventory();
         if (inventory != null)
@@ -417,12 +438,71 @@ public class OCInterfaceTE extends SGInterfaceTE
             return false;
     }
     
-    public boolean hasCustomInventoryName() {
+//     @Override
+//     public boolean hasCustomInventoryName() {
+//         IInventory inventory = getInventory();
+//         if (inventory != null)
+//             return inventory.hasCustomInventoryName();
+//         else
+//             return false;
+//     }
+
+    @Override
+    public int getField(int id) {
         IInventory inventory = getInventory();
         if (inventory != null)
-            return inventory.hasCustomInventoryName();
+            return inventory.getField(id);
         else
-            return false;
+            return 0;
+    }
+
+    @Override
+    public void setField(int id, int value) {
+        IInventory inventory = getInventory();
+        if (inventory != null)
+            inventory.setField(id, value);
+    }
+
+    @Override
+    public int getFieldCount() {
+        IInventory inventory = getInventory();
+        if (inventory != null)
+            return inventory.getFieldCount();
+        else
+            return 0;
+    }
+
+    @Override
+    public void clear() {
+        IInventory inventory = getInventory();
+        if (inventory != null)
+            inventory.clear();
+    }
+
+    //------------------------------ IWorldNqmeable ------------------------------
+
+    /**
+     * Get the name of this object. For players this returns their username
+     */
+    @Override
+    public String getName() {
+        return "";
+    }
+
+    /**
+     * Returns true if this thing is named
+     */
+    @Override
+    public boolean hasCustomName() {
+        return false;
+    }
+
+    /**
+     * Get the formatted ChatComponent that will be used for the sender's username in chat
+     */
+    @Override
+    public IChatComponent getDisplayName() {
+        return null;
     }
 
 }

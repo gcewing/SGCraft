@@ -162,7 +162,7 @@ public class SGAddressing {
             System.out.printf("SGAddressing.findAddressedStargate: %s\n", address);
         validateAddress(address);
         String csyms;
-        int dimension = fromWorld.provider.getDimensionId();
+        int dimension = fromWorld.provider.getDimension();
         if (address.length() == maxAddressLength) {
             csyms = address.substring(0, numCoordSymbols);
             String dsyms = address.substring(numCoordSymbols);
@@ -224,9 +224,9 @@ public class SGAddressing {
         return h;
     }
                 
-    public static World getWorld(int dimension) {
-        MinecraftServer s = MinecraftServer.getServer();
-        return s.worldServerForDimension(dimension);
+    public static WorldServer getWorld(int dimension) {
+        MinecraftServer server = BaseUtils.getMinecraftServer();
+        return server.worldServerForDimension(dimension);
     }
     
     static boolean inCoordRange(int i) {

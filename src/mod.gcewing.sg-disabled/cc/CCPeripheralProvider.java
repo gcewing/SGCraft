@@ -9,6 +9,7 @@ package gcewing.sg.cc;
 import net.minecraft.block.*;
 import net.minecraft.tileentity.*;
 import net.minecraft.world.*;
+import net.minecraft.util.*;
 import dan200.computercraft.api.peripheral.*;
 
 import gcewing.sg.*;
@@ -16,22 +17,12 @@ import gcewing.sg.*;
 public class CCPeripheralProvider implements IPeripheralProvider {
 
     @Override
-    public IPeripheral getPeripheral(World world, int x, int y, int z, int side) {
-        TileEntity te = world.getTileEntity(x, y, z);
-        //System.out.printf("CCPeripheralProvider.getPeripheral: found %s\n", te);
+    public IPeripheral getPeripheral(World world, BlockPos pos, EnumFacing side) {
+        TileEntity te = world.getTileEntity(pos);
         if (te instanceof CCInterfaceTE)
             return new CCSGPeripheral((CCInterfaceTE)te);
         else
             return null;
     }
-
-//  @Override
-//  public IPeripheral getPeripheral(World world, int x, int y, int z, int side) {
-//      TileEntity te = world.getTileEntity(x, y, z);
-//      if (te instanceof IPeripheral)
-//          return (IPeripheral)te;
-//      else
-//          return null;
-//  }
 
 }

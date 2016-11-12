@@ -10,6 +10,7 @@ import com.google.common.base.Joiner;
 
 import net.minecraft.tileentity.*;
 import net.minecraft.world.*;
+import net.minecraft.util.*;
 import net.minecraftforge.common.util.*;
 
 import dan200.computercraft.api.lua.*;
@@ -102,23 +103,17 @@ public class CCSGPeripheral implements IPeripheral {
 
     };
     
-    World worldObj;
-    int xCoord, yCoord, zCoord;
+    World world;
+    BlockPos pos;
     
     public CCSGPeripheral(TileEntity te) {
-        worldObj = te.getWorldObj();
-        xCoord = te.xCoord;
-        yCoord = te.yCoord;
-        zCoord = te.zCoord;
+        world = te.getWorld();
+        pos = te.getPos();
         //System.out.printf("CCInterfaceTE: Created\n");
     }
     
-//  SGBaseTE getBaseTE() {
-//      return SGBaseTE.get(worldObj, xCoord, yCoord + 1, zCoord);
-//  }
-    
     CCInterfaceTE getInterfaceTE() {
-        TileEntity te = worldObj.getTileEntity(xCoord, yCoord, zCoord);
+        TileEntity te = world.getTileEntity(pos);
         if (te instanceof CCInterfaceTE)
             return (CCInterfaceTE)te;
         else
@@ -139,6 +134,7 @@ public class CCSGPeripheral implements IPeripheral {
     public Object[] callMethod(IComputerAccess cpu, ILuaContext ctx, int method, Object[] args)
         throws LuaException, InterruptedException
     {
+        //System.out.printf("CCSGPeripheral.callMethod: %s\n", method);
         if (method >= 0 && method < methods.length)
             return CCMethodQueue.instance.invoke(cpu, ctx, this, methods[method], args);
         else
@@ -169,6 +165,8 @@ public class CCSGPeripheral implements IPeripheral {
 
 abstract class SGMethod extends CCMethod {
 
+    private static Object[] success = {true};
+
     public SGMethod(String name) {
         super(name);
     }
@@ -179,11 +177,20 @@ abstract class SGMethod extends CCMethod {
 
     @Override
     Object[] call(IComputerAccess cpu, ILuaContext ctx, Object target, Object[] args) {
-        SGInterfaceTE te = ((CCSGPeripheral)target).getInterfaceTE();
-        if (te != null)
-            return call(te, args);
-        else
-            throw new IllegalArgumentException("Stargate interface failed internal diagnostics");
+        try {
+            SGInterfaceTE te = ((CCSGPeripheral)target).getInterfaceTE();
+            if (te != null) {
+                Object[] result = call(te, args);
+                if (result == null)
+                    result = success;
+                return result;
+            }
+            else
+                throw new IllegalArgumentException("Stargate interface failed internal diagnostics");
+        }
+        catch (Exception e) {
+            return new Object[] {null, e.getMessage()};
+        }
     }
     
     abstract Object[] call(SGInterfaceTE te, Object[] args);

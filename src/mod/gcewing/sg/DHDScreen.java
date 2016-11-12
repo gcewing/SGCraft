@@ -17,6 +17,7 @@ import net.minecraft.client.renderer.*;
 import net.minecraft.entity.player.*;
 import net.minecraft.tileentity.*;
 import net.minecraft.util.*;
+import net.minecraft.util.math.*;
 import net.minecraft.world.*;
 
 import net.minecraftforge.client.*;
@@ -159,8 +160,10 @@ public class DHDScreen extends SGScreen {
         //mc.sndManager.playSoundFX("random.click", 1.0F, 1.0F);
         EntityPlayer player = mc.thePlayer;
         ISound sound = new PositionedSoundRecord(
-            new ResourceLocation("random.click"),
-            1.0F, 1.0F, (float)player.posX, (float)player.posY, (float)player.posZ);
+            new ResourceLocation("ui.button.click"), SoundCategory.BLOCKS,
+            1.0F, 1.0F,
+            false, 0, ISound.AttenuationType.LINEAR,
+            (float)player.posX, (float)player.posY, (float)player.posZ);
         mc.getSoundHandler().playSound(sound);
     }
 

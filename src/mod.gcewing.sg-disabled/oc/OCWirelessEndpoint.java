@@ -41,10 +41,10 @@ public class OCWirelessEndpoint implements WirelessEndpoint {
 
     // --------------------------- WirelessEndpoint ---------------------------
     
-    @Override public int x() {return te.xCoord;}
-    @Override public int y() {return te.yCoord;}
-    @Override public int z() {return te.zCoord;}
-    @Override public World world() {return te.getWorldObj();}
+    @Override public int x() {return te.getPos().getX();}
+    @Override public int y() {return te.getPos().getY();}
+    @Override public int z() {return te.getPos().getZ();}
+    @Override public World world() {return te.getWorld();}
     
     @Override
     public void receivePacket(Packet packet, WirelessEndpoint sender) {

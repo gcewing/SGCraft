@@ -19,6 +19,7 @@ import net.minecraft.init.*;
 import net.minecraft.item.*;
 import net.minecraft.world.*;
 import net.minecraft.util.*;
+import net.minecraft.util.math.*;
 import net.minecraftforge.common.*;
 import net.minecraftforge.common.util.*;
 
@@ -49,13 +50,13 @@ public class SGBaseBlock extends BaseBlock<SGBaseTE> implements ISGBlock {
     }
     
     public SGBaseBlock() {
-        super(Material.rock /*SGRingBlock.ringMaterial*/, SGBaseTE.class);
+        super(Material.ROCK, SGBaseTE.class);
         setHardness(1.5F);
-        setCreativeTab(CreativeTabs.tabMisc);
+        setCreativeTab(CreativeTabs.MISC);
     }
     
     @Override
-    public boolean canRenderInLayer(EnumWorldBlockLayer layer) {
+    public boolean canRenderInLayer(BlockRenderLayer layer) {
         return true; // So that translucent camouflage blocks render correctly
     }
 
@@ -85,12 +86,12 @@ public class SGBaseBlock extends BaseBlock<SGBaseTE> implements ISGBlock {
     }
 
     @Override
-    public boolean isOpaqueCube() {
+    public boolean isOpaqueCube(IBlockState state) {
         return false;
     }
     
     @Override
-    public boolean isSideSolid(IBlockAccess world, BlockPos pos, EnumFacing side) {
+    public boolean isSideSolid(IBlockState base_state, IBlockAccess world, BlockPos pos, EnumFacing side) {
         return true;
     }
 
@@ -124,7 +125,7 @@ public class SGBaseBlock extends BaseBlock<SGBaseTE> implements ISGBlock {
     
     @Override
     public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player,
-        EnumFacing side, float cx, float cy, float cz)
+        EnumHand hand, ItemStack heldItem, EnumFacing side, float cx, float cy, float cz)
     {
         String Side = world.isRemote ? "Client" : "Server";
         SGBaseTE te = getTileEntity(world, pos);
@@ -148,7 +149,7 @@ public class SGBaseBlock extends BaseBlock<SGBaseTE> implements ISGBlock {
     }
     
     @Override
-    public void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block block) {
+    public void onNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbor) {
         SGBaseTE te = getTileEntity(world, pos);
         if (te != null)
             te.onNeighborBlockChange();
@@ -177,7 +178,7 @@ public class SGBaseBlock extends BaseBlock<SGBaseTE> implements ISGBlock {
                 System.out.printf("SGBaseBlock: Merging\n");
             SGBaseTE te = getTileEntity(world, pos);
             te.setMerged(true);
-            world.markBlockForUpdate(pos);
+            BaseBlockUtils.markBlockForUpdate(world, pos);
             for (int i = -2; i <= 2; i++)
                 for (int j = 0; j <= 4; j++) 
                     if (!(i == 0 && j == 0)) {
@@ -194,7 +195,7 @@ public class SGBaseBlock extends BaseBlock<SGBaseTE> implements ISGBlock {
     int getRingBlockType(World world, BlockPos pos) {
         IBlockState state = world.getBlockState(pos);
         Block block = state.getBlock();
-        if (block == Blocks.air)
+        if (block == Blocks.AIR)
             return 0;
         if (block == SGCraft.sgRingBlock) {
             if (!SGCraft.sgRingBlock.isMerged(world, pos)) {
@@ -235,7 +236,7 @@ public class SGBaseBlock extends BaseBlock<SGBaseTE> implements ISGBlock {
             te.disconnect();
             te.unlinkFromController();
             te.setMerged(false);
-            world.markBlockForUpdate(pos);
+            BaseBlockUtils.markBlockForUpdate(world, pos);
             unmergeRing(world, pos);
         }
         if (goBang && explosionRadius > 0)
@@ -265,17 +266,17 @@ public class SGBaseBlock extends BaseBlock<SGBaseTE> implements ISGBlock {
     }
     
     @Override
-    public boolean canProvidePower() {
+    public boolean canProvidePower(IBlockState state) {
         return true;
     }
     
     @Override
-    public int getStrongPower(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing side) {
-        return getWeakPower(world, pos, state, side);
+    public int getStrongPower(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side) {
+        return getWeakPower(state, world, pos, side);
     }
     
     @Override
-    public int getWeakPower(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing side) {
+    public int getWeakPower(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side) {
         SGBaseTE te = getTileEntity(world, pos);
         return (te != null && te.state != SGState.Idle) ? 15 : 0;
     }

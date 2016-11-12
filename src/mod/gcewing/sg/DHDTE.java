@@ -13,6 +13,7 @@ import net.minecraft.nbt.*;
 import net.minecraft.tileentity.*;
 import net.minecraft.world.*;
 import net.minecraft.util.*;
+import net.minecraft.util.math.*;
 
 import static gcewing.sg.BaseBlockUtils.*;
 import static gcewing.sg.BaseUtils.*;
@@ -117,7 +118,7 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound nbt) {
+    public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
         super.writeToNBT(nbt);
         nbt.setBoolean("isLinkedToStargate", isLinkedToStargate);
         nbt.setDouble("energyInBuffer", energyInBuffer);
@@ -125,6 +126,7 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
         nbt.setInteger("linkedY", linkedPos.getY());
         nbt.setInteger("linkedZ", linkedPos.getZ());
         nbt.setString("enteredAddress", enteredAddress);
+        return nbt;
     }
 
     SGBaseTE getLinkedStargateTE() {

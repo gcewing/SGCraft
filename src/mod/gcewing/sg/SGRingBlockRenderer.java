@@ -14,6 +14,7 @@ import net.minecraft.world.*;
 import net.minecraft.world.biome.*;
 import net.minecraft.tileentity.*;
 import net.minecraft.util.*;
+import net.minecraft.util.math.*;
 import net.minecraftforge.common.util.*;
 
 import gcewing.sg.BaseModClient.*;
@@ -25,11 +26,11 @@ public class SGRingBlockRenderer implements ICustomRenderer {
     }
 
     public void renderBlock(IBlockAccess world, BlockPos pos, IBlockState state, IRenderTarget target,
-        EnumWorldBlockLayer layer, Trans3 t)
+        BlockRenderLayer layer, Trans3 t)
     {
         ISGBlock ringBlock = (ISGBlock)state.getBlock();
-        if (target.isRenderingBreakEffects() || (layer == EnumWorldBlockLayer.SOLID && !ringBlock.isMerged(world, pos)))
-            SGCraft.mod.client.renderBlockUsingModelSpec(world, pos, state, target, layer, t);
+        if (target.isRenderingBreakEffects() || (layer == BlockRenderLayer.SOLID && !ringBlock.isMerged(world, pos)))
+            BaseRenderingManager.renderBlockUsingModelSpec(SGCraft.mod.client, world, pos, state, target, layer, t);
         else {
             SGBaseTE te = ringBlock.getBaseTE(world, pos);
             if (te != null) {
@@ -41,7 +42,7 @@ public class SGRingBlockRenderer implements ICustomRenderer {
                         if (camoState.getBlock().canRenderInLayer(layer)) {
                             //System.out.printf("SGRingBlockRenderer: Rendering camouflage block %s at %s in layer %s\n",
                             //    camoState, pos, layer);
-                            SGCraft.mod.client.renderAlternateBlock(world, pos, camoState, target);
+                            BaseRenderingManager.renderAlternateBlock(SGCraft.mod.client, world, pos, camoState, target);
                         }
                     }
                 }
@@ -50,7 +51,7 @@ public class SGRingBlockRenderer implements ICustomRenderer {
     }
     
     public void renderItemStack(ItemStack stack, IRenderTarget target, Trans3 t) {
-        SGCraft.mod.client.renderItemStackUsingModelSpec(stack, target, t);
+        BaseRenderingManager.renderItemStackUsingModelSpec(SGCraft.mod.client, stack, target, t);
     }
 
 }

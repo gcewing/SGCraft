@@ -23,8 +23,11 @@ import net.minecraft.server.*;
 import net.minecraft.server.management.*;
 import net.minecraft.tileentity.*;
 import net.minecraft.util.*;
+import net.minecraft.util.math.*;
+import net.minecraft.util.text.*;
 import net.minecraft.world.*;
 import net.minecraft.world.chunk.*;
+import net.minecraft.world.gen.ChunkProviderServer;
 
 import net.minecraftforge.common.*;
 import net.minecraftforge.common.util.*;
@@ -34,7 +37,7 @@ import net.minecraftforge.fml.common.network.*;
 import net.minecraftforge.fml.relauncher.Side;
 
 import gcewing.sg.SGAddressing.AddressingError;
-import gcewing.sg.oc.OCWirelessEndpoint; //[OC]
+//import gcewing.sg.oc.OCWirelessEndpoint; //[OC]+
 import static gcewing.sg.BaseBlockUtils.*;
 import static gcewing.sg.BaseUtils.*;
 import static gcewing.sg.Utils.*;
@@ -47,6 +50,18 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
     static boolean debugTransientDamage = false;
     static boolean debugTeleport = false;
 
+    static SoundEvent sound(String name) {
+        return new SoundEvent(new ResourceLocation(name));
+    }
+    
+    static SoundEvent
+        abortSound = sound("sgcraft:sg_abort"),
+        openSound = sound("sgcraft:sg_open"),
+        closeSound = sound("sgcraft:sg_close"),
+        irisOpenSound = sound("sgcraft:iris_open"),
+        irisCloseSound = sound("sgcraft:iris_close"),
+        irisHitSound = sound("sgcraft:iris_hit");   
+
     public final static String symbolChars = SGAddressing.symbolChars;
     public final static int numRingSymbols = SGAddressing.numSymbols;
     public final static double ringSymbolAngle = 360.0 / numRingSymbols;
@@ -57,7 +72,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
     
     final static int[] diallingTime = {40, 28}; // ticks
     final static int[] interDiallingTime = {10, 11}; // ticks
-    final static String[] diallingSound = {"sgcraft:sg_dial7", "sgcraft:sg_dial9"};
+    final static SoundEvent[] diallingSound = {sound("sgcraft:sg_dial7"), sound("sgcraft:sg_dial9")};
     final static int transientDuration = 20; // ticks
     final static int disconnectTime = 30; // ticks
     
@@ -108,7 +123,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
     public IrisState irisState = IrisState.Open;
     public int irisPhase = maxIrisPhase; // 0 = fully closed, maxIrisPhase = fully open
     public int lastIrisPhase = maxIrisPhase;
-    public OCWirelessEndpoint ocWirelessEndpoint; //[OC]
+//     public OCWirelessEndpoint ocWirelessEndpoint; //[OC]+
 
     SGLocation connectedLocation;
     boolean isInitiator;
@@ -168,7 +183,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
     
     @Override
     public String toString() {
-        return String.format("SGBaseTE(%s,%s)", pos, worldObj.provider.getDimensionId());
+        return String.format("SGBaseTE(%s,%s)", pos, worldObj.provider.getDimension());
     }
 
     @Override
@@ -251,7 +266,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
 
     public int dimension() {
         if (worldObj != null)
-            return worldObj.provider.getDimensionId();
+            return worldObj.provider.getDimension();
         else
             return -999;
     }
@@ -287,7 +302,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound nbt) {
+    public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
         super.writeToNBT(nbt);
         nbt.setBoolean("isMerged", isMerged);
         nbt.setInteger("state", state.ordinal());
@@ -311,6 +326,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
         nbt.setInteger("irisState", irisState.ordinal());
         nbt.setInteger("irisPhase", irisPhase);
         nbt.setBoolean("redstoneInput", redstoneInput);
+        return nbt;
     }
     
     public boolean isActive() {
@@ -333,7 +349,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
         return SGAddressing.charToSymbol(c);
     }
     
-    public boolean applyChevronUpgrade(ItemStack stack, EntityPlayer player) {
+    public EnumActionResult applyChevronUpgrade(ItemStack stack, EntityPlayer player) {
         if (!getWorld().isRemote && !hasChevronUpgrade && stack.stackSize > 0) {
             //System.out.printf("SGBaseTE.applyChevronUpgrade: Installing chevron upgrade\n");
             hasChevronUpgrade = true;
@@ -341,10 +357,10 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
             markDirty();
             markBlockForUpdate();
         }
-        return true;
+        return EnumActionResult.SUCCESS;
     }
     
-    public boolean applyIrisUpgrade(ItemStack stack, EntityPlayer player) {
+    public EnumActionResult applyIrisUpgrade(ItemStack stack, EntityPlayer player) {
         if (!getWorld().isRemote && !hasIrisUpgrade && stack.stackSize > 0) {
             //System.out.printf("SGBaseTE.applyIrisUpgrade: Installing iris upgrade\n");
             hasIrisUpgrade = true;
@@ -353,7 +369,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
             markBlockForUpdate();
             updateIrisEntity();
         }
-        return true;
+        return EnumActionResult.SUCCESS;
     }
     
     int getNumChevrons() {
@@ -402,8 +418,8 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
     @Override
     public void invalidate() {
         super.invalidate();
-        if (!worldObj.isRemote && ocWirelessEndpoint != null)  //[OC]
-            ocWirelessEndpoint.remove();
+//         if (!worldObj.isRemote && ocWirelessEndpoint != null)  //[OC]+
+//             ocWirelessEndpoint.remove();
     }
     
     String side() {
@@ -413,7 +429,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
     void enterState(SGState newState, int newTimeout) {
         if (debugState)
             System.out.printf("SGBaseTE: at %s in dimension %s entering state %s with timeout %s\n", 
-                pos, worldObj.provider.getDimensionId(), newState, newTimeout);
+                pos, worldObj.provider.getDimension(), newState, newTimeout);
         SGState oldState = state;
         state = newState;
         timeout = newTimeout;
@@ -527,7 +543,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
             return diallingFailure(player, "Stargate cannot connect to itself");
         if (debugConnect)
             System.out.printf("SGBaseTE.connect: to %s in dimension %d with state %s\n",
-                dte.getPos(), dte.getWorld().provider.getDimensionId(),
+                dte.getPos(), dte.getWorld().provider.getDimension(),
                 dte.state);
         if (getWorld() == dte.getWorld()) {
             address = SGAddressing.localAddress(address);
@@ -563,14 +579,14 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
         return f;
     }
     
-    public void playSGSoundEffect(String name, float volume, float pitch) {
-        playSoundEffect(name, volume * soundVolume, pitch);
+    public void playSGSoundEffect(SoundEvent se, float volume, float pitch) {
+        playSoundEffect(se, volume * soundVolume, pitch);
     }
     
     String diallingFailure(EntityPlayer player, String mess) {
         if (player != null) {
             if (state == SGState.Idle)
-                playSGSoundEffect("sgcraft:sg_abort", 1.0F, 1.0F);
+                playSGSoundEffect(abortSound, 1.0F, 1.0F);
         }
         return operationFailure(player, mess);
     }
@@ -582,7 +598,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
     }
     
     static void sendChatMessage(EntityPlayer player, String mess) {
-        player.addChatMessage(new ChatComponentText(mess));
+        player.addChatMessage(new TextComponentTranslation(mess));
     }
     
     String findHomeAddress() {
@@ -617,11 +633,11 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
             if (state == SGState.Connected) {
                 enterState(SGState.Disconnecting, disconnectTime);
                 //sendClientEvent(SGEvent.StartDisconnecting, 0);
-                playSGSoundEffect("sgcraft:sg_close", 1.0F, 1.0F);
+                playSGSoundEffect(closeSound, 1.0F, 1.0F);
             }
             else {
                 if (state != SGState.Idle && state != SGState.Disconnecting)
-                    playSGSoundEffect("sgcraft:sg_abort", 1.0F, 1.0F);
+                    playSGSoundEffect(abortSound, 1.0F, 1.0F);
                 enterState(SGState.Idle, 0);
                 //sendClientEvent(SGEvent.FinishDisconnecting, 0);
             }
@@ -644,12 +660,12 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
     void serverUpdate() {
         if (!loaded) {
             loaded = true;
-            if (SGCraft.ocIntegration != null) //[OC]
-                SGCraft.ocIntegration.onSGBaseTEAdded(this);
+//             if (SGCraft.ocIntegration != null) //[OC]+
+//                 SGCraft.ocIntegration.onSGBaseTEAdded(this);
         }
         if (isMerged) {
             if (debugState && state != SGState.Connected && timeout > 0) {
-                int dimension = worldObj.provider.getDimensionId();
+                int dimension = worldObj.provider.getDimension();
                 System.out.printf(
                     "SGBaseTE.serverUpdate at %d in dimension %d: state %s, timeout %s\n",
                     pos, dimension, state, timeout);
@@ -876,7 +892,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
         //System.out.printf("SGBaseTE: Connecting to '%s'\n", dialledAddress);
         if (!isInitiator || useEnergy(energyToOpen * distanceFactor)) {
             enterState(SGState.Transient, transientDuration);
-            playSGSoundEffect("sgcraft:sg_open", 1.0F, 1.0F);
+            playSGSoundEffect(openSound, 1.0F, 1.0F);
         }
         else
             disconnect();
@@ -922,7 +938,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
             //System.out.printf("SGBaseTE.checkForEntitiesInPortal: %s\n", box);
             List<Entity> ents = (List<Entity>)worldObj.getEntitiesWithinAABB(Entity.class, box);
             for (Entity entity : ents) {
-                if (!entity.isDead && entity.ridingEntity == null) {
+                if (!entity.isDead && entity.getRidingEntity() == null) {
                     //if (!(entity instanceof EntityPlayer))
                     //  System.out.printf("SGBaseTE.checkForEntitiesInPortal: Tracking %s\n", repr(entity));
                     trackedEntities.add(new TrackedEntity(entity));
@@ -958,29 +974,36 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
                 SGBaseTE dte = getConnectedStargateTE();
                 if (dte != null) {
                     Trans3 dt = dte.localToGlobalTransformation();
-                    while (entity.ridingEntity != null)
-                        entity = entity.ridingEntity;
-                    teleportEntityAndRider(entity, t, dt, connectedLocation.dimension, dte.irisIsClosed());
+                    while (entity.getRidingEntity() != null)
+                        entity = entity.getRidingEntity();
+                    teleportEntityAndRiders(entity, t, dt, connectedLocation.dimension, dte.irisIsClosed());
                 }
             }
         }
     }
     
-    Entity teleportEntityAndRider(Entity entity, Trans3 t1, Trans3 t2, int dimension, boolean destBlocked) {
+    Entity teleportEntityAndRiders(Entity entity, Trans3 t1, Trans3 t2, int dimension, boolean destBlocked) {
         if (debugTeleport)
-            System.out.printf("SGBaseTE.teleportEntityAndRider: destBlocked = %s\n", destBlocked);
-        Entity rider = entity.riddenByEntity;
-        if (rider != null) {
+            System.out.printf("SGBaseTE.teleportEntityAndRiders: destBlocked = %s\n", destBlocked);
+        //Entity rider = entity.riddenByEntity;
+        List<Entity> riders = entity.getPassengers();
+        for (int i = 0; i < riders.size(); i++) {
+            Entity rider = riders.get(i);
             //System.out.printf("SGBaseTE.teleportEntityAndRider: Unmounting %s from %s\n",
             //  repr(rider), repr(entity));
-            rider.mountEntity(null);
-            rider = teleportEntityAndRider(rider, t1, t2, dimension, destBlocked);
+            rider.dismountRidingEntity();
+            rider = teleportEntityAndRiders(rider, t1, t2, dimension, destBlocked);
+            riders.set(i, rider);
         }
         entity = teleportEntity(entity, t1, t2, dimension, destBlocked);
-        if (entity != null && !entity.isDead && rider != null && !rider.isDead) {
-            //System.out.printf("SGBaseTE.teleportEntityAndRider: Mounting %s on %s\n",
-            //  repr(rider), repr(entity));
-            rider.mountEntity(entity);
+        if (entity != null && !entity.isDead) {
+            for (Entity rider : riders) {
+                if (rider != null && !rider.isDead) {
+                    //System.out.printf("SGBaseTE.teleportEntityAndRider: Mounting %s on %s\n",
+                    //  repr(rider), repr(entity));
+                    rider.startRiding(entity, true);
+                }
+            }
         }
         return entity;
     }
@@ -1041,8 +1064,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
     }
 
     static WorldServer worldForDimension(int dimension) {
-        MinecraftServer server = MinecraftServer.getServer();
-        return server.worldServerForDimension(dimension);
+        return SGAddressing.getWorld(dimension);
     }
 
     static void playIrisHitSound(World world, Vector3 pos, Entity entity) {
@@ -1051,8 +1073,8 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
         if (debugTeleport)
             System.out.printf("SGBaseTE.playIrisHitSound: at (%.3f,%.3f,%.3f) volume %.3f pitch %.3f\n",
                 pos.x, pos.y, pos.z, volume, pitch);
-        world.playSoundEffect(pos.x, pos.y, pos.z, "sgcraft:iris_hit",
-            (float)volume, (float)pitch);
+        world.playSound(pos.x, pos.y, pos.z, irisHitSound, SoundCategory.NEUTRAL,
+            (float)volume, (float)pitch, false);
     }
     
     static Entity teleportWithinDimension(Entity entity, Vector3 p, Vector3 v, double a, boolean destBlocked) {
@@ -1081,8 +1103,8 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
     }
     
     static void sendDimensionRegister(EntityPlayerMP player, int dimensionID) {
-        int providerID = DimensionManager.getProviderType(dimensionID);
-        ForgeMessage msg = new ForgeMessage.DimensionRegisterMessage(dimensionID, providerID);
+        DimensionType providerID = DimensionManager.getProviderType(dimensionID);
+        ForgeMessage msg = new ForgeMessage.DimensionRegisterMessage(dimensionID, providerID.toString());
         FMLEmbeddedChannel channel = NetworkRegistry.INSTANCE.getChannel("FORGE", Side.SERVER);
         channel.attr(FMLOutboundHandler.FML_MESSAGETARGET).set(FMLOutboundHandler.OutboundTarget.PLAYER);
         channel.attr(FMLOutboundHandler.FML_MESSAGETARGETARGS).set(player);
@@ -1091,8 +1113,8 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
     
     static void transferPlayerToDimension(EntityPlayerMP player, int newDimension, Vector3 p, double a) {
         //System.out.printf("SGBaseTE.transferPlayerToDimension: %s to dimension %d\n", repr(player), newDimension);
-        MinecraftServer server = MinecraftServer.getServer();
-        ServerConfigurationManager scm = server.getConfigurationManager();
+        MinecraftServer server = BaseUtils.getMinecraftServer();
+        PlayerList scm = server.getPlayerList();
         int oldDimension = player.dimension;
         player.dimension = newDimension;
         WorldServer oldWorld = server.worldServerForDimension(oldDimension);
@@ -1104,34 +1126,34 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
         sendDimensionRegister(player, newDimension);
         // >>>
         player.closeScreen();
-        player.playerNetServerHandler.sendPacket(new S07PacketRespawn(player.dimension,
+        player.connection.sendPacket(new SPacketRespawn(player.dimension,
             player.worldObj.getDifficulty(), newWorld.getWorldInfo().getTerrainType(),
-            player.theItemInWorldManager.getGameType()));
+            player.interactionManager.getGameType()));
 //         if (SGCraft.mystcraftIntegration != null) //[MYST]
 //             SGCraft.mystcraftIntegration.sendAgeData(newWorld, player);
-        oldWorld.removePlayerEntityDangerously(player); // Removes player right now instead of waiting for next tick
+        oldWorld.removeEntityDangerously(player); // Removes player right now instead of waiting for next tick
         player.isDead = false;
         player.setLocationAndAngles(p.x, p.y, p.z, (float)a, player.rotationPitch);
         newWorld.spawnEntityInWorld(player);
         player.setWorld(newWorld);
         scm.preparePlayer(player, oldWorld);
-        player.playerNetServerHandler.setPlayerLocation(p.x, p.y, p.z, (float)a, player.rotationPitch);
-        player.theItemInWorldManager.setWorld(newWorld);
+        player.connection.setPlayerLocation(p.x, p.y, p.z, (float)a, player.rotationPitch);
+        player.interactionManager.setWorld(newWorld);
         scm.updateTimeAndWeatherForPlayer(player, newWorld);
         scm.syncPlayerInventory(player);
         Iterator var6 = player.getActivePotionEffects().iterator();
         while (var6.hasNext()) {
             PotionEffect effect = (PotionEffect)var6.next();
-            player.playerNetServerHandler.sendPacket(new S1DPacketEntityEffect(player.getEntityId(), effect));
+            player.connection.sendPacket(new SPacketEntityEffect(player.getEntityId(), effect));
         }
-        player.playerNetServerHandler.sendPacket(new S1FPacketSetExperience(player.experience, player.experienceTotal, player.experienceLevel));
+        player.connection.sendPacket(new SPacketSetExperience(player.experience, player.experienceTotal, player.experienceLevel));
         FMLCommonHandler.instance().firePlayerChangedDimensionEvent(player, oldDimension, newDimension);
         //System.out.printf("SGBaseTE.transferPlayerToDimension: Transferred %s\n", repr(player));
     }   
     
     static Entity teleportEntityToDimension(Entity entity, Vector3 p, Vector3 v, double a, int dimension, boolean destBlocked) {
         //System.out.printf("SGBaseTE.teleportEntityToDimension: %s to dimension %d\n", repr(entity), dimension);
-        MinecraftServer server = MinecraftServer.getServer();
+        MinecraftServer server = BaseUtils.getMinecraftServer();
         WorldServer world = server.worldServerForDimension(dimension);
         return teleportEntityToWorld(entity, p, v, a, world, destBlocked);
     }
@@ -1208,7 +1230,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
         }
         int i = entity.chunkCoordX;
         int j = entity.chunkCoordZ;
-        if (entity.addedToChunk && world.getChunkProvider().chunkExists(i, j))
+        if (entity.addedToChunk && ((ChunkProviderServer)world.getChunkProvider()).chunkExists(i, j))
             world.getChunkFromChunkCoords(i, j).removeEntity(entity);
         world.loadedEntityList.remove(entity);
         //BaseReflectionUtils.call(world, onEntityRemoved, entity);
@@ -1249,7 +1271,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
     //------------------------------------   Client   --------------------------------------------
 
     @Override
-    public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt) {
+    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
         //System.out.printf("SGBaseTE.onDataPacket: with state %s numEngagedChevrons %s\n",
         //  SGState.valueOf(pkt.customParam1.getInteger("state")),
         //  pkt.customParam1.getInteger("numEngagedChevrons"));
@@ -1432,10 +1454,10 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
             if (!worldObj.isRemote) {
                 switch (newState) {
                     case Opening:
-                        playSGSoundEffect("sgcraft:iris_open", 1.0F, 1.0F);
+                        playSGSoundEffect(irisOpenSound, 1.0F, 1.0F);
                         break;
                     case Closing:
-                        playSGSoundEffect("sgcraft:iris_close", 1.0F, 1.0F);
+                        playSGSoundEffect(irisCloseSound, 1.0F, 1.0F);
                         break;
                 }
             }
@@ -1527,7 +1549,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
             //System.out.printf("SGBaseTE.onInventoryChanged: Camouflage slot changed\n");
             for (int dx = -2; dx <= 2; dx++)
                 for (int dz = -2; dz <= 2; dz++)
-                    worldObj.markBlockForUpdate(pos.add(dx, 0, dz));
+                    BaseBlockUtils.markBlockForUpdate(worldObj, pos.add(dx, 0, dz));
         }
     }
     

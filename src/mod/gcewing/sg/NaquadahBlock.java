@@ -14,10 +14,10 @@ public class NaquadahBlock extends Block {
     //static int texture = 0x43;
 
     public NaquadahBlock() {
-        super(Material.rock, MapColor.greenColor);
+        super(Material.ROCK, MapColor.GREEN);
         setHardness(5.0F);
         setResistance(10.0F);
-        setStepSound(soundTypeMetal);
+        setSoundType(SoundType.METAL);
     }
 
 }

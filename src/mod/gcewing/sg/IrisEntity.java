@@ -14,6 +14,7 @@ import net.minecraft.world.*;
 import net.minecraft.tileentity.*;
 import net.minecraftforge.common.util.*;
 import net.minecraft.util.*;
+import net.minecraft.util.math.*;
 
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 
@@ -132,7 +133,7 @@ public class IrisEntity extends Entity implements IEntityAdditionalSpawnData {
         //System.out.printf("IrisEntity.writeSpawnData\n");
         try {
             DataOutput data = new ByteBufOutputStream(buffer);
-            BaseUtils.writeBlockPos(data, blockPos);
+            BaseBlockUtils.writeBlockPos(data, blockPos);
             AxisAlignedBB box = super.getEntityBoundingBox();
             data.writeDouble(box.minX);
             data.writeDouble(box.minY);
@@ -151,7 +152,7 @@ public class IrisEntity extends Entity implements IEntityAdditionalSpawnData {
         //System.out.printf("IrisEntity.readSpawnData\n");
         try {
             DataInput data = new ByteBufInputStream(buffer);
-            BlockPos pos = BaseUtils.readBlockPos(data);
+            BlockPos pos = BaseBlockUtils.readBlockPos(data);
             double minX = data.readDouble();
             double minY = data.readDouble();
             double minZ = data.readDouble();

@@ -30,19 +30,17 @@ import net.minecraftforge.fml.common.gameevent.*;
 import net.minecraftforge.fml.common.eventhandler.*;
 import net.minecraftforge.fml.common.registry.*;
 
-// import ic2.api.item.*; //[IC2]
-import dan200.computercraft.api.*; //[CC]
-// import gcewing.sg.ic2.*; //[IC2]
+// import dan200.computercraft.api.*; //[CC]+
 // import gcewing.sg.rf.*; //[RF]
-import gcewing.sg.cc.*; //[CC]
-import gcewing.sg.oc.*; //[OC]
+// import gcewing.sg.cc.*; //[CC]+
+// import gcewing.sg.oc.*; //[OC]+
 
 @Mod(modid = Info.modID, name = Info.modName, version = Info.versionNumber,
     acceptableRemoteVersions = Info.versionBounds)
 
 public class SGCraft extends BaseMod<SGCraftClient> {
 
-    public static final Material machineMaterial = new Material(MapColor.ironColor);
+    public static final Material machineMaterial = new Material(MapColor.IRON);
 
     public static SGCraft mod;
 
@@ -67,9 +65,9 @@ public class SGCraft extends BaseMod<SGCraftClient> {
     public static NaquadahOreWorldGen naquadahOreGenerator;
     public static int tokraVillagerID;
     
-    public static BaseSubsystem ic2Integration; //[IC2]
-    public static IIntegration ccIntegration; //[CC]
-    public static OCIntegration ocIntegration; //[OC]
+//     public static BaseSubsystem ic2Integration; //[IC2]+
+//     public static IIntegration ccIntegration; //[CC]+
+//     public static OCIntegration ocIntegration; //[OC]+
 //     public static MystcraftIntegration mystcraftIntegration; //[MYST]
 
     public SGCraft() {
@@ -84,9 +82,9 @@ public class SGCraft extends BaseMod<SGCraftClient> {
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent e) {
         FMLCommonHandler.instance().bus().register(this);
-        ic2Integration = integrateWith("IC2", "gcewing.sg.ic2.IC2Integration"); //[IC2]
-        ccIntegration = (CCIntegration)integrateWith("ComputerCraft", "gcewing.sg.cc.CCIntegration"); //[CC]
-        ocIntegration = (OCIntegration)integrateWith("OpenComputers", "gcewing.sg.oc.OCIntegration"); //[OC]
+//         ic2Integration = integrateWith("IC2", "gcewing.sg.ic2.IC2Integration"); //[IC2]+
+//         ccIntegration = (CCIntegration)integrateWith("ComputerCraft", "gcewing.sg.cc.CCIntegration"); //[CC]+
+//         ocIntegration = (OCIntegration)integrateWith("OpenComputers", "gcewing.sg.oc.OCIntegration"); //[OC]+
 //         mystcraftIntegration = (MystcraftIntegration)integrateWith("Mystcraft", "gcewing.sg.MystcraftIntegration"); //[MYST]
         super.preInit(e);
     }
@@ -177,39 +175,39 @@ public class SGCraft extends BaseMod<SGCraftClient> {
     
     @Override
     protected void registerRecipes() {
-        ItemStack chiselledSandstone = new ItemStack(Blocks.sandstone, 1, 1);
-        ItemStack smoothSandstone = new ItemStack(Blocks.sandstone, 1, 2);
+        ItemStack chiselledSandstone = new ItemStack(Blocks.SANDSTONE, 1, 1);
+        ItemStack smoothSandstone = new ItemStack(Blocks.SANDSTONE, 1, 2);
         ItemStack sgChevronBlock = new ItemStack(sgRingBlock, 1, 1);
-        ItemStack blueDye = new ItemStack(Items.dye, 1, 4);
-        ItemStack orangeDye = new ItemStack(Items.dye, 1, 14);
+        ItemStack blueDye = new ItemStack(Items.DYE, 1, 4);
+        ItemStack orangeDye = new ItemStack(Items.DYE, 1, 14);
         if (config.getBoolean("options", "allowCraftingNaquadah", false))
-            newShapelessRecipe(naquadah, 1, Items.coal, Items.slime_ball, Items.blaze_powder);
+            newShapelessRecipe(naquadah, 1, Items.COAL, Items.SLIME_BALL, Items.BLAZE_POWDER);
         newRecipe(sgRingBlock, 1, "CCC", "NNN", "SSS",
             'S', smoothSandstone, 'N', "ingotNaquadahAlloy", 'C', chiselledSandstone);
         newRecipe(sgChevronBlock, "CgC", "NpN", "SrS",
             'S', smoothSandstone, 'N', "ingotNaquadahAlloy", 'C', chiselledSandstone,
-            'g', Items.glowstone_dust, 'r', Items.redstone, 'p', Items.ender_pearl);
+            'g', Items.GLOWSTONE_DUST, 'r', Items.REDSTONE, 'p', Items.ENDER_PEARL);
         newRecipe(sgBaseBlock, 1, "CrC", "NeN", "ScS",
             'S', smoothSandstone, 'N', "ingotNaquadahAlloy", 'C', chiselledSandstone,
-            'r', Items.redstone, 'e', Items.ender_eye, 'c', sgCoreCrystal);
+            'r', Items.REDSTONE, 'e', Items.ENDER_EYE, 'c', sgCoreCrystal);
         newRecipe(sgControllerBlock, 1, "bbb", "OpO", "OcO",
-            'b', Blocks.stone_button, 'O', Blocks.obsidian, 'p', Items.ender_pearl,
-            'r', Items.redstone, 'c', sgControllerCrystal);
-        newShapelessRecipe(naquadahIngot, 1, "naquadah", Items.iron_ingot);
+            'b', Blocks.STONE_BUTTON, 'O', Blocks.OBSIDIAN, 'p', Items.ENDER_PEARL,
+            'r', Items.REDSTONE, 'c', sgControllerCrystal);
+        newShapelessRecipe(naquadahIngot, 1, "naquadah", Items.IRON_INGOT);
         newRecipe(naquadahBlock, 1, "NNN", "NNN", "NNN", 'N', "ingotNaquadahAlloy");
         newRecipe(sgChevronUpgrade, 1, "g g", "pNp", "r r",
             'N', "ingotNaquadahAlloy",
-            'g', Items.glowstone_dust, 'r', Items.redstone, 'p', Items.ender_pearl);
+            'g', Items.GLOWSTONE_DUST, 'r', Items.REDSTONE, 'p', Items.ENDER_PEARL);
         newRecipe(naquadahIngot, 9, "B", 'B', naquadahBlock);
         newRecipe(sgIrisBlade, 1, " ii", "ic ", "i  ",
-            'i', Items.iron_ingot, 'c', new ItemStack(Items.coal, 1, 1));
+            'i', Items.IRON_INGOT, 'c', new ItemStack(Items.COAL, 1, 1));
         newRecipe(sgIrisUpgrade, 1, "bbb", "brb", "bbb",
-            'b', sgIrisBlade, 'r', Items.redstone);
+            'b', sgIrisBlade, 'r', Items.REDSTONE);
         if (config.getBoolean("options", "allowCraftingCrystals", false)) {
             newRecipe(sgCoreCrystal, 1, "bbr", "rdb", "brb",
-                'b', blueDye, 'r', Items.redstone, 'd', Items.diamond);
+                'b', blueDye, 'r', Items.REDSTONE, 'd', Items.DIAMOND);
             newRecipe(sgControllerCrystal, 1, "roo", "odr", "oor",
-                'o', orangeDye, 'r', Items.redstone, 'd', Items.diamond);
+                'o', orangeDye, 'r', Items.REDSTONE, 'd', Items.DIAMOND);
         }
 //         if (isModLoaded("IC2")) { //[IC2]
 //             ItemStack rubber = getIC2Item("rubber");
@@ -248,21 +246,21 @@ public class SGCraft extends BaseMod<SGCraftClient> {
         addContainer(SGGui.PowerUnit, PowerContainer.class);
     }
 
-    @Override
-    protected void registerRandomItems() {
-        String[] categories = {ChestGenHooks.MINESHAFT_CORRIDOR,
-            ChestGenHooks.PYRAMID_DESERT_CHEST, ChestGenHooks.PYRAMID_JUNGLE_CHEST,
-            ChestGenHooks.STRONGHOLD_LIBRARY, ChestGenHooks.VILLAGE_BLACKSMITH};
-        //addRandomChestItem(new ItemStack(sgBaseBlock), 1, 1, 2, categories);
-        //addRandomChestItem(new ItemStack(sgControllerBlock), 1, 1, 1, categories);
-        //addRandomChestItem(new ItemStack(sgRingBlock, 1, 0), 1, 3, 8, categories);
-        //addRandomChestItem(new ItemStack(sgRingBlock, 1, 1), 1, 3, 7, categories);
-        addRandomChestItem(new ItemStack(sgCoreCrystal), 1, 1, 2, categories);
-        addRandomChestItem(new ItemStack(sgControllerCrystal), 1, 1, 1, categories);
-        //addRandomChestItem(new ItemStack(sgChevronUpgrade), 1, 1, 1, categories);
-        //addRandomChestItem(new ItemStack(sgIrisBlade), 1, 1, 1, categories);
-    }
-    
+//     @Override
+//     protected void registerRandomItems() {
+//         String[] categories = {ChestGenHooks.MINESHAFT_CORRIDOR,
+//             ChestGenHooks.PYRAMID_DESERT_CHEST, ChestGenHooks.PYRAMID_JUNGLE_CHEST,
+//             ChestGenHooks.STRONGHOLD_LIBRARY, ChestGenHooks.VILLAGE_BLACKSMITH};
+//         //addRandomChestItem(new ItemStack(sgBaseBlock), 1, 1, 2, categories);
+//         //addRandomChestItem(new ItemStack(sgControllerBlock), 1, 1, 1, categories);
+//         //addRandomChestItem(new ItemStack(sgRingBlock, 1, 0), 1, 3, 8, categories);
+//         //addRandomChestItem(new ItemStack(sgRingBlock, 1, 1), 1, 3, 7, categories);
+//         addRandomChestItem(new ItemStack(sgCoreCrystal), 1, 1, 2, categories);
+//         addRandomChestItem(new ItemStack(sgControllerCrystal), 1, 1, 1, categories);
+//         //addRandomChestItem(new ItemStack(sgChevronUpgrade), 1, 1, 1, categories);
+//         //addRandomChestItem(new ItemStack(sgIrisBlade), 1, 1, 1, categories);
+//     }
+   
     @Override
     protected void registerWorldGenerators() {
         if (config.getBoolean("options", "enableNaquadahOre", true)) {

@@ -8,7 +8,7 @@ package gcewing.sg;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.*;
 
 public class SGChannel extends BaseDataChannel {
 
@@ -54,11 +54,11 @@ public class SGChannel extends BaseDataChannel {
     }
     
     public static void writeCoords(ChannelOutput data, TileEntity te) {
-        BaseUtils.writeBlockPos(data, te.getPos());
+        BaseBlockUtils.writeBlockPos(data, te.getPos());
     }
     
     public BlockPos readCoords(ChannelInput data) {
-        return BaseUtils.readBlockPos(data);
+        return BaseBlockUtils.readBlockPos(data);
     }
 
 }

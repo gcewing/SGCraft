@@ -12,25 +12,12 @@ import net.minecraftforge.common.util.*;
 
 import gcewing.sg.*;
 
-public class CCInterfaceBlock extends Base4WayCtrBlock<CCInterfaceTE> {
+public class CCInterfaceBlock extends SGInterfaceBlock<CCInterfaceTE> {
 
     public CCInterfaceBlock() {
         super(SGCraft.machineMaterial, CCInterfaceTE.class);
-        setPrefixedIconNames("gcewing_sg:ccInterface", "bottom", "top", "side", "front", "side");
-    }
-    
-    SGBaseTE getBaseTE(World world, int x, int y, int z) {
-        for (ForgeDirection d : ForgeDirection.VALID_DIRECTIONS) {
-            TileEntity te = world.getTileEntity(x + d.offsetX, y + d.offsetY, z + d.offsetZ);
-            if (te instanceof SGRingTE)
-                return ((SGRingTE)te).getBaseTE();
-        }
-        return null;
-    }
-    
-    @Override
-    public boolean isSideSolid(IBlockAccess world, int x, int y, int z, ForgeDirection side) {
-        return true;
+        setModelAndTextures("block/interface.smeg",
+            "ccInterface-bottom", "ccInterface-top", "ccInterface-front", "ccInterface-side");
     }
 
 }

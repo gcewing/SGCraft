@@ -12,7 +12,7 @@ import net.minecraft.block.*;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.*;
 import net.minecraft.item.*;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.*;
 
 import net.minecraftforge.common.*;
 
@@ -24,9 +24,9 @@ public class NaquadahOreBlock extends BlockOre {
         super();
         setHardness(5.0F);
         setResistance(10.0F);
-        setStepSound(soundTypeStone);
+        setSoundType(SoundType.STONE);
         setHarvestLevel("pickaxe", 3);
-        setCreativeTab(CreativeTabs.tabBlock);
+        setCreativeTab(CreativeTabs.BUILDING_BLOCKS);
     }
     
     @Override

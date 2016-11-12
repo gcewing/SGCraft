@@ -17,6 +17,7 @@ import net.minecraft.entity.player.*;
 import net.minecraft.item.*;
 import net.minecraft.nbt.*;
 import net.minecraft.util.*;
+import net.minecraft.util.math.*;
 import net.minecraft.world.*;
 import net.minecraftforge.common.util.*;
 
@@ -28,12 +29,12 @@ public class PowerBlock<TE extends PowerTE> extends BaseBlock<TE> {
         super(SGCraft.machineMaterial, teClass);
         setHardness(1.5F);
         setResistance(10.0F);
-        setStepSound(soundTypeMetal);
+        setSoundType(SoundType.METAL);
         setHarvestLevel("pickaxe", 0);
     }
     
     @Override
-    public boolean shouldCheckWeakPower(IBlockAccess world, BlockPos pos, EnumFacing side) {
+    public boolean shouldCheckWeakPower(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side) {
         return true;
     }
 
@@ -50,7 +51,7 @@ public class PowerBlock<TE extends PowerTE> extends BaseBlock<TE> {
 
     @Override
     public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player,
-        EnumFacing side, float cx, float cy, float cz)
+        EnumHand hand, ItemStack heldItem, EnumFacing side, float cx, float cy, float cz)
     {
         SGCraft.mod.openGui(player, SGGui.PowerUnit, world, pos);
         return true;

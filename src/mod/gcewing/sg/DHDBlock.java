@@ -16,6 +16,7 @@ import net.minecraft.entity.player.*;
 import net.minecraft.item.*;
 import net.minecraft.tileentity.*;
 import net.minecraft.util.*;
+import net.minecraft.util.math.*;
 import net.minecraft.world.*;
 
 import gcewing.sg.BaseMod.ModelSpec;
@@ -31,9 +32,9 @@ public class DHDBlock extends BaseBlock<DHDTE> {
     protected static ModelSpec model = new ModelSpec("dhd.json", new Vector3(0, -0.5, 0), textures);
 
     public DHDBlock() {
-        super(Material.rock /*SGRingBlock.ringMaterial*/, DHDTE.class);
+        super(Material.ROCK, DHDTE.class);
         setHardness(1.5F);
-        setCreativeTab(CreativeTabs.tabMisc);
+        setCreativeTab(CreativeTabs.MISC);
     }
     
     @Override
@@ -52,12 +53,12 @@ public class DHDBlock extends BaseBlock<DHDTE> {
     }
 
     @Override
-    public int getRenderType() {
-        return -1;
+    public EnumBlockRenderType getRenderType(IBlockState state) {
+        return EnumBlockRenderType.INVISIBLE;
     }
     
     @Override
-    public boolean isOpaqueCube() {
+    public boolean isOpaqueCube(IBlockState state) {
         return false;
     }
 
@@ -95,7 +96,7 @@ public class DHDBlock extends BaseBlock<DHDTE> {
     
     @Override
     public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player,
-        EnumFacing side, float cx, float cy, float cz)
+        EnumHand hand, ItemStack heldItem, EnumFacing side, float cx, float cy, float cz)
     {
         SGGui id = cy > 0.5 ? SGGui.SGController : SGGui.DHDFuel;
         SGCraft.mod.openGui(player, id, world, pos);

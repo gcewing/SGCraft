@@ -9,6 +9,7 @@ package gcewing.sg;
 import java.util.*;
 import java.lang.reflect.Field;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.world.gen.*;
 import net.minecraft.world.gen.feature.*;
 import net.minecraft.world.gen.structure.*;
 
@@ -20,7 +21,7 @@ public class FeatureGeneration {
     public static boolean debugStructures = false;
     public static int structureAugmentationChance = 25;
     
-    static Field structureMap = BaseUtils.getFieldDef(MapGenStructure.class,
+    static Field structureMap = BaseReflectionUtils.getFieldDef(MapGenStructure.class,
         "structureMap", "field_75053_d");
     
     public static void configure(BaseConfiguration config) {
@@ -31,12 +32,13 @@ public class FeatureGeneration {
 
     public static void onInitMapGen(InitMapGenEvent e) {
         if (debugStructures)
-            System.out.printf("SGCraft: FeatureGeneration.onInitMapGen: %s\n", e.type);
+            System.out.printf("SGCraft: FeatureGeneration.onInitMapGen: %s\n", e.getType());
         if (augmentStructures) {
-            switch (e.type) {
+            switch (e.getType()) {
                 case SCATTERED_FEATURE:
-                    if (e.newGen instanceof MapGenStructure) {
-                        e.newGen = modifyScatteredFeatureGen((MapGenStructure)e.newGen);
+                    MapGenBase newGen = e.getNewGen();
+                    if (newGen instanceof MapGenStructure) {
+                        e.setNewGen(modifyScatteredFeatureGen((MapGenStructure)newGen));
                         if (FeatureGeneration.debugStructures)
                             System.out.printf("SGCraft: FeatureGeneration: Installed SGStructureMap\n");
                     }
@@ -48,7 +50,7 @@ public class FeatureGeneration {
     }
 
     static MapGenStructure modifyScatteredFeatureGen(MapGenStructure gen) {
-        BaseUtils.setField(gen, structureMap, new SGStructureMap());
+        BaseReflectionUtils.setField(gen, structureMap, new SGStructureMap());
         return gen;
     }
 
@@ -67,8 +69,8 @@ class SGStructureMap extends HashMap {
     
     void augmentStructureStart(StructureStart start) {
         System.out.printf("SGCraft: FeatureGeneration: augmentStructureStart: %s\n", start);
-        LinkedList oldComponents = start.getComponents();
-        LinkedList newComponents = new LinkedList();
+        List<StructureComponent> oldComponents = start.getComponents();
+        List<StructureComponent> newComponents = new ArrayList<StructureComponent>();
         for (Object comp : oldComponents) {
             System.out.printf("SGCraft: FeatureGeneration: Found component %s\n", comp);
             if (comp instanceof ComponentScatteredFeaturePieces.DesertPyramid) {

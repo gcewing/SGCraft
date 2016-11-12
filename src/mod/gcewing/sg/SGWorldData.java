@@ -24,7 +24,7 @@ public class SGWorldData extends WorldSavedData {
 
     public static SGWorldData forWorld(World world) {
         MapStorage storage = world.getPerWorldStorage();
-        SGWorldData result = (SGWorldData)storage.loadData(SGWorldData.class, key);
+        SGWorldData result = (SGWorldData)storage.getOrLoadData(SGWorldData.class, key);
         if (result == null) {
             result = new SGWorldData();
             storage.setData(key, result);
@@ -48,8 +48,9 @@ public class SGWorldData extends WorldSavedData {
     }
     
     @Override
-    public void writeToNBT(NBTTagCompound nbt) {
+    public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
         nbt.setTag("chunkGenFlags", chunkGenFlags);
+        return nbt;
     }
 
 }

@@ -8,7 +8,7 @@ package gcewing.sg;
 
 import net.minecraft.nbt.*;
 import net.minecraft.tileentity.*;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.*;
 
 public class SGRingTE extends BaseTileEntity {
 
@@ -27,13 +27,14 @@ public class SGRingTE extends BaseTileEntity {
     }
     
     @Override
-    public void writeToNBT(NBTTagCompound nbt) {
+    public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
         //System.out.printf("SGRingTE.writeToNBT\n");
         super.writeToNBT(nbt);
         nbt.setBoolean("isMerged", isMerged);
         nbt.setInteger("baseX", basePos.getX());
         nbt.setInteger("baseY", basePos.getY());
         nbt.setInteger("baseZ", basePos.getZ());
+        return nbt;
     }
     
     public SGBaseTE getBaseTE() {

@@ -8,7 +8,8 @@ package gcewing.sg;
 
 import net.minecraft.nbt.*;
 import net.minecraft.tileentity.*;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.*;
+import net.minecraft.util.math.*;
 import net.minecraft.world.*;
 
 import net.minecraftforge.common.*;
@@ -19,7 +20,7 @@ public class SGLocation {
     public BlockPos pos;
     
     public SGLocation(TileEntity te) {
-        this(te.getWorld().provider.getDimensionId(), te.getPos());
+        this(te.getWorld().provider.getDimension(), te.getPos());
     }
     
     public SGLocation(int dimension, BlockPos pos) {
@@ -45,7 +46,7 @@ public class SGLocation {
     }
     
     SGBaseTE getStargateTE() {
-        World world = /*DimensionManager.*/SGAddressing.getWorld(dimension);
+        World world = SGAddressing.getWorld(dimension);
         if (world == null) {
             System.out.printf(
                 "SGCraft: SGLocation.getStargateTE: Oh, noes! Dimension %d is not loaded. How can this be?",

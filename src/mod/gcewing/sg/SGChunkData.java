@@ -9,6 +9,7 @@ package gcewing.sg;
 import java.util.*;
 
 import net.minecraft.nbt.*;
+import net.minecraft.util.math.*;
 import net.minecraft.world.*;
 import net.minecraft.world.chunk.*;
 
@@ -20,7 +21,7 @@ public class SGChunkData {
 
     static boolean debug = false;
 
-    static HashMap <ChunkCoordIntPair, SGChunkData> map = new HashMap <ChunkCoordIntPair, SGChunkData> ();
+    static HashMap <ChunkPos, SGChunkData> map = new HashMap <ChunkPos, SGChunkData> ();
     
     public boolean oresGenerated;
     
@@ -31,7 +32,7 @@ public class SGChunkData {
     public static SGChunkData forChunk(Chunk chunk, NBTTagCompound nbt) {
         //System.out.printf("SGChunkData.forChunk: (%d, %d): %s\n",
         //    chunk.xPosition, chunk.zPosition, chunk);
-        ChunkCoordIntPair coords = new ChunkCoordIntPair(chunk.xPosition, chunk.zPosition);
+        ChunkPos coords = new ChunkPos(chunk.xPosition, chunk.zPosition);
         SGChunkData data = map.get(coords);
         if (data == null) {
             //System.out.printf("SGChunkData.forChunk: Creating new chunk data\n");

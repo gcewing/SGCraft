@@ -13,6 +13,7 @@ import static org.lwjgl.opengl.GL11.*;
 import net.minecraft.client.gui.*;
 import net.minecraft.entity.player.*;
 import net.minecraft.util.*;
+import net.minecraft.util.math.*;
 import net.minecraft.world.*;
 
 public class PowerScreen extends BaseGui.Screen {
