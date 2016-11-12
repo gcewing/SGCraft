@@ -29,6 +29,7 @@ import net.minecraftforge.fml.common.event.*;
 import net.minecraftforge.fml.common.gameevent.*;
 import net.minecraftforge.fml.common.eventhandler.*;
 import net.minecraftforge.fml.common.registry.*;
+import static net.minecraftforge.fml.common.registry.VillagerRegistry.*;
 
 // import dan200.computercraft.api.*; //[CC]+
 // import gcewing.sg.rf.*; //[RF]
@@ -272,12 +273,14 @@ public class SGCraft extends BaseMod<SGCraftClient> {
             "SGCraft:FeatureUnderDesertPyramid");
     }
     
-//     @Override //[VILL]
-//     protected void registerVillagers() {
-//         tokraVillagerID = addVillager("tokra", resourceLocation("textures/skins/tokra.png"));
-//         addTradeHandler(tokraVillagerID, new SGTradeHandler());
-//     }
-    
+    @Override //[VILL]
+    protected void registerVillagers() {
+        VillagerProfession tokraProfession = new VillagerProfession("sgcraft:tokra", "sgcraft:textures/skins/tokra.png");
+        VillagerCareer tokraCareer = new VillagerCareer(tokraProfession, "sgcraft:tokra");
+        tokraCareer.addTrade(1, new SGTradeHandler());
+        VillagerRegistry.instance().register(tokraProfession);
+    }
+
     @Override
     protected void registerEntities() {
         addEntity(IrisEntity.class, "Stargate Iris", SGEntity.Iris, 1000000, false);

@@ -476,9 +476,9 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
 
     //--------------- Villager registration -------------------------------------------------
     
-    static class VSBinding extends IDBinding<ResourceLocation> {};
-    
-    public List<VSBinding> registeredVillagers = new ArrayList<VSBinding>();
+//     static class VSBinding extends IDBinding<ResourceLocation> {};
+//     
+//     public List<VSBinding> registeredVillagers = new ArrayList<VSBinding>();
     
 //     int addVillager(String name, ResourceLocation skin) {
 //         int id = config.getVillager(name);
@@ -757,12 +757,12 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
         ResourceLocation locn = event.getName();
         if (locn.getResourceDomain().equals("minecraft")) {
             String path = String.format("/assets/%s/loot_tables/%s.json", assetKey, locn.getResourcePath());
-            if (debugLoot)
-                System.out.printf("BaseMod.onLootTableLoad: Looking for %s\n", path);
+            //if (debugLoot)
+            //    System.out.printf("BaseMod.onLootTableLoad: Looking for %s\n", path);
             URL url = getClass().getResource(path);
             if (url != null) {
-                //if (debugLoot)
-                //    System.out.printf("BaseMod.onLootTableLoad: URL = %s\n", url);
+                if (debugLoot)
+                    System.out.printf("BaseMod.onLootTableLoad: Loading %s\n", path);
                 String data;
                 try {
                     data = Resources.toString(url, Charsets.UTF_8);
