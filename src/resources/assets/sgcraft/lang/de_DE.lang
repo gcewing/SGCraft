@@ -19,4 +19,4 @@ item.sgcraft:sgIrisBlade.name=Stargate Iris Segment
 item.sgcraft:ic2Capacitor.name=Lächerlich-großer Speicher
 death.attack.sgcraft:transient=%1$s wurde vom Ereignishorizont in Stücke gerissen.
 death.attack.sgcraft:iris=%1$s ist an einer Stargate Iris zermatscht.
-description.villager.profession.sgcraft.tokra=Tok'ra
+entity.Villager.sgcraft:tokra=Tok'ra Merchant
