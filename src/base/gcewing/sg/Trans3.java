@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------------------------
 //
-//   Greg's Mod Base for 1.8 - 3D Transformation
+//   Greg's Mod Base for 1.10 - 3D Transformation
 //
 //------------------------------------------------------------------------------------------------
 
@@ -11,6 +11,7 @@ import static java.lang.Math.*;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.util.*;
+import net.minecraft.util.math.*;
 import net.minecraftforge.common.util.*;
 
 import static gcewing.sg.Vector3.getDirectionVec;
@@ -174,7 +175,7 @@ public class Trans3 {
         return rotation.imul(u).mul(1.0/scaling);
     }
     
-    public Vector3 iv(Vec3 u) {
+    public Vector3 iv(Vec3d u) {
         return iv(u.xCoord, u.yCoord, u.zCoord);
     }
     
@@ -198,7 +199,7 @@ public class Trans3 {
     }
     
     public static AxisAlignedBB boxEnclosing(Vector3 p, Vector3 q) {
-        return AxisAlignedBB.fromBounds(p.x, p.y, p.z, q.x, q.y, q.z);
+        return new AxisAlignedBB(p.x, p.y, p.z, q.x, q.y, q.z);
     }
 
     public EnumFacing t(EnumFacing f) {

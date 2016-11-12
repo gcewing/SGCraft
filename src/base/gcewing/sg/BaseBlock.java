@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------------------------
 //
-//   Greg's Mod Base for 1.8 - Generic Block with optional Tile Entity
+//   Greg's Mod Base for 1.10 - Generic Block with optional Tile Entity
 //
 //------------------------------------------------------------------------------------------------
 
@@ -21,6 +21,7 @@ import net.minecraft.item.*;
 import net.minecraft.nbt.*;
 import net.minecraft.tileentity.*;
 import net.minecraft.util.*;
+import net.minecraft.util.math.*;
 import net.minecraft.world.*;
 
 import net.minecraftforge.fml.common.registry.*;
@@ -70,7 +71,7 @@ public class BaseBlock<TE extends TileEntity>
     protected IProperty[] properties;
     protected Object[][] propertyValues;
     protected int numProperties; // Do not explicitly initialise
-    protected int renderID = 3;
+    protected EnumBlockRenderType renderID = EnumBlockRenderType.MODEL;
     protected Class<? extends TileEntity> tileEntityClass = null;
     protected IOrientationHandler orientationHandler = orient1Way;
     protected String[] textureNames;
@@ -146,7 +147,7 @@ public class BaseBlock<TE extends TileEntity>
     }
     
     @Override
-    protected BlockState createBlockState() {
+    protected BlockStateContainer createBlockState() {
         if (debugState)
             System.out.printf("BaseBlock.createBlockState: Defining properties\n");
         defineProperties();
@@ -156,7 +157,7 @@ public class BaseBlock<TE extends TileEntity>
         IProperty[] props = Arrays.copyOf(properties, numProperties);
         if (debugState)
             System.out.printf("BaseBlock.createBlockState: Creating BlockState with %s properties\n", props.length);
-        return new BlockState(this, props);
+        return new BlockStateContainer(this, props);
     }
     
     private void dumpProperties() {
@@ -228,7 +229,7 @@ public class BaseBlock<TE extends TileEntity>
     // -------------------------- Rendering -----------------------------
 
     @Override
-    public int getRenderType() {
+    public EnumBlockRenderType getRenderType(IBlockState state) {
         return renderID;
     }
     
@@ -341,8 +342,8 @@ public class BaseBlock<TE extends TileEntity>
     }
 
     @Override
-    public boolean addLandingEffects(WorldServer world, BlockPos pos, IBlockState state,
-        EntityLivingBase entity, int numParticles)
+    public boolean addLandingEffects(IBlockState state, WorldServer world, BlockPos pos,
+        IBlockState iblockstate, EntityLivingBase entity, int numParticles)
     {
         IBlockState particleState = getParticleState(world, pos);
         world.spawnParticle(EnumParticleTypes.BLOCK_DUST, entity.posX, entity.posY, entity.posZ,
@@ -352,35 +353,36 @@ public class BaseBlock<TE extends TileEntity>
 
     @SideOnly(Side.CLIENT)
     @Override
-    public boolean addHitEffects(World world, MovingObjectPosition target, EffectRenderer er) {
+    public boolean addHitEffects(IBlockState blockState, World world, RayTraceResult target, ParticleManager pm) {
         BlockPos pos = target.getBlockPos();
         IBlockState state = getParticleState(world, pos);
-        EntityDiggingFX fx;
+        ParticleDigging fx;
         int i = pos.getX();
         int j = pos.getY();
         int k = pos.getZ();
+        AxisAlignedBB boundingBox = blockState.getBoundingBox(world, pos);
         float f = 0.1F;
-        double d0 = i + RANDOM.nextDouble() * (getBlockBoundsMaxX() - getBlockBoundsMinX() - (f * 2.0F)) + f + getBlockBoundsMinX();
-        double d1 = j + RANDOM.nextDouble() * (getBlockBoundsMaxY() - getBlockBoundsMinY() - (f * 2.0F)) + f + getBlockBoundsMinY();
-        double d2 = k + RANDOM.nextDouble() * (getBlockBoundsMaxZ() - getBlockBoundsMinZ() - (f * 2.0F)) + f + getBlockBoundsMinZ();
+        double d0 = i + RANDOM.nextDouble() * (boundingBox.maxX - boundingBox.minX - (f * 2.0F)) + f + boundingBox.minX;
+        double d1 = j + RANDOM.nextDouble() * (boundingBox.maxY - boundingBox.minY - (f * 2.0F)) + f + boundingBox.minY;
+        double d2 = k + RANDOM.nextDouble() * (boundingBox.maxZ - boundingBox.minZ - (f * 2.0F)) + f + boundingBox.minZ;
         switch (target.sideHit) {
-            case DOWN: d1 = j + getBlockBoundsMinY() - f; break;
-            case UP: d1 = j + getBlockBoundsMaxY() + f; break;
-            case NORTH: d2 = k + getBlockBoundsMinZ() - f; break;
-            case SOUTH: d2 = k + getBlockBoundsMaxZ() + f; break;
-            case WEST: d0 = i + getBlockBoundsMinX() - f; break;
-            case EAST: d0 = i + getBlockBoundsMaxX() + f; break;
+            case DOWN: d1 = j + boundingBox.minY - f; break;
+            case UP: d1 = j + boundingBox.maxY + f; break;
+            case NORTH: d2 = k + boundingBox.minZ - f; break;
+            case SOUTH: d2 = k + boundingBox.maxZ + f; break;
+            case WEST: d0 = i + boundingBox.minX - f; break;
+            case EAST: d0 = i + boundingBox.maxX + f; break;
         }
         fx = new DiggingFX(world, d0, d1, d2, 0, 0, 0, state);
-        er.addEffect(fx.func_174846_a(pos).multiplyVelocity(0.2F).multipleParticleScaleBy(0.6F));
+        pm.addEffect(fx.setBlockPos(pos).multiplyVelocity(0.2F).multipleParticleScaleBy(0.6F));
         return true;
     }
 
     @SideOnly(Side.CLIENT)
     @Override
-    public boolean addDestroyEffects(World world, BlockPos pos, EffectRenderer er) {
+    public boolean addDestroyEffects(World world, BlockPos pos, ParticleManager pm) {
         IBlockState state = getParticleState(world, pos);
-        EntityDiggingFX fx;
+        ParticleDigging fx;
         byte b0 = 4;
         for (int i = 0; i < b0; ++i) {
             for (int j = 0; j < b0; ++j) {
@@ -391,7 +393,7 @@ public class BaseBlock<TE extends TileEntity>
                     fx = new DiggingFX(world, d0, d1, d2,
                         d0 - pos.getX() - 0.5D, d1 - pos.getY() - 0.5D, d2 - pos.getZ() - 0.5D,
                         state);
-                    er.addEffect(fx.func_174846_a(pos));
+                    pm.addEffect(fx.setBlockPos(pos));
                 }
             }
         }
@@ -403,10 +405,10 @@ public class BaseBlock<TE extends TileEntity>
         return getActualState(state, world, pos);
     }
     
-    // Workaround for EntityDiggingFX having protected constructor
+    // Workaround for ParticleDigging having protected constructor
     
     @SideOnly(Side.CLIENT)
-    public static class DiggingFX extends EntityDiggingFX {
+    public static class DiggingFX extends ParticleDigging {
     
         public DiggingFX(World world, double x1, double y1, double z1, double x2, double y2, double z2, IBlockState state) {
             super(world, x1, y1, z1, x2, y2, z2, state);

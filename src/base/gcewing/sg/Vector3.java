@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------------------------
 //
-//   Greg's Mod Base for 1.8 - 3D Vector
+//   Greg's Mod Base for 1.10 - 3D Vector
 //
 //------------------------------------------------------------------------------------------------
 
@@ -8,6 +8,7 @@ package gcewing.sg;
 
 import static java.lang.Math.*;
 import net.minecraft.util.*;
+import net.minecraft.util.math.*;
 
 public class Vector3 {
 
@@ -43,7 +44,7 @@ public class Vector3 {
         this.z = z;
     }
     
-    public Vector3(Vec3 v) {
+    public Vector3(Vec3d v) {
         this(v.xCoord, v.yCoord, v.zCoord);
     }
 
@@ -55,8 +56,8 @@ public class Vector3 {
         this(getDirectionVec(f));
     }
     
-    public Vec3 toVec3() {
-        return new Vec3(x, y, z);
+    public Vec3i toVec3i() {
+        return new Vec3i(x, y, z);
     }
     
     public String toString() {

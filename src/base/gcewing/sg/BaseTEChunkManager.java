@@ -13,6 +13,7 @@ import net.minecraft.tileentity.*;
 import net.minecraft.world.*;
 import net.minecraft.world.chunk.*;
 import net.minecraft.util.*;
+import net.minecraft.util.math.*;
 
 import net.minecraftforge.common.*;
 import net.minecraftforge.common.ForgeChunkManager.Ticket;
@@ -93,14 +94,14 @@ public class BaseTEChunkManager implements ForgeChunkManager.LoadingCallback {
         int maxZ = nbt.getInteger("rangeMaxZ");
         if (debug)
             System.out.printf("BaseChunkLoadingTE: Forcing range (%s,%s)-(%s,%s) in dimension %s\n",
-                minX, minZ, maxX, maxZ, te.getWorld().provider.getDimensionId());
+                minX, minZ, maxX, maxZ, te.getWorld().provider.getDimension());
         BlockPos pos = te.getPos();
         int chunkX = pos.getX() >> 4;
         int chunkZ = pos.getZ() >> 4;
         for (int i = minX; i <= maxX; i++)
             for (int j = minZ; j <= maxZ; j++) {
                 int x = chunkX + i, z = chunkZ + j;
-                ForgeChunkManager.forceChunk(ticket, new ChunkCoordIntPair(x, z));
+                ForgeChunkManager.forceChunk(ticket, new ChunkPos(x, z));
             }
     }
 
@@ -128,7 +129,7 @@ public class BaseTEChunkManager implements ForgeChunkManager.LoadingCallback {
         if (te.chunkTicket != null) {
             System.out.printf("Loaded chunks:");
             for (Object item : te.chunkTicket.getChunkList()) {
-                ChunkCoordIntPair coords = (ChunkCoordIntPair)item;
+                ChunkPos coords = (ChunkPos)item;
                 System.out.printf(" (%d,%d)", coords.chunkXPos, coords.chunkZPos);
             }
             System.out.printf("\n");

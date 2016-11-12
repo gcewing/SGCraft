@@ -1,10 +1,13 @@
 //------------------------------------------------------------------------------------------------
 //
-//   Greg's Mod Base for 1.8 - Generic Tile Entity
+//   Greg's Mod Base for 1.10 - Generic Tile Entity
 //
 //------------------------------------------------------------------------------------------------
 
 package gcewing.sg;
+
+import java.util.List; //***
+import java.lang.reflect.*; //***
 
 import net.minecraft.block.*;
 import net.minecraft.block.state.IBlockState;
@@ -16,7 +19,8 @@ import net.minecraft.nbt.*;
 import net.minecraft.network.play.server.*;
 import net.minecraft.tileentity.*;
 import net.minecraft.util.*;
-import net.minecraft.world.World;
+import net.minecraft.util.text.*;
+import net.minecraft.world.*;
 
 import net.minecraftforge.common.*;
 import net.minecraftforge.common.ForgeChunkManager.Ticket;
@@ -66,22 +70,29 @@ public class BaseTileEntity extends TileEntity
     }
 
     @Override
-    public Packet getDescriptionPacket() {
-        //System.out.printf("BaseTileEntity.getDescriptionPacket for %s\n", this);
-        if (syncWithClient()) {
-            NBTTagCompound nbt = new NBTTagCompound();
+    public NBTTagCompound getUpdateTag() {
+        NBTTagCompound nbt = new NBTTagCompound();
+        if (syncWithClient())
             writeToNBT(nbt);
-            return new S35PacketUpdateTileEntity(pos, 0, nbt);
-        }
-        else
-            return null;
+        return nbt;
     }
 
     @Override
-    public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt) {
-        //System.out.printf("BaseTileEntity.onDataPacket for %s\n", this);
+    public SPacketUpdateTileEntity getUpdatePacket() {
+         //System.out.printf("BaseTileEntity.getDescriptionPacket for %s\n", this);
+         if (syncWithClient()) {
+             NBTTagCompound nbt = new NBTTagCompound();
+             writeToNBT(nbt);
+            return new SPacketUpdateTileEntity(pos, 0, nbt);
+         }
+         else
+             return null;
+     }
+
+    @Override
+    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
         readFromNBT(pkt.getNbtCompound());
-        worldObj.markBlockForUpdate(pos);
+        markBlockForUpdate();
     }
     
     boolean syncWithClient() {
@@ -89,11 +100,11 @@ public class BaseTileEntity extends TileEntity
     }
     
     public void markBlockForUpdate() {
-        worldObj.markBlockForUpdate(pos);
+        BaseBlockUtils.markBlockForUpdate(worldObj, pos);
     }
     
-    public void playSoundEffect(String name, float volume, float pitch) {
-        worldObj.playSoundEffect(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, name, volume, pitch);
+    public void playSoundEffect(SoundEvent name, float volume, float pitch) {
+        worldObj.playSound(null, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, name, SoundCategory.BLOCKS, volume, pitch);
     }
     
     @Override
@@ -122,13 +133,14 @@ public class BaseTileEntity extends TileEntity
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound nbt) {
+    public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
         super.writeToNBT(nbt);
         if (side != 0)
             nbt.setByte("side", side);
         if (turn != 0)
             nbt.setByte("turn", turn);
         writeContentsToNBT(nbt);
+        return nbt;
     }
 
     public void writeToItemStackNBT(NBTTagCompound nbt) {
@@ -156,4 +168,22 @@ public class BaseTileEntity extends TileEntity
         }
     }
  
+    public static ItemStack blockStackWithTileEntity(Block block, int size, BaseTileEntity te) {
+        return blockStackWithTileEntity(block, size, 0, te);
+    }
+
+    public static ItemStack blockStackWithTileEntity(Block block, int size, int meta, BaseTileEntity te) {
+        ItemStack stack = new ItemStack(block, size, meta);
+        if (te != null) {
+            NBTTagCompound tag = new NBTTagCompound();
+            te.writeToItemStackNBT(tag);
+            stack.setTagCompound(tag);
+        }
+        return stack;
+    }
+    
+    public ItemStack newItemStack(int size) {
+        return blockStackWithTileEntity(getBlockType(), size, this);
+    }
+
 }

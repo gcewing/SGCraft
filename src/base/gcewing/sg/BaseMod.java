@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------------------------
 //
-//   Greg's Mod Base for 1.8 - Generic Mod
+//   Greg's Mod Base for 1.10 - Generic Mod
 //
 //------------------------------------------------------------------------------------------------
 
@@ -13,6 +13,10 @@ import java.net.*;
 import java.util.*;
 import java.util.jar.*;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.Resources;
+import com.google.gson.Gson;
+
 import net.minecraft.block.*;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.*;
@@ -21,19 +25,23 @@ import net.minecraft.entity.player.*;
 import net.minecraft.inventory.*;
 import net.minecraft.item.*;
 import net.minecraft.network.Packet;
-import net.minecraft.server.management.ServerConfigurationManager;
-import net.minecraft.server.management.PlayerManager;
+import net.minecraft.server.management.*;
 import net.minecraft.tileentity.*;
 import net.minecraft.util.*;
+import net.minecraft.util.math.*;
 import net.minecraft.world.*;
+import net.minecraft.world.storage.loot.*;
 
 import net.minecraftforge.common.*;
 import net.minecraftforge.common.config.*;
 import net.minecraftforge.client.*;
 import net.minecraftforge.oredict.*;
 
+import net.minecraftforge.event.LootTableLoadEvent;
+
 import net.minecraftforge.fml.common.*;
 import net.minecraftforge.fml.common.event.*;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.*;
 import net.minecraftforge.fml.common.registry.*;
 import net.minecraftforge.fml.common.registry.VillagerRegistry.*;
@@ -44,6 +52,8 @@ import gcewing.sg.BaseModClient.IModel;
 public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
     extends BaseSubsystem implements IGuiHandler
 {
+
+    public boolean debugLoot = true;
 
     protected Map<ResourceLocation, IModel> modelCache = new HashMap<ResourceLocation, IModel>();
 
@@ -129,7 +139,7 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
         resourceDir = "/" + resourceRelDir;
         resourceURL = getClass().getClassLoader().getResource(resourceRelDir);
         subsystems.add(this);
-        creativeTab = CreativeTabs.tabMisc;
+        creativeTab = CreativeTabs.MISC;
     }
     
     static String getModID(Class cls) {
@@ -188,7 +198,6 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
             if (sub != this)
                 sub.postInit(e);
             sub.registerRecipes();
-            sub.registerRandomItems();
             sub.registerOther();
         }
         if (client != null)
@@ -435,11 +444,11 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
     
     //--------------- Dungeon loot ----------------------------------------------------------
 
-    public void addRandomChestItem(ItemStack stack, int minQty, int maxQty, int weight, String... category) {
-        WeightedRandomChestContent item = new WeightedRandomChestContent(stack, minQty, maxQty, weight);
-        for (int i = 0; i < category.length; i++)
-            ChestGenHooks.addItem(category[i], item);
-    }
+//     public void addRandomChestItem(ItemStack stack, int minQty, int maxQty, int weight, String... category) {
+//         WeightedRandomChestContent item = new WeightedRandomChestContent(stack, minQty, maxQty, weight);
+//         for (int i = 0; i < category.length; i++)
+//             ChestGenHooks.addItem(category[i], item);
+//    }
 
     //--------------- Entity registration ----------------------------------------------------------
 
@@ -471,14 +480,14 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
     
     public List<VSBinding> registeredVillagers = new ArrayList<VSBinding>();
     
-    int addVillager(String name, ResourceLocation skin) {
-        int id = config.getVillager(name);
-        VSBinding b = new VSBinding();
-        b.id = id;
-        b.object = skin;
-        registeredVillagers.add(b);
-        return id;
-    }
+//     int addVillager(String name, ResourceLocation skin) {
+//         int id = config.getVillager(name);
+//         VSBinding b = new VSBinding();
+//         b.id = id;
+//         b.object = skin;
+//         registeredVillagers.add(b);
+//         return id;
+//     }
     
 //  void addTradeHandler(int villagerID, IVillageTradeHandler handler) {
 //      VillagerRegistry.instance().registerVillageTradeHandler(villagerID, handler);
@@ -552,19 +561,19 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
     //------------------------- Network --------------------------------------------------
     
     public static void sendTileEntityUpdate(TileEntity te) {
-        Packet packet = te.getDescriptionPacket();
+        Packet packet = te.getUpdatePacket();
         if (packet != null) {
             BlockPos pos = te.getPos();
             int x = pos.getX() >> 4;
             int z = pos.getZ() >> 4;
             //System.out.printf("BaseMod.sendTileEntityUpdate: for chunk coords (%s, %s)\n", x, z);
             WorldServer world = (WorldServer)te.getWorld();
-            ServerConfigurationManager cm = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager();
-            PlayerManager pm = world.getPlayerManager();
-            for (EntityPlayerMP player : (List<EntityPlayerMP>)cm.playerEntityList)
+            PlayerList cm = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList();
+            PlayerChunkMap pm = world.getPlayerChunkMap();
+            for (EntityPlayerMP player : cm.getPlayerList())
                 if (pm.isPlayerWatchingChunk(player, x, z)) {
                     //System.out.printf("BaseMod.sendTileEntityUpdate: to %s\n", player);
-                    player.playerNetServerHandler.sendPacket(packet);
+                    player.connection.sendPacket(packet);
                 }
         }
     }
@@ -734,4 +743,48 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
         else
             e.printStackTrace();
     }
+
+    //------------------------- Loot --------------------------------------------------
+    
+    static Field lootGsonField = BaseReflectionUtils.getFieldDef(LootTableManager.class, "GSON_INSTANCE", "field_186526_b");
+    static Field lootPoolsField = BaseReflectionUtils.getFieldDef(LootTable.class, "pools", "field_186466_c");
+    static Field lootNameField = BaseReflectionUtils.getFieldDef(LootPool.class, "name", "");
+    
+    @SubscribeEvent
+    public void onLootTableLoad(LootTableLoadEvent event) {
+        //if (debugLoot)
+        //    System.out.printf("BaseMod.onLootTableLoad\n");
+        ResourceLocation locn = event.getName();
+        if (locn.getResourceDomain().equals("minecraft")) {
+            String path = String.format("/assets/%s/loot_tables/%s.json", assetKey, locn.getResourcePath());
+            if (debugLoot)
+                System.out.printf("BaseMod.onLootTableLoad: Looking for %s\n", path);
+            URL url = getClass().getResource(path);
+            if (url != null) {
+                //if (debugLoot)
+                //    System.out.printf("BaseMod.onLootTableLoad: URL = %s\n", url);
+                String data;
+                try {
+                    data = Resources.toString(url, Charsets.UTF_8);
+                }
+                catch (Exception e) {
+                    throw new RuntimeException("Error loading " + path + ": " + e);
+                }
+                //if (debugLoot)
+                //    System.out.printf("BaseMod.onLootTableLoad: data = %s\n", data);
+                Gson gson = (Gson)BaseReflectionUtils.getField(null, lootGsonField);
+                LootTable table = event.getTable();
+                LootTable newTable = ForgeHooks.loadLootTable(gson, locn, data, true);
+                List<LootPool> newPools = (List<LootPool>)BaseReflectionUtils.getField(newTable, lootPoolsField);
+                int i = 0;
+                for (LootPool pool : newPools) {
+                    BaseReflectionUtils.setField(pool, lootNameField, modID + (i++));
+                    if (debugLoot)
+                        System.out.printf("BaseMod.onLootTableLoad: Adding pool %s\n", pool.getName());
+                    table.addPool(pool);
+                }
+            }
+        }
+    }
+
 }

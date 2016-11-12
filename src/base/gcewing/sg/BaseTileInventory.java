@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------------------------
 //
-//   Greg's Mod Base for 1.8 - Generic Tile Entity with Inventory
+//   Greg's Mod Base for 1.10 - Generic Tile Entity with Inventory
 //
 //------------------------------------------------------------------------------------------------
 
@@ -12,6 +12,7 @@ import net.minecraft.item.*;
 import net.minecraft.nbt.*;
 import net.minecraft.tileentity.*;
 import net.minecraft.util.*;
+import net.minecraft.util.text.*;
 
 public class BaseTileInventory extends BaseTileEntity implements IInventory, ISidedInventory {
 
@@ -42,9 +43,10 @@ public class BaseTileInventory extends BaseTileEntity implements IInventory, ISi
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound nbt) {
+    public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
         super.writeToNBT(nbt);
         writeInventoryToNBT(nbt);
+        return nbt;
     }
 
     public void writeInventoryToNBT(NBTTagCompound nbt) {
@@ -84,7 +86,7 @@ public class BaseTileInventory extends BaseTileEntity implements IInventory, ISi
     }
 
     @Override
-    public IChatComponent getDisplayName() {
+    public ITextComponent getDisplayName() {
         IInventory inventory = getInventory();
         return (inventory != null) ? inventory.getDisplayName() : null;
     }
