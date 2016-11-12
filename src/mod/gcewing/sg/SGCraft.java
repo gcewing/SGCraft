@@ -66,14 +66,14 @@ public class SGCraft extends BaseMod<SGCraftClient> {
     public static NaquadahOreWorldGen naquadahOreGenerator;
     public static int tokraVillagerID;
     
-//     public static BaseSubsystem ic2Integration; //[IC2]+
+    public static BaseSubsystem ic2Integration; //[IC2]+
 //     public static IIntegration ccIntegration; //[CC]+
 //     public static OCIntegration ocIntegration; //[OC]+
 //     public static MystcraftIntegration mystcraftIntegration; //[MYST]
 
     public SGCraft() {
         mod = this;
-        creativeTab = new CreativeTabs("gcewing_sg:sgcraft") {
+        creativeTab = new CreativeTabs("sgcraft:sgcraft") {
             public Item getTabIconItem() {
                 return Item.getItemFromBlock(sgBaseBlock);
             }
@@ -83,7 +83,7 @@ public class SGCraft extends BaseMod<SGCraftClient> {
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent e) {
         FMLCommonHandler.instance().bus().register(this);
-//         ic2Integration = integrateWith("IC2", "gcewing.sg.ic2.IC2Integration"); //[IC2]+
+        ic2Integration = integrateWith("IC2", "gcewing.sg.ic2.IC2Integration"); //[IC2]+
 //         ccIntegration = (CCIntegration)integrateWith("ComputerCraft", "gcewing.sg.cc.CCIntegration"); //[CC]+
 //         ocIntegration = (OCIntegration)integrateWith("OpenComputers", "gcewing.sg.oc.OCIntegration"); //[OC]+
 //         mystcraftIntegration = (MystcraftIntegration)integrateWith("Mystcraft", "gcewing.sg.MystcraftIntegration"); //[MYST]
