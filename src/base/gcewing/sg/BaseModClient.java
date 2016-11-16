@@ -345,19 +345,41 @@ public class BaseModClient<MOD extends BaseMod<? extends BaseModClient>> impleme
     //--------------- Rendering - Internal ----------------------------------------------
 
     protected IRenderingManager renderingManager;
+    
+    protected Class lookForClass(String name) {
+        try {
+            return Class.forName(name);
+        }
+        catch (ClassNotFoundException e) {
+            return null;
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
+    protected String[] renderingManagerClasses = {
+        "gcewing.sg.BaseAORenderingManager",
+        "gcewing.sg.BaseRenderingManager"
+    };
 
     protected IRenderingManager getRenderingManager() {
-        if (renderingManager == null) {
-            try {
-                Class cls = Class.forName("gcewing.sg.BaseRenderingManager");
-                Constructor con = cls.getConstructor(BaseModClient.class);
-                renderingManager = (IRenderingManager)con.newInstance(this);
-            }
-            catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+        if (renderingManager != null)
+            return renderingManager;
+        for (String name : renderingManagerClasses) {
+            Class cls = lookForClass(name);
+            if (cls != null) {
+                try {
+                    Constructor con = cls.getConstructor(BaseModClient.class);
+                    renderingManager = (IRenderingManager)con.newInstance(this);
+                    return renderingManager;
+                }
+                catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }   
         }
-        return renderingManager;
+        throw new RuntimeException("No rendering manager found in package gcewing.sg");
     }
 
     protected boolean renderingManagerRequired() {

@@ -105,78 +105,57 @@ public class BaseRenderingManager<MOD extends BaseMod<? extends BaseModClient>> 
         itemRenderers.put(item, renderer);
     }
     
-    //-------------- Internal --------------------------------------------
+    //--------------------------------------- Internal --------------------------------------------
 
-//     protected void registerDummyStateMappers() {
-//         for (Block block : client.base.registeredBlocks) {
-//             if (blockNeedsCustomRendering(block)) {
-//                 System.out.printf("BaseModClient: registering dummy state mapper for  %s\n", block.getUnlocalizedName());
-//                 ModelLoader.setCustomStateMapper(block, dummyStateMapper);
-//                 Item item = Item.getItemFromBlock(block);
-//                 if (item != null) {
-//                     System.out.printf("BaseModClient: registering empty variant list for %s\n", item.getUnlocalizedName());
-//                     ModelBakery.registerItemVariants(item);
-//                 }
-//             }
-//         }
-//     }
-
-    protected void registerDefaultModelLocations() {
-        //CustomBlockRenderDispatch blockDisp = getCustomBlockRenderDispatch();
-        CustomItemRenderDispatch itemDisp = getCustomItemRenderDispatch();
-        for (Block block : client.base.registeredBlocks) {
-            Item item = Item.getItemFromBlock(block);
-            if (blockNeedsCustomRendering(block)) {
-                //registerRenderDispatcherForBlock(blockReg, block, blockDisp);
-                registerSmartModelsForBlock(block);
-                if (item != null)
-                    //registerRenderDispatcherForItem(itemReg, item, itemDisp);
-                    registerRenderDispatcherForItem(item, itemDisp);
-            }
-            else
-                registerInventoryLocationForItem(item, block.getUnlocalizedName());
-        }
-        for (Item item : client.base.registeredItems) {
-            if (itemNeedsCustomRendering(item))
-                registerRenderDispatcherForItem(item, itemDisp);
-            else
-                registerInventoryLocationForItem(item, item.getUnlocalizedName());
-        }
-    }
+    protected static class CustomBlockStateMapper extends DefaultStateMapper {
     
-//     private void registerRenderDispatcherForBlock(BlockModelShapes reg, Block block, CustomBlockRenderDispatch disp) {
-//      if (debugModelRegistration)
-//          System.out.printf("BaseMod: Registering model location %s for %s\n", disp.modelLocation, block);
-//      reg.registerBlockWithStateMapper(block, customBlockStateMapper);
-//     }
-
-    protected Map<ModelResourceLocation, IBakedModel> smartModels = new HashMap<>();
-
-    protected void registerSmartModelsForBlock(Block block) {
-        //reg.registerBlockWithStateMapper(block, customBlockStateMapper);
-        ModelLoader.setCustomStateMapper(block, customBlockStateMapper);
-        for (IBlockState state : block.getBlockState().getValidStates()) {
-            ModelResourceLocation location = customBlockStateMapper.getModelResourceLocation(state);
-            IBakedModel model = new BlockParticleModel(state);
-            if (debugModelRegistration)
-                System.out.printf("BaseModClient.registerSmartModelsForBlock: Squirreling %s --> %s\n", location, model);
-            smartModels.put(location, model);
+        // DefaultStateMapper.getModelResourceLocation is protected
+        public ModelResourceLocation getModelResourceLocation(IBlockState state) {
+            return super.getModelResourceLocation(state);
         }
-    }
-    
-    protected class BlockParticleModel implements IBakedModel {
-
-        protected IBlockState state;
         
-        public BlockParticleModel(IBlockState state) {
-            this.state = state;
+    };
+
+    protected CustomBlockStateMapper blockStateMapper = new CustomBlockStateMapper();
+
+    //------------------------------------------------------------------------------------------------
+
+    protected abstract class CustomBakedModel implements IBakedModel {
+    
+        public ModelResourceLocation location;
+        
+        public void install(ModelBakeEvent event) {
+            if (debugModelRegistration)
+                System.out.printf("BaseModClient: Installing %s at %s\n", this, location);
+            event.getModelRegistry().putObject(location, this);
         }
+    
+        // ----- IBakedModel -----
         
         public List<BakedQuad> getQuads(IBlockState state, EnumFacing side, long rand) {return null;}
         public boolean isAmbientOcclusion() {return false;}
         public boolean isGui3d() {return false;}
         public boolean isBuiltInRenderer() {return false;}
+        public TextureAtlasSprite getParticleTexture() {return null;}
         public ItemCameraTransforms getItemCameraTransforms() {return null;}
+        
+    }
+    
+    protected List<CustomBakedModel> bakedModels = new ArrayList<>();
+
+    //------------------------------------------------------------------------------------------------
+
+    protected class BlockParticleModel extends CustomBakedModel {
+
+        protected IBlockState state;
+        
+        public BlockParticleModel(IBlockState state, ModelResourceLocation location) {
+            this.state = state;
+            this.location = location;
+        }
+        
+        // ----- IBakedModel -----
+        
         public ItemOverrideList getOverrides() {return null;}
         
         public TextureAtlasSprite getParticleTexture() {
@@ -191,6 +170,100 @@ public class BaseRenderingManager<MOD extends BaseMod<? extends BaseModClient>> 
     
     }
 
+    //------------------------------------------------------------------------------------------------
+    
+    protected static Trans3 itemTrans = Trans3.blockCenterSideTurn(0, 2);
+
+    protected class CustomItemRenderOverrideList extends ItemOverrideList {
+    
+        public CustomItemRenderOverrideList() {
+            super(ImmutableList.<ItemOverride>of());
+        }
+        
+        @Override
+        public IBakedModel handleItemState(IBakedModel originalModel, ItemStack stack, World world, EntityLivingBase entity) {
+            //System.out.printf("BaseModClient.CustomItemBakedModel.handleItemState: %s\n", stack);
+            Item item = stack.getItem();
+            ICustomRenderer rend = itemRenderers.get(item);
+            if (rend == null && item instanceof IItem) {
+                ModelSpec spec = ((IItem)item).getModelSpec(stack);
+                if (spec != null)
+                    rend = getCustomRendererForSpec(1, spec);
+            }
+            if (rend == null) {
+                Block block = Block.getBlockFromItem(item);
+                if (block != null)
+                    rend = getCustomRendererForState(block.getDefaultState());
+            }
+            if (rend != null) {
+                GlStateManager.shadeModel(GL_SMOOTH);
+                BaseBakedRenderTarget target = new BaseBakedRenderTarget();
+                rend.renderItemStack(stack, target, itemTrans);
+                return target.getBakedModel();
+            }
+            else
+                return null;
+        }
+
+    }
+    
+    protected class CustomItemBakedModel extends CustomBakedModel {
+    
+        protected ItemOverrideList itemOverrideList = new CustomItemRenderOverrideList();
+
+        public CustomItemBakedModel() {
+            location = client.modelResourceLocation("__custitem__", "");
+        }
+        
+        @Override
+        public ItemOverrideList getOverrides() {
+            return itemOverrideList;
+        }
+
+    }
+
+    protected CustomItemBakedModel itemBakedModel;
+
+    protected CustomItemBakedModel getItemBakedModel() {
+        if (itemBakedModel == null)
+            itemBakedModel = new CustomItemBakedModel();
+        return itemBakedModel;
+    }
+
+    //------------------------------------------------------------------------------------------------
+
+    protected void registerDefaultModelLocations() {
+        CustomItemBakedModel itemDisp = getItemBakedModel();
+        for (Block block : client.base.registeredBlocks) {
+            Item item = Item.getItemFromBlock(block);
+            if (blockNeedsCustomRendering(block)) {
+                registerBakedModelsForBlock(block);
+                if (item != null)
+                    registerModelLocationForItem(item, itemDisp);
+            }
+            else
+                registerInventoryLocationForItem(item, block.getUnlocalizedName());
+        }
+        for (Item item : client.base.registeredItems) {
+            if (itemNeedsCustomRendering(item))
+                registerModelLocationForItem(item, itemDisp);
+            else
+                registerInventoryLocationForItem(item, item.getUnlocalizedName());
+        }
+    }
+    
+    protected void registerBakedModelsForBlock(Block block) {
+        ModelLoader.setCustomStateMapper(block, blockStateMapper);
+        for (IBlockState state : block.getBlockState().getValidStates()) {
+            ModelResourceLocation location = blockStateMapper.getModelResourceLocation(state);
+            CustomBakedModel model = new BlockParticleModel(state, location);
+            if (debugModelRegistration)
+                System.out.printf("BaseModClient.registerBakedModelsForBlock: Squirrelling %s --> %s\n",
+                    location, model);
+            bakedModels.add(model);
+        }
+    }
+    
     protected boolean blockNeedsCustomRendering(Block block) {
         return blockRenderers.containsKey(block) || specifiesTextures(block);
     }
@@ -203,8 +276,8 @@ public class BaseRenderingManager<MOD extends BaseMod<? extends BaseModClient>> 
         return obj instanceof ITextureConsumer && ((ITextureConsumer)obj).getTextureNames() != null;
     }
     
-    protected void registerRenderDispatcherForItem(Item item, CustomItemRenderDispatch disp) {
-        registerModelLocationForSubtypes(item, disp.modelLocation);
+    protected void registerModelLocationForItem(Item item, CustomItemBakedModel disp) {
+        registerModelLocationForSubtypes(item, disp.location);
     }
 
     protected void registerInventoryLocationForItem(Item item, String extdName) {
@@ -220,15 +293,7 @@ public class BaseRenderingManager<MOD extends BaseMod<? extends BaseModClient>> 
         for (int i = 0; i < numVariants; i++)
             ModelLoader.setCustomModelResourceLocation(item, i, location);
     }
-
-    private CustomBlockStateMapper customBlockStateMapper = new CustomBlockStateMapper();
-
-    protected static class CustomBlockStateMapper extends DefaultStateMapper {
-        public ModelResourceLocation getModelResourceLocation(IBlockState state) {
-            return super.getModelResourceLocation(state);
-        }
-    };
-
+    
     private int getNumBlockSubtypes(Block block) {
         if (block instanceof IBlock)
             return ((IBlock)block).getNumSubtypes();
@@ -378,95 +443,14 @@ public class BaseRenderingManager<MOD extends BaseMod<? extends BaseModClient>> 
     
     //------------------------------------------------------------------------------------------------
 
-    protected class CustomBlockRendererDispatcher extends BlockRendererDispatcher {
-    
-        protected BlockRendererDispatcher base;
-    
-        public CustomBlockRendererDispatcher(BlockRendererDispatcher base) {
-            super(null, null);
-            this.base = base;
-        }
-        
-        @Override public BlockModelShapes getBlockModelShapes()
-            {return base.getBlockModelShapes();}
-        @Override public BlockModelRenderer getBlockModelRenderer()
-            {return base.getBlockModelRenderer();}
-        @Override public IBakedModel getModelForState(IBlockState state)
-            {return base.getModelForState(state);}
-        @Override public void renderBlockBrightness(IBlockState state, float brightness)
-            {base.renderBlockBrightness(state, brightness);}
-
-        @Override
-        public void renderBlockDamage(IBlockState state, BlockPos pos, TextureAtlasSprite icon, IBlockAccess world) {
-            ICustomRenderer rend = getCustomRenderer(world, pos, state);
-            if (rend != null) {
-                BaseBakedRenderTarget target = new BaseBakedRenderTarget(pos, icon);
-                Trans3 t = Trans3.blockCenter;
-                Block block = state.getBlock();
-                for (BlockRenderLayer layer : BlockRenderLayer.values())
-                    if (block.canRenderInLayer(layer))
-                        rend.renderBlock(world, pos, state, target, layer, t);
-                IBakedModel model = target.getBakedModel();
-                VertexBuffer tess = Tessellator.getInstance().getBuffer();
-                getBlockModelRenderer().renderModel(world, model, state, pos, tess, false); //TODO chould checkSides be false?
-            }
-            else
-                base.renderBlockDamage(state, pos, icon, world);
-        }
-
-//      @Override
-//      public void renderBlockDamage(IBlockState state, BlockPos pos, TextureAtlasSprite damageIcon, IBlockAccess world) {
-//          ICustomRenderer rend = getCustomRenderer(world, pos, state);
-//          if (rend != null) {
-//              BaseBakedRenderTarget target = new BaseBakedRenderTarget(pos);
-//              Block block = state.getBlock();
-//              Trans3 t = Trans3.blockCenter;
-//              for (EnumWorldBlockLayer layer : EnumWorldBlockLayer.values())
-//                  if (block.canRenderInLayer(layer))
-//                      rend.renderBlock(world, pos, state, target, layer, t);
-//              TextureAtlasSprite particle = getBlockModelShapes().getTexture(getBlockParticleState(state, world, pos));
-//              IBakedModel model = target.getBakedModel(particle);
-//              IBakedModel damageModel = (new SimpleBakedModel.Builder(model, damageIcon)).makeBakedModel();
-//              WorldRenderer tess = Tessellator.getInstance().getWorldRenderer();
-//              getBlockModelRenderer().renderModel(world, damageModel, state, pos, tess);
-//          }
-//          else
-//              base.renderBlockDamage(state, pos, damageIcon, world);
-//      }
-
-//      @Override
-//      public void renderBlockDamage(IBlockState state, BlockPos pos, TextureAtlasSprite damageIcon, IBlockAccess world) {
-//          base.renderBlockDamage(state, pos, damageIcon, world);
-//      }
-
-        @Override
-        public boolean renderBlock(IBlockState state, BlockPos pos, IBlockAccess world, VertexBuffer tess) {
-            ICustomRenderer rend = getCustomRenderer(world, pos, state);
-            if (rend != null)
-                return customRenderBlockToWorld(world, pos, state, tess, null, rend);
-            else
-                return base.renderBlock(state, pos, world, tess);
-        }
-        
-    }
-    
-    protected boolean customRenderBlockToWorld(IBlockAccess world, BlockPos pos, IBlockState state, VertexBuffer tess,
-        TextureAtlasSprite icon, ICustomRenderer rend)
-    {
-        //System.out.printf("BaseModClient.customRenderBlock: %s\n", state);
-        BaseWorldRenderTarget target = new BaseWorldRenderTarget(world, pos, tess, icon);
-        BlockRenderLayer layer = MinecraftForgeClient.getRenderLayer();
-        rend.renderBlock(world, pos, state, target, layer, Trans3.blockCenter(pos));
-        return target.end();
-    }
-    
     protected IBakedModel customRenderBlockToBakedModel(IBlockAccess world, BlockPos pos, IBlockState state,
         ICustomRenderer rend)
     {
         BaseBakedRenderTarget target = new BaseBakedRenderTarget(pos);
         Trans3 t = Trans3.blockCenter;
         BlockRenderLayer layer = MinecraftForgeClient.getRenderLayer();
-        BlockModelShapes shapes = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes();
+//        BlockModelShapes shapes = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes();
+        BlockModelShapes shapes = blockRendererDispatcher.getBlockModelShapes();
         TextureAtlasSprite particle = shapes.getTexture(getBlockParticleState(state, world, pos));
         rend.renderBlock(world, pos, state, target, layer, t);
         return target.getBakedModel(particle);
@@ -492,9 +476,8 @@ public class BaseRenderingManager<MOD extends BaseMod<? extends BaseModClient>> 
         Block block = state.getBlock();
         if (!block.hasTileEntity(state)) {
             try {
-                BlockRendererDispatcher disp = getCustomBlockRendererDispatcher();
                 VertexBuffer tess = ((BaseWorldRenderTarget)target).getWorldRenderer();
-                return disp.renderBlock(state, pos, world, tess);
+                return blockRendererDispatcher.renderBlock(state, pos, world, tess);
             }
             catch (Exception e) {
                 // Some blocks are averse to being abused this way. Try to avoid crashing in that case.
@@ -506,160 +489,25 @@ public class BaseRenderingManager<MOD extends BaseMod<? extends BaseModClient>> 
 
     //------------------------------------------------------------------------------------------------
 
-    protected abstract class CustomRenderDispatch implements IBakedModel {
-    
-        public ModelResourceLocation modelLocation;
-        
-        public void install(ModelBakeEvent event) {
-            if (debugModelRegistration)
-                System.out.printf("BaseModClient: Installing %s at %s\n", this, modelLocation);
-            event.getModelRegistry().putObject(modelLocation, this);
-        }
-    
-        // ----- IBakedModel -----
-        
-        public List<BakedQuad> getQuads(IBlockState state, EnumFacing side, long rand) {return null;}
-        public boolean isAmbientOcclusion() {return false;}
-        public boolean isGui3d() {return false;}
-        public boolean isBuiltInRenderer() {return false;}
-        public TextureAtlasSprite getParticleTexture() {return null;}
-        public ItemCameraTransforms getItemCameraTransforms() {return null;}
-        
-    }
-    
-    //------------------------------------------------------------------------------------------------
-    
-//      protected class CustomBlockRenderDispatch extends CustomRenderDispatch implements ISmartBlockModel {
-//  
-//          private List<BakedQuad> emptyQuads = new ArrayList<BakedQuad>();
-//          private List<List<BakedQuad>> emptyFaceQuads = new ArrayList<List<BakedQuad>>();
-//          private IBakedModel emptyBakedModel = new SimpleBakedModel(emptyQuads, emptyFaceQuads, false, false, null, null);
-//  
-//          public CustomBlockRenderDispatch() {
-//              modelLocation = modelResourceLocation("__custblock__", "");
-//          }
-//      
-//          // ----- ISmartBlockModel -----
-//  
-//          public IBakedModel handleBlockState(IBlockState state) {
-//              //System.out.printf("CustomBlockRenderDispatch.handleBlockState: %s\n", state);
-//              if (state instanceof BaseBlockState) {
-//                  BaseBlockState bstate = (BaseBlockState)state;
-//                  ICustomRenderer rend = getCustomRenderer(bstate.world, bstate.pos, state);
-//                  if (rend == null)
-//                      throw new RuntimeException(String.format("Could not find custom renderer for %s", state));
-//                  return customRenderBlockToBakedModel(bstate.world, bstate.pos, state, rend);
-//              }
-//              else
-//                  throw new RuntimeException(String.format(
-//                      "BaseModClient: Block with custom renderer did not return a BaseBlockState from getExtendedState(): %s",
-//                      state));
-//          }
-//      
-//      }
-    
-    //------------------------------------------------------------------------------------------------
-    
-    protected static Trans3 itemTrans = Trans3.blockCenterSideTurn(0, 2);
-
-    protected class CustomItemRenderDispatch extends CustomRenderDispatch {
-    
-        public CustomItemRenderDispatch() {
-            modelLocation = client.modelResourceLocation("__custitem__", "");
-        }
-        
-        private class CustomItemRenderOverrideList extends ItemOverrideList {
-        
-            public CustomItemRenderOverrideList() {
-                super(ImmutableList.<ItemOverride>of());
-            }
-            
-            @Override
-            public IBakedModel handleItemState(IBakedModel originalModel, ItemStack stack, World world, EntityLivingBase entity) {
-                //System.out.printf("BaseModClient.CustomItemRenderDispatch.handleItemState: %s\n", stack);
-                Item item = stack.getItem();
-                ICustomRenderer rend = itemRenderers.get(item);
-                if (rend == null && item instanceof IItem) {
-                    ModelSpec spec = ((IItem)item).getModelSpec(stack);
-                    if (spec != null)
-                        rend = getCustomRendererForSpec(1, spec);
-                }
-                if (rend == null) {
-                    Block block = Block.getBlockFromItem(item);
-                    if (block != null)
-                        rend = getCustomRendererForState(block.getDefaultState());
-                }
-                if (rend != null) {
-                    GlStateManager.shadeModel(GL_SMOOTH);
-                    BaseBakedRenderTarget target = new BaseBakedRenderTarget();
-                    rend.renderItemStack(stack, target, itemTrans);
-                    return target.getBakedModel();
-                }
-                else
-                    return null;
-            }
-
-        }
-        
-        @Override
-        public ItemOverrideList getOverrides() {
-            return new CustomItemRenderOverrideList();
-        }
-
-    }
-
-    //------------------------------------------------------------------------------------------------
-
-    protected CustomBlockRendererDispatcher customBlockRendererDispatcher;
-//     protected CustomBlockRenderDispatch customBlockRenderDispatch;
-    protected CustomItemRenderDispatch customItemRenderDispatch;
+    protected BlockRendererDispatcher blockRendererDispatcher;
     
     @SubscribeEvent
     public void onModelBakeEvent(ModelBakeEvent event) {
         if (debugModelRegistration)
             System.out.printf("BaseModClient.ModelBakeEvent\n");
         //getCustomBlockRenderDispatch().install(event);
-        getCustomItemRenderDispatch().install(event);
-        for (Map.Entry<ModelResourceLocation, IBakedModel> e : smartModels.entrySet()) {
+        getItemBakedModel().install(event);
+        for (CustomBakedModel model : bakedModels) {
             if (debugModelRegistration)
-                System.out.printf("BaseModClient.onModelBakeEvent: Installing %s --> %s\n", e.getKey(), e.getValue());
-            event.getModelRegistry().putObject(e.getKey(), e.getValue());
+                System.out.printf("BaseModClient.onModelBakeEvent: Installing %s --> %s\n",
+                    model.location, model);
+            model.install(event);
         }
     }
-    
-    protected CustomBlockRendererDispatcher getCustomBlockRendererDispatcher() {
-        if (customBlockRendererDispatcher == null) {
-            Minecraft mc = Minecraft.getMinecraft();
-            customBlockRendererDispatcher = new CustomBlockRendererDispatcher(mc.getBlockRendererDispatcher());
-            setField(mc, "blockRenderDispatcher", "field_175618_aM", customBlockRendererDispatcher);
-        }
-        return customBlockRendererDispatcher;
+  
+    protected void enableCustomRendering() {
+        Minecraft mc = Minecraft.getMinecraft();
+        blockRendererDispatcher = mc.getBlockRendererDispatcher();
     }
-    
-//      protected CustomBlockRenderDispatch getCustomBlockRenderDispatch() {
-//          if (customBlockRenderDispatch == null)
-//              customBlockRenderDispatch = new CustomBlockRenderDispatch();
-//          return customBlockRenderDispatch;
-//      }
-
-    protected CustomItemRenderDispatch getCustomItemRenderDispatch() {
-        if (customItemRenderDispatch == null)
-            customItemRenderDispatch = new CustomItemRenderDispatch();
-        return customItemRenderDispatch;
-    }
-
-    public void enableCustomRendering() {
-        getCustomBlockRendererDispatcher();
-    }
-    
-//     protected static class DummyStateMapper implements IStateMapper {
-//         private static Map<IBlockState, ModelResourceLocation> emptyMap =
-//             new HashMap<>();
-//         public Map<IBlockState, ModelResourceLocation> putStateModelLocations(Block block) {
-//             return emptyMap;
-//         }
-//     }
-//     
-//     protected static IStateMapper dummyStateMapper = new DummyStateMapper();
     
 }
