@@ -16,6 +16,7 @@ import net.minecraft.client.particle.*;
 import net.minecraft.client.renderer.texture.*;
 import net.minecraft.entity.*;
 import net.minecraft.entity.item.*;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.*;
 import net.minecraft.item.*;
 import net.minecraft.nbt.*;
@@ -225,6 +226,29 @@ public class BaseBlock<TE extends TileEntity>
     public int getNumSubtypes() {
         return 1;
     }
+    
+    // -------------------------- Harvesting ----------------------------
+    
+    protected ThreadLocal<TileEntity> harvestingTileEntity = new ThreadLocal();
+    
+	@Override
+	public void harvestBlock(World world, EntityPlayer player, BlockPos pos, IBlockState state, TileEntity te, ItemStack stack) {
+        harvestingTileEntity.set(te);
+        super.harvestBlock(world, player, pos, state, te, stack);
+        harvestingTileEntity.set(null);
+    }
+
+	@Override
+    public List<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
+        TileEntity te = world.getTileEntity(pos);
+        if (te == null)
+            te = harvestingTileEntity.get();
+        return getDropsFromTileEntity(world, pos, state, te, fortune);
+    }
+    
+	protected List<ItemStack> getDropsFromTileEntity(IBlockAccess world, BlockPos pos, IBlockState state, TileEntity te, int fortune) {
+        return super.getDrops(world, pos, state, fortune);
+    }	    
     
     // -------------------------- Rendering -----------------------------
 
