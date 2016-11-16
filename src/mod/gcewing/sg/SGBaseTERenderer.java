@@ -53,7 +53,10 @@ class SGBaseTERenderer extends BaseTileEntityRenderer {
     
     final static double numIrisBlades = 12;
     
-    static int chevronEngagementSequence[] = new int[]{0, 8, 1, 7, 2, 6, 3, 5, 4};
+    static int chevronEngagementSequences[][] = {
+        {9, 3, 4, 5, 6, 0, 1, 2, 9}, // 7 symbols (9 = never enganged)
+        {4, 5, 6, 7, 8, 0, 1, 2, 3}  // 9 symbols
+    };
 
     static double s[] = new double[numRingSegments + 1];
     static double c[] = new double[numRingSegments + 1];
@@ -105,7 +108,7 @@ class SGBaseTERenderer extends BaseTileEntityRenderer {
     
     void renderInnerRing(SGBaseTE te, float t) {
         glPushMatrix();
-        glRotatef((float)(te.interpolatedRingAngle(t) - (135 - SGBaseTE.ringSymbolAngle / 2)), 0, 0, 1);
+        glRotatef((float)(te.interpolatedRingAngle(t) + SGBaseTE.ringSymbolAngle / 2), 0, 0, 1);
         renderRing(ringInnerRadius, ringMidRadius, RingType.Inner, 0);
         glPopMatrix();
     }
@@ -164,11 +167,13 @@ class SGBaseTERenderer extends BaseTileEntityRenderer {
     
     void renderChevrons(SGBaseTE te) {
         int numChevrons = te.getNumChevrons();
+        int i0 = numChevrons > 7 ? 0 : 1;
+        int k = te.dialledAddress.length() > 7 ? 1 : 0;
         float a = te.angleBetweenChevrons();
-        for (int i = 9 - numChevrons; i < 9; i++) {
-            int j = chevronEngagementSequence[i];
-            boolean engaged = te.chevronIsEngaged(i); 
-            renderChevronAtPosition(j, a, engaged);
+        for (int i = i0; i < i0 + numChevrons; i++) {
+            int j = chevronEngagementSequences[k][i];
+            boolean engaged = te.chevronIsEngaged(j); 
+            renderChevronAtPosition(i, a, engaged);
         }
     }
 
