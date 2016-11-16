@@ -210,7 +210,10 @@ public class SGAddressing {
     }
     
     protected static int unpermuteDimension(long c, int d) {
-        return (int)((d - c) % dimensionRange);
+        int i = (int)((d - c) % dimensionRange);
+        if (i < 0)
+            i += dimensionRange;
+        return i;
     }
     
     protected static long interleaveCoords(int x, int z) {
