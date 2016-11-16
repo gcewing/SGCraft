@@ -53,46 +53,49 @@ public class SGAddressing {
     public final static int maxCoord = 139967;
     public final static int minCoord = -maxCoord;
     public final static int coordRange = maxCoord - minCoord + 1;
-    public final static int minDimension = -648;
-    public final static int maxDimension = 647;
-    public final static int dimensionRange = maxDimension - minDimension + 1;
-    //final static String padding = "?????????";
+//     public final static int minDimension = -648;
+//     public final static int maxDimension = 647;
+//     public final static int dimensionRange = maxDimension - minDimension + 1;
+    public final static int maxDimensionIndex = 1295;
+    public final static int dimensionRange = maxDimensionIndex + 1;
     final static String padding = "---------";
     final static long mc = coordRange + 2; // == 2 * maxCoord + 3;
     final static long pc = 93563;   //  (pc * qc) % mc == 1
     final static long qc = 153742;
-    final static long md = dimensionRange + 2;
+//     final static long md = dimensionRange + 2;
+    final static long md = dimensionRange + 1;
     final static long pd = 953;  //  (pd * qd) % md == 1
-    final static long qd = 459;
+    final static long qd = 788;
+//     final static long qd = 459;
     
-    static boolean isValidSymbolChar(char c) {
+    protected static boolean isValidSymbolChar(char c) {
         return isValidSymbolChar(String.valueOf(c));
     }
 
-    static boolean isValidSymbolChar(String c) {
+    protected static boolean isValidSymbolChar(String c) {
         return symbolChars.indexOf(c) >= 0;
     }
     
-    static char symbolToChar(int i) {
+    protected static char symbolToChar(int i) {
         return symbolChars.charAt(i);
     }
     
-    static int charToSymbol(char c) {
+    protected static int charToSymbol(char c) {
         return charToSymbol(String.valueOf(c));
     }
 
-    static int charToSymbol(String c) {
+    protected static int charToSymbol(String c) {
         return symbolChars.indexOf(c);
     }
     
-    static boolean validSymbols(String s) {
+    protected static boolean validSymbols(String s) {
         for (int i = 0; i < s.length(); i++)
             if (charToSymbol(s.charAt(i)) < 0)
                 return false;
         return true;
     }
     
-    static void validateAddress(String s) throws AddressingError {
+    protected static void validateAddress(String s) throws AddressingError {
         int l = s.length();
         if ((l ==  numCoordSymbols || l == numCoordSymbols + numDimensionSymbols)
             && validSymbols(s))
@@ -104,82 +107,92 @@ public class SGAddressing {
         return address.replace("-", "").toUpperCase();
     }
     
-    public static String relativeAddress(String targetAddress, String contextAddress)
-        throws AddressingError
-    {
-        validateAddress(targetAddress);
-        if (addressesInSameDimension(targetAddress, contextAddress))
-            return coordSymbolsOf(targetAddress);
-        else
-            return targetAddress;
-    }
+//     public static String relativeAddress(String targetAddress, String contextAddress)
+//         throws AddressingError
+//     {
+//         validateAddress(targetAddress);
+//         if (addressesInSameDimension(targetAddress, contextAddress))
+//             return coordSymbolsOf(targetAddress);
+//         else
+//             return targetAddress;
+//     }
     
-    public static String normalizedRelativeAddress(String targetAddress, String contextAddress)
-        throws AddressingError
-    {
-        return relativeAddress(normalizeAddress(targetAddress), contextAddress);
-    }
+//     public static String normalizedRelativeAddress(String targetAddress, String contextAddress)
+//         throws AddressingError
+//     {
+//         return relativeAddress(normalizeAddress(targetAddress), contextAddress);
+//     }
     
-    public static boolean addressesInSameDimension(String a1, String a2) {
-        int l1 = a1.length(), l2 = a2.length();
-        if (debugAddressing)
-            System.out.printf("SGAddressing.addressesInSameDimension(%s,%s): %s %s %s %s\n",
-                a1, a2, l1, l2, dimensionSymbolsOf(a1), dimensionSymbolsOf(a2));
-        return l1 == numCoordSymbols || l2 == numCoordSymbols ||
-            dimensionSymbolsOf(a1).equals(dimensionSymbolsOf(a2));
-    }
+//     public static boolean addressesInSameDimension(String a1, String a2) {
+//         int l1 = a1.length(), l2 = a2.length();
+//         if (debugAddressing)
+//             System.out.printf("SGAddressing.addressesInSameDimension(%s,%s): %s %s %s %s\n",
+//                 a1, a2, l1, l2, dimensionSymbolsOf(a1), dimensionSymbolsOf(a2));
+//         return l1 == numCoordSymbols || l2 == numCoordSymbols ||
+//             dimensionSymbolsOf(a1).equals(dimensionSymbolsOf(a2));
+//     }
     
-    public static String coordSymbolsOf(String address) {
+    protected static String coordSymbolsOf(String address) {
         return address.substring(0, numCoordSymbols);
     }
     
-    public static String dimensionSymbolsOf(String address) {
+    protected static String dimensionSymbolsOf(String address) {
         return address.substring(numCoordSymbols);
     }
 
     public static String addressForLocation(SGLocation loc) throws AddressingError {
         if (debugAddressing)
-            System.out.printf("SGAddressing.addressForLocation: " +
-                "coord range = %d to %d " +
-                "dim range = %d to %d\n", minCoord, maxCoord, minDimension, maxDimension);
+            System.out.printf("SGAddressing.addressForLocation: coord range = %d to %d\n",
+                minCoord, maxCoord);
         int chunkx = loc.pos.getX() >> 4;
         int chunkz = loc.pos.getZ() >> 4;
         if (!inCoordRange(chunkx) || !inCoordRange(chunkz))
             throw coordRangeError;
-        if (!inDimensionRange(loc.dimension))
+//         if (!inDimensionRange(loc.dimension))
+//             throw dimensionRangeError;
+        Integer di = SGDimensionMap.indexForDimension(loc.dimension);
+        if (di > maxDimensionIndex)
             throw dimensionRangeError;
         long c = interleaveCoords(hash(chunkx - minCoord, pc, mc), hash(chunkz - minCoord, pc, mc));
-        int d = hash(loc.dimension - minDimension, pd, md);
+//         int d = hash(loc.dimension - minDimension, pd, md);
+        int dp = permuteDimension(c, di);
+        int d = hash(dp, pd, md);
         if (debugAddressing)
             System.out.printf(
                 "SGAddressing.addressForLocation: chunk (%d,%d) in dimension %d gives c = %s d = %d\n",
                 chunkx, chunkz, loc.dimension, c, d);
-        return intToSymbols(c, numCoordSymbols) + intToSymbols(d, numDimensionSymbols);
+        return longToSymbols(c, numCoordSymbols) + intToSymbols(d, numDimensionSymbols);
     }
     
     public static SGBaseTE findAddressedStargate(String address, World fromWorld) throws AddressingError {
         if (debugAddressing)
             System.out.printf("SGAddressing.findAddressedStargate: %s\n", address);
         validateAddress(address);
-        String csyms;
-        int dimension = fromWorld.provider.getDimension();
-        if (address.length() == maxAddressLength) {
-            csyms = address.substring(0, numCoordSymbols);
-            String dsyms = address.substring(numCoordSymbols);
-            dimension = minDimension + hash((int)intFromSymbols(dsyms), qd, md);
-        }
-        else {
-            if (address.length() != numCoordSymbols)
-                throw malformedAddressError;
-            csyms = address;
-        }
-        long c = intFromSymbols(csyms);
+        String csyms = address.substring(0, numCoordSymbols);
+        long c = longFromSymbols(csyms);
         int[] xz = uninterleaveCoords(c);
         int chunkX = minCoord + hash(xz[0], qc, mc);
         int chunkZ = minCoord + hash(xz[1], qc, mc);
         if (debugAddressing)
-            System.out.printf("SGAddressing.findAddressedStargate: c = %s chunk = (%d,%d) dimension = %d\n",
-                c, chunkX, chunkZ, dimension);
+            System.out.printf("SGAddressing.findAddressedStargate: c = %s chunk = (%d,%d)\n",
+                c, chunkX, chunkZ);
+        int dimension;
+        if (address.length() == maxAddressLength) {
+            String dsyms = address.substring(numCoordSymbols);
+//             dimension = minDimension + hash((int)intFromSymbols(dsyms), qd, md);
+            int d = intFromSymbols(dsyms);
+            int dp = hash(d, qd, md);
+            int di = unpermuteDimension(c, dp);
+            Integer dm = SGDimensionMap.dimensionForIndex(di);
+            if (debugAddressing)
+                System.out.printf("SGAddressing.findAddressedStargate: d = %s dimension = %s\n",
+                    d, dm);
+            if (dm == null)
+                return null;
+            dimension = dm;
+        }
+        else
+            dimension = fromWorld.provider.getDimension();
         World toWorld = getWorld(dimension);
         if (toWorld != null) {
             Chunk chunk = toWorld.getChunkFromChunkCoords(chunkX, chunkZ);
@@ -192,7 +205,15 @@ public class SGAddressing {
         return null;
     }
     
-    static long interleaveCoords(int x, int z) {
+    protected static int permuteDimension(long c, int d) {
+        return (int)((d + c) % dimensionRange);
+    }
+    
+    protected static int unpermuteDimension(long c, int d) {
+        return (int)((d - c) % dimensionRange);
+    }
+    
+    protected static long interleaveCoords(int x, int z) {
         if (debugAddressing)
             System.out.printf("SGAddressing.interleaveCoords: %d, %d\n", x, z);
         long p6 = 1;
@@ -206,7 +227,7 @@ public class SGAddressing {
         return c;
     }
     
-    static int[] uninterleaveCoords(long c) {
+    protected static int[] uninterleaveCoords(long c) {
         int p6 = 1;
         int[] xy = {0, 0};
         while (c > 0) {
@@ -217,7 +238,7 @@ public class SGAddressing {
         return xy;
     }
     
-    static int hash(int i, long f, long m) {
+    protected static int hash(int i, long f, long m) {
         int h = (int)(((i + 1) * f) % m) - 1;
         if (debugAddressing)
             System.out.printf("SGAddressing.hash(%s, %s, %s) = %s\n", i, f, m, h);
@@ -225,19 +246,24 @@ public class SGAddressing {
     }
                 
     public static WorldServer getWorld(int dimension) {
-        MinecraftServer server = BaseUtils.getMinecraftServer();
-        return server.worldServerForDimension(dimension);
+//         MinecraftServer server = BaseUtils.getMinecraftServer();
+//         return server.worldServerForDimension(dimension);
+        return BaseUtils.getWorldForDimension(dimension);
     }
     
-    static boolean inCoordRange(int i) {
+    protected static boolean inCoordRange(int i) {
         return i >= minCoord && i <= maxCoord;
     }
     
-    static boolean inDimensionRange(int i) {
-        return i >= minDimension && i <= maxDimension;
+//     protected static boolean inDimensionRange(int i) {
+//         return i >= minDimension && i <= maxDimension;
+//     }
+
+    protected static String intToSymbols(int i, int n) {
+        return longToSymbols(i, n);
     }
 
-    static String intToSymbols(long i, int n) {
+    protected static String longToSymbols(long i, int n) {
         String s = "";
         while (n-- > 0) {
             s = symbolToChar((int)(i % numSymbols)) + s;
@@ -246,7 +272,11 @@ public class SGAddressing {
         return s;
     }
     
-    static long intFromSymbols(String s) {
+    protected static int intFromSymbols(String s) {
+        return (int)longFromSymbols(s);
+    }
+    
+    protected static long longFromSymbols(String s) {
         long i = 0;
         int n = s.length();
         for (int j = 0; j < n; j++) {
