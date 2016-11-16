@@ -299,11 +299,8 @@ class SGBaseTERenderer extends BaseTileEntityRenderer {
     }
 
     void renderEventHorizon(SGBaseTE te) {
-        //bindTextureByName("/misc/water.png");
-        //bindTexture(eventHorizonTexture);
         bindTexture(SGCraft.mod.resourceLocation("textures/tileentity/eventhorizon.png"));
         glDisable(GL_CULL_FACE);
-        //glDepthMask(false);
         glNormal3d(0, 0, 1);
         double grid[][] = te.getEventHorizonGrid()[0];
         double rclip = 2.5 * (te.irisIsClosed() ?  te.getIrisAperture(0) : 1.0);
@@ -353,8 +350,6 @@ class SGBaseTERenderer extends BaseTileEntityRenderer {
     
     void renderIrisBlade(SGBaseTE te, double a, double t) {
         double aa = a * 60;
-//      double s = sin(aa);
-//      double c = cos(aa);
         double r  = 2.31;
         double w1 = 2.40;
         double w2 = 1.85;

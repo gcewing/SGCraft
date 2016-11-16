@@ -121,7 +121,6 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
     public boolean isMerged;
     public SGState state = SGState.Idle;
     public double ringAngle, lastRingAngle, targetRingAngle; // degrees
-//     public int firstEngagedChevron;
     public int numEngagedChevrons;
     public String dialledAddress = "";
     public boolean isLinkedToController;
@@ -285,7 +284,6 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
         isMerged = nbt.getBoolean("isMerged");
         state = SGState.valueOf(nbt.getInteger("state"));
         targetRingAngle = nbt.getDouble("targetRingAngle");
-//         firstEngagedChevron = nbt.getInteger("firstEngagedChevron");
         numEngagedChevrons = nbt.getInteger("numEngagedChevrons");
         dialledAddress = nbt.getString("dialledAddress");
         isLinkedToController = nbt.getBoolean("isLinkedToController");
@@ -315,7 +313,6 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
         nbt.setBoolean("isMerged", isMerged);
         nbt.setInteger("state", state.ordinal());
         nbt.setDouble("targetRingAngle", targetRingAngle);
-//         nbt.setInteger("firstEngagedChevron", firstEngagedChevron);
         nbt.setInteger("numEngagedChevrons", numEngagedChevrons);
         //nbt.setString("homeAddress", homeAddress);
         nbt.setString("dialledAddress", dialledAddress);
@@ -389,7 +386,6 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
     }
     
     public boolean chevronIsEngaged(int i) {
-//         return i >= firstEngagedChevron && i < firstEngagedChevron + numEngagedChevrons;
         return i < numEngagedChevrons;
     }
 
@@ -461,7 +457,6 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
         String oldDesc = sgStateDescription(oldState);
         String newDesc = sgStateDescription(newState);
         if (!oldDesc.equals(newDesc))
-            //postEvent("sgStargateStateChange", "oldState", oldDesc, "newState", newDesc);
             postEvent("sgStargateStateChange", newDesc, oldDesc);
     }
     
@@ -644,7 +639,6 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
             dialledAddress = "";
             connectedLocation = null;
             isInitiator = false;
-//             firstEngagedChevron = 0;
             numEngagedChevrons = 0;
             markDirty();
             markBlockForUpdate();
@@ -666,8 +660,6 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
         //System.out.printf("SGBaseTE.startDiallingStargate %s, initiator = %s\n",
         //  dte, initiator);
         dialledAddress = address;
-//         firstEngagedChevron = getNumChevrons() - address.length();
-//         firstEngagedChevron = 9 - address.length();
         connectedLocation = new SGLocation(dte);
         isInitiator = initiator;
         markDirty();
@@ -870,8 +862,6 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
         if (debugState)
             System.out.printf("SGBaseTE.startDiallingSymbol: %s\n", i);
         if (i >= 0 && i < numRingSymbols) {
-//             int chevronNo = firstEngagedChevron + numEngagedChevrons;
-//             startDiallingToAngle(i * ringSymbolAngle - angleBetweenChevrons() * chevronNo);
             startDiallingToAngle(i * ringSymbolAngle);
             playSGSoundEffect(diallingSound, 1.0F, 1.0F);
         }
