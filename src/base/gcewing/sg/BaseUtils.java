@@ -14,6 +14,8 @@ import net.minecraft.nbt.*;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.*;
 import net.minecraft.util.math.*;
+import net.minecraft.world.*;
+import net.minecraft.world.storage.MapStorage;
 
 import net.minecraftforge.common.DimensionManager;
 
@@ -79,4 +81,23 @@ public class BaseUtils {
         return DimensionManager.getWorld(0).getMinecraftServer();
     }
     
+    public static WorldServer getWorldForDimension(int id) {
+        return getMinecraftServer().worldServerForDimension(id);
+    }
+    
+    public static <T extends WorldSavedData> T getWorldData(World world, Class<T> cls, String name) {
+        MapStorage storage = world.getPerWorldStorage();
+        T result = (T)storage.getOrLoadData(cls, name);
+        if (result == null) {
+            try {
+                result = cls.getConstructor(String.class).newInstance(name);
+                storage.setData(name, result);
+            }
+            catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return result;
+    }
+
 }
