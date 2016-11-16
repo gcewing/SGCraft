@@ -11,6 +11,8 @@ import java.lang.reflect.Method;
 import org.apache.logging.log4j.*;
 import io.netty.channel.*;
 
+import net.minecraft.block.*;
+import net.minecraft.block.state.*;
 import net.minecraft.entity.*;
 import net.minecraft.entity.player.*;
 import net.minecraft.inventory.*;
@@ -70,9 +72,9 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
     public final static DamageSource irisDamageSource = new DamageSource("sgcraft:iris");
     public final static float irisDamageAmount = 1000000;
     
-    final static int[] diallingTime = {40, 28}; // ticks
-    final static int[] interDiallingTime = {10, 11}; // ticks
-    final static SoundEvent[] diallingSound = {sound("sgcraft:sg_dial7"), sound("sgcraft:sg_dial9")};
+    final static int diallingTime = 40; // ticks
+    final static int interDiallingTime = 10; // ticks
+    final static SoundEvent diallingSound = sound("sgcraft:sg_dial7");
     final static int transientDuration = 20; // ticks
     final static int disconnectTime = 30; // ticks
     
@@ -86,6 +88,12 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
     final static int firstCamouflageSlot = 0;
     final static int numCamouflageSlots = 5;
     final static int numInventorySlots = numCamouflageSlots;
+    
+    static float chevronAngles[][] = {
+    //     0    1    2    <-- Base camouflage level
+        { 45f, 45f, 40f }, // 7 chevrons
+        { 36f, 33f, 30f }  // 9 chevrons
+    };
     
     // Configuration options
     static double maxEnergyBuffer = 1000;
@@ -372,14 +380,24 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
         return EnumActionResult.SUCCESS;
     }
     
-    int getNumChevrons() {
+    public int getNumChevrons() {
         //if (upgradePresent(SGCraft.sgChevronUpgrade))
         if (hasChevronUpgrade)
             return 9;
         else
             return 7;
     }
+    
+    public boolean chevronIsEngaged(int i) {
+        return i >= firstEngagedChevron && i < firstEngagedChevron + numEngagedChevrons;
+    }
 
+    public float angleBetweenChevrons() {
+        int c9 = getNumChevrons() > 7 ? 1 : 0;
+        int bc = baseCornerCamouflage();
+        return chevronAngles[c9][bc];
+    }
+    
 //  boolean upgradePresent(Item item) {
 //      for (int i = firstUpgradeSlot; i < firstUpgradeSlot + numUpgradeSlots; i++)
 //          if (getItemInSlot(i) == item)
@@ -529,8 +547,6 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
         String homeAddress = findHomeAddress();
         if (homeAddress.equals(""))
             return diallingFailure(player, "Coordinates of dialling stargate are out of range");
-        if (address.length() > getNumChevrons())
-            return diallingFailure(player, "Not enough chevrons to dial " + address);
         try {
             dte = SGAddressing.findAddressedStargate(address, worldObj);
         }
@@ -539,19 +555,20 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
         }
         if (dte == null || !dte.isMerged)
             return diallingFailure(player, "No stargate at address " + address);
+        if (getWorld() == dte.getWorld()) {
+            address = SGAddressing.localAddress(address);
+            homeAddress = SGAddressing.localAddress(homeAddress);
+        }
+        if (address.length() > getNumChevrons())
+            return diallingFailure(player, "Not enough chevrons to dial " + address);
         if (dte == this)
             return diallingFailure(player, "Stargate cannot connect to itself");
         if (debugConnect)
             System.out.printf("SGBaseTE.connect: to %s in dimension %d with state %s\n",
                 dte.getPos(), dte.getWorld().provider.getDimension(),
                 dte.state);
-        if (getWorld() == dte.getWorld()) {
-            address = SGAddressing.localAddress(address);
-            homeAddress = SGAddressing.localAddress(homeAddress);
-        }
         if (dte.getNumChevrons() < homeAddress.length())
             return diallingFailure(player, "Destination stargate has insufficient chevrons");
-        //System.out.printf("SGBaseTE.connect: addressed TE state = %s\n", dte.state);
         if (dte.state != SGState.Idle)
             return diallingFailure(player, "Stargate at address " + address + " is busy");
         distanceFactor = distanceFactorForCoordDifference(this, dte);
@@ -648,12 +665,12 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
         //System.out.printf("SGBaseTE.startDiallingStargate %s, initiator = %s\n",
         //  dte, initiator);
         dialledAddress = address;
-        firstEngagedChevron = (getNumChevrons() - address.length()) / 2;
+//         firstEngagedChevron = getNumChevrons() - address.length();
+        firstEngagedChevron = 9 - address.length();
         connectedLocation = new SGLocation(dte);
         isInitiator = initiator;
         markDirty();
         startDiallingNextSymbol();
-        //postEvent(initiator ? "sgDialOut" : "sgDialIn", "address", address);
         postEvent(initiator ? "sgDialOut" : "sgDialIn", address);
     }
 
@@ -853,8 +870,8 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
             System.out.printf("SGBaseTE.startDiallingSymbol: %s\n", i);
         if (i >= 0 && i < numRingSymbols) {
             int chevronNo = firstEngagedChevron + numEngagedChevrons;
-            startDiallingToAngle(i * ringSymbolAngle - 45 * chevronNo);
-            playSGSoundEffect(diallingSound[diallingSpeed()], 1.0F, 1.0F);
+            startDiallingToAngle(i * ringSymbolAngle - angleBetweenChevrons() * chevronNo);
+            playSGSoundEffect(diallingSound, 1.0F, 1.0F);
         }
         else {
             System.out.printf("SGCraft: Stargate jammed trying to dial symbol %s\n", c);
@@ -865,27 +882,17 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
     
     void startDiallingToAngle(double a) {
         targetRingAngle = Utils.normaliseAngle(a);
-        enterState(SGState.Dialling, diallingTime[diallingSpeed()]);
+        enterState(SGState.Dialling, diallingTime);
     }
     
     void finishDiallingSymbol() {
         ++numEngagedChevrons;
-//      postEvent("sgChevronEngaged",
-//          "chevron", numEngagedChevrons,
-//          "symbol", dialledAddress.substring(numEngagedChevrons - 1, numEngagedChevrons));
         String symbol = dialledAddress.substring(numEngagedChevrons - 1, numEngagedChevrons);
         postEvent("sgChevronEngaged", numEngagedChevrons, symbol);
         if (undialledDigitsRemaining())
-            enterState(SGState.InterDialling, interDiallingTime[diallingSpeed()]);
+            enterState(SGState.InterDialling, interDiallingTime);
         else
             finishDiallingAddress();
-    }
-    
-    int diallingSpeed() {
-//      if (dialledAddress.length() == SGAddressing.maxAddressLength)
-//          return 1;
-//      else
-            return 0;
     }
     
     void finishDiallingAddress() {
@@ -1407,11 +1414,6 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
         }
     }
     
-//  @Override
-//  BaseTEChunkManager getChunkManager() {
-//      return SGCraft.chunkManager;
-//  }
-
     @Override
     protected IInventory getInventory() {
         return inventory;
@@ -1561,19 +1563,25 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
             return 0;
     }
     
-//  public boolean hasBaseCamouflage() {
-//      for (int i = 0; i < numCamouflageSlots; i++)
-//          if (hasBaseCamouflageAt(i))
-//              return true;
-//      return false;
-//  }
-    
-    public boolean hasBaseCornerCamouflage() {
-        return hasBaseCamouflageAt(0) || hasBaseCamouflageAt(4);
+    protected int baseCornerCamouflage() {
+        return max(baseCamouflageAt(0), baseCamouflageAt(4));
     }
     
-    public boolean hasBaseCamouflageAt(int i) {
-        return numItemsInSlot(firstCamouflageSlot + i) > 0;
+    protected int baseCamouflageAt(int i) {
+        ItemStack stack = getStackInSlot(i);
+        if (stack != null) {
+            Item item = stack.getItem();
+            Block block = Block.getBlockFromItem(stack.getItem());
+            if (block != null) {
+                if (block instanceof BlockSlab)
+                    return 1;
+                int meta = item.getMetadata(stack);
+                IBlockState state = block.getStateFromMeta(meta);
+                if (block.isFullCube(state))
+                    return 2;
+            }
+        }
+        return 0;
     }
 
     static int rdx[] = {1, 0, -1, 0};

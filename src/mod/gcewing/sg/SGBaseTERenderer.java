@@ -52,6 +52,8 @@ class SGBaseTERenderer extends BaseTileEntityRenderer {
     final static double ehBandWidth = ringInnerRadius / ehGridRadialSize;
     
     final static double numIrisBlades = 12;
+    
+    static int chevronEngagementSequence[] = new int[]{0, 8, 1, 7, 2, 6, 3, 5, 4};
 
     static double s[] = new double[numRingSegments + 1];
     static double c[] = new double[numRingSegments + 1];
@@ -160,65 +162,22 @@ class SGBaseTERenderer extends BaseTileEntityRenderer {
         glEnd();
     }
     
-//  void renderChevrons(SGBaseTE te) {
-//      int n = te.getNumChevrons();
-//      int m = 7; // Number of chevron positions
-//      if (n > 7 || te.hasBaseCamouflage())
-//          m = 9;
-//      int i0 = (m - n) / 2; // Index of first occupied chevron position
-//      float a = 360.0F / (m + 1); // Angle between chevrons
-//      glNormal3f(0, 0, 1);
-//      for (int k = 0; k < n; k++) {
-//          int i = i0 + k;
-//          glPushMatrix();
-//          glRotatef(-90 - (i + 1) * a, 0, 0, 1);
-//          int l = i - te.firstEngagedChevron;
-//          chevron(l >= 0 && l < te.numEngagedChevrons);
-//          glPopMatrix();
-//      }
-//  }
-    
     void renderChevrons(SGBaseTE te) {
         int numChevrons = te.getNumChevrons();
-        boolean baseCamouflage = te.hasBaseCornerCamouflage();
-        float a = angleBetweenChevrons(numChevrons, baseCamouflage);
-        int i0 = firstChevronPosition(numChevrons, baseCamouflage);
-        int i1 = i0 + te.getNumChevrons();
-        int addrLen = te.dialledAddress.length();
-        int e0 = firstEngagedChevronPosition(numChevrons, addrLen, baseCamouflage);
-        int e1 = e0 + te.numEngagedChevrons;
-        for (int i = i0; i < i1; i++) {
-            boolean engaged = i >= e0 && i < e1;
-            renderChevronAtPosition(i, a, engaged);
+        float a = te.angleBetweenChevrons();
+        for (int i = 9 - numChevrons; i < 9; i++) {
+            int j = chevronEngagementSequence[i];
+            boolean engaged = te.chevronIsEngaged(i); 
+            renderChevronAtPosition(j, a, engaged);
         }
     }
-    
+
+    // Render a chevron at the given position (0 to 8, with 4 being top dead centre)
     void renderChevronAtPosition(int i, float a, boolean engaged) {
         glPushMatrix();
-        glRotatef(-90 - (i + 1) * a, 0, 0, 1);
+        glRotatef(90 - (i - 4) * a, 0, 0, 1);
         chevron(engaged);
         glPopMatrix();
-    }
-    
-    float angleBetweenChevrons(int numChevrons, boolean baseCamouflage) {
-        if (numChevrons > 7 || baseCamouflage)
-            return 36.0F;
-        else
-            return 45.0F;
-    }
-    
-    int firstChevronPosition(int numChevrons, boolean baseCamouflage) {
-        if (numChevrons == 7 && baseCamouflage)
-            return 1;
-        else
-            return 0;
-    }
-    
-    int firstEngagedChevronPosition(int numChevrons, int addrLen, boolean baseCamouflage) {
-        if (addrLen < numChevrons || (numChevrons == 7 && baseCamouflage))
-            return 1;
-        else
-            return 0;
     }
     
     void chevron(boolean engaged) {
