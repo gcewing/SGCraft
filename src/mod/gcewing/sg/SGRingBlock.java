@@ -28,7 +28,7 @@ import net.minecraftforge.fml.relauncher.*;
 
 import gcewing.sg.BaseMod.ModelSpec;
 
-public class SGRingBlock extends BaseBlock<SGRingTE>  implements ISGBlock {
+public class SGRingBlock extends SGBlock<SGRingTE> {
 
     static final int numSubBlocks = 2;
 
