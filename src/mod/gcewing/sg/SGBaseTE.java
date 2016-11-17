@@ -1039,8 +1039,6 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
         else {
             terminateEntityByIrisImpact(entity);
             playIrisHitSound(worldForDimension(dimension), q, entity);  
-            //if (newEntity != null)
-            //  newEntity.attackEntityFrom(irisDamageSource, irisDamageAmount);
         }
         return newEntity;
     }
