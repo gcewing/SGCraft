@@ -148,8 +148,13 @@ public class SGBaseBlock extends SGBlock<SGBaseTE>  {
         return true;
     }
     
-    @Override
-    public void onNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbor) {
+    @Override    
+    public void neighborChanged(IBlockState state, World world, BlockPos pos, Block block) {
+        System.out.printf("SGBaseBlock.neighborChanged: %s\n", pos);
+        neighbourChanged(world, pos);
+    }
+
+    protected void neighbourChanged(IBlockAccess world, BlockPos pos) {
         SGBaseTE te = getTileEntity(world, pos);
         if (te != null)
             te.onNeighborBlockChange();
