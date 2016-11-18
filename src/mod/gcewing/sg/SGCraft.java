@@ -36,6 +36,9 @@ import static net.minecraftforge.fml.common.registry.VillagerRegistry.*;
 // import gcewing.sg.cc.*; //[CC]+
 // import gcewing.sg.oc.*; //[OC]+
 
+// import net.minecraft.entity.Entity; //***
+// import net.minecraftforge.event.entity.player.PlayerInteractEvent; //***
+
 @Mod(modid = Info.modID, name = Info.modName, version = Info.versionNumber,
     acceptableRemoteVersions = Info.versionBounds)
 
@@ -343,5 +346,12 @@ public class SGCraft extends BaseMod<SGCraftClient> {
 //  void onWorldUnload(WorldEvent.Unload e) {
 //      System.out.printf("SGCraft: World unloaded: %s\n", e.world);
 //  }
+
+//     @SubscribeEvent
+//     void onPlayerInteract(PlayerInteractEvent.EntityInteract event) {
+//         Entity target = event.getTarget();
+//         if (!target.worldObj.isRemote)
+//             System.out.printf("SGCraft: EntityInteract %s yaw %.2f\n", target, target.rotationYaw);
+//     }
 
 }
