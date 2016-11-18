@@ -15,6 +15,8 @@ import net.minecraft.block.*;
 import net.minecraft.block.state.*;
 import net.minecraft.entity.*;
 import net.minecraft.entity.player.*;
+import net.minecraft.entity.projectile.EntityArrow;
+import net.minecraft.entity.projectile.EntityFishHook;
 import net.minecraft.inventory.*;
 import net.minecraft.item.*;
 import net.minecraft.nbt.*;
@@ -937,6 +939,8 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
             //System.out.printf("SGBaseTE.checkForEntitiesInPortal: %s\n", box);
             List<Entity> ents = (List<Entity>)worldObj.getEntitiesWithinAABB(Entity.class, box);
             for (Entity entity : ents) {
+                if (entity instanceof EntityFishHook)
+                    continue;
                 if (!entity.isDead && entity.getRidingEntity() == null) {
                     //if (!(entity instanceof EntityPlayer))
                     //  System.out.printf("SGBaseTE.checkForEntitiesInPortal: Tracking %s\n", repr(entity));
@@ -994,6 +998,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
             rider = teleportEntityAndRiders(rider, t1, t2, dimension, destBlocked);
             riders.set(i, rider);
         }
+        unleashEntity(entity);
         entity = teleportEntity(entity, t1, t2, dimension, destBlocked);
         if (entity != null && !entity.isDead) {
             for (Entity rider : riders) {
@@ -1007,21 +1012,45 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
         return entity;
     }
     
+    // Break any leash connections to or from the given entity. That happens anyway
+    // when the entity is teleported, but without this it drops an extra leash item.
+    protected static void unleashEntity(Entity entity) {
+        if (entity instanceof EntityLiving)
+            ((EntityLiving)entity).clearLeashed(true, false);
+        for (EntityLiving entity2 : entitiesWithinLeashRange(entity))
+            if (entity2.getLeashed() && entity2.getLeashedToEntity() == entity)
+                entity2.clearLeashed(true, false);
+    }
+    
+    protected static List<EntityLiving> entitiesWithinLeashRange(Entity entity) {
+        AxisAlignedBB box = new AxisAlignedBB(
+            entity.posX - 7.0D, entity.posY - 7.0D, entity.posZ - 7.0D,
+            entity.posX + 7.0D, entity.posY + 7.0D, entity.posZ + 7.0D);
+        return entity.worldObj.getEntitiesWithinAABB(EntityLiving.class, box);
+    }
+
     static Entity teleportEntity(Entity entity, Trans3 t1, Trans3 t2, int dimension, boolean destBlocked) {
         Entity newEntity = null;
-        //System.out.printf("SGBaseTE.teleportEntity: %s (in dimension %d)  to dimension %d\n",
-        //  repr(entity), entity.dimension, dimension);
-        //System.out.printf("SGBaseTE.teleportEntity: pos (%.2f, %.2f, %.2f) prev (%.2f, %.2f, %.2f) last (%.2f, %.2f, %.2f)\n",
-        //  entity.posX, entity.posY, entity.posZ,
-        //  entity.prevPosX, entity.prevPosY, entity.prevPosZ,
-        //  entity.lastTickPosX, entity.lastTickPosY, entity.lastTickPosZ);
+        if (debugTeleport) {
+            System.out.printf("SGBaseTE.teleportEntity: %s (in dimension %d)  to dimension %d\n",
+              repr(entity), entity.dimension, dimension);
+            System.out.printf("SGBaseTE.teleportEntity: pos (%.2f, %.2f, %.2f) prev (%.2f, %.2f, %.2f) last (%.2f, %.2f, %.2f) pitch %.2f yaw %.2f\n",
+              entity.posX, entity.posY, entity.posZ,
+              entity.prevPosX, entity.prevPosY, entity.prevPosZ,
+              entity.lastTickPosX, entity.lastTickPosY, entity.lastTickPosZ,
+              entity.rotationPitch, entity.rotationYaw);
+        }
         Vector3 p = t1.ip(entity.posX, entity.posY, entity.posZ); // local position
         Vector3 v = t1.iv(entity.motionX, entity.motionY, entity.motionZ); // local velocity
         Vector3 r = t1.iv(yawVector(entity)); // local facing
         Vector3 q = t2.p(-p.x, p.y, -p.z); // new global position
         Vector3 u = t2.v(-v.x, v.y, -v.z); // new global velocity
         Vector3 s = t2.v(r.mul(-1)); // new global facing
-        double a = yawAngle(s); // new global yaw angle
+        if (debugTeleport)
+            System.out.printf("SGBaseTE.teleportEntity: Facing old %s new %s\n", r, s);
+        double a = yawAngle(s, entity); // new global yaw angle
+        if (debugTeleport)
+            System.out.printf("SGBaseTE.teleportEntity: new yaw %.2f\n", a);
         if (!destBlocked) {
             if (entity.dimension == dimension)
                 newEntity = teleportWithinDimension(entity, q, u, a, destBlocked);
@@ -1172,19 +1201,20 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
             if (oldEntity instanceof EntityLiving)
                 copyMoreEntityData((EntityLiving)oldEntity, (EntityLiving)newEntity);
             setVelocity(newEntity, v);
-            //System.out.printf("SGBaseTE.teleportEntityToWorld: Set velocity of %s to (%.2f, %.2f, %.2f)\n",
-            //  repr(newEntity), newEntity.motionX, newEntity.motionY, newEntity.motionZ);
             newEntity.setLocationAndAngles(p.x, p.y, p.z, (float)a, oldEntity.rotationPitch);
             checkChunk(newWorld, newEntity);
             //System.out.printf("SGBaseTE.teleportEntityToWorld: Spawning %s in %s\n", repr(newEntity), newWorld);
             newEntity.forceSpawn = true; // Force spawn packet to be sent as soon as possible
             newWorld.spawnEntityInWorld(newEntity);
             newEntity.setWorld(newWorld);
-            //System.out.printf(
-            //  "SGBaseTE.teleportEntityToWorld: Spawned %s pos (%.2f, %.2f, %.2f) vel (%.2f, %.2f, %.2f)\n",
-            //  repr(newEntity),
-            //  newEntity.posX, newEntity.posY, newEntity.posZ,
-            //  newEntity.motionX, newEntity.motionY, newEntity.motionZ);
+            if (debugTeleport)
+                System.out.printf(
+                  "SGBaseTE.teleportEntityToWorld: Spawned %s pos (%.2f, %.2f, %.2f) vel (%.2f, %.2f, %.2f) pitch %.2f (%.2f) yaw %.2f (%.2f)\n",
+                  repr(newEntity),
+                  newEntity.posX, newEntity.posY, newEntity.posZ,
+                  newEntity.motionX, newEntity.motionY, newEntity.motionZ,
+                  newEntity.rotationPitch, newEntity.prevRotationPitch,
+                  newEntity.rotationYaw, newEntity.prevRotationYaw);
         }
         oldWorld.resetUpdateEntityTick();
         if (oldWorld != newWorld)
@@ -1240,8 +1270,15 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
         Chunk chunk = world.getChunkFromChunkCoords(cx, cy);
     }
     
+    protected static int yawSign(Entity entity) {
+        if (entity instanceof EntityArrow)
+            return -1;
+        else
+            return 1;
+    }
+    
     static Vector3 yawVector(Entity entity) {
-        return yawVector(entity.rotationYaw);
+        return yawVector(yawSign(entity) * entity.rotationYaw);
     }
     
     static Vector3 yawVector(double yaw) {
@@ -1251,11 +1288,11 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
         return v;
     }
     
-    static double yawAngle(Vector3 v) {
+    static double yawAngle(Vector3 v, Entity entity) {
         double a = Math.atan2(-v.x, v.z);
         double d = Math.toDegrees(a);
         //System.out.printf("SGBaseTE.yawAngle: (%.3f, %.3f) --> %.2f\n", v.x, v.z, d);
-        return d;
+        return yawSign(entity) * d;
     }
     
     public SGBaseTE getConnectedStargateTE() {
