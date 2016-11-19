@@ -34,7 +34,7 @@ import static net.minecraftforge.fml.common.registry.VillagerRegistry.*;
 // import dan200.computercraft.api.*; //[CC]+
 // import gcewing.sg.rf.*; //[RF]
 // import gcewing.sg.cc.*; //[CC]+
-// import gcewing.sg.oc.*; //[OC]+
+import gcewing.sg.oc.*; //[OC]+
 
 // import net.minecraft.entity.Entity; //***
 // import net.minecraftforge.event.entity.player.PlayerInteractEvent; //***
@@ -71,7 +71,7 @@ public class SGCraft extends BaseMod<SGCraftClient> {
     
     public static BaseSubsystem ic2Integration; //[IC2]+
 //     public static IIntegration ccIntegration; //[CC]+
-//     public static OCIntegration ocIntegration; //[OC]+
+    public static OCIntegration ocIntegration; //[OC]+
 //     public static MystcraftIntegration mystcraftIntegration; //[MYST]
 
     public SGCraft() {
@@ -88,7 +88,7 @@ public class SGCraft extends BaseMod<SGCraftClient> {
         FMLCommonHandler.instance().bus().register(this);
         ic2Integration = integrateWith("IC2", "gcewing.sg.ic2.IC2Integration"); //[IC2]+
 //         ccIntegration = (CCIntegration)integrateWith("ComputerCraft", "gcewing.sg.cc.CCIntegration"); //[CC]+
-//         ocIntegration = (OCIntegration)integrateWith("OpenComputers", "gcewing.sg.oc.OCIntegration"); //[OC]+
+        ocIntegration = (OCIntegration)integrateWith("OpenComputers", "gcewing.sg.oc.OCIntegration"); //[OC]+
 //         mystcraftIntegration = (MystcraftIntegration)integrateWith("Mystcraft", "gcewing.sg.MystcraftIntegration"); //[MYST]
         super.preInit(e);
     }

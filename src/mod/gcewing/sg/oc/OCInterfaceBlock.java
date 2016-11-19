@@ -11,6 +11,7 @@ import net.minecraft.entity.player.*;
 import net.minecraft.item.*;
 import net.minecraft.tileentity.*;
 import net.minecraft.util.*;
+import net.minecraft.util.math.*;
 import net.minecraft.world.*;
 
 import net.minecraftforge.common.util.*;
@@ -27,7 +28,7 @@ public class OCInterfaceBlock extends SGInterfaceBlock<OCInterfaceTE> {
     
     @Override
     public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player,
-        EnumFacing side, float hx, float hy, float hz)
+        EnumHand hand, ItemStack heldItem, EnumFacing side, float hx, float hy, float hz)
     {
         if (!world.isRemote)
             SGCraft.mod.openGui(player, SGGui.OCInterface, world, pos);

@@ -41,7 +41,7 @@ import net.minecraftforge.fml.common.network.*;
 import net.minecraftforge.fml.relauncher.Side;
 
 import gcewing.sg.SGAddressing.AddressingError;
-//import gcewing.sg.oc.OCWirelessEndpoint; //[OC]+
+import gcewing.sg.oc.OCWirelessEndpoint; //[OC]+
 import static gcewing.sg.BaseBlockUtils.*;
 import static gcewing.sg.BaseUtils.*;
 import static gcewing.sg.Utils.*;
@@ -132,7 +132,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
     public IrisState irisState = IrisState.Open;
     public int irisPhase = maxIrisPhase; // 0 = fully closed, maxIrisPhase = fully open
     public int lastIrisPhase = maxIrisPhase;
-//     public OCWirelessEndpoint ocWirelessEndpoint; //[OC]+
+    public OCWirelessEndpoint ocWirelessEndpoint; //[OC]+
 
     SGLocation connectedLocation;
     boolean isInitiator;
@@ -435,8 +435,8 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
     @Override
     public void invalidate() {
         super.invalidate();
-//         if (!worldObj.isRemote && ocWirelessEndpoint != null)  //[OC]+
-//             ocWirelessEndpoint.remove();
+        if (!worldObj.isRemote && ocWirelessEndpoint != null)  //[OC]+
+            ocWirelessEndpoint.remove();
     }
     
     String side() {
@@ -672,8 +672,8 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
     void serverUpdate() {
         if (!loaded) {
             loaded = true;
-//             if (SGCraft.ocIntegration != null) //[OC]+
-//                 SGCraft.ocIntegration.onSGBaseTEAdded(this);
+            if (SGCraft.ocIntegration != null) //[OC]+
+                SGCraft.ocIntegration.onSGBaseTEAdded(this);
         }
         if (isMerged) {
             if (debugState && state != SGState.Connected && timeout > 0) {

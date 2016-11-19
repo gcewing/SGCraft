@@ -11,6 +11,7 @@ import net.minecraft.item.*;
 import net.minecraft.inventory.*;
 import net.minecraft.world.*;
 import net.minecraft.util.*;
+import net.minecraft.util.math.*;
 
 import gcewing.sg.*;
 import static gcewing.sg.BaseBlockUtils.*;

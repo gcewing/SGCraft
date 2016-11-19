@@ -13,6 +13,7 @@ import net.minecraft.item.*;
 import net.minecraft.nbt.*;
 import net.minecraft.world.*;
 import net.minecraft.util.*;
+import net.minecraft.util.text.*;
 import net.minecraft.tileentity.*;
 
 import li.cil.oc.api.Network;
@@ -309,7 +310,7 @@ public class OCInterfaceTE extends SGInterfaceTE
     }
 
     @Override
-    public void writeToNBT(final NBTTagCompound nbt) {
+    public NBTTagCompound writeToNBT(final NBTTagCompound nbt) {
         super.writeToNBT(nbt);
         // See readFromNBT() regarding host check.
         if (node != null && node.host() == this) {
@@ -317,6 +318,7 @@ public class OCInterfaceTE extends SGInterfaceTE
             node.save(nodeNbt);
             nbt.setTag("oc:node", nodeNbt);
         }
+        return nbt;
     }
 
     // -------------------------- IComputerInterface --------------------------
@@ -501,7 +503,7 @@ public class OCInterfaceTE extends SGInterfaceTE
      * Get the formatted ChatComponent that will be used for the sender's username in chat
      */
     @Override
-    public IChatComponent getDisplayName() {
+    public ITextComponent getDisplayName() {
         return null;
     }
 
