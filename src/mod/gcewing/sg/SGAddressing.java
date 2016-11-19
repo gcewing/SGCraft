@@ -53,6 +53,7 @@ public class SGAddressing {
     public final static int maxCoord = 139967;
     public final static int minCoord = -maxCoord;
     public final static int coordRange = maxCoord - minCoord + 1;
+    public final static int minDirectDimension = -648;
 //     public final static int minDimension = -648;
 //     public final static int maxDimension = 647;
 //     public final static int dimensionRange = maxDimension - minDimension + 1;
@@ -66,7 +67,9 @@ public class SGAddressing {
     final static long md = dimensionRange + 1;
     final static long pd = 953;  //  (pd * qd) % md == 1
     final static long qd = 788;
-//     final static long qd = 459;
+     // Historical error
+    final static long mdOld = dimensionRange + 2;
+    final static long qdOld = 459;
     
     protected static boolean isValidSymbolChar(char c) {
         return isValidSymbolChar(String.valueOf(c));
@@ -176,10 +179,10 @@ public class SGAddressing {
         if (debugAddressing)
             System.out.printf("SGAddressing.findAddressedStargate: c = %s chunk = (%d,%d)\n",
                 c, chunkX, chunkZ);
-        int dimension;
+        SGBaseTE te = null;
         if (address.length() == maxAddressLength) {
+            // Absolute address
             String dsyms = address.substring(numCoordSymbols);
-//             dimension = minDimension + hash((int)intFromSymbols(dsyms), qd, md);
             int d = intFromSymbols(dsyms);
             int dp = hash(d, qd, md);
             int di = unpermuteDimension(c, dp);
@@ -187,12 +190,26 @@ public class SGAddressing {
             if (debugAddressing)
                 System.out.printf("SGAddressing.findAddressedStargate: d = %s dimension = %s\n",
                     d, dm);
-            if (dm == null)
-                return null;
-            dimension = dm;
+            if (dm != null)
+                te = getBaseTE(chunkX, chunkZ, dm);
+            if (te == null) {
+                // Try old interpretation of dimension symbols
+                int dimOld = minDirectDimension + hash(d, qdOld, mdOld);
+                if (debugAddressing)
+                    System.out.printf("SGAddressing.findAddressedStargate: Trying dimension = %s\n",
+                        dimOld);
+                te = getBaseTE(chunkX, chunkZ, dimOld);
+            }
         }
-        else
-            dimension = fromWorld.provider.getDimension();
+        else {
+            // Relative address
+            int dimension = fromWorld.provider.getDimension();
+            te = getBaseTE(chunkX, chunkZ, dimension);
+        }
+        return te;
+    }
+    
+    protected static SGBaseTE getBaseTE(int chunkX, int chunkZ, int dimension) {
         World toWorld = getWorld(dimension);
         if (toWorld != null) {
             Chunk chunk = toWorld.getChunkFromChunkCoords(chunkX, chunkZ);

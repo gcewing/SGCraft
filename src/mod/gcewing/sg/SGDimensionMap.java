@@ -16,7 +16,7 @@ import net.minecraft.world.storage.*;
 
 public class SGDimensionMap extends WorldSavedData {
 
-    public static boolean debugDimensionMap = true;
+    public static boolean debugDimensionMap = false;
 
     protected List<Integer> indexToDimension = new ArrayList<>();
     protected Map<Integer, Integer> dimensionToIndex = new HashMap<>();
@@ -39,7 +39,7 @@ public class SGDimensionMap extends WorldSavedData {
         if (index >= 0 && index < indexToDimension.size())
             dimension = indexToDimension.get(index);
         if (debugDimensionMap)
-            System.out.printf("SGDimensionMap: Mapping index %s -> dimension %s\n", index, dimension);
+            System.out.printf("SGDimensionMap: Found index %s -> dimension %s\n", index, dimension);
         return dimension;
     }
     
@@ -51,7 +51,7 @@ public class SGDimensionMap extends WorldSavedData {
         if (!dimensionToIndex.containsKey(dimension)) {
             int index = indexToDimension.size();
             if (debugDimensionMap)
-                System.out.printf("SGDimensionMap: Mapping dimension %s -> index %s\n", dimension, index);
+                System.out.printf("SGDimensionMap: Adding dimension %s -> index %s\n", dimension, index);
             indexToDimension.add(dimension);
             dimensionToIndex.put(dimension, index);
             markDirty();
@@ -60,13 +60,15 @@ public class SGDimensionMap extends WorldSavedData {
         else {
             int index = dimensionToIndex.get(dimension);
             if (debugDimensionMap)
-                System.out.printf("SGDimensionMap: Found dimension %s -> inded %s\n", dimension, index);
+                System.out.printf("SGDimensionMap: Found dimension %s -> index %s\n", dimension, index);
             return index;
         }
     }
     
     @Override
     public void readFromNBT(NBTTagCompound nbt) {
+        if (debugDimensionMap)
+            System.out.printf("SGDimensionMap: Reading from nbt\n");
         int[] a = nbt.getIntArray("dimensions");
         for (int i = 0; i < a.length; i++) {
             indexToDimension.add(a[i]);
@@ -76,10 +78,8 @@ public class SGDimensionMap extends WorldSavedData {
     
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
-//         int n = indexToDimension.size();
-//         int[] a = new int[n];
-//         for (i = 0; i < n; i++)
-//             a[i] = indexToDimension.get(i);
+        if (debugDimensionMap)
+            System.out.printf("SGDimensionMap: Writing to nbt\n");
         int[] a = Ints.toArray(indexToDimension);
         nbt.setIntArray("dimensions", a);
         return nbt;
