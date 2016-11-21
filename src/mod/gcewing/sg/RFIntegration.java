@@ -17,16 +17,11 @@ public class RFIntegration extends BaseSubsystem<SGCraft, SGCraftClient> {
 
     @Override
     public void registerBlocks() {
-        mod.rfPowerUnit = mod.newBlock("rfPowerUnit", RFPowerBlock.class); //[RF]+
+        mod.rfPowerUnit = mod.newBlock("rfPowerUnit", RFPowerBlock.class); //[RF]
     }
     
     @Override
     public void registerRecipes() {
-//         ItemStack redDye = new ItemStack(Items.DYE, 1, 1);
-//         ItemStack blackDye = new ItemStack(Items.DYE, 1, 0);
-//         mod.newRecipe(rfPowerUnit, 1, "gig", "+n-", "RRR",
-//             'R', Blocks.REDSTONE_BLOCK, 'g', "ingotGold", 'i', "ingotIron",
-//             'n', mod.naquadahIngot, '+', redDye, '-', blackDye);
         if (isModLoaded("ThermalExpansion"))
             addThermalExpansionPowerBlockRecipe();
         else
