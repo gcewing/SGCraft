@@ -62,12 +62,13 @@ public class SGCraft extends BaseMod<SGCraftClient> {
     
     public static Block ic2PowerUnit;
     public static Item ic2Capacitor;
-    
     public static Block rfPowerUnit;
     
     public static boolean addOresToExistingWorlds;
     public static NaquadahOreWorldGen naquadahOreGenerator;
-    public static int tokraVillagerID;
+//     public static int tokraVillagerID;
+    
+    public static boolean rfAvailable;
     
     public static BaseSubsystem ic2Integration; //[IC2]+
 //     public static IIntegration ccIntegration; //[CC]+
@@ -86,10 +87,13 @@ public class SGCraft extends BaseMod<SGCraftClient> {
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent e) {
         FMLCommonHandler.instance().bus().register(this);
-        ic2Integration = integrateWith("IC2", "gcewing.sg.ic2.IC2Integration"); //[IC2]+
-//         ccIntegration = (CCIntegration)integrateWith("ComputerCraft", "gcewing.sg.cc.CCIntegration"); //[CC]+
-        ocIntegration = (OCIntegration)integrateWith("OpenComputers", "gcewing.sg.oc.OCIntegration"); //[OC]+
-//         mystcraftIntegration = (MystcraftIntegration)integrateWith("Mystcraft", "gcewing.sg.MystcraftIntegration"); //[MYST]
+        rfAvailable = classAvailable("cofh.api.energy.IEnergyConnection");
+        if (rfAvailable)
+            loadSubsystem("gcewing.sg.rf.RFIntegration"); //[RF]+
+        ic2Integration = integrateWithMod("IC2", "gcewing.sg.ic2.IC2Integration"); //[IC2]+
+//         ccIntegration = (CCIntegration)integrateWithMod("ComputerCraft", "gcewing.sg.cc.CCIntegration"); //[CC]+
+        ocIntegration = (OCIntegration)integrateWithMod("OpenComputers", "gcewing.sg.oc.OCIntegration"); //[OC]+
+//         mystcraftIntegration = (MystcraftIntegration)integrateWithMod("Mystcraft", "gcewing.sg.MystcraftIntegration"); //[MYST]
         super.preInit(e);
     }
     
@@ -139,7 +143,7 @@ public class SGCraft extends BaseMod<SGCraftClient> {
 //             ic2PowerUnit = newBlock("ic2PowerUnit", IC2PowerBlock.class, IC2PowerItem.class);
 //         }
 //         if (isModLoaded("CoFHCore")) { //[RF]
-//             rfPowerUnit = newBlock("rfPowerUnit", RFPowerBlock.class);
+//             rfPowerUnit = newBlock("rfPowerUnit", RFPowerBlock.class); //[RF]
 //         }
 //      System.out.printf("SGCraft.registerBlocks: ccIntegration == %s\n", ccIntegration);
 //      if (ccIntegration != null)
@@ -157,7 +161,7 @@ public class SGCraft extends BaseMod<SGCraftClient> {
         sgChevronUpgrade = addItem(new SGChevronUpgradeItem(), "sgChevronUpgrade");
         sgIrisUpgrade = addItem(new SGIrisUpgradeItem(), "sgIrisUpgrade");
         sgIrisBlade = newItem("sgIrisBlade");
-        if (isModLoaded("IC2")) {
+        if (isModLoaded("IC2") || (rfAvailable && !isModLoaded("ThermalExpansion"))) {
             ic2Capacitor = newItem("ic2Capacitor");
         }
 //      if (ccIntegration != null)
@@ -213,6 +217,8 @@ public class SGCraft extends BaseMod<SGCraftClient> {
             newRecipe(sgControllerCrystal, 1, "roo", "odr", "oor",
                 'o', orangeDye, 'r', Items.REDSTONE, 'd', Items.DIAMOND);
         }
+        if (rfAvailable && !isModLoaded("IC2"))
+            addGenericCapacitorRecipe();
 //         if (isModLoaded("IC2")) { //[IC2]
 //             ItemStack rubber = getIC2Item("rubber");
 //             ItemStack copperPlate = getIC2Item("platecopper");
@@ -242,6 +248,11 @@ public class SGCraft extends BaseMod<SGCraftClient> {
 //          om.registerRecipes();
     }
     
+    protected void addGenericCapacitorRecipe() {
+        newRecipe(ic2Capacitor, 1, "iii", "ppp", "iii",
+            'i', "ingotIron", 'p', "paper");
+    }
+
     @Override
     protected void registerContainers() {
         //System.out.printf("SGCraft.registerContainers\n");

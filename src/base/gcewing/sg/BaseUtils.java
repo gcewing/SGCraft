@@ -99,5 +99,5 @@ public class BaseUtils {
         }
         return result;
     }
-
+    
 }
