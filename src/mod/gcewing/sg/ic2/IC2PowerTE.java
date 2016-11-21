@@ -19,7 +19,7 @@ import gcewing.sg.*;
 import static gcewing.sg.BaseUtils.*;
 import static gcewing.sg.Utils.*;
 
-public class IC2PowerTE extends PowerTE implements IEnergySink {
+public class IC2PowerTE extends PowerTE implements IEnergySink, ITickable {
 
     boolean debugLoad = false;
     boolean debugInput = false;
@@ -45,11 +45,6 @@ public class IC2PowerTE extends PowerTE implements IEnergySink {
     }
     
     @Override
-    public void onLoad() {
-        load();
-    }
-    
-    @Override
     public void invalidate() {
         unload();
         super.invalidate();
@@ -61,7 +56,8 @@ public class IC2PowerTE extends PowerTE implements IEnergySink {
         super.onChunkUnload();
     }
     
-    void load() {
+    @Override
+    public void update() {
         if (!worldObj.isRemote && !loaded) {
             if(debugLoad)
                 System.out.printf("SGCraft: IC2PowerTE: Adding to energy network\n");
