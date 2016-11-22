@@ -19,3 +19,4 @@ item.sgcraft:sgIrisBlade.name=Stargate Iris Blade
 item.sgcraft:ic2Capacitor.name=Ridiculously Large Capacitor
 death.attack.sgcraft:transient=%1$s was torn apart by an event horizon
 death.attack.sgcraft:iris=%1$s got splattered against a stargate iris
+itemGroup.sgcraft:sgcraft=SG Craft
