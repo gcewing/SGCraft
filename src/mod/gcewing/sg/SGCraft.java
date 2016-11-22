@@ -30,11 +30,7 @@ import net.minecraftforge.fml.common.gameevent.*;
 import net.minecraftforge.fml.common.eventhandler.*;
 import net.minecraftforge.fml.common.registry.*;
 
-// import ic2.api.item.*; //[IC2]
-import dan200.computercraft.api.*; //[CC]
-// import gcewing.sg.ic2.*; //[IC2]
-// import gcewing.sg.rf.*; //[RF]
-import gcewing.sg.cc.*; //[CC]
+import gcewing.sg.cc.*; //[OC]
 import gcewing.sg.oc.*; //[OC]
 
 @Mod(modid = Info.modID, name = Info.modName, version = Info.versionNumber,
@@ -60,13 +56,14 @@ public class SGCraft extends BaseMod<SGCraftClient> {
     
     public static Block ic2PowerUnit;
     public static Item ic2Capacitor;
-    
     public static Block rfPowerUnit;
     
     public static boolean addOresToExistingWorlds;
     public static NaquadahOreWorldGen naquadahOreGenerator;
     public static int tokraVillagerID;
     
+    public static boolean rfAvailable;
+
     public static BaseSubsystem ic2Integration; //[IC2]
     public static IIntegration ccIntegration; //[CC]
     public static OCIntegration ocIntegration; //[OC]
@@ -74,7 +71,7 @@ public class SGCraft extends BaseMod<SGCraftClient> {
 
     public SGCraft() {
         mod = this;
-        creativeTab = new CreativeTabs("gcewing_sg:sgcraft") {
+        creativeTab = new CreativeTabs("sgcraft:sgcraft") {
             public Item getTabIconItem() {
                 return Item.getItemFromBlock(sgBaseBlock);
             }
@@ -84,10 +81,13 @@ public class SGCraft extends BaseMod<SGCraftClient> {
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent e) {
         FMLCommonHandler.instance().bus().register(this);
-        ic2Integration = integrateWith("IC2", "gcewing.sg.ic2.IC2Integration"); //[IC2]
-        ccIntegration = (CCIntegration)integrateWith("ComputerCraft", "gcewing.sg.cc.CCIntegration"); //[CC]
-        ocIntegration = (OCIntegration)integrateWith("OpenComputers", "gcewing.sg.oc.OCIntegration"); //[OC]
-//         mystcraftIntegration = (MystcraftIntegration)integrateWith("Mystcraft", "gcewing.sg.MystcraftIntegration"); //[MYST]
+        rfAvailable = classAvailable("cofh.api.energy.IEnergyConnection");
+        if (rfAvailable)
+            loadSubsystem("gcewing.sg.rf.RFIntegration"); //[RF]
+        ic2Integration = integrateWithMod("IC2", "gcewing.sg.ic2.IC2Integration"); //[IC2]
+        ccIntegration = (CCIntegration)integrateWithMod("ComputerCraft", "gcewing.sg.cc.CCIntegration"); //[CC]
+        ocIntegration = (OCIntegration)integrateWithMod("OpenComputers", "gcewing.sg.oc.OCIntegration"); //[OC]
+//         mystcraftIntegration = (MystcraftIntegration)integrateWithMod("Mystcraft", "gcewing.sg.MystcraftIntegration"); //[MYST]
         super.preInit(e);
     }
     
@@ -98,7 +98,6 @@ public class SGCraft extends BaseMod<SGCraftClient> {
         configure();
         channel = new SGChannel(Info.modID);
         chunkManager = new BaseTEChunkManager(this);
-        //chunkManager.debug = true;
     }
 
     @Mod.EventHandler
@@ -133,17 +132,6 @@ public class SGCraft extends BaseMod<SGCraftClient> {
         //sgPortalBlock = newBlock("stargatePortal", SGPortalBlock.class);
         naquadahBlock = newBlock("naquadahBlock", NaquadahBlock.class);
         naquadahOre = newBlock("naquadahOre", NaquadahOreBlock.class);
-//         if (isModLoaded("IC2")) { //[IC2]
-//             ic2PowerUnit = newBlock("ic2PowerUnit", IC2PowerBlock.class, IC2PowerItem.class);
-//         }
-//         if (isModLoaded("CoFHCore")) { //[RF]
-//             rfPowerUnit = newBlock("rfPowerUnit", RFPowerBlock.class);
-//         }
-//      System.out.printf("SGCraft.registerBlocks: ccIntegration == %s\n", ccIntegration);
-//      if (ccIntegration != null)
-//          ccIntegration.registerBlocks();
-//      for (IntegrationBase om : otherMods)
-//          om.registerBlocks();
     }
     
     @Override
@@ -155,13 +143,9 @@ public class SGCraft extends BaseMod<SGCraftClient> {
         sgChevronUpgrade = addItem(new SGChevronUpgradeItem(), "sgChevronUpgrade");
         sgIrisUpgrade = addItem(new SGIrisUpgradeItem(), "sgIrisUpgrade");
         sgIrisBlade = newItem("sgIrisBlade");
-        if (isModLoaded("IC2")) {
+        if (rfAvailable || isModLoaded("IC2")) {
             ic2Capacitor = newItem("ic2Capacitor");
         }
-//      if (ccIntegration != null)
-//          ccIntegration.registerItems();
-//      for (IntegrationBase om : otherMods)
-//          om.registerItems();
     }
     
     public static boolean isValidStargateUpgrade(Item item) {
@@ -211,35 +195,15 @@ public class SGCraft extends BaseMod<SGCraftClient> {
             newRecipe(sgControllerCrystal, 1, "roo", "odr", "oor",
                 'o', orangeDye, 'r', Items.redstone, 'd', Items.diamond);
         }
-//         if (isModLoaded("IC2")) { //[IC2]
-//             ItemStack rubber = getIC2Item("rubber");
-//             ItemStack copperPlate = getIC2Item("platecopper");
-//             ItemStack machine = getIC2Item("machine");
-//             ItemStack wire = getIC2Item("copperCableItem");
-//             ItemStack circuit = getIC2Item("electronicCircuit");
-//             newRecipe(ic2Capacitor, 1, "ppp", "rrr", "ppp",
-//                 'p', copperPlate, 'r', rubber);
-//             newRecipe(ic2PowerUnit,  1, "cwc", "wMw", "cec",
-//                 'c', ic2Capacitor, 'w', wire, 'M', machine, 'e', circuit);
-//         }
-//         if (isModLoaded("ThermalExpansion")) { //[RF]
-//             //Item cell = GameRegistry.findItem("ThermalExpansion", "Cell");
-//             Item frame = GameRegistry.findItem("ThermalExpansion", "Frame");
-//             Item coil = GameRegistry.findItem("ThermalExpansion", "material");
-//             //ItemStack hardenedEnergyCell = new ItemStack(cell, 1, 2);
-//             ItemStack hardenedEnergyFrame = new ItemStack(frame, 1, 4);
-//             ItemStack receptionCoil = new ItemStack(coil, 1, 1);
-//             ItemStack transmissionCoil = new ItemStack(coil, 1, 2);
-//             newRecipe(rfPowerUnit, 1, "ttt", "hrh", "ici",
-//                 't', transmissionCoil, 'h', hardenedEnergyFrame, 'r', receptionCoil,
-//                 'i', "ingotInvar", 'c', "ingotCopper");
-//         }
-//      if (ccIntegration != null)
-//          ccIntegration.registerRecipes();
-//      for (IntegrationBase om : otherMods)
-//          om.registerRecipes();
+        if (rfAvailable && !isModLoaded("IC2"))
+            addGenericCapacitorRecipe();
     }
     
+    protected void addGenericCapacitorRecipe() {
+        newRecipe(ic2Capacitor, 1, "iii", "ppp", "iii",
+            'i', "ingotIron", 'p', "paper");
+    }
+
     @Override
     protected void registerContainers() {
         //System.out.printf("SGCraft.registerContainers\n");
@@ -288,14 +252,12 @@ public class SGCraft extends BaseMod<SGCraftClient> {
     @SubscribeEvent
     public void onChunkLoad(ChunkDataEvent.Load e) {
         Chunk chunk = e.getChunk();
-        //System.out.printf("SGCraft.onChunkLoad: (%d, %d)\n", chunk.xPosition, chunk.zPosition);
         SGChunkData.onChunkLoad(e);
     }
 
     @SubscribeEvent
     public void onChunkSave(ChunkDataEvent.Save e) {
         Chunk chunk = e.getChunk();
-        //System.out.printf("SGCraft.onChunkSave: (%d, %d)\n", chunk.xPosition, chunk.zPosition);
         SGChunkData.onChunkSave(e);
     }
     
@@ -306,7 +268,6 @@ public class SGCraft extends BaseMod<SGCraftClient> {
     
     @SubscribeEvent
     public void onServerTick(TickEvent.ServerTickEvent e) {
-        //System.out.printf("SGCraft.onServerTick\n");
         switch (e.phase) {
             case START: {
                 for (BaseSubsystem om : subsystems)
@@ -321,26 +282,13 @@ public class SGCraft extends BaseMod<SGCraftClient> {
     public void onChunkUnload(ChunkEvent.Unload e) {
         Chunk chunk = e.getChunk();
         if (!chunk.getWorld().isRemote) {
-            //System.out.printf("SGCraft.onChunkUnload: (%d, %d)\n", chunk.xPosition, chunk.zPosition);
             for (Object obj : chunk.getTileEntityMap().values()) {
                 if (obj instanceof SGBaseTE) {
                     SGBaseTE te = (SGBaseTE)obj;
-                    //System.out.printf("SGCraft.onChunkUnload: Disconnecting stargate at (%s, %s, %s)\n",
-                    //  te.xCoord, te.yCoord, te.zCoord);
                     te.disconnect();
                 }
             }
         }
     }
-
-//  @SubscribeEvent
-//  void onWorldLoad(WorldEvent.Load e) {
-//      System.out.printf("SGCraft: World loaded: %s\n", e.world);
-//  }
-//  
-//  @SubscribeEvent
-//  void onWorldUnload(WorldEvent.Unload e) {
-//      System.out.printf("SGCraft: World unloaded: %s\n", e.world);
-//  }
 
 }
