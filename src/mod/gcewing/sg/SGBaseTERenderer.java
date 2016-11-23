@@ -52,6 +52,12 @@ class SGBaseTERenderer extends BaseTileEntityRenderer {
     
     final static double numIrisBlades = 12;
 
+    
+    static int chevronEngagementSequences[][] = {
+        {9, 3, 4, 5, 6, 0, 1, 2, 9}, // 7 symbols (9 = never enganged)
+        {4, 5, 6, 7, 8, 0, 1, 2, 3}  // 9 symbols
+    };
+
     static double s[] = new double[numRingSegments + 1];
     static double c[] = new double[numRingSegments + 1];
     
@@ -102,7 +108,7 @@ class SGBaseTERenderer extends BaseTileEntityRenderer {
     
     void renderInnerRing(SGBaseTE te, float t) {
         glPushMatrix();
-        glRotatef((float)(te.interpolatedRingAngle(t) - (135 - SGBaseTE.ringSymbolAngle / 2)), 0, 0, 1);
+        glRotatef((float)(te.interpolatedRingAngle(t) + SGBaseTE.ringSymbolAngle / 2), 0, 0, 1);
         renderRing(ringInnerRadius, ringMidRadius, RingType.Inner, 0);
         glPopMatrix();
     }
@@ -159,65 +165,24 @@ class SGBaseTERenderer extends BaseTileEntityRenderer {
         glEnd();
     }
     
-//  void renderChevrons(SGBaseTE te) {
-//      int n = te.getNumChevrons();
-//      int m = 7; // Number of chevron positions
-//      if (n > 7 || te.hasBaseCamouflage())
-//          m = 9;
-//      int i0 = (m - n) / 2; // Index of first occupied chevron position
-//      float a = 360.0F / (m + 1); // Angle between chevrons
-//      glNormal3f(0, 0, 1);
-//      for (int k = 0; k < n; k++) {
-//          int i = i0 + k;
-//          glPushMatrix();
-//          glRotatef(-90 - (i + 1) * a, 0, 0, 1);
-//          int l = i - te.firstEngagedChevron;
-//          chevron(l >= 0 && l < te.numEngagedChevrons);
-//          glPopMatrix();
-//      }
-//  }
-    
     void renderChevrons(SGBaseTE te) {
         int numChevrons = te.getNumChevrons();
-        boolean baseCamouflage = te.hasBaseCornerCamouflage();
-        float a = angleBetweenChevrons(numChevrons, baseCamouflage);
-        int i0 = firstChevronPosition(numChevrons, baseCamouflage);
-        int i1 = i0 + te.getNumChevrons();
-        int addrLen = te.dialledAddress.length();
-        int e0 = firstEngagedChevronPosition(numChevrons, addrLen, baseCamouflage);
-        int e1 = e0 + te.numEngagedChevrons;
-        for (int i = i0; i < i1; i++) {
-            boolean engaged = i >= e0 && i < e1;
+        int i0 = numChevrons > 7 ? 0 : 1;
+        int k = te.dialledAddress.length() > 7 ? 1 : 0;
+        float a = te.angleBetweenChevrons();
+        for (int i = i0; i < i0 + numChevrons; i++) {
+            int j = chevronEngagementSequences[k][i];
+            boolean engaged = te.chevronIsEngaged(j); 
             renderChevronAtPosition(i, a, engaged);
         }
     }
     
+    // Render a chevron at the given position (0 to 8, with 4 being top dead centre)
     void renderChevronAtPosition(int i, float a, boolean engaged) {
         glPushMatrix();
-        glRotatef(-90 - (i + 1) * a, 0, 0, 1);
+        glRotatef(90 - (i -4) * a, 0, 0, 1);
         chevron(engaged);
         glPopMatrix();
-    }
-    
-    float angleBetweenChevrons(int numChevrons, boolean baseCamouflage) {
-        if (numChevrons > 7 || baseCamouflage)
-            return 36.0F;
-        else
-            return 45.0F;
-    }
-    
-    int firstChevronPosition(int numChevrons, boolean baseCamouflage) {
-        if (numChevrons == 7 && baseCamouflage)
-            return 1;
-        else
-            return 0;
-    }
-    
-    int firstEngagedChevronPosition(int numChevrons, int addrLen, boolean baseCamouflage) {
-        if (addrLen < numChevrons || (numChevrons == 7 && baseCamouflage))
-            return 1;
-        else
-            return 0;
     }
     
     void chevron(boolean engaged) {
@@ -337,11 +302,8 @@ class SGBaseTERenderer extends BaseTileEntityRenderer {
 //      new ResourceLocation("minecraft", "textures/misc/underwater.png");
     
     void renderEventHorizon(SGBaseTE te) {
-        //bindTextureByName("/misc/water.png");
-        //bindTexture(eventHorizonTexture);
         bindTexture(SGCraft.mod.resourceLocation("textures/tileentity/eventhorizon.png"));
         glDisable(GL_CULL_FACE);
-        //glDepthMask(false);
         glNormal3d(0, 0, 1);
         double grid[][] = te.getEventHorizonGrid()[0];
         double rclip = 2.5 * (te.irisIsClosed() ?  te.getIrisAperture(0) : 1.0);
@@ -391,8 +353,6 @@ class SGBaseTERenderer extends BaseTileEntityRenderer {
     
     void renderIrisBlade(SGBaseTE te, double a, double t) {
         double aa = a * 60;
-//      double s = sin(aa);
-//      double c = cos(aa);
         double r  = 2.31;
         double w1 = 2.40;
         double w2 = 1.85;
