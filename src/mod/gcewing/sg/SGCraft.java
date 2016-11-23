@@ -90,12 +90,12 @@ public class SGCraft extends BaseMod<SGCraftClient> {
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent e) {
         FMLCommonHandler.instance().bus().register(this);
-        ic2Integration = integrateWith("IC2", "gcewing.sg.ic2.IC2Integration"); //[IC2]
-        rfIntegration = integrateWith("CoFHCore", "gcewing.sg.rf.RFIntegration"); //[RF]
-        txIntegration = integrateWith("ThermalExpansion", "gcewing.sg.TXIntegration"); //[TX]
-        ccIntegration = integrateWith("ComputerCraft", "gcewing.sg.cc.CCIntegration"); //[CC]
-        ocIntegration = (OCIntegration)integrateWith("OpenComputers", "gcewing.sg.oc.OCIntegration"); //[OC]
-        mystcraftIntegration = (MystcraftIntegration)integrateWith("Mystcraft", "gcewing.sg.MystcraftIntegration"); //[MYST]
+        ic2Integration = integrateWithMod("IC2", "gcewing.sg.ic2.IC2Integration"); //[IC2]
+        rfIntegration = integrateWithMod("CoFHCore", "gcewing.sg.rf.RFIntegration"); //[RF]
+        txIntegration = integrateWithMod("ThermalExpansion", "gcewing.sg.TXIntegration"); //[TX]
+        ccIntegration = integrateWithMod("ComputerCraft", "gcewing.sg.cc.CCIntegration"); //[CC]
+        ocIntegration = (OCIntegration)integrateWithMod("OpenComputers", "gcewing.sg.oc.OCIntegration"); //[OC]
+        mystcraftIntegration = (MystcraftIntegration)integrateWithMod("Mystcraft", "gcewing.sg.MystcraftIntegration"); //[MYST]
         super.preInit(e);
     }
     
