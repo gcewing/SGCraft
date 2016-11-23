@@ -42,7 +42,7 @@ public class BaseBlock<TE extends TileEntity>
     public static boolean debugState = false;
     
     protected static Random RANDOM = new Random();
-    private static TileEntity tileEntityHarvested;
+//     private static TileEntity tileEntityHarvested;
     
     public Class getDefaultItemClass() {
         return BaseItemBlock.class;
@@ -253,6 +253,45 @@ public class BaseBlock<TE extends TileEntity>
     
     public int getNumSubtypes() {
         return 1;
+    }
+    
+    // -------------------------- Harvesting ----------------------------
+    
+    protected ThreadLocal<TileEntity> harvestingTileEntity = new ThreadLocal();
+    
+//     @Override
+//     public void onBlockHarvested(World world, int x, int y, int z, int meta, EntityPlayer player) {
+//         tileEntityHarvested = world.getTileEntity(x, y, z);
+//     }
+
+    @Override
+    public void harvestBlock(World world, EntityPlayer player, int x, int y, int z, int meta) {
+        TileEntity te = world.getTileEntity(x, y, z);
+        harvestingTileEntity.set(te);
+        harvestBlock(world, player, new BlockPos(x, y, z), getStateFromMeta(meta), te);
+        harvestingTileEntity.set(null);
+    }
+    
+    public void harvestBlock(World world, EntityPlayer player, BlockPos pos, IBlockState state, TileEntity te) {
+        super.harvestBlock(world, player, pos.x, pos.y, pos.z, getMetaFromState(state));
+    }
+
+    @Override    
+    public ArrayList<ItemStack> getDrops(World world, int x, int y, int z, int meta, int fortune) {
+        IBlockState state = getStateFromMeta(meta);
+        return getDrops(world, new BlockPos(x, y, z), state, fortune);
+    }
+    
+    public ArrayList<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
+        TileEntity te = getWorldTileEntity(world, pos);
+        if (te == null)
+            te = harvestingTileEntity.get();
+        return getDropsFromTileEntity(world, pos, state, te, fortune);
+    }
+    
+    protected ArrayList<ItemStack> getDropsFromTileEntity(IBlockAccess world, BlockPos pos, IBlockState state, TileEntity te, int fortune) {
+        int meta = getMetaFromState(state);
+        return super.getDrops((World)world, pos.x, pos.y, pos.z, meta, fortune);
     }
     
     // -------------------------- Rendering -----------------------------
@@ -525,17 +564,6 @@ public class BaseBlock<TE extends TileEntity>
         return super.getItemDropped(getMetaFromState(state), random, fortune);
     }
 
-    @Override    
-    public ArrayList<ItemStack> getDrops(World world, int x, int y, int z, int meta, int fortune) {
-        IBlockState state = getStateFromMeta(meta);
-        return getDrops(world, new BlockPos(x, y, z), state, fortune);
-    }
-    
-    public ArrayList<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
-        int meta = getMetaFromState(state);
-        return super.getDrops((World)world, pos.x, pos.y, pos.z, meta, fortune);
-    }
-    
     @Override
     public boolean renderAsNormalBlock() {
         return isFullCube();
@@ -577,20 +605,6 @@ public class BaseBlock<TE extends TileEntity>
         List result, Entity entity)
     {
         super.addCollisionBoxesToList(world, pos.x, pos.y, pos.z, clip, result, entity);
-    }
-
-    @Override
-    public void onBlockHarvested(World world, int x, int y, int z, int meta, EntityPlayer player) {
-        tileEntityHarvested = world.getTileEntity(x, y, z);
-    }
-
-    @Override
-    public void harvestBlock(World world, EntityPlayer player, int x, int y, int z, int meta) {
-        harvestBlock(world, player, new BlockPos(x, y, z), getStateFromMeta(meta), tileEntityHarvested);
-    }
-    
-    public void harvestBlock(World world, EntityPlayer player, BlockPos pos, IBlockState state, TileEntity te) {
-        super.harvestBlock(world, player, pos.x, pos.y, pos.z, getMetaFromState(state));
     }
 
     @Override

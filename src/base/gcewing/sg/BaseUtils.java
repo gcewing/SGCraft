@@ -15,11 +15,13 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.*;
 import net.minecraft.item.*;
 import net.minecraft.nbt.*;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.ServerConfigurationManager;
 import net.minecraft.util.*;
 import net.minecraft.world.*;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.storage.MapStorage;
+import net.minecraftforge.common.DimensionManager;
 
 public class BaseUtils {
 
@@ -231,4 +233,27 @@ public class BaseUtils {
         return box1.func_111270_a(box2);
     }
 
+    public static MinecraftServer getMinecraftServer() {
+        return MinecraftServer.getServer();
+    }
+
+    public static WorldServer getWorldForDimension(int id) {
+        return getMinecraftServer().worldServerForDimension(id);
+    }
+    
+    public static <T extends WorldSavedData> T getWorldData(World world, Class<T> cls, String name) {
+        MapStorage storage = world.perWorldStorage;
+        T result = (T)storage.loadData(cls, name);
+        if (result == null) {
+            try {
+                result = cls.getConstructor(String.class).newInstance(name);
+                storage.setData(name, result);
+            }
+            catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return result;
+    }
+    
 }
