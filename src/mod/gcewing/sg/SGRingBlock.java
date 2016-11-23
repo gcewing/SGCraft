@@ -28,7 +28,7 @@ import cpw.mods.fml.relauncher.*;
 import gcewing.sg.BaseMod.ModelSpec;
 import static gcewing.sg.BaseBlockUtils.*;
 
-public class SGRingBlock extends BaseBlock<SGRingTE>  implements ISGBlock {
+public class SGRingBlock extends SGBlock<SGRingTE> {
 
     static final int numSubBlocks = 2;
     

@@ -25,7 +25,7 @@ import net.minecraftforge.common.util.*;
 import gcewing.sg.BaseMod.*;
 import static gcewing.sg.BaseBlockUtils.*;
 
-public class SGBaseBlock extends BaseBlock<SGBaseTE> implements ISGBlock {
+public class SGBaseBlock extends SGBlock<SGBaseTE>  {
 
     static boolean debugMerge = false;
     static int explosionRadius = 10;
