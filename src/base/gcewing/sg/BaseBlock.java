@@ -307,6 +307,10 @@ public class BaseBlock<TE extends TileEntity>
         return oh.localToGlobalTransformation(world, pos, state, origin);
     }
     
+    public Trans3 itemTransformation() {
+        return Trans3.ident;
+    }
+    
     // -------------------------- Tile Entity -----------------------------
     
     @Override

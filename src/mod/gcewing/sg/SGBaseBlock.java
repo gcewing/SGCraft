@@ -286,4 +286,11 @@ public class SGBaseBlock extends SGBlock<SGBaseTE>  {
         return (te != null && te.state != SGState.Idle) ? 15 : 0;
     }
     
+    protected static Trans3 itemTrans = Trans3.sideTurn(0, 2);
+    
+    @Override
+    public Trans3 itemTransformation() {
+        return itemTrans;
+    }
+    
 }

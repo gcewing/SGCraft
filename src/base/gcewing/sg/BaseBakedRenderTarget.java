@@ -145,12 +145,12 @@ public class BaseBakedRenderTarget extends BaseRenderTarget {
     static protected ItemTransformVec3f
     
         transThirdPerson = new ItemTransformVec3f(
-            new Vector3f(75f, 45f, 0f),
+            new Vector3f(75f, -45f, 0f),
             new Vector3f(0f, 2.5f/16f, 0f),
             new Vector3f(0.375f, 0.375f, 0.375f)),
         
         transFirstPerson = new ItemTransformVec3f(
-            new Vector3f(0f, 45f, 0f),
+            new Vector3f(0f, -45f, 0f),
             new Vector3f(0f, 0f, 0f),
             new Vector3f(0.4f, 0.4f, 0.4f)),
         
