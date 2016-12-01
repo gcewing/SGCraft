@@ -236,6 +236,11 @@ public class SGCraft extends BaseMod<SGCraftClient> {
     protected void registerEntities() {
         addEntity(IrisEntity.class, "Stargate Iris", SGEntity.Iris, 1000000, false);
     }
+    
+    @Override
+    protected void registerSounds() {
+        SGBaseTE.registerSounds(this);
+    }
 
     @SubscribeEvent
     public void onChunkLoad(ChunkDataEvent.Load e) {

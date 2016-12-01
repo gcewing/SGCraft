@@ -30,6 +30,7 @@ public class BaseSubsystem<MOD extends BaseMod, CLIENT extends BaseModClient> {
     protected void registerContainers() {}
     protected void registerEntities() {}
     protected void registerVillagers() {}
+    protected void registerSounds() {}
     protected void registerOther() {}
     
     protected void registerScreens() {}

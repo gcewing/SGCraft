@@ -59,12 +59,23 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
     }
     
     static SoundEvent
-        abortSound = sound("sgcraft:sg_abort"),
-        openSound = sound("sgcraft:sg_open"),
-        closeSound = sound("sgcraft:sg_close"),
-        irisOpenSound = sound("sgcraft:iris_open"),
-        irisCloseSound = sound("sgcraft:iris_close"),
-        irisHitSound = sound("sgcraft:iris_hit");   
+        abortSound,
+        openSound,
+        closeSound,
+        irisOpenSound,
+        irisCloseSound,
+        irisHitSound,
+        diallingSound;
+    
+    public static void registerSounds(SGCraft mod) {
+        abortSound = mod.newSound("sg_abort");
+        openSound = mod.newSound("sg_open");
+        closeSound = mod.newSound("sg_close");
+        irisOpenSound = mod.newSound("iris_open");
+        irisCloseSound = mod.newSound("iris_close");
+        irisHitSound = mod.newSound("iris_hit");
+        diallingSound = mod.newSound("sg_dial7");
+    }
 
     public final static String symbolChars = SGAddressing.symbolChars;
     public final static int numRingSymbols = SGAddressing.numSymbols;
@@ -76,7 +87,6 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
     
     final static int diallingTime = 40; // ticks
     final static int interDiallingTime = 10; // ticks
-    final static SoundEvent diallingSound = sound("sgcraft:sg_dial7");
     final static int transientDuration = 20; // ticks
     final static int disconnectTime = 30; // ticks
     

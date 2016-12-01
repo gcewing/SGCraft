@@ -178,6 +178,7 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
             sub.registerContainers();
             sub.registerEntities();
             sub.registerVillagers();
+            sub.registerSounds();
         }
         if (client != null)
             client.preInit(e);
@@ -517,8 +518,27 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
 //      VillagerRegistry.instance().registerVillageTradeHandler(villagerID, handler);
 //  }
     
-    //--------------- Resources ----------------------------------------------------------
+    //--------------- Sound Registration -------------------------------------------------
     
+    protected static Field soundEventId =
+        BaseReflectionUtils.getFieldDef(SoundEvent.class, "soundEventId", "field_187507_c");
+    
+    public SoundEvent newSound(String name) {
+        try {
+            ResourceLocation loc = resourceLocation(name);
+            int id = soundEventId.getInt(null);
+            soundEventId.setInt(null, id + 1);
+            SoundEvent result = new SoundEvent(loc);
+            SoundEvent.REGISTRY.register(id, loc, result);
+            return result;
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
+    //--------------- Resources ----------------------------------------------------------
+
     public ResourceLocation resourceLocation(String path) {
         return new ResourceLocation(assetKey, path);
     }
