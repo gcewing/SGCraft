@@ -43,26 +43,26 @@ public class BaseConfiguration extends Configuration {
         return BaseStringUtils.split(",", value);
     }
     
-    public int getVillager(String key) {
-        VillagerRegistry reg = VillagerRegistry.instance();
-        Property prop = get("villagers", key, -1);
-        int id = prop.getInt();
-        if (id == -1) {
-            id = allocateVillagerId(reg);
-            prop.set(id);
-        }
-        reg.registerVillagerId(id);
-        return id;
-    }
-    
-    int allocateVillagerId(VillagerRegistry reg) {
-        Collection<Integer> inUse = VillagerRegistry.getRegisteredVillagers();
-        for (;;) {
-            int id = nextVillagerID++;
-            if (!inUse.contains(id))
-                return id;
-        }
-    }
+//     public int getVillager(String key) {
+//         VillagerRegistry reg = VillagerRegistry.instance();
+//         Property prop = get("villagers", key, -1);
+//         int id = prop.getInt();
+//         if (id == -1) {
+//             id = allocateVillagerId(reg);
+//             prop.set(id);
+//         }
+//         reg.registerVillagerId(id);
+//         return id;
+//     }
+//     
+//     int allocateVillagerId(VillagerRegistry reg) {
+//         Collection<Integer> inUse = VillagerRegistry.getRegisteredVillagers();
+//         for (;;) {
+//             int id = nextVillagerID++;
+//             if (!inUse.contains(id))
+//                 return id;
+//         }
+//     }
     
     @Override
     public Property get(String category, String key, String defaultValue, String comment, Property.Type type) {

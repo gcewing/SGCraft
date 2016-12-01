@@ -491,19 +491,19 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
 
     //--------------- Villager registration -------------------------------------------------
     
-    static class VSBinding extends IDBinding<ResourceLocation> {};
-    
-    public List<VSBinding> registeredVillagers = new ArrayList<VSBinding>();
-    
-    int addVillager(String name, ResourceLocation skin) {
-        int id = config.getVillager(name);
-        VSBinding b = new VSBinding();
-        b.id = id;
-        b.object = skin;
-        registeredVillagers.add(b);
-        return id;
-    }
-    
+//     static class VSBinding extends IDBinding<ResourceLocation> {};
+//     
+//     public List<VSBinding> registeredVillagers = new ArrayList<VSBinding>();
+//     
+//     int addVillager(String name, ResourceLocation skin) {
+//         int id = config.getVillager(name);
+//         VSBinding b = new VSBinding();
+//         b.id = id;
+//         b.object = skin;
+//         registeredVillagers.add(b);
+//         return id;
+//     }
+//     
 //  void addTradeHandler(int villagerID, IVillageTradeHandler handler) {
 //      VillagerRegistry.instance().registerVillageTradeHandler(villagerID, handler);
 //  }

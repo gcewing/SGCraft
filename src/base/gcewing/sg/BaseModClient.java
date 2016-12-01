@@ -112,9 +112,9 @@ public class BaseModClient<MOD extends BaseMod<? extends BaseModClient>> impleme
     }
     
     void registerSavedVillagerSkins() {
-        VillagerRegistry reg = VillagerRegistry.instance();
-        for (VSBinding b : base.registeredVillagers)
-            reg.registerVillagerSkin(b.id, b.object);
+//         VillagerRegistry reg = VillagerRegistry.instance();
+//         for (VSBinding b : base.registeredVillagers)
+//             reg.registerVillagerSkin(b.id, b.object);
     }
         
 //  String qualifyName(String name) {
@@ -482,9 +482,7 @@ public class BaseModClient<MOD extends BaseMod<? extends BaseModClient>> impleme
     }
     
     protected void registerModelLocationForSubtypes(Item item, ModelResourceLocation location) {
-        int numVariants = 1;
-        if (item.getHasSubtypes())
-            numVariants = getNumItemSubtypes(item);
+        int numVariants = getNumItemSubtypes(item);
         if (debugModelRegistration)
             System.out.printf("BaseModClient: Registering model location %s for %d subtypes of %s\n",
                 location, numVariants, item.getUnlocalizedName());
@@ -812,7 +810,7 @@ public class BaseModClient<MOD extends BaseMod<? extends BaseModClient>> impleme
     
     //------------------------------------------------------------------------------------------------
     
-    protected static Trans3 itemTrans = Trans3.blockCenterSideTurn(0, 2);
+//     protected static Trans3 itemTrans = Trans3.blockCenterSideTurn(0, 2);
 
     protected class CustomItemRenderDispatch extends CustomRenderDispatch implements ISmartItemModel {
     
@@ -841,7 +839,7 @@ public class BaseModClient<MOD extends BaseMod<? extends BaseModClient>> impleme
 //                     stack, rend);
                 GlStateManager.shadeModel(GL_SMOOTH);
                 BaseBakedRenderTarget target = new BaseBakedRenderTarget();
-                rend.renderItemStack(stack, target, itemTrans);
+                rend.renderItemStack(stack, target, Trans3.blockCenter /*itemTrans*/);
                 return target.getBakedModel();
             }
             else

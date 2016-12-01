@@ -156,4 +156,22 @@ public class BaseTileEntity extends TileEntity
         }
     }
  
+    public static ItemStack blockStackWithTileEntity(Block block, int size, BaseTileEntity te) {
+        return blockStackWithTileEntity(block, size, 0, te);
+    }
+
+    public static ItemStack blockStackWithTileEntity(Block block, int size, int meta, BaseTileEntity te) {
+        ItemStack stack = new ItemStack(block, size, meta);
+        if (te != null) {
+            NBTTagCompound tag = new NBTTagCompound();
+            te.writeToItemStackNBT(tag);
+            stack.setTagCompound(tag);
+        }
+        return stack;
+    }
+    
+    public ItemStack newItemStack(int size) {
+        return blockStackWithTileEntity(getBlockType(), size, this);
+    }
+
 }
