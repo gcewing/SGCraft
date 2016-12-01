@@ -521,16 +521,12 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
     
     //--------------- Sound Registration -------------------------------------------------
     
-    protected static Field soundEventId =
-        BaseReflectionUtils.getFieldDef(SoundEvent.class, "soundEventId", "field_187507_c");
-    
     public SoundEvent newSound(String name) {
         try {
             ResourceLocation loc = resourceLocation(name);
-            int id = soundEventId.getInt(null);
-            soundEventId.setInt(null, id + 1);
             SoundEvent result = new SoundEvent(loc);
-            SoundEvent.REGISTRY.register(id, loc, result);
+            result.setRegistryName(loc);
+            GameData.getSoundEventRegistry().register(result);
             return result;
         }
         catch (Exception e) {
