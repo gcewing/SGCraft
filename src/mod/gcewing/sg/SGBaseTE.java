@@ -141,6 +141,8 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
     double distanceFactor; // all energy use is multiplied by this
     boolean redstoneInput;
     boolean loaded;
+    public String homeAddress;
+    public String addressError;
     
 //  public static final int firstFuelSlot = 0;
 //  public static final int numFuelSlots = 4;
@@ -307,6 +309,15 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
         irisState = IrisState.valueOf(nbt.getInteger("irisState"));
         irisPhase = nbt.getInteger("irisPhase");
         redstoneInput = nbt.getBoolean("redstoneInput");
+        homeAddress = getStringOrNull(nbt, "address");
+        addressError = nbt.getString("addressError");
+    }
+    
+    protected String getStringOrNull(NBTTagCompound nbt, String name) {
+        if (nbt.hasKey(name))
+            return nbt.getString(name);
+        else
+            return null;
     }
 
     @Override
@@ -333,6 +344,10 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
         nbt.setInteger("irisState", irisState.ordinal());
         nbt.setInteger("irisPhase", irisPhase);
         nbt.setBoolean("redstoneInput", redstoneInput);
+        if (homeAddress != null)
+            nbt.setString("address", homeAddress);
+        if (addressError != null)
+            nbt.setString("addressError", addressError);
         return nbt;
     }
     
@@ -672,6 +687,14 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
     void serverUpdate() {
         if (!loaded) {
             loaded = true;
+            try {
+                homeAddress = getHomeAddress();
+                addressError = "";
+            }
+            catch (SGAddressing.AddressingError e) {
+                homeAddress = null;
+                addressError = e.getMessage();
+            }
             if (SGCraft.ocIntegration != null) //[OC]
                 SGCraft.ocIntegration.onSGBaseTEAdded(this);
         }
