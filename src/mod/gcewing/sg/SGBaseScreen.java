@@ -112,14 +112,14 @@ public class SGBaseScreen extends SGScreen {
 //  }
     
     void getAddress() {
-        try {
-            address = te.getHomeAddress();
+        if (te.homeAddress != null) {
+            address = te.homeAddress;
             formattedAddress = SGAddressing.formatAddress(address, "-", "-");
             addressValid = true;
         }
-        catch (SGAddressing.AddressingError e) {
+        else {
             address = "";
-            formattedAddress = e.getMessage();
+            formattedAddress = te.addressError;
             addressValid = false;
         }
     }
