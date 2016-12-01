@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------------------------
 //
-//   Greg's Mod Base for 1.8 - OpenGL rendering target
+//   Greg's Mod Base for 1.7 version B - OpenGL rendering target
 //
 //------------------------------------------------------------------------------------------------
 
@@ -32,6 +32,7 @@ public class BaseGLRenderTarget extends BaseRenderTarget {
         glPushAttrib(GL_LIGHTING_BIT | GL_TEXTURE_BIT | GL_TRANSFORM_BIT);
         if (debugGL) System.out.printf("BaseGLRenderTarget: glEnable(GL_RESCALE_NORMAL)\n");
         glEnable(GL_RESCALE_NORMAL);
+        glShadeModel(GL_SMOOTH);
         glMode = 0;
         emissiveMode = -1;
         texturedMode = -1;
@@ -89,13 +90,14 @@ public class BaseGLRenderTarget extends BaseRenderTarget {
 
     @Override
     protected void rawAddVertex(Vector3 p, double u, double v) {
+        if (debugGL)
+            System.out.printf(
+                "BaseGLRenderTarget: rawAddVertex: %s %s normal %s rgba (%.2f,%.2f.%.2f,%.2f) uv (%.4f,%.4f)\n",
+                vertexCount, p, normal, r(), g(), b(), a(), u, v);
         setGLMode(verticesPerFace);
-        //System.out.printf("BaseGLRenderTarget: glColor4f(%.2f, %.2f, %.2f, %.2f)\n",
-        //  r(), g(), b(), a());
         glColor4f(r(), g(), b(), a());
         glNormal3d(normal.x, normal.y, normal.z);
         glTexCoord2d(u, v);
-        if (debugGL) System.out.printf("BaseGLRenderTarget: glVertex3d: %s (%.4f,%.4f)\n", p, u, v);
         glVertex3d(p.x, p.y, p.z);
     }
     

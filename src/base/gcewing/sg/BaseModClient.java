@@ -527,25 +527,47 @@ public class BaseModClient<MOD extends BaseMod<? extends BaseModClient>> impleme
         }
         
         public void renderItem(ItemRenderType type, ItemStack stack, Object... data) {
-            if (debugRenderItem) System.out.printf("BaseModClient.ItemRenderDispatcher.renderItem: %s %s\n", type, stack);
+            if (debugRenderItem)
+                System.out.printf("BaseModClient.ItemRenderDispatcher.renderItem: %s %s pass %s\n",
+                    type, stack, MinecraftForgeClient.getRenderPass());
             ICustomRenderer renderer = itemRenderers.get(stack.getItem());
-            if (debugRenderItem) System.out.printf("BaseModClient.ItemRenderDispatcher.renderItem: Custom renderer = %s\n", renderer);
+            if (debugRenderItem)
+                System.out.printf("BaseModClient.ItemRenderDispatcher.renderItem: Custom renderer = %s\n", renderer);
             if (renderer == null) {
                 renderer = getModelRendererForItemStack(stack);
-                if (debugRenderItem) System.out.printf("BaseModClient.ItemRenderDispatcher.renderItem: Model renderer = %s\n", renderer);
+                if (debugRenderItem)
+                    System.out.printf("BaseModClient.ItemRenderDispatcher.renderItem: Model renderer = %s\n", renderer);
             }
             if (renderer != null) {
                 Trans3 t;
                 switch (type) {
-                    case ENTITY: t = entityTrans; break;
-                    case EQUIPPED: t = equippedTrans; break;
-                    case EQUIPPED_FIRST_PERSON: t = firstPersonTrans; break;
-                    case INVENTORY: t = inventoryTrans; break;
-                    default: return;
+                    case ENTITY:
+                        t = entityTrans;
+                        break;
+                    case EQUIPPED:
+                        t = equippedTrans;
+                        break;
+                    case EQUIPPED_FIRST_PERSON:
+                        t = firstPersonTrans;
+                        break;
+                    case INVENTORY:
+                        t = inventoryTrans;
+                        glEnable(GL_BLEND);
+                        glEnable(GL_CULL_FACE);
+                        OpenGlHelper.glBlendFunc(770, 771, 1, 0);
+                         break;
+                    default:
+                        return;
                 }
                 glTarget.start(false);
                 renderer.renderItemStack(stack, glTarget, t);
                 glTarget.finish();
+                switch (type) {
+                    case INVENTORY:
+                        glDisable(GL_BLEND);
+                        glDisable(GL_CULL_FACE);
+                        break;
+                }
             }
         }
     

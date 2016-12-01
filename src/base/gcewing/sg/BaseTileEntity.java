@@ -6,6 +6,8 @@
 
 package gcewing.sg;
 
+import java.lang.reflect.*;
+
 import net.minecraft.block.Block;
 //import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.*;
@@ -14,9 +16,10 @@ import net.minecraft.item.*;
 import net.minecraft.network.*;
 import net.minecraft.nbt.*;
 import net.minecraft.network.play.server.*;
+import net.minecraft.server.management.PlayerManager;
 import net.minecraft.tileentity.*;
 import net.minecraft.util.*;
-import net.minecraft.world.World;
+import net.minecraft.world.*;
 
 import net.minecraftforge.common.*;
 import net.minecraftforge.common.ForgeChunkManager.Ticket;
@@ -144,11 +147,12 @@ public class BaseTileEntity extends TileEntity
     public void writeContentsToNBT(NBTTagCompound nbt) {
     }
     
+    // Save to disk, update client and re-render block
     public void markChanged() {
         markDirty();
         markBlockForUpdate();
     }
-
+    
     @Override
     public void invalidate() {
         releaseChunkTicket();
@@ -162,4 +166,32 @@ public class BaseTileEntity extends TileEntity
         }
     }
  
+    public static ItemStack blockStackWithTileEntity(Block block, int size, BaseTileEntity te) {
+        return blockStackWithTileEntity(block, size, 0, te);
+    }
+
+    public static ItemStack blockStackWithTileEntity(Block block, int size, int meta, BaseTileEntity te) {
+        ItemStack stack = new ItemStack(block, size, meta);
+        if (te != null) {
+            NBTTagCompound tag = new NBTTagCompound();
+            te.writeToItemStackNBT(tag);
+            stack.setTagCompound(tag);
+        }
+        return stack;
+    }
+    
+    public ItemStack newItemStack(int size) {
+        return blockStackWithTileEntity(getBlockType(), size, this);
+    }
+    
+    @Override
+    public boolean canUpdate() {
+        return this instanceof ITickable;
+    }
+    
+    @Override
+    public void updateEntity() {
+        ((ITickable)this).update();
+    }
+
 }

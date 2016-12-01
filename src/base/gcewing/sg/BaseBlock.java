@@ -259,17 +259,16 @@ public class BaseBlock<TE extends TileEntity>
     
     protected ThreadLocal<TileEntity> harvestingTileEntity = new ThreadLocal();
     
-//     @Override
-//     public void onBlockHarvested(World world, int x, int y, int z, int meta, EntityPlayer player) {
-//         tileEntityHarvested = world.getTileEntity(x, y, z);
-//     }
+    @Override
+    public void onBlockHarvested(World world, int x, int y, int z, int meta, EntityPlayer player) {
+        TileEntity te = world.getTileEntity(x, y, z);
+        harvestingTileEntity.set(te);
+    }
 
     @Override
     public void harvestBlock(World world, EntityPlayer player, int x, int y, int z, int meta) {
-        TileEntity te = world.getTileEntity(x, y, z);
-        harvestingTileEntity.set(te);
+        TileEntity te = harvestingTileEntity.get();
         harvestBlock(world, player, new BlockPos(x, y, z), getStateFromMeta(meta), te);
-        harvestingTileEntity.set(null);
     }
     
     public void harvestBlock(World world, EntityPlayer player, BlockPos pos, IBlockState state, TileEntity te) {
@@ -279,7 +278,9 @@ public class BaseBlock<TE extends TileEntity>
     @Override    
     public ArrayList<ItemStack> getDrops(World world, int x, int y, int z, int meta, int fortune) {
         IBlockState state = getStateFromMeta(meta);
-        return getDrops(world, new BlockPos(x, y, z), state, fortune);
+        ArrayList<ItemStack> result = getDrops(world, new BlockPos(x, y, z), state, fortune);
+        harvestingTileEntity.set(null);
+        return result;
     }
     
     public ArrayList<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
@@ -288,7 +289,7 @@ public class BaseBlock<TE extends TileEntity>
             te = harvestingTileEntity.get();
         return getDropsFromTileEntity(world, pos, state, te, fortune);
     }
-    
+
     protected ArrayList<ItemStack> getDropsFromTileEntity(IBlockAccess world, BlockPos pos, IBlockState state, TileEntity te, int fortune) {
         int meta = getMetaFromState(state);
         return super.getDrops((World)world, pos.x, pos.y, pos.z, meta, fortune);

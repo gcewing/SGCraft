@@ -28,7 +28,10 @@ import static gcewing.sg.BaseUtils.*;
 public class BaseBlockUtils {
 
     public static String getNameForBlock(Block block) {
-        return Block.blockRegistry.getNameForObject(block).toString();
+        if (block != null)
+            return Block.blockRegistry.getNameForObject(block).toString();
+        else
+            return "";
     }
     
     /*

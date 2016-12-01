@@ -126,7 +126,7 @@ public class BaseGui {
             gstate.uscale = 1.0 / usize;
             gstate.vscale = 1.0 / vsize;
             //System.out.printf("BaseGuiContainer.bindTexture: %s size (%s, %s) scale (%s, %s)\n",
-            //  rsrc, usize, vsize, uscale, vscale);
+            //    rsrc, usize, vsize, gstate.uscale, gstate.vscale);
         }
         
         public void gSave() {
