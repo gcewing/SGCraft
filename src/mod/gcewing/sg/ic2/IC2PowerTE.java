@@ -18,7 +18,7 @@ import gcewing.sg.*;
 import static gcewing.sg.BaseUtils.*;
 import static gcewing.sg.Utils.*;
 
-public class IC2PowerTE extends PowerTE implements IEnergySink {
+public class IC2PowerTE extends PowerTE implements IEnergySink, ITickable {
 
     boolean debugLoad = false;
     boolean debugInput = false;
@@ -44,7 +44,7 @@ public class IC2PowerTE extends PowerTE implements IEnergySink {
     }
     
     @Override
-    public void updateEntity() {
+    public void update() {
         load();
     }
     
@@ -96,8 +96,7 @@ public class IC2PowerTE extends PowerTE implements IEnergySink {
     @Override
     public double injectEnergy(ForgeDirection directionFrom, double amount, double voltage) {
         energyBuffer += amount;
-        markDirty();
-        markBlockForUpdate();
+        markChanged();
         if(debugInput)
             System.out.printf("SGCraft: IC2PowerTE: Injected %s EU giving %s\n", amount, energyBuffer);
         return 0;

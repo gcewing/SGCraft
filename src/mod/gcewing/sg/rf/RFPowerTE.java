@@ -62,8 +62,7 @@ public class RFPowerTE extends PowerTE implements IEnergyHandler {
   
   void addEnergy(int e) {
         this.energyBuffer += e;
-        markDirty();
-        markBlockForUpdate();
+        markChanged();
   }
     
     public int getEnergyStored(ForgeDirection dir) {

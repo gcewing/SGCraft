@@ -66,14 +66,8 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
     
     public void setEnteredAddress(String address) {
         enteredAddress = address;
-        markDirty();
-        markBlockForUpdate();
+        markChanged();
     }
-    
-//     @Override
-//     public boolean canUpdate() {
-//         return false;
-//     }
     
     @Override
     public AxisAlignedBB getRenderBoundingBox() {
@@ -171,10 +165,10 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
                     getPos(), getTileEntityPos(gte));
             linkedPos = gte.getPos();
             isLinkedToStargate = true;
-            markBlockForUpdate();
+            markChanged();
             gte.linkedPos = getPos();
             gte.isLinkedToController = true;
-            gte.markBlockForUpdate();
+            gte.markChanged();
             return true;
         }
         return false;
@@ -184,7 +178,7 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
         if (debugLink)
             System.out.printf("DHDTE: Unlinking controller at %s from stargate\n", getPos());
         isLinkedToStargate = false;
-        markBlockForUpdate();
+        markChanged();
     }
     
     @Override
@@ -213,8 +207,7 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
         if (SGBaseTE.debugEnergyUse)
             System.out.printf("DHDTE.drawEnergy: %s; supplied: %s; buffered: %s\n",
                 amount, energyDrawn, energyInBuffer);
-        markDirty();
-        markBlockForUpdate();
+        markChanged();
         return energyDrawn;
     }
     
