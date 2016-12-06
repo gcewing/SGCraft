@@ -20,7 +20,7 @@ public class FeatureGeneration {
     public static boolean debugStructures = false;
     public static int structureAugmentationChance = 25;
     
-    static Field structureMap = BaseUtils.getFieldDef(MapGenStructure.class,
+    static Field structureMap = BaseReflectionUtils.getFieldDef(MapGenStructure.class,
         "structureMap", "field_75053_d");
     
     public static void configure(BaseConfiguration config) {
@@ -48,7 +48,7 @@ public class FeatureGeneration {
     }
 
     static MapGenStructure modifyScatteredFeatureGen(MapGenStructure gen) {
-        BaseUtils.setField(gen, structureMap, new SGStructureMap());
+        BaseReflectionUtils.setField(gen, structureMap, new SGStructureMap());
         return gen;
     }
 

@@ -236,7 +236,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
         if (isMerged != state) {
             isMerged = state;
             markDirty();
-            markBlockForUpdate();
+            markBlockChanged();
             if (logStargateEvents) {
                 String address = tryToGetHomeAddress();
                 if (address != null) {
@@ -360,8 +360,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
             //System.out.printf("SGBaseTE.applyChevronUpgrade: Installing chevron upgrade\n");
             hasChevronUpgrade = true;
             stack.stackSize -= 1;
-            markDirty();
-            markBlockForUpdate();
+            markChanged();
         }
         return true;
     }
@@ -371,8 +370,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
             //System.out.printf("SGBaseTE.applyIrisUpgrade: Installing iris upgrade\n");
             hasIrisUpgrade = true;
             stack.stackSize -= 1;
-            markDirty();
-            markBlockForUpdate();
+            markChanged();
             updateIrisEntity();
         }
         return true;
@@ -450,8 +448,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
         SGState oldState = state;
         state = newState;
         timeout = newTimeout;
-        markDirty();
-        markBlockForUpdate();
+        markChanged();
         if ((oldState == SGState.Idle) != (newState == SGState.Idle)) {
             updateChunkLoadingStatus();
             worldObj.notifyNeighborsOfStateChange(pos, getBlockType());
@@ -642,8 +639,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
             connectedLocation = null;
             isInitiator = false;
             numEngagedChevrons = 0;
-            markDirty();
-            markBlockForUpdate();
+            markChanged();
             if (state == SGState.Connected) {
                 enterState(SGState.Disconnecting, disconnectTime);
                 //sendClientEvent(SGEvent.StartDisconnecting, 0);
@@ -1480,8 +1476,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
             String oldDesc = irisStateDescription(irisState);
             String newDesc = irisStateDescription(newState);
             irisState = newState;
-            markDirty();
-            markBlockForUpdate();
+            markChanged();
             if (!worldObj.isRemote) {
                 switch (newState) {
                     case Opening:

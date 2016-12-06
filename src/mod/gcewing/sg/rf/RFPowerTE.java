@@ -41,8 +41,7 @@ public class RFPowerTE extends PowerTE implements IEnergyProvider, IEnergyReceiv
     
     protected void addEnergy(int e) {
         this.energyBuffer += e;
-        markDirty();
-        markBlockForUpdate();
+        markChanged();
     }    
 
     //------------------------- IEnergyConnection -------------------------

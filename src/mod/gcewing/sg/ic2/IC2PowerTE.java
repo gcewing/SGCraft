@@ -99,8 +99,7 @@ public class IC2PowerTE extends PowerTE implements IEnergySink {
     @Override
     public double injectEnergy(EnumFacing directionFrom, double amount, double voltage) {
         energyBuffer += amount;
-        markDirty();
-        markBlockForUpdate();
+        markChanged();
         if(debugInput)
             System.out.printf("SGCraft: IC2PowerTE: Injected %s EU giving %s\n", amount, energyBuffer);
         return 0;

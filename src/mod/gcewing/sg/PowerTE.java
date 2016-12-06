@@ -58,8 +58,7 @@ public abstract class PowerTE extends BaseTileEntity implements ISGEnergySource 
         double available = energyBuffer / energyPerSGEnergyUnit;
         double supply = min(request, available);
         energyBuffer -= supply * energyPerSGEnergyUnit;
-        markDirty();
-        markBlockForUpdate();
+        markChanged();
         if(debugOutput)
             System.out.printf("SGCraft: PowerTE: Supplying %s SGU of %s requested\n", supply, request);
         return supply;
