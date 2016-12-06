@@ -53,7 +53,7 @@ import net.minecraftforge.fml.common.registry.*;
 
 //import gcewing.sg.BaseMod.IBlock;
 import gcewing.sg.BaseMod.*;
-import static gcewing.sg.BaseUtils.setField;
+import static gcewing.sg.BaseReflectionUtils.setField;
 
 public class BaseModClient<MOD extends BaseMod<? extends BaseModClient>> implements IGuiHandler {
 
