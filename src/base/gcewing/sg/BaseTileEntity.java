@@ -112,15 +112,17 @@ public class BaseTileEntity extends TileEntity
         "flagsYAreasToUpdate", "field_73260_f");
 
     public void markForUpdate() {
-        int x = pos.getX();
-        int y = pos.getY();
-        int z = pos.getZ();
-        PlayerManager pm = ((WorldServer)worldObj).getPlayerManager();
-        Object entry = invokeMethod(pm, getPlayerInstance, x >> 4, z >> 4, false);
-        if (entry != null) {
-            int oldFlags = getIntField(entry, flagsYAreasToUpdate);
-            worldObj.markBlockForUpdate(pos);
-            setIntField(entry, flagsYAreasToUpdate, oldFlags);
+        if (!worldObj.isRemote) {
+            int x = pos.getX();
+            int y = pos.getY();
+            int z = pos.getZ();
+            PlayerManager pm = ((WorldServer)worldObj).getPlayerManager();
+            Object entry = invokeMethod(pm, getPlayerInstance, x >> 4, z >> 4, false);
+            if (entry != null) {
+                int oldFlags = getIntField(entry, flagsYAreasToUpdate);
+                worldObj.markBlockForUpdate(pos);
+                setIntField(entry, flagsYAreasToUpdate, oldFlags);
+            }
         }
     }
 
