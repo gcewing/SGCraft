@@ -10,6 +10,16 @@ import java.lang.reflect.*;
 
 public class BaseReflectionUtils {
 
+    public static Class classForName(String name) {
+        try {
+            return Class.forName(name);
+        }
+         catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }        
+    
+
     public static Field getFieldDef(Class cls, String unobfName, String obfName) {
         try {
             Field field;
@@ -43,6 +53,15 @@ public class BaseReflectionUtils {
         }
     }
     
+    public static int getIntField(Object obj, Field field) {
+        try {
+            return field.getInt(obj);
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
     public static void setField(Object obj, String unobfName, String obfName, Object value) {
         Field field = getFieldDef(obj.getClass(), unobfName, obfName);
         setField(obj, field, value);
@@ -57,4 +76,41 @@ public class BaseReflectionUtils {
         }
     }
 
+    public static void setIntField(Object obj, Field field, int value) {
+        try {
+            field.setInt(obj, value);
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Method getMethodDef(Class cls, String unobfName, String obfName, Class... params) {
+        try {
+            Method meth;
+            try {
+                meth = cls.getDeclaredMethod(unobfName, params);
+            }
+            catch (NoSuchMethodException e) {
+                meth = cls.getDeclaredMethod(obfName, params);
+            }
+            meth.setAccessible(true);
+            return meth;
+        }
+         catch (Exception e) {
+            throw new RuntimeException(
+                String.format("Cannot find method %s or %s of %s", unobfName, obfName, cls.getName()),
+                e);
+        }
+    }
+    
+    public static Object invokeMethod(Object target, Method meth, Object... args) {
+        try {
+            return meth.invoke(target, args);
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
 }

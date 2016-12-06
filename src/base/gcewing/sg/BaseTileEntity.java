@@ -17,6 +17,7 @@ import net.minecraft.item.*;
 import net.minecraft.network.*;
 import net.minecraft.nbt.*;
 import net.minecraft.network.play.server.*;
+import net.minecraft.server.management.*;
 import net.minecraft.tileentity.*;
 import net.minecraft.util.*;
 import net.minecraft.util.text.*;
@@ -26,6 +27,7 @@ import net.minecraftforge.common.*;
 import net.minecraftforge.common.ForgeChunkManager.Ticket;
 
 import gcewing.sg.BaseMod.IBlock;
+import static gcewing.sg.BaseReflectionUtils.*;
 
 public class BaseTileEntity extends TileEntity
     implements BaseMod.ITileEntity
@@ -33,6 +35,7 @@ public class BaseTileEntity extends TileEntity
 
     public byte side, turn;
     public Ticket chunkTicket;
+    protected boolean updateChunk;
 
     public int getX() {return pos.getX();}
     public int getY() {return pos.getY();}
@@ -81,8 +84,12 @@ public class BaseTileEntity extends TileEntity
     public SPacketUpdateTileEntity getUpdatePacket() {
          //System.out.printf("BaseTileEntity.getDescriptionPacket for %s\n", this);
          if (syncWithClient()) {
-             NBTTagCompound nbt = new NBTTagCompound();
-             writeToNBT(nbt);
+            NBTTagCompound nbt = new NBTTagCompound();
+            writeToNBT(nbt);
+            if (updateChunk) {
+                nbt.setBoolean("updateChunk", true);
+                updateChunk = false;
+            }
             return new SPacketUpdateTileEntity(pos, 0, nbt);
          }
          else
@@ -91,8 +98,10 @@ public class BaseTileEntity extends TileEntity
 
     @Override
     public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
-        readFromNBT(pkt.getNbtCompound());
-        markBlockForUpdate();
+        NBTTagCompound nbt = pkt.getNbtCompound();
+        readFromNBT(nbt);
+        if (nbt.getBoolean("updateChunk"))
+            markBlockForUpdate();
     }
     
     boolean syncWithClient() {
@@ -100,9 +109,27 @@ public class BaseTileEntity extends TileEntity
     }
     
     public void markBlockForUpdate() {
+        updateChunk = true;
         BaseBlockUtils.markBlockForUpdate(worldObj, pos);
     }
     
+    protected static Field changedSectionFilter = getFieldDef(
+        classForName("net.minecraft.server.management.PlayerChunkMapEntry"),
+        "changedSectionFilter", "field_187288_h");
+
+    public void markForUpdate() {
+        int x = pos.getX();
+        int y = pos.getY();
+        int z = pos.getZ();
+        PlayerChunkMap pm = ((WorldServer)worldObj).getPlayerChunkMap();
+        PlayerChunkMapEntry entry = pm.getEntry(x >> 4, z >> 4);
+        if (entry != null) {
+            int oldFlags = getIntField(entry, changedSectionFilter);
+            entry.blockChanged(x & 0xf, y, z & 0xf);
+            setIntField(entry, changedSectionFilter, oldFlags);
+        }
+    }
+
     public void playSoundEffect(SoundEvent name, float volume, float pitch) {
         worldObj.playSound(null, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, name, SoundCategory.BLOCKS, volume, pitch);
     }
@@ -151,6 +178,11 @@ public class BaseTileEntity extends TileEntity
     }
     
     public void markChanged() {
+        markDirty();
+        markForUpdate();
+    }
+
+    public void markBlockChanged() {
         markDirty();
         markBlockForUpdate();
     }
