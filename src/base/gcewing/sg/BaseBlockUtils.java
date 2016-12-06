@@ -189,6 +189,10 @@ public class BaseBlockUtils {
     }
     
     public static void spawnBlockStackAsEntity(World world, BlockPos pos, ItemStack stack) {
+        spawnItemStackAsEntity(world, pos, stack);
+    }
+
+    public static void spawnItemStackAsEntity(World world, BlockPos pos, ItemStack stack) {
         float var6 = 0.7F;
         double var7 = (double)(world.rand.nextFloat() * var6) + (double)(1.0F - var6) * 0.5D;
         double var9 = (double)(world.rand.nextFloat() * var6) + (double)(1.0F - var6) * 0.5D;

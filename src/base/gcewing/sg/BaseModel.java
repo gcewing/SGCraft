@@ -55,18 +55,25 @@ public class BaseModel implements IModel {
     }
     
     public void addBoxesToList(Trans3 t, List list) {
-        if (boxes != null) {
-            for (int i = 0; i < boxes.length; i++) {
-                double[] b = boxes[i];
-                t.addBox(b[0], b[1], b[2], b[3], b[4], b[5], list);
-            }
+        if (boxes != null && boxes.length > 0) {
+            for (int i = 0; i < boxes.length; i++)
+                addBoxToList(boxes[i], t, list);
         }
+        else
+            addBoxToList(bounds, t, list);
+    }
+    
+    protected void addBoxToList(double[] b, Trans3 t, List list) {
+        t.addBox(b[0], b[1], b[2], b[3], b[4], b[5], list);
     }
 
     public void render(Trans3 t, IRenderTarget renderer, ITexture... textures) {
         Vector3 p = null, n = null;
         for (Face face : faces) {
-            ITexture tex = textures[face.texture];
+            int k = face.texture;
+            if (k >= textures.length)
+                k = textures.length - 1;
+            ITexture tex = textures[k];
             if (tex != null) {
                 renderer.setTexture(tex);
                 for (int[] tri : face.triangles) {

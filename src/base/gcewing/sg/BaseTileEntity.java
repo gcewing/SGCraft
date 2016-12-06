@@ -25,6 +25,7 @@ import net.minecraftforge.common.*;
 import net.minecraftforge.common.ForgeChunkManager.Ticket;
 
 import gcewing.sg.BaseMod.IBlock;
+import static gcewing.sg.BaseUtils.*;
 import static gcewing.sg.BaseBlockUtils.*;
 
 public class BaseTileEntity extends TileEntity
@@ -33,7 +34,8 @@ public class BaseTileEntity extends TileEntity
 
     public byte side, turn;
     public Ticket chunkTicket;
-    
+    protected boolean updateChunk;
+
     public BlockPos getPos() {
         return new BlockPos(xCoord, yCoord, zCoord);
     }
@@ -76,10 +78,14 @@ public class BaseTileEntity extends TileEntity
 
     @Override
     public Packet getDescriptionPacket() {
-        //System.out.printf("BaseTileEntity.getDescriptionPacket for %s\n", this);
+        //System.out.printf("BaseTileEntity.getDescriptionPacket for %s, updateChunk = %s\n", this, updateChunk);
         if (syncWithClient()) {
             NBTTagCompound nbt = new NBTTagCompound();
             writeToNBT(nbt);
+            if (updateChunk) {
+                nbt.setBoolean("updateChunk", true);
+                updateChunk = false;
+            }
             return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, 0, nbt);
         }
         else
@@ -88,9 +94,10 @@ public class BaseTileEntity extends TileEntity
 
     @Override
     public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt) {
-        //System.out.printf("BaseTileEntity.onDataPacket for %s\n", this);
-        readFromNBT(pkt.func_148857_g());
-        worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+        NBTTagCompound nbt = pkt.func_148857_g();
+        readFromNBT(nbt);
+        if (nbt.getBoolean("updateChunk"))
+            worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
     }
     
     boolean syncWithClient() {
@@ -98,7 +105,27 @@ public class BaseTileEntity extends TileEntity
     }
     
     public void markBlockForUpdate() {
+        updateChunk = true;
         worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+    }
+    
+    protected static Method getOrCreateChunkWatcher = getMethodDef(PlayerManager.class,
+        "getOrCreateChunkWatcher", "func_72690_a", int.class, int.class, boolean.class);
+    
+    protected static Field flagsYAreasToUpdate = getFieldDef(
+        classForName("net.minecraft.server.management.PlayerManager$PlayerInstance"),
+        "flagsYAreasToUpdate", "field_73260_f");
+    
+    public void markForUpdate() {
+        if (!worldObj.isRemote) {
+            PlayerManager pm = ((WorldServer)worldObj).getPlayerManager();
+            Object watcher = invokeMethod(pm, getOrCreateChunkWatcher, xCoord >> 4, zCoord >> 4, false);
+            if (watcher != null) {
+                int oldFlags = getIntField(watcher, flagsYAreasToUpdate);
+                worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+                setIntField(watcher, flagsYAreasToUpdate, oldFlags);
+            }
+        }
     }
     
     public void playSoundEffect(String name, float volume, float pitch) {
@@ -150,9 +177,14 @@ public class BaseTileEntity extends TileEntity
     // Save to disk, update client and re-render block
     public void markChanged() {
         markDirty();
-        markBlockForUpdate();
+        markForUpdate();
     }
     
+    public void markBlockChanged() {
+        markDirty();
+        markBlockForUpdate();
+    }
+
     @Override
     public void invalidate() {
         releaseChunkTicket();

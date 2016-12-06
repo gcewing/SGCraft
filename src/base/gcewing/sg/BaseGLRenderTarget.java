@@ -36,6 +36,7 @@ public class BaseGLRenderTarget extends BaseRenderTarget {
         glMode = 0;
         emissiveMode = -1;
         texturedMode = -1;
+        texture = null;
     }
     
     @Override
