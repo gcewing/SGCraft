@@ -660,8 +660,7 @@ public class BaseBlock<TE extends TileEntity>
 	}
 	
 	public void setBlockBounds(AxisAlignedBB box) {
-		setBlockBounds(
-		    (float)box.minX, (float)box.minY, (float)box.minZ,
+		setBlockBounds((float)box.minX, (float)box.minY, (float)box.minZ,
 			(float)box.maxX, (float)box.maxY, (float)box.maxZ);
 	}
 
