@@ -235,7 +235,6 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
     void setMerged(boolean state) {
         if (isMerged != state) {
             isMerged = state;
-            markDirty();
             markBlockChanged();
             if (logStargateEvents) {
                 String address = tryToGetHomeAddress();

@@ -92,7 +92,7 @@ public class BaseTileEntity extends TileEntity
         NBTTagCompound nbt = pkt.getNbtCompound();
         readFromNBT(nbt);
         if (nbt.getBoolean("updateChunk"))
-            markBlockForUpdate();
+            worldObj.markBlockRangeForRenderUpdate(pos, pos);
     }
     
     boolean syncWithClient() {
