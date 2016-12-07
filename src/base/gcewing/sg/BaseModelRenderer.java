@@ -6,8 +6,9 @@
 
 package gcewing.sg;
 
+import net.minecraft.block.*;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.item.ItemStack;
+import net.minecraft.item.*;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.util.*;
 
@@ -41,6 +42,12 @@ public class BaseModelRenderer implements ICustomRenderer {
     }
     
     public void renderItemStack(ItemStack stack, IRenderTarget target, Trans3 t) {
+        Item item = stack.getItem();
+        if (item instanceof ItemBlock) {
+            Block block = Block.getBlockFromItem(item);
+            if (block instanceof IBlock)
+                t = t.t(((IBlock)block).itemTransformation());
+        }
         model.render(t.translate(origin), target, textures);
     }
 

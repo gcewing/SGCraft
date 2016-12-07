@@ -57,6 +57,7 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
         int getNumSubtypes();
         Trans3 localToGlobalTransformation(IBlockAccess world, BlockPos pos, IBlockState state, Vector3 origin);
         IBlockState getParticleState(IBlockAccess world, BlockPos pos);
+        Trans3 itemTransformation();
     }
     
     interface IItem extends ITextureConsumer {
