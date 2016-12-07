@@ -28,7 +28,7 @@ import li.cil.oc.api.network.Visibility;
 import gcewing.sg.*;
 
 public class OCInterfaceTE extends SGInterfaceTE
-    implements IComputerInterface, Environment, IInventory
+    implements IComputerInterface, Environment, IInventory, ITickable
 {
 
     static boolean debugConnection = false;
@@ -254,8 +254,7 @@ public class OCInterfaceTE extends SGInterfaceTE
     // ----------------------------------------------------------------------- //
 
     @Override
-    public void updateEntity() {
-        super.updateEntity();
+    public void update() {
         // On the first update, try to add our node to nearby networks. We do
         // this in the update logic, not in validate() because we need to access
         // neighboring tile entities, which isn't possible in validate().
