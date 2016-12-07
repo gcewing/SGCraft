@@ -156,7 +156,7 @@ public class SGRingBlock extends SGBlock<SGRingTE> {
         if (te.isMerged && te.basePos.equals(basePos)) {
             //System.out.printf("SGRingBlock.unmergeFrom: unmerging\n");
             te.isMerged = false;
-            te.markBlockForUpdate();
+            te.markBlockChanged();
         }
     }
     
