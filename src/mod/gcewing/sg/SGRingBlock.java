@@ -161,7 +161,7 @@ public class SGRingBlock extends SGBlock<SGRingTE> {
             if (SGBaseBlock.debugMerge)
                 System.out.printf("SGRingBlock.unmergeFrom: unmerging\n");
             te.isMerged = false;
-            markWorldBlockForUpdate(world, pos);
+            te.markBlockChanged();
         }
     }
     
