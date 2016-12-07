@@ -292,6 +292,19 @@ public class BaseUtils {
         return box1.func_111270_a(box2);
     }
 
+    public static AxisAlignedBB boxIntersection(AxisAlignedBB box1, AxisAlignedBB box2) {
+        double minX = max(box1.minX, box2.minX);
+        double minY = max(box1.minY, box2.minY);
+        double minZ = max(box1.minZ, box2.minZ);
+        double maxX = min(box1.maxX, box2.maxX);
+        double maxY = min(box1.maxY, box2.maxY);
+        double maxZ = min(box1.maxZ, box2.maxZ);
+        if (minX < maxX && minY < maxY && minZ < maxZ)
+            return newAxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ);
+        else
+            return null;
+    }
+
     public static MinecraftServer getMinecraftServer() {
         return MinecraftServer.getServer();
     }

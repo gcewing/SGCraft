@@ -650,26 +650,27 @@ public class BaseBlock<TE extends TileEntity>
 	protected AxisAlignedBB getLocalBounds(IBlockAccess world, BlockPos pos, IBlockState state,
 	    Entity entity)
 	{
-	    IModel model = getModel(state);
-	    if (model != null) {
-	        Trans3 t = localToGlobalTransformation(world, pos, state, Vector3.blockCenter);
-	        return t.t(model.getBounds());
+	    ModelSpec spec = getModelSpec(state);
+	    if (spec != null) {
+	        IModel model = mod.getModel(spec.modelName);
+            Trans3 t = localToGlobalTransformation(world, pos, state, Vector3.blockCenter).translate(spec.origin);
+            return t.t(model.getBounds());
 	    }
 	    return null;
 	}
 	
-	public IModel getModel(IBlockState state) {
-	    ModelSpec spec = getModelSpec(state);
-	    if (spec != null)
-	        return mod.getModel(spec.modelName);
-	    else
-	        return null;
-	}   
-
 	public void setBlockBounds(AxisAlignedBB box) {
-		setBlockBounds((float)box.minX, (float)box.minY, (float)box.minZ,
+		setBlockBounds(
+		    (float)box.minX, (float)box.minY, (float)box.minZ,
 			(float)box.maxX, (float)box.maxY, (float)box.maxZ);
 	}
+
+// 	public void setBlockBounds(AxisAlignedBB box) {
+// 	    System.out.printf("BaseBlock.setBlockBounds: %s\n", box);
+// 		setBlockBounds(
+// 		    (float)max(0, box.minX), (float)max(0, box.minY), (float)max(0, box.minZ),
+// 			(float)min(1, box.maxX), (float)min(1, box.maxY), (float)min(1, box.maxZ));
+// 	}
 
     @Override
     public void addCollisionBoxesToList(World world, int x, int y, int z, AxisAlignedBB clip,
@@ -693,6 +694,25 @@ public class BaseBlock<TE extends TileEntity>
 	        super.addCollisionBoxesToList(world, pos.x, pos.y, pos.z, clip, result, entity);
 	}
 
+// 	public void addCollisionBoxesToList(World world, BlockPos pos, IBlockState state,
+// 		AxisAlignedBB clip, List result, Entity entity)
+// 	{
+// 	    AxisAlignedBB bounds = newAxisAlignedBB(pos.getX(), pos.getY(), pos.getZ(),
+// 	        pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1);
+// 		List<AxisAlignedBB> list = getGlobalCollisionBoxes(world, pos, state, entity);
+// 		if (list != null)
+// 			for (AxisAlignedBB box : list)
+// 				if (clip.intersectsWith(box)) {
+// 				    System.out.printf("addCollisionBoxesToList: raw box = %s\n", box);
+// 				    box = boxIntersection(box, bounds);
+// 				    System.out.printf("addCollisionBoxesToList: cropped box = %s\n", box);
+// 				    if (box != null)
+// 					    result.add(box);
+// 				}
+// 	    else
+// 	        super.addCollisionBoxesToList(world, pos.x, pos.y, pos.z, clip, result, entity);
+// 	}
+
 	protected List<AxisAlignedBB> getGlobalCollisionBoxes(IBlockAccess world, BlockPos pos,
 		IBlockState state, Entity entity)
 	{
@@ -710,10 +730,11 @@ public class BaseBlock<TE extends TileEntity>
 	protected List<AxisAlignedBB> getCollisionBoxes(IBlockAccess world, BlockPos pos, IBlockState state,
 	    Trans3 t, Entity entity)
 	{
-	    IModel model = getModel(state);
-	    if (model != null) {
+	    ModelSpec spec = getModelSpec(state);
+	    if (spec != null) {
+	        IModel model = mod.getModel(spec.modelName);
             List<AxisAlignedBB> list = new ArrayList<AxisAlignedBB>();
-            model.addBoxesToList(t, list);
+            model.addBoxesToList(t.translate(spec.origin), list);
             return list;
         }
         return null;

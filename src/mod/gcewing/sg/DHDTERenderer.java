@@ -43,7 +43,7 @@ class DHDTERenderer extends BaseTileEntityRenderer {
             button.colored(0.5, 0.25, 0.0),
             button.colored(1.0, 0.5, 0.0).emissive(),
         };
-        model = BaseModel.fromResource(mod.resourceLocation("models/dhd.json"));
+        model = BaseModel.fromResource(mod.resourceLocation("models/dhd.smeg"));
         DHDTE.bounds = model.getBounds();
     }
     

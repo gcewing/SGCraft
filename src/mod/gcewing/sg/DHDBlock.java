@@ -28,7 +28,7 @@ public class DHDBlock extends BaseBlock<DHDTE> {
         "stargateBlock",
         "dhd_button_dim",
     };
-    protected static ModelSpec model = new ModelSpec("dhd.json", new Vector3(0, -0.5, 0), textures);
+    protected static ModelSpec model = new ModelSpec("dhd.smeg", new Vector3(0, -0.5, 0), textures);
 
     public DHDBlock() {
         super(Material.rock /*SGRingBlock.ringMaterial*/, DHDTE.class);
