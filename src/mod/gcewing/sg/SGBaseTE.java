@@ -76,6 +76,7 @@ public class SGBaseTE extends BaseTileInventory {
     final static int numCamouflageSlots = 5;
     final static int numInventorySlots = numCamouflageSlots;
     
+    static float defaultChevronAngle = 40f;
     static float chevronAngles[][] = {
     //     0    1    2    <-- Base camouflage level
         { 45f, 45f, 40f }, // 7 chevrons
@@ -96,6 +97,7 @@ public class SGBaseTE extends BaseTileInventory {
     static boolean logStargateEvents = false;
     static boolean preserveInventory = false;
     static float soundVolume = 1.0F;
+    static boolean variableChevronPositions = true;
     
     public static double energyToOpen;
     static double energyUsePerTick;
@@ -165,6 +167,7 @@ public class SGBaseTE extends BaseTileInventory {
         logStargateEvents = cfg.getBoolean("options", "logStargateEvents", logStargateEvents);
         preserveInventory = cfg.getBoolean("iris", "preserveInventory", preserveInventory);
         soundVolume = (float)cfg.getDouble("stargate", "soundVolume", soundVolume);
+        variableChevronPositions = cfg.getBoolean("stargate", "variableChevronPositions", variableChevronPositions);
     }
     
     public static SGBaseTE get(IBlockAccess world, BlockPos pos) {
@@ -389,11 +392,14 @@ public class SGBaseTE extends BaseTileInventory {
     }
  
     public float angleBetweenChevrons() {
-        int c9 = getNumChevrons() > 7 ? 1 : 0;
-        int bc = baseCornerCamouflage();
-        return chevronAngles[c9][bc];
+        if (variableChevronPositions) {
+            int c9 = getNumChevrons() > 7 ? 1 : 0;
+            int bc = baseCornerCamouflage();
+            return chevronAngles[c9][bc];
+        }
+        else
+            return defaultChevronAngle;
     }
-
 
 //  boolean upgradePresent(Item item) {
 //      for (int i = firstUpgradeSlot; i < firstUpgradeSlot + numUpgradeSlots; i++)

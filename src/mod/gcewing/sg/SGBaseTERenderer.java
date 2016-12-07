@@ -52,10 +52,11 @@ class SGBaseTERenderer extends BaseTileEntityRenderer {
     
     final static double numIrisBlades = 12;
 
-    
+    // Position in array corresponds to chevron position, clockwise from
+    // bottom left, 4 is top dead centre. Entry is number in engagement sequence.
     static int chevronEngagementSequences[][] = {
         {9, 3, 4, 5, 6, 0, 1, 2, 9}, // 7 symbols (9 = never enganged)
-        {4, 5, 6, 7, 8, 0, 1, 2, 3}  // 9 symbols
+        {7, 3, 4, 5, 8, 0, 1, 2, 6}  // 9 symbols
     };
 
     static double s[] = new double[numRingSegments + 1];
