@@ -393,6 +393,8 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
             //System.out.printf("BaseMod.addBlock: Setting creativeTab to %s\n", creativeTab);
             block.setCreativeTab(creativeTab);
         }
+        if (block instanceof BaseBlock)
+            ((BaseBlock)block).mod = this;
         registeredBlocks.add(block);
         return block;
     }

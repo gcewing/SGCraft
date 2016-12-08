@@ -35,6 +35,8 @@ public class BaseModel implements IModel {
         String path = String.format("/assets/%s/%s", location.getResourceDomain(), location.getResourcePath());
         InputStream in = BaseModel.class.getResourceAsStream(path);
         BaseModel model = gson.fromJson(new InputStreamReader(in), BaseModel.class);
+        if (in == null)
+            throw new RuntimeException("Model file not found: " + path);
         model.prepare();
         return model;
     }
@@ -53,12 +55,16 @@ public class BaseModel implements IModel {
     }
     
     public void addBoxesToList(Trans3 t, List list) {
-        if (boxes != null) {
-            for (int i = 0; i < boxes.length; i++) {
-                double[] b = boxes[i];
-                t.addBox(b[0], b[1], b[2], b[3], b[4], b[5], list);
-            }
+        if (boxes != null && boxes.length > 0) {
+            for (int i = 0; i < boxes.length; i++)
+                addBoxToList(boxes[i], t, list);
         }
+        else
+            addBoxToList(bounds, t, list);
+    }
+    
+    protected void addBoxToList(double[] b, Trans3 t, List list) {
+        t.addBox(b[0], b[1], b[2], b[3], b[4], b[5], list);
     }
 
     public void render(Trans3 t, IRenderTarget renderer, ITexture... textures) {

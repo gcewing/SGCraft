@@ -28,7 +28,10 @@ import net.minecraft.world.*;
 import net.minecraftforge.fml.common.registry.*;
 import net.minecraftforge.fml.relauncher.*;
 
-import gcewing.sg.BaseMod.ModelSpec;
+import static gcewing.sg.BaseMod.*;
+import static gcewing.sg.BaseModClient.*;
+import static gcewing.sg.BaseUtils.*;
+import static gcewing.sg.BaseBlockUtils.*;
 
 public class BaseBlock<TE extends TileEntity>
     extends BlockContainer implements BaseMod.IBlock
@@ -77,6 +80,8 @@ public class BaseBlock<TE extends TileEntity>
     protected IOrientationHandler orientationHandler = orient1Way;
     protected String[] textureNames;
     protected ModelSpec modelSpec;
+    protected BaseMod mod;
+    protected AxisAlignedBB boxHit;
 
     // --------------------------- Constructors -------------------------------
     
@@ -443,5 +448,107 @@ public class BaseBlock<TE extends TileEntity>
         }
     
     }
+
+    //----------------------------- Bounds and collision boxes -----------------------------------
+
+    @Override
+	public RayTraceResult collisionRayTrace(IBlockState state, World world, BlockPos pos, Vec3d start, Vec3d end) {
+	    boxHit = null;
+		RayTraceResult result = null;
+		double nearestDistance = 0;
+		List<AxisAlignedBB> list = getGlobalCollisionBoxes(world, pos, state, null);
+		if (list != null) {
+			int n = list.size();
+			for (int i = 0; i < n; i++) {
+				AxisAlignedBB box = list.get(i);
+				RayTraceResult mp = box.calculateIntercept(start, end);
+				if (mp != null) {
+					mp.subHit = i;
+					double d = start.squareDistanceTo(mp.hitVec);
+					if (result == null || d < nearestDistance) {
+						result = mp;
+						nearestDistance = d;
+					}
+				}
+			}
+		}
+		if (result != null) {
+			//setBlockBounds(list.get(result.subHit));
+			int i = result.subHit;
+			boxHit = list.get(i).offset(-pos.getX(), -pos.getY(), -pos.getZ());
+			result = new RayTraceResult(result.hitVec, result.sideHit, pos);
+			result.subHit = i;
+		}
+		return result;
+	}
+
+    @Override
+    public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess world, BlockPos pos) {
+	    AxisAlignedBB box = boxHit;
+	    if (box == null)
+            box = getLocalBounds(world, pos, state, null);
+		if (box != null)
+			return box;
+		else
+			return super.getBoundingBox(state, world, pos);
+	}
+
+    @Override
+    public AxisAlignedBB getCollisionBoundingBox(IBlockState state, World world, BlockPos pos) {
+        return getBoundingBox(state, world, pos);
+    }
+
+
+	protected AxisAlignedBB getLocalBounds(IBlockAccess world, BlockPos pos, IBlockState state,
+	    Entity entity)
+	{
+	    ModelSpec spec = getModelSpec(state);
+	    if (spec != null) {
+	        IModel model = mod.getModel(spec.modelName);
+            Trans3 t = localToGlobalTransformation(world, pos, state, Vector3.blockCenter).translate(spec.origin);
+            return t.t(model.getBounds());
+	    }
+	    return null;
+	}
+
+    @Override
+	public void addCollisionBoxToList(IBlockState state, World world, BlockPos pos, 
+		AxisAlignedBB clip, List result, Entity entity)
+	{
+		List<AxisAlignedBB> list = getGlobalCollisionBoxes(world, pos, state, entity);
+		if (list != null)
+			for (AxisAlignedBB box : list)
+				if (clip.intersectsWith(box))
+					result.add(box);
+	    else
+	        super.addCollisionBoxToList(state, world, pos, clip, result, entity);
+	}
+
+	protected List<AxisAlignedBB> getGlobalCollisionBoxes(IBlockAccess world, BlockPos pos,
+		IBlockState state, Entity entity)
+	{
+		Trans3 t = localToGlobalTransformation(world, pos, state);
+		return getCollisionBoxes(world, pos, state, t, entity);
+	}
+
+	protected List<AxisAlignedBB> getLocalCollisionBoxes(IBlockAccess world, BlockPos pos,
+		IBlockState state, Entity entity)
+	{
+		Trans3 t = localToGlobalTransformation(world, pos, state, Vector3.zero);
+		return getCollisionBoxes(world, pos, state, t, entity);
+	}
+
+	protected List<AxisAlignedBB> getCollisionBoxes(IBlockAccess world, BlockPos pos, IBlockState state,
+	    Trans3 t, Entity entity)
+	{
+	    ModelSpec spec = getModelSpec(state);
+	    if (spec != null) {
+	        IModel model = mod.getModel(spec.modelName);
+            List<AxisAlignedBB> list = new ArrayList<AxisAlignedBB>();
+            model.addBoxesToList(t.translate(spec.origin), list);
+            return list;
+        }
+        return null;
+	}
 
 }

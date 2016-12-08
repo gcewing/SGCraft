@@ -101,7 +101,7 @@ public class BaseTileEntity extends TileEntity
         NBTTagCompound nbt = pkt.getNbtCompound();
         readFromNBT(nbt);
         if (nbt.getBoolean("updateChunk"))
-            markBlockForUpdate();
+            worldObj.markBlockRangeForRenderUpdate(pos, pos);
     }
     
     boolean syncWithClient() {
@@ -118,15 +118,17 @@ public class BaseTileEntity extends TileEntity
         "changedSectionFilter", "field_187288_h");
 
     public void markForUpdate() {
-        int x = pos.getX();
-        int y = pos.getY();
-        int z = pos.getZ();
-        PlayerChunkMap pm = ((WorldServer)worldObj).getPlayerChunkMap();
-        PlayerChunkMapEntry entry = pm.getEntry(x >> 4, z >> 4);
-        if (entry != null) {
-            int oldFlags = getIntField(entry, changedSectionFilter);
-            entry.blockChanged(x & 0xf, y, z & 0xf);
-            setIntField(entry, changedSectionFilter, oldFlags);
+        if (!worldObj.isRemote) {
+            int x = pos.getX();
+            int y = pos.getY();
+            int z = pos.getZ();
+            PlayerChunkMap pm = ((WorldServer)worldObj).getPlayerChunkMap();
+            PlayerChunkMapEntry entry = pm.getEntry(x >> 4, z >> 4);
+            if (entry != null) {
+                int oldFlags = getIntField(entry, changedSectionFilter);
+                entry.blockChanged(x & 0xf, y, z & 0xf);
+                setIntField(entry, changedSectionFilter, oldFlags);
+            }
         }
     }
 
