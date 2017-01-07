@@ -56,6 +56,10 @@ public class BaseGui {
             this(container, container.xSize, container.ySize);
         }
         
+        public Container getContainer() {
+            return inventorySlots;
+        }
+        
         public int getWidth() {return xSize;}
         public int getHeight() {return ySize;}
         
@@ -164,8 +168,8 @@ public class BaseGui {
             double ush = vSize - 2 * cornerHeight; // v side height
             double x1 = x + cw, x2 = w - cw;
             double y1 = y + ch, y2 = h - ch;
-            double u1 = u + cw, u2 = uSize - cw;
-            double v1 = v + ch, v2 = vSize - cw;
+            double u1 = u + cw, u2 = u + uSize - cw;
+            double v1 = v + ch, v2 = v + vSize - ch;
             drawTexturedRect(x, y, cw, ch, u, v);               // top left corner
             drawTexturedRect(x2, y, cw, ch, u2, v);             // top right corner
             drawTexturedRect(x, y2, cw, ch, u, v2);             // bottom left corner

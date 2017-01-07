@@ -486,6 +486,14 @@ public class BaseBlock<TE extends TileEntity>
     public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player,
         EnumFacing side, float cx, float cy, float cz)
     {
+        TileEntity te = getTileEntity(world, pos);
+        if (te != null) {
+            int id = mod.getGuiId(te.getClass());
+            if (id >= 0) {
+                mod.openGui(player, id, world, pos);
+                return true;
+            }
+        }
         return false;
     }
     
@@ -729,15 +737,19 @@ public class BaseBlock<TE extends TileEntity>
 	protected List<AxisAlignedBB> getCollisionBoxes(IBlockAccess world, BlockPos pos, IBlockState state,
 	    Trans3 t, Entity entity)
 	{
+        List<AxisAlignedBB> list = new ArrayList<AxisAlignedBB>();
 	    ModelSpec spec = getModelSpec(state);
 	    if (spec != null) {
 	        IModel model = mod.getModel(spec.modelName);
-            List<AxisAlignedBB> list = new ArrayList<AxisAlignedBB>();
             model.addBoxesToList(t.translate(spec.origin), list);
-            return list;
         }
-        return null;
+        else
+            list.add(t.t(defaultCollisionBox));
+        return list;
 	}
+	
+	protected static AxisAlignedBB defaultCollisionBox = AxisAlignedBB.getBoundingBox(
+	    -0.5, -0.5, -0.5, 0.5, 0.5, 0.5);
 
     @Override
     public ItemStack getPickBlock(MovingObjectPosition target, World world, int x, int y, int z) {
@@ -839,4 +851,5 @@ public class BaseBlock<TE extends TileEntity>
                 return true;
         return false;
     }
+
 }

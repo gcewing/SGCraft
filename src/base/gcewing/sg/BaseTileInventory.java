@@ -55,6 +55,25 @@ public class BaseTileInventory extends BaseTileEntity implements IInventory, ISi
             nbt.setTag("inventory", list);
         }
     }
+    
+    public boolean hasStackInSlot(int i) {
+        ItemStack stack = getStackInSlot(i);
+        return stack != null && stack.stackSize > 0;
+    }
+    
+    public boolean damageStackInSlot(int i, int amount) {
+        ItemStack stack = getStackInSlot(i);
+        int damage = stack.getItemDamage() + amount;
+        stack.setItemDamage(damage);
+        if (damage >= stack.getMaxDamage()) {
+            setInventorySlotContents(i, null);
+            return true;
+        }
+        else {
+            onInventoryChanged(i);
+            return false;
+        }
+    }
 
 //------------------------------------- IInventory -----------------------------------------
 

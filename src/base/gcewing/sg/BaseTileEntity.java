@@ -81,7 +81,8 @@ public class BaseTileEntity extends TileEntity
         //System.out.printf("BaseTileEntity.getDescriptionPacket for %s, updateChunk = %s\n", this, updateChunk);
         if (syncWithClient()) {
             NBTTagCompound nbt = new NBTTagCompound();
-            writeToNBT(nbt);
+            super.writeToNBT(nbt);
+            writeClientStateToNBT(nbt);
             if (updateChunk) {
                 nbt.setBoolean("updateChunk", true);
                 updateChunk = false;
@@ -95,7 +96,8 @@ public class BaseTileEntity extends TileEntity
     @Override
     public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt) {
         NBTTagCompound nbt = pkt.func_148857_g();
-        readFromNBT(nbt);
+        super.readFromNBT(nbt);
+        readClientStateFromNBT(nbt);
         if (nbt.getBoolean("updateChunk"))
             worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
     }
@@ -137,8 +139,12 @@ public class BaseTileEntity extends TileEntity
     }
     
     @Override
-    public void readFromNBT(NBTTagCompound nbt) {
+    public final void readFromNBT(NBTTagCompound nbt) {
         super.readFromNBT(nbt);
+        readPersistentStateFromNBT(nbt);
+    }
+    
+    protected void readPersistentStateFromNBT(NBTTagCompound nbt) {
         side = nbt.getByte("side");
         turn = nbt.getByte("turn");
         readContentsFromNBT(nbt);
@@ -154,12 +160,20 @@ public class BaseTileEntity extends TileEntity
         readContentsFromNBT(nbt);
     }
     
+    protected void readClientStateFromNBT(NBTTagCompound nbt) {
+        readPersistentStateFromNBT(nbt);
+    }
+    
     public void readContentsFromNBT(NBTTagCompound nbt) {
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound nbt) {
+    public final void writeToNBT(NBTTagCompound nbt) {
         super.writeToNBT(nbt);
+        writePersistentStateToNBT(nbt);
+    }
+    
+    protected void writePersistentStateToNBT(NBTTagCompound nbt) {
         if (side != 0)
             nbt.setByte("side", side);
         if (turn != 0)
@@ -169,6 +183,10 @@ public class BaseTileEntity extends TileEntity
 
     public void writeToItemStackNBT(NBTTagCompound nbt) {
         writeContentsToNBT(nbt);
+    }
+    
+    protected void writeClientStateToNBT(NBTTagCompound nbt) {
+        writePersistentStateToNBT(nbt);
     }
     
     public void writeContentsToNBT(NBTTagCompound nbt) {

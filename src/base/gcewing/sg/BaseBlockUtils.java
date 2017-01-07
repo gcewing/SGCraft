@@ -15,7 +15,8 @@ import net.minecraft.block.material.*;
 import net.minecraft.client.renderer.texture.*;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
+import net.minecraft.item.*;
+import net.minecraft.nbt.*;
 import net.minecraft.tileentity.*;
 import net.minecraft.util.*;
 import net.minecraft.world.*;
@@ -208,6 +209,27 @@ public class BaseBlockUtils {
         return new ItemStack(block, size, meta);
     }
     
+    public static ItemStack newBlockStack(IBlockState state) {
+        Block block = state.getBlock();
+        int meta = BaseBlockUtils.getMetaFromBlockState(state);
+        Item item = Item.getItemFromBlock(block);
+        if (item != null) {
+            return new ItemStack(item, 1, meta);
+        }
+        return null;
+    }
+    
+    public static NBTTagCompound nbtFromBlockPos(BlockPos pos) {
+        NBTTagCompound nbt = new NBTTagCompound();
+        nbt.setInteger("x", pos.getX());
+        nbt.setInteger("y", pos.getY());
+        nbt.setInteger("z", pos.getZ());
+        return nbt;
+    }
+    
+    public static BlockPos blockPosFromNBT(NBTTagCompound nbt) {
+        return new BlockPos(nbt.getInteger("x"), nbt.getInteger("y"), nbt.getInteger("z"));
+    }
     
     //------------------------------------------------------------------------------------------------
 

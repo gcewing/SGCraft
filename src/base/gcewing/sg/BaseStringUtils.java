@@ -6,6 +6,7 @@
 
 package gcewing.sg;
 
+import java.lang.*;
 import java.util.*;
 
 public class BaseStringUtils {
@@ -26,6 +27,10 @@ public class BaseStringUtils {
     }
     
     public static String join(String sep, String[] strings) {
+        return join(sep, Arrays.asList(strings));
+    }
+
+     public static String join(String sep, Iterable<String> strings) {
         StringBuilder result = new StringBuilder();
         boolean first = true;
         for (String s : strings) {
@@ -37,5 +42,5 @@ public class BaseStringUtils {
         }
         return result.toString();
     }
-    
+
 }

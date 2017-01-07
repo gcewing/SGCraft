@@ -7,10 +7,12 @@
 package gcewing.sg;
 
 import java.io.*;
+import static java.lang.Math.*;
 import java.lang.reflect.*;
 import java.util.*;
 import net.minecraft.block.Block;
 //import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.*;
 import net.minecraft.item.*;
@@ -21,33 +23,15 @@ import net.minecraft.util.*;
 import net.minecraft.world.*;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.storage.MapStorage;
+
 import net.minecraftforge.common.DimensionManager;
+import cpw.mods.fml.relauncher.*;
 
 public class BaseUtils {
 
     public static EnumFacing[] facings = EnumFacing.values();
     public static EnumFacing[] horizontalFacings = {
         EnumFacing.SOUTH, EnumFacing.WEST, EnumFacing.NORTH, EnumFacing.EAST}; 
-    
-    public static int abs(int x) {
-        return x >= 0 ? x : -x;
-    }
-
-    public static int min(int x, int y) {
-        return x < y ? x : y;
-    }
-    
-    public static int max(int x, int y) {
-        return x > y ? x : y;
-    }
-
-    public static double min(double x, double y) {
-        return x < y ? x : y;
-    }
-    
-    public static double max(double x, double y) {
-        return x > y ? x : y;
-    }
     
     public static int clampIndex(int x, int n) {
         return max(0, min(x, n - 1));
@@ -326,6 +310,21 @@ public class BaseUtils {
             }
         }
         return result;
+    }
+    
+    public static String translateToLocal(String s) {
+        if (!StatCollector.canTranslate(s))
+            s = s + ".name";
+        return StatCollector.translateToLocal(s);
+    }
+    
+    public static void addChatMessage(EntityPlayer player, String text) {
+        player.addChatComponentMessage(new ChatComponentText(text));
+    }
+    
+    @SideOnly(Side.CLIENT)
+    public static void addClientChatMessage(String text) {
+        Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(new ChatComponentText(text));
     }
     
 }

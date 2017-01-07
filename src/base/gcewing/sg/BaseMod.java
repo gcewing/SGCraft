@@ -423,6 +423,10 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
         OreDictionary.registerOre(name, item);
     }
     
+    public void addOre(String name, ItemStack stack) {
+        OreDictionary.registerOre(name, stack);
+    }
+
     public static boolean blockMatchesOre(Block block, String name) {
         return stackMatchesOre(new ItemStack(block), name);
     }
@@ -589,22 +593,57 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
     }
 
     //--------------- GUIs - Registration ------------------------------------------------
+    
+    protected int nextGuiId = 1000;
+    Map<Class<? extends Container>, Class<? extends TileEntity>> containerTEClasses = new HashMap<>();
+    Map<Object, Integer> objectToGuiId = new HashMap<>();
 
     protected void registerContainers() {
-    //  Make calls to addContainer() here.
-    //
-    //  Container classes registered using these methods must implement either:
-    //
-    //  (1) A static method create(EntityPlayer player, World world, int x, int y, int z [,int param])
-    //  (2) A constructor MyContainer(EntityPlayer player, World world, int x, int y, int z [, int param])
+        //  Make calls to addContainer() here.
+    }
+    
+    public int getGuiId(Object obj) {
+        Integer id = objectToGuiId.get(obj);
+        if (id != null)
+            return id;
+        else
+            return -1;
     }
     
     public void addContainer(Enum id, Class<? extends Container> cls) {
         addContainer(id.ordinal(), cls);
     }
 
+    //  Container classes registered using addContainer() must implement one of:
+    //
+    //  (1) A static method create(EntityPlayer player, World world, BlockPos pos [,int param])
+    //  (2) A constructor MyContainer(EntityPlayer player, World world, BlockPos pos [, int param])
+    //  (3) A constructor MyContainer(EntityPlayer player, MyTileEntity te [,int param]) where
+    //         MyTileEntity is the tile entity class registered with MyContainer
+
+    public int addContainer(Class<? extends Container> cls) {
+        return addContainer(cls, null);
+    }
+
+    public int addContainer(Class<? extends Container> cls, Class<? extends TileEntity> teCls) {
+        int id = nextGuiId++;
+        addContainer(id, cls, teCls);
+        return id;
+    }
+
     public void addContainer(int id, Class<? extends Container> cls) {
+        addContainer(id, cls, null);
+    }
+    
+    public void addContainer(int id, Class<? extends Container> cls, Class<? extends TileEntity> teCls) {
+        if (containerClasses.containsKey(id))
+            throw new RuntimeException("Duplicate container registration with ID " + id);
         containerClasses.put(id, cls);
+        objectToGuiId.put(cls, id);
+        if (teCls != null) {
+            containerTEClasses.put(cls, teCls);
+            objectToGuiId.put(teCls, id);
+        }
     }
     
     //--------------- GUIs  - Invoking -------------------------------------------------
@@ -617,11 +656,21 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
         openGui(player, id.ordinal(), te, param);
     }
 
+    public void openGui(EntityPlayer player, TileEntity te) {
+        openGui(player, -1, te, 0);
+    }
+
     public void openGui(EntityPlayer player, int id, TileEntity te) {
         openGui(player, id, te, 0);
     }
 
+    public void openGui(EntityPlayer player, TileEntity te, int param) {
+        openGui(player, -1, te, param);
+    }
+
     public void openGui(EntityPlayer player, int id, TileEntity te, int param) {
+        if (id < 0)
+            id = getGuiId(te);
         openGui(player, id, te.getWorldObj(), new BlockPos(te), param);
     }
 
@@ -718,6 +767,18 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
             c = getConstructor(cls, EntityPlayer.class, World.class, BlockPos.class);
             if (c != null)
                 return c.newInstance(player, world, pos);
+            Class<? extends TileEntity> teCls = containerTEClasses.get(cls);
+            if (teCls != null) {
+                TileEntity te = BaseBlockUtils.getWorldTileEntity(world, pos);
+                if (te != null) {
+                    c = getConstructor(cls, EntityPlayer.class, teCls, int.class);
+                    if (c != null)
+                        return c.newInstance(player, te, param);
+                    c = getConstructor(cls, EntityPlayer.class, teCls);
+                    if (c != null)
+                        return c.newInstance(player, te);
+                }
+            }
             throw new RuntimeException(String.format("%s: No suitable gui element constructor found for %s\n",
                 modID, cls));
         }

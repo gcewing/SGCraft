@@ -59,8 +59,9 @@ public class BaseModel implements IModel {
             for (int i = 0; i < boxes.length; i++)
                 addBoxToList(boxes[i], t, list);
         }
-        else
+        else {
             addBoxToList(bounds, t, list);
+        }
     }
     
     protected void addBoxToList(double[] b, Trans3 t, List list) {

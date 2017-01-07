@@ -59,8 +59,8 @@ public class InventoryHelper
 
             stack.stackSize -= i;
             Item item = stack.getItem();
-            int meta = item.getMetadata(stack.getItemDamage());
-            EntityItem entityitem = new EntityItem(worldIn, x + (double)f, y + (double)f1, z + (double)f2, new ItemStack(item, i, meta));
+            int damage = stack.getItemDamage();
+            EntityItem entityitem = new EntityItem(worldIn, x + f, y + f1, z + f2, new ItemStack(item, i, damage));
 
             if (stack.hasTagCompound())
             {
