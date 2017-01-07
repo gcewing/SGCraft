@@ -20,8 +20,6 @@ public abstract class SGBlock<TE extends TileEntity> extends BaseBlock<TE> imple
 
     @Override    
     public boolean removedByPlayer(World world, EntityPlayer player, int x, int y, int z) {
-        System.out.printf("SGBlock.removedByPlayer: (%s, %s, %s) in %s\n",
-            x, y, z, world);
         if (player.capabilities.isCreativeMode && isConnected(world, new BlockPos(x, y, z))) {
             if (world.isRemote)
                 SGBaseTE.sendChatMessage(player, "Disconnect stargate before breaking");

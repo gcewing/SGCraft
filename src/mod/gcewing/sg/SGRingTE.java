@@ -18,9 +18,9 @@ public class SGRingTE extends BaseTileEntity {
     public BlockPos basePos = new BlockPos(0, 0, 0);
 
     @Override
-    public void readFromNBT(NBTTagCompound nbt) {
-        //System.out.printf("SGRingTE.readFromNBT\n");
-        super.readFromNBT(nbt);
+    public void readContentsFromNBT(NBTTagCompound nbt) {
+        //System.out.printf("SGRingTE.readFromNBT: %s\n", getPos());
+        super.readContentsFromNBT(nbt);
         isMerged = nbt.getBoolean("isMerged");
         int baseX = nbt.getInteger("baseX");
         int baseY = nbt.getInteger("baseY");
@@ -29,9 +29,9 @@ public class SGRingTE extends BaseTileEntity {
     }
     
     @Override
-    public void writeToNBT(NBTTagCompound nbt) {
+    public void writeContentsToNBT(NBTTagCompound nbt) {
         //System.out.printf("SGRingTE.writeToNBT\n");
-        super.writeToNBT(nbt);
+        super.writeContentsToNBT(nbt);
         nbt.setBoolean("isMerged", isMerged);
         nbt.setInteger("baseX", basePos.getX());
         nbt.setInteger("baseY", basePos.getY());

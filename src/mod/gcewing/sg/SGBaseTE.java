@@ -6,6 +6,7 @@
 
 package gcewing.sg;
 
+import static java.lang.Math.*;
 import java.util.*;
 import java.lang.reflect.Method;
 import org.apache.logging.log4j.*;
@@ -270,8 +271,9 @@ public class SGBaseTE extends BaseTileInventory {
     }
     
     @Override
-    public void readFromNBT(NBTTagCompound nbt) {
-        super.readFromNBT(nbt);
+    public void readContentsFromNBT(NBTTagCompound nbt) {
+        //System.out.printf("SGBaseTE.readContentsFromNBT: %s\n", getPos());
+        super.readContentsFromNBT(nbt);
         isMerged = nbt.getBoolean("isMerged");
         state = SGState.valueOf(nbt.getInteger("state"));
         targetRingAngle = nbt.getDouble("targetRingAngle");
@@ -308,8 +310,8 @@ public class SGBaseTE extends BaseTileInventory {
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound nbt) {
-        super.writeToNBT(nbt);
+    public void writeContentsToNBT(NBTTagCompound nbt) {
+        super.writeContentsToNBT(nbt);
         nbt.setBoolean("isMerged", isMerged);
         nbt.setInteger("state", state.ordinal());
         nbt.setDouble("targetRingAngle", targetRingAngle);

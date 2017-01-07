@@ -42,7 +42,7 @@ public class SGRingBlockRenderer implements ICustomRenderer {
                         if (blockCanRenderInLayer(camoState.getBlock(), layer)) {
                             //System.out.printf("SGRingBlockRenderer: Rendering camouflage block %s at %s in layer %s\n",
                             //    camoState, pos, layer);
-                            SGCraft.mod.client.renderAlternateBlock(world, pos, camoState, target);
+                            BaseRenderingUtils.renderAlternateBlock(SGCraft.mod, world, pos, camoState, target);
                         }
                     }
                 }

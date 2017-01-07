@@ -6,6 +6,8 @@
 
 package gcewing.sg.ic2;
 
+import static java.lang.Math.*;
+
 import net.minecraft.nbt.*;
 import net.minecraft.tileentity.*;
 import net.minecraftforge.common.*;

@@ -292,8 +292,8 @@ public class OCInterfaceTE extends SGInterfaceTE
     // ----------------------------------------------------------------------- //
 
     @Override
-    public void readFromNBT(final NBTTagCompound nbt) {
-        super.readFromNBT(nbt);
+    public void readContentsFromNBT(final NBTTagCompound nbt) {
+        super.readContentsFromNBT(nbt);
         // The host check may be superfluous for you. It's just there to allow
         // some special cases, where getNode() returns some node managed by
         // some other instance (for example when you have multiple internal
@@ -308,8 +308,8 @@ public class OCInterfaceTE extends SGInterfaceTE
     }
 
     @Override
-    public void writeToNBT(final NBTTagCompound nbt) {
-        super.writeToNBT(nbt);
+    public void writeContentsToNBT(final NBTTagCompound nbt) {
+        super.writeContentsToNBT(nbt);
         // See readFromNBT() regarding host check.
         if (node != null && node.host() == this) {
             final NBTTagCompound nodeNbt = new NBTTagCompound();

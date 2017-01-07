@@ -6,6 +6,8 @@
 
 package gcewing.sg;
 
+import static java.lang.Math.*;
+
 // import net.minecraft.block.state.IBlockState;
 import net.minecraft.inventory.*;
 import net.minecraft.item.*;
@@ -99,8 +101,8 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
 //     }
 
     @Override
-    public void readFromNBT(NBTTagCompound nbt) {
-        super.readFromNBT(nbt);
+    public void readContentsFromNBT(NBTTagCompound nbt) {
+        super.readContentsFromNBT(nbt);
         isLinkedToStargate = nbt.getBoolean("isLinkedToStargate");
         energyInBuffer = nbt.getDouble("energyInBuffer");
         int x = nbt.getInteger("linkedX");
@@ -111,8 +113,8 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound nbt) {
-        super.writeToNBT(nbt);
+    public void writeContentsToNBT(NBTTagCompound nbt) {
+        super.writeContentsToNBT(nbt);
         nbt.setBoolean("isLinkedToStargate", isLinkedToStargate);
         nbt.setDouble("energyInBuffer", energyInBuffer);
         nbt.setInteger("linkedX", linkedPos.getX());
