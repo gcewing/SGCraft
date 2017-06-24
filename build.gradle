@@ -1,13 +1,27 @@
-buildscript {
-    repositories {
+buildscript
+{
+    repositories
+    {
+        mavenCentral()
+        mavenLocal()
         jcenter()
-        maven { url = "http://files.minecraftforge.net/maven" }
+        maven
+        {
+            url = "http://files.minecraftforge.net/maven"
+        }
+        maven
+        {
+            url = "https://oss.sonatype.org/content/repositories/snapshots/"
+        }
     }
-    dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
+    dependencies
+    {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
     }
 }
+
 apply plugin: 'net.minecraftforge.gradle.forge'
+
 //Only edit below this line, the above code adds and enables the nessasary things for Forge to be setup.
 
 
@@ -16,7 +30,7 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 archivesBaseName = jarName
 
 minecraft {
-    version = "1.10.2-12.18.2.2099"
+    version = "1.12-14.21.0.2331"
     runDir = "run"
 
     // the mappings can be changed at any time, and must be in the following format.
@@ -24,7 +38,7 @@ minecraft {
     // stable_#            stables are built at the discretion of the MCP team.
     // Use non-default mappings at your own risk. they may not allways work.
     // simply re-run your setup task after changing the mappings to update your workspace.
-    mappings = "snapshot_20160518"
+    mappings = "snapshot_20170614"
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
 }
 
