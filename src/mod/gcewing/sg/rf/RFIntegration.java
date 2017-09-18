@@ -9,6 +9,8 @@ package gcewing.sg.rf;
 import net.minecraft.block.*;
 import net.minecraft.init.*;
 import net.minecraft.item.*;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import static net.minecraftforge.fml.common.Loader.*;
 import gcewing.sg.*;
@@ -29,8 +31,8 @@ public class RFIntegration extends BaseSubsystem<SGCraft, SGCraftClient> {
     }
 
     protected void addThermalExpansionPowerBlockRecipe() {
-        Item frame = GameRegistry.findItem("ThermalExpansion", "Frame");
-        Item coil = GameRegistry.findItem("ThermalExpansion", "material");
+        Item frame = ForgeRegistries.ITEMS.getValue(new ResourceLocation("thermalexpansion", "Frame"));
+        Item coil = ForgeRegistries.ITEMS.getValue(new ResourceLocation("thermalexpansion", "material"));
         ItemStack hardenedEnergyFrame = new ItemStack(frame, 1, 4);
         ItemStack receptionCoil = new ItemStack(coil, 1, 1);
         ItemStack transmissionCoil = new ItemStack(coil, 1, 2);

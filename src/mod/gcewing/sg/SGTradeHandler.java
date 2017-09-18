@@ -11,6 +11,7 @@ import java.util.*;
 // import net.minecraft.block.*;
 // import net.minecraft.entity.*;
 // import net.minecraft.entity.passive.*;
+import net.minecraft.entity.IMerchant;
 import net.minecraft.entity.passive.EntityVillager.ITradeList;
 import net.minecraft.init.*;
 import net.minecraft.item.*;
@@ -21,7 +22,8 @@ import net.minecraftforge.fml.common.registry.VillagerRegistry.*;
 
 public class SGTradeHandler implements ITradeList {
 
-    public void modifyMerchantRecipeList(MerchantRecipeList recipes, Random random) {
+    @Override
+    public void addMerchantRecipe(IMerchant merchant, MerchantRecipeList recipes, Random random) {
 
         recipes.add(new MerchantRecipe(
             new ItemStack(Items.EMERALD, 8),
@@ -33,5 +35,4 @@ public class SGTradeHandler implements ITradeList {
             new ItemStack(Items.DIAMOND, 1),
             new ItemStack(SGCraft.sgControllerCrystal)));
     }
-
 }

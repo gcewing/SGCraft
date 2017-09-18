@@ -58,7 +58,7 @@ public class IC2PowerTE extends PowerTE implements IEnergySink, ITickable {
     
     @Override
     public void update() {
-        if (!worldObj.isRemote && !loaded) {
+        if (!world.isRemote && !loaded) {
             if(debugLoad)
                 System.out.printf("SGCraft: IC2PowerTE: Adding to energy network\n");
             loaded = true;
@@ -67,7 +67,7 @@ public class IC2PowerTE extends PowerTE implements IEnergySink, ITickable {
     }           
     
     void unload() {
-        if (!worldObj.isRemote && loaded) {
+        if (!world.isRemote && loaded) {
             if(debugLoad)
                 System.out.printf("SGCraft: IC2PowerTE: Removing from energy network\n");
             MinecraftForge.EVENT_BUS.post(new EnergyTileUnloadEvent(this));

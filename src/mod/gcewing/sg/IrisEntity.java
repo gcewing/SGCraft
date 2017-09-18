@@ -57,7 +57,7 @@ public class IrisEntity extends Entity implements IEntityAdditionalSpawnData {
     }
 
     SGBaseTE getBaseTE() {
-        TileEntity te = worldObj.getTileEntity(blockPos);
+        TileEntity te = world.getTileEntity(blockPos);
         if (te instanceof SGBaseTE)
             return (SGBaseTE)te;
         else

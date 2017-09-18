@@ -77,7 +77,7 @@ public class SGRingBlock extends SGBlock<SGRingTE> {
     }
     
     @Override
-    public boolean canRenderInLayer(BlockRenderLayer layer) {
+    public boolean canRenderInLayer(IBlockState state, BlockRenderLayer layer) {
         return true; // So that translucent camouflage blocks render correctly
     }
     
@@ -108,7 +108,7 @@ public class SGRingBlock extends SGBlock<SGRingTE> {
 
     @Override
     public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player,
-         EnumHand hand, ItemStack heldItem, EnumFacing side, float cx, float cy, float cz)
+         EnumHand hand, EnumFacing side, float cx, float cy, float cz)
     {
         //System.out.printf("SGRingBlock.onBlockActivated at (%d, %d, %d)\n", x, y, z);
         SGRingTE te = getTileEntity(world, pos);
@@ -117,7 +117,7 @@ public class SGRingBlock extends SGBlock<SGRingTE> {
             IBlockState baseState = world.getBlockState(te.basePos);
             Block block = baseState.getBlock();
             if (block instanceof SGBaseBlock)
-                block.onBlockActivated(world, te.basePos, baseState, player, hand, heldItem, side,
+                block.onBlockActivated(world, te.basePos, baseState, player, hand, side,
                     cx, cy, cz);
             return true;
         }
@@ -134,11 +134,12 @@ public class SGRingBlock extends SGBlock<SGRingTE> {
     }
     
     @Override
-    public void getSubBlocks(Item item, CreativeTabs tab, List list) {
+    public void getSubBlocks(CreativeTabs tab, NonNullList<ItemStack> list) {
         for (int i = 0; i < numSubBlocks; i++)
             list.add(new ItemStack(item, 1, i));
     }
-    
+
+    @Override
     public boolean isMerged(IBlockAccess world, BlockPos pos) {
         SGRingTE te = getTileEntity(world, pos);
         return te != null && te.isMerged;

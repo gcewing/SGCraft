@@ -9,10 +9,14 @@ package gcewing.sg;
 import java.util.*;
 
 import net.minecraft.block.*;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.*;
 import net.minecraft.item.*;
 import net.minecraft.nbt.*;
 import net.minecraft.util.*;
+import net.minecraft.world.World;
+
+import javax.annotation.Nullable;
 
 public class PowerItem extends ItemBlock {
 
@@ -26,7 +30,7 @@ public class PowerItem extends ItemBlock {
     }
     
     @Override
-    public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean par4) {
+    public void addInformation(ItemStack stack, @Nullable World world, List<String> list, ITooltipFlag flag) {
         NBTTagCompound nbt = stack.getTagCompound();
         if (nbt != null) {
             double eu = nbt.getDouble("energyBuffer");
