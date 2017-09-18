@@ -74,13 +74,15 @@ public class SGCraft extends BaseMod<SGCraftClient> {
     public SGCraft() {
         mod = this;
         creativeTab = new CreativeTabs("sgcraft:sgcraft") {
-            public Item getTabIconItem() {
-                return Item.getItemFromBlock(sgBaseBlock);
+            @Override
+            public ItemStack getTabIconItem() {
+                return new ItemStack(Item.getItemFromBlock(sgBaseBlock));
             }
         };
     }
     
     @Mod.EventHandler
+    @Override
     public void preInit(FMLPreInitializationEvent e) {
         FMLCommonHandler.instance().bus().register(this);
         rfAvailable = classAvailable("cofh.api.energy.IEnergyConnection");
@@ -94,6 +96,7 @@ public class SGCraft extends BaseMod<SGCraftClient> {
     }
     
     @Mod.EventHandler
+    @Override
     public void init(FMLInitializationEvent e) {
         super.init(e);
         System.out.printf("SGCraft.init\n");
@@ -103,6 +106,7 @@ public class SGCraft extends BaseMod<SGCraftClient> {
     }
 
     @Mod.EventHandler
+    @Override
     public void postInit(FMLPostInitializationEvent e) {
         super.postInit(e);
     }
@@ -112,6 +116,7 @@ public class SGCraft extends BaseMod<SGCraftClient> {
         return new SGCraftClient(this);
     }
 
+    @Override
     void configure() {
         DHDTE.configure(config);
         NaquadahOreWorldGen.configure(config);
@@ -229,7 +234,7 @@ public class SGCraft extends BaseMod<SGCraftClient> {
         VillagerProfession tokraProfession = new VillagerProfession("sgcraft:tokra", "sgcraft:textures/skins/tokra.png");
         VillagerCareer tokraCareer = new VillagerCareer(tokraProfession, "sgcraft:tokra");
         tokraCareer.addTrade(1, new SGTradeHandler());
-        VillagerRegistry.instance().register(tokraProfession);
+        ForgeRegistries.VILLAGER_PROFESSIONS.register(tokraProfession);
     }
 
     @Override

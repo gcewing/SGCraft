@@ -96,7 +96,7 @@ public class DHDBlock extends BaseBlock<DHDTE> {
     
     @Override
     public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player,
-        EnumHand hand, ItemStack heldItem, EnumFacing side, float cx, float cy, float cz)
+        EnumHand hand, EnumFacing side, float cx, float cy, float cz)
     {
         SGGui id = cy > 0.5 ? SGGui.SGController : SGGui.DHDFuel;
         SGCraft.mod.openGui(player, id, world, pos);

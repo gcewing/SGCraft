@@ -72,7 +72,7 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
     
     @Override
     public AxisAlignedBB getRenderBoundingBox() {
-        return bounds.addCoord(getX() + 0.5, getY(), getZ() + 0.5);
+        return bounds.expand(getX() + 0.5, getY(), getZ() + 0.5);
     }
 
     @Override

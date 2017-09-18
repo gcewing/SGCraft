@@ -28,7 +28,7 @@ public class OCInterfaceBlock extends SGInterfaceBlock<OCInterfaceTE> {
     
     @Override
     public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player,
-        EnumHand hand, ItemStack heldItem, EnumFacing side, float hx, float hy, float hz)
+        EnumHand hand, EnumFacing side, float hx, float hy, float hz)
     {
         if (!world.isRemote)
             SGCraft.mod.openGui(player, SGGui.OCInterface, world, pos);

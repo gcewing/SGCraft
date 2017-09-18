@@ -188,7 +188,7 @@ public class OCInterfaceTE extends SGInterfaceTE
      *       // If you do not need energy remove this call.
      *       .withConnector()
      *       // This call marks the tile entity as a component. This means you
-     *       // can mark methods in it using the {@link li.cil.oc.api.network.Callback}
+     *       // can mark methods in it using the {@link li.cil.oc.api.machine.Callback}
      *       // annotation, making them callable from user code. The first
      *       // parameter is the name by which the component will be known in
      *       // the computer, in this case it could be accessed as
@@ -323,6 +323,7 @@ public class OCInterfaceTE extends SGInterfaceTE
 
     // -------------------------- IComputerInterface --------------------------
 
+    @Override
     public void postEvent(TileEntity source, String name, Object... args) {
         //System.out.printf("OCInterfaceTE.postEvent: %s to %s\n", name, node);
         if (node != null)
@@ -343,7 +344,13 @@ public class OCInterfaceTE extends SGInterfaceTE
     public int getSizeInventory() {
         IInventory inventory = getInventory();
         return (inventory != null) ? inventory.getSizeInventory() : 0;
-    }   
+    }
+
+    @Override
+    public boolean isEmpty() {
+        IInventory inventory = getInventory();
+        return inventory == null || inventory.isEmpty();
+    }
 
     /**
      * Returns the stack in slot i
@@ -412,9 +419,9 @@ public class OCInterfaceTE extends SGInterfaceTE
      * Do not make give this method the name canInteractWith because it clashes with Container
      */
     @Override
-    public boolean isUseableByPlayer(EntityPlayer player) {
+    public boolean isUsableByPlayer(EntityPlayer player) {
         IInventory inventory = getInventory();
-        return (inventory != null) ? inventory.isUseableByPlayer(player) : true;
+        return (inventory != null) ? inventory.isUsableByPlayer(player) : true;
     }
 
     @Override

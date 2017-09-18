@@ -51,7 +51,7 @@ public class PowerBlock<TE extends PowerTE> extends BaseBlock<TE> {
 
     @Override
     public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player,
-        EnumHand hand, ItemStack heldItem, EnumFacing side, float cx, float cy, float cz)
+        EnumHand hand, EnumFacing side, float cx, float cy, float cz)
     {
         SGCraft.mod.openGui(player, SGGui.PowerUnit, world, pos);
         return true;

@@ -17,17 +17,20 @@ import net.minecraft.util.*;
 import net.minecraft.util.math.*;
 import net.minecraft.world.*;
 import net.minecraft.world.gen.structure.*;
+import net.minecraft.world.gen.structure.template.TemplateManager;
 
 public class FeatureUnderDesertPyramid extends StructureComponent {
 
     StructureComponent base;
-    
-    protected void readStructureFromNBT(NBTTagCompound par1NBTTagCompound) {
+
+    @Override
+    protected void readStructureFromNBT(NBTTagCompound par1NBTTagCompound, TemplateManager templateManager) {
     }
-    
+
+    @Override
     protected void writeStructureToNBT(NBTTagCompound par1NBTTagCompound) {
     }
-    
+
     public FeatureUnderDesertPyramid() {
         //System.out.printf("SGCraft: FeatureUnderDesertPyramid instantiated with no arguments\n");
     }

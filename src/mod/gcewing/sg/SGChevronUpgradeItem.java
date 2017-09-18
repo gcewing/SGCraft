@@ -16,7 +16,7 @@ import net.minecraft.world.*;
 public class SGChevronUpgradeItem extends Item {
 
     @Override
-    public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world,
+    public EnumActionResult onItemUse(EntityPlayer player, World world,
         BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         System.out.printf("SGChevronUpgradeItem.onItemUse: at %s\n", pos);
@@ -24,7 +24,7 @@ public class SGChevronUpgradeItem extends Item {
         if (block instanceof ISGBlock) {
             SGBaseTE te = ((ISGBlock)block).getBaseTE(world, pos);
             if (te != null)
-                return te.applyChevronUpgrade(stack, player);
+                return te.applyChevronUpgrade(player.getHeldItem(hand), player);
         }
         return EnumActionResult.FAIL;
     }

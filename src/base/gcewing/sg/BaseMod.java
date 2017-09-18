@@ -160,6 +160,7 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
         return Loader.isModLoaded(modid);
     }
 
+    @Override
     public void preInit(FMLPreInitializationEvent e) {
         serverSide = e.getSide().isServer();
         clientSide = e.getSide().isClient();
@@ -187,7 +188,8 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
         if (client != null)
             client.preInit(e);
     }
-    
+
+    @Override
     public void init(FMLInitializationEvent e) {
         MinecraftForge.EVENT_BUS.register(this);
         FMLCommonHandler.instance().bus().register(this);
@@ -197,7 +199,8 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
             if (sub != this)
                 sub.init(e);
     }
-    
+
+    @Override
     public void postInit(FMLPostInitializationEvent e) {
         for (BaseSubsystem sub : subsystems) {
             if (sub != this)
@@ -349,6 +352,7 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
         String qualName = assetKey + ":" + name;
         item.setUnlocalizedName(qualName);
         GameRegistry.registerItem(item, name);
+        ForgeRegistries.ITEMS.register(item);
         if (debugBlockRegistration)
             System.out.printf("BaseMod.addItem: Registered %s as %s\n", item, name);
         if (creativeTab != null) {

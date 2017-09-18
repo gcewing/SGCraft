@@ -32,7 +32,7 @@ public class BaseTileInventory extends BaseTileEntity implements IInventory, ISi
             for (int i = 0; i < n; i++) {
                 NBTTagCompound item = (NBTTagCompound)list.getCompoundTagAt(i);
                 int slot = item.getInteger("slot");
-                ItemStack stack = ItemStack.loadItemStackFromNBT(item);
+                ItemStack stack = new ItemStack(item);
                 inventory.setInventorySlotContents(slot, stack);
             }
         }
@@ -100,7 +100,13 @@ public class BaseTileInventory extends BaseTileEntity implements IInventory, ISi
     public int getSizeInventory() {
         IInventory inventory = getInventory();
         return (inventory != null) ? inventory.getSizeInventory() : 0;
-    }   
+    }
+
+    @Override
+    public boolean isEmpty() {
+        IInventory inventory = getInventory();
+        return inventory != null && inventory.isEmpty();
+    }
 
     /**
      * Returns the stack in slot i
