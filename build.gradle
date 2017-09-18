@@ -29,6 +29,12 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 //group= "com.yourname.modid" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = jarName
 
+dependencies
+    {        
+        compile files('lib/industrialcraft-2-2.8.25-ex112-api.jar')
+        compile files('lib/OpenComputers-MC1.12.1-1.7.0.4.jar')        
+    }
+
 minecraft {    
     version = "1.12.1-14.22.1.2478"
     runDir = "run"

@@ -351,7 +351,7 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
     public <ITEM extends Item> ITEM addItem(ITEM item, String name) {
         String qualName = assetKey + ":" + name;
         item.setUnlocalizedName(qualName);
-
+        item.setRegistryName(assetKey, name);
         ForgeRegistries.ITEMS.register(item);
 
         if (debugBlockRegistration)
@@ -395,10 +395,11 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
         String qualName = assetKey + ":" + name;
         block.setUnlocalizedName(qualName);
 //      block.setBlockTextureName(qualName);
-        //System.out.printf("BaseMod.addBlock: name '%s' qualName '%s' %s\n", name, qualName, block);
+        System.out.printf("BaseMod.addBlock: name '%s' qualName '%s' %s\n", name, qualName, block);
+        block.setRegistryName(assetKey, name);
         ForgeRegistries.BLOCKS.register(block);
         if (creativeTab != null) {
-            //System.out.printf("BaseMod.addBlock: Setting creativeTab to %s\n", creativeTab);
+            System.out.printf("BaseMod.addBlock: Setting creativeTab to %s\n", creativeTab);
             block.setCreativeTab(creativeTab);
         }
         if (block instanceof BaseBlock)
@@ -447,7 +448,7 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
     }
 
     public void newRecipe(ItemStack product, Object... params) {
-        GameRegistry.addRecipe(new ShapedOreRecipe(product, params));
+        //GameRegistry.addRecipe(new ShapedOreRecipe(product, params));       
     }
 
     public void newShapelessRecipe(Block product, int qty, Object... params) {
@@ -459,7 +460,7 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
     }
     
     public void newShapelessRecipe(ItemStack product, Object... params) {
-        GameRegistry.addRecipe(new ShapelessOreRecipe(product, params));
+        //GameRegistry.addRecipe(new ShapelessOreRecipe(product, params));
     }
 
     public void newSmeltingRecipe(Item product, int qty, Item input) {
@@ -507,7 +508,10 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
     {
         System.out.printf("%s: BaseMod.addEntity: %s, \"%s\", %s\n",
             getClass().getSimpleName(), cls.getSimpleName(), name, id);
-        EntityRegistry.registerModEntity(cls, name, id, /*base*/this, 256, updateFrequency, sendVelocityUpdates);
+            EntityEntry toRegister = new EntityEntry(cls, name);
+            toRegister.setRegistryName("SGCraft Entity");
+        //EntityRegistry.registerModEntity(cls, name, id, /*base*/this, 256, updateFrequency, sendVelocityUpdates);
+        ForgeRegistries.ENTITIES.register(toRegister);
     }
 
     //--------------- Villager registration -------------------------------------------------
@@ -825,7 +829,7 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
                 //    System.out.printf("BaseMod.onLootTableLoad: data = %s\n", data);
                 Gson gson = (Gson)BaseReflectionUtils.getField(null, lootGsonField);
                 LootTable table = event.getTable();
-                LootTable newTable = ForgeHooks.loadLootTable(gson, locn, data, true);
+                LootTable newTable = ForgeHooks.loadLootTable(gson, locn, data, true, null);
                 List<LootPool> newPools = (List<LootPool>)BaseReflectionUtils.getField(newTable, lootPoolsField);
                 int i = 0;
                 for (LootPool pool : newPools) {
