@@ -351,8 +351,9 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
     public <ITEM extends Item> ITEM addItem(ITEM item, String name) {
         String qualName = assetKey + ":" + name;
         item.setUnlocalizedName(qualName);
-        GameRegistry.registerItem(item, name);
+
         ForgeRegistries.ITEMS.register(item);
+
         if (debugBlockRegistration)
             System.out.printf("BaseMod.addItem: Registered %s as %s\n", item, name);
         if (creativeTab != null) {
@@ -395,7 +396,7 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
         block.setUnlocalizedName(qualName);
 //      block.setBlockTextureName(qualName);
         //System.out.printf("BaseMod.addBlock: name '%s' qualName '%s' %s\n", name, qualName, block);
-        GameRegistry.registerBlock(block, itemClass, name);
+        ForgeRegistries.BLOCKS.register(block);
         if (creativeTab != null) {
             //System.out.printf("BaseMod.addBlock: Setting creativeTab to %s\n", creativeTab);
             block.setCreativeTab(creativeTab);
