@@ -136,7 +136,8 @@ public class SGRingBlock extends SGBlock<SGRingTE> {
     @Override
     public void getSubBlocks(CreativeTabs tab, NonNullList<ItemStack> list) {
         for (int i = 0; i < numSubBlocks; i++)
-            list.add(new ItemStack(item, 1, i));
+            list.add(new ItemStack(this, 1, i));
+            // Update: may be incorrect, needs testing.
     }
 
     @Override

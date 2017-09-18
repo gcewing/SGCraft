@@ -231,7 +231,8 @@ public class SGCraft extends BaseMod<SGCraftClient> {
     
     @Override //[VILL]
     protected void registerVillagers() {
-        VillagerProfession tokraProfession = new VillagerProfession("sgcraft:tokra", "sgcraft:textures/skins/tokra.png");
+        VillagerProfession tokraProfession = new VillagerProfession("sgcraft:tokra", "sgcraft:textures/skins/tokra.png","sgcraft:textures/skins/tokra.png");
+        // Update: Needs new skin for Zombie mode?
         VillagerCareer tokraCareer = new VillagerCareer(tokraProfession, "sgcraft:tokra");
         tokraCareer.addTrade(1, new SGTradeHandler());
         ForgeRegistries.VILLAGER_PROFESSIONS.register(tokraProfession);
