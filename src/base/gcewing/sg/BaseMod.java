@@ -536,7 +536,7 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
             ResourceLocation loc = resourceLocation(name);
             SoundEvent result = new SoundEvent(loc);
             result.setRegistryName(loc);
-            GameData.getSoundEventRegistry().register(result);
+            ForgeRegistries.SOUND_EVENTS.register(result);
             return result;
         }
         catch (Exception e) {
