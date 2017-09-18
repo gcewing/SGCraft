@@ -92,7 +92,7 @@ public class BaseDataChannel {
     @SideOnly(Side.CLIENT)
     @ClientMessageHandler(".container.")
     public void onClientContainerMessage(ChannelInput data) {
-        EntityPlayer player = Minecraft.getMinecraft().thePlayer;
+        EntityPlayer player = Minecraft.getMinecraft().player;
         String message = data.readUTF();
         doClientDispatch(player.openContainer, message, data);
     }
@@ -418,7 +418,7 @@ public class BaseDataChannel {
             ChannelInput data = new ChannelInputStream(msg.payload());
             if (ctx.channel() == channel.pipes.get(Side.SERVER)) {
                 INetHandler net = ctx.channel().attr(NetworkRegistry.NET_HANDLER).get();
-                EntityPlayer player = ((NetHandlerPlayServer)net).playerEntity;
+                EntityPlayer player = ((NetHandlerPlayServer)net).player;
                 channel.onReceiveFromClient(player, data);
             }
             else

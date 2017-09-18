@@ -77,7 +77,8 @@ class SGStructureMap extends HashMap {
                 StructureBoundingBox box = ((StructureComponent)comp).getBoundingBox();
                 if (FeatureGeneration.debugStructures)
                     System.out.printf("SGCraft: FeatureGeneration: Augmenting %s at (%s, %s)\n",
-                        comp.getClass().getSimpleName(), box.getCenter().getX(), box.getCenter().getZ());
+                        comp.getClass().getSimpleName(), box.getLength().getX(), box.getLength().getZ());
+                        // Update: This .getLength() was .getCenter().
                 StructureComponent newComp = new FeatureUnderDesertPyramid((StructureComponent)comp);
                 start.getBoundingBox().expandTo(newComp.getBoundingBox());
                 newComponents.add(newComp);

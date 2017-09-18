@@ -158,7 +158,7 @@ public class DHDScreen extends SGScreen {
     
     void buttonSound() {
         //mc.sndManager.playSoundFX("random.click", 1.0F, 1.0F);
-        EntityPlayer player = mc.thePlayer;
+        EntityPlayer player = mc.player;
         ISound sound = new PositionedSoundRecord(
             new ResourceLocation("ui.button.click"), SoundCategory.BLOCKS,
             1.0F, 1.0F,

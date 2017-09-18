@@ -17,6 +17,7 @@ import net.minecraft.client.*;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.gui.inventory.*;
 import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.entity.player.*;
 import net.minecraft.inventory.*;
 import net.minecraft.util.*;
@@ -38,7 +39,7 @@ public class BaseGui {
         protected Root root;
         protected String title;
         protected Tessellator tess;
-        protected VertexBuffer vb;
+        protected BufferBuilder vb;
         protected IWidget mouseWidget;
         protected GState gstate;
     
@@ -104,7 +105,7 @@ public class BaseGui {
         public void close() {
             dispatchClosure(root);
             onClose();
-            mc.thePlayer.closeScreen();
+            mc.player.closeScreen();
         }
         
         protected void onClose() {
@@ -258,15 +259,15 @@ public class BaseGui {
         }
     
         public void drawString(String s, int x, int y) {
-            fontRendererObj.drawString(s, x, y, gstate.textColor, gstate.textShadow);
+            fontRenderer.drawString(s, x, y, gstate.textColor, gstate.textShadow);
         }
     
         public void drawCenteredString(String s, int x, int y) {
-            fontRendererObj.drawString(s, x - fontRendererObj.getStringWidth(s) / 2, y, gstate.textColor, gstate.textShadow);
+            fontRenderer.drawString(s, x - fontRenderer.getStringWidth(s) / 2, y, gstate.textColor, gstate.textShadow);
         }
         
         public void drawRightAlignedString(String s, int x, int y) {
-            fontRendererObj.drawString(s, x - fontRendererObj.getStringWidth(s), y, gstate.textColor, gstate.textShadow);
+            fontRenderer.drawString(s, x - fontRenderer.getStringWidth(s), y, gstate.textColor, gstate.textShadow);
         }
         
         public void drawTitle(String s) {
@@ -331,9 +332,9 @@ public class BaseGui {
         }
         
         void closeOldFocus(IWidget clickedWidget) {
-            if (!isFocused(clickedWidget)) {
+            if (!BaseGui.isFocused(clickedWidget)) {
                 IWidgetContainer parent = clickedWidget.parent();
-                while (!isFocused(parent))
+                while (!BaseGui.isFocused(parent))
                     parent = parent.parent();
                 dispatchClosure(parent.getFocus());
             }
@@ -369,7 +370,7 @@ public class BaseGui {
             if (parent != null) {
                 IWidget oldFocus = parent.getFocus();
                 //System.out.printf("BaseGui.Screen.focusOn: Old parent focus = %s\n", name(oldFocus));
-                if (isFocused(parent)) {
+                if (BaseGui.isFocused(parent)) {
                     //System.out.printf("BaseGui.Screen.focusOn: Parent is focused\n");
                     if (oldFocus != newFocus) {
                         tellFocusChanged(oldFocus, false);
@@ -506,7 +507,7 @@ public class BaseGui {
         }
         
         public static int stringWidth(String s) {
-            return Minecraft.getMinecraft().fontRendererObj.getStringWidth(s);
+            return Minecraft.getMinecraft().fontRenderer.getStringWidth(s);
         }
         
         public void addPopup(int x, int y, IWidget widget) {

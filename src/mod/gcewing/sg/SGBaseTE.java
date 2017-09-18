@@ -207,7 +207,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
     
     @Override
     public String toString() {
-        return String.format("SGBaseTE(%s,%s)", pos, worldObj.provider.getDimension());
+        return String.format("SGBaseTE(%s,%s)", pos, world.provider.getDimension());
     }
 
     @Override
@@ -288,8 +288,8 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
     }
 
     public int dimension() {
-        if (worldObj != null)
-            return worldObj.provider.getDimension();
+        if (world != null)
+            return world.provider.getDimension();
         else
             return -999;
     }
@@ -384,20 +384,20 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
     }
     
     public EnumActionResult applyChevronUpgrade(ItemStack stack, EntityPlayer player) {
-        if (!getWorld().isRemote && !hasChevronUpgrade && stack.stackSize > 0) {
+        if (!getWorld().isRemote && !hasChevronUpgrade && stack.getCount() > 0) {
             //System.out.printf("SGBaseTE.applyChevronUpgrade: Installing chevron upgrade\n");
             hasChevronUpgrade = true;
-            stack.stackSize -= 1;
+            stack.shrink(1);
             markChanged();
         }
         return EnumActionResult.SUCCESS;
     }
     
     public EnumActionResult applyIrisUpgrade(ItemStack stack, EntityPlayer player) {
-        if (!getWorld().isRemote && !hasIrisUpgrade && stack.stackSize > 0) {
+        if (!getWorld().isRemote && !hasIrisUpgrade && stack.getCount() > 0) {
             //System.out.printf("SGBaseTE.applyIrisUpgrade: Installing iris upgrade\n");
             hasIrisUpgrade = true;
-            stack.stackSize -= 1;
+            stack.shrink(1);
             markChanged();
             updateIrisEntity();
         }
@@ -452,7 +452,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
     
     @Override
     public void update() {
-        if (worldObj.isRemote)
+        if (world.isRemote)
             clientUpdate();
         else {
             serverUpdate();
@@ -464,25 +464,26 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
     @Override
     public void invalidate() {
         super.invalidate();
-        if (!worldObj.isRemote && ocWirelessEndpoint != null)  //[OC]
+        if (!world.isRemote && ocWirelessEndpoint != null)  //[OC]
             ocWirelessEndpoint.remove();
     }
     
     String side() {
-        return worldObj.isRemote ? "Client" : "Server";
+        return world.isRemote ? "Client" : "Server";
     }
     
     void enterState(SGState newState, int newTimeout) {
         if (debugState)
             System.out.printf("SGBaseTE: at %s in dimension %s entering state %s with timeout %s\n", 
-                pos, worldObj.provider.getDimension(), newState, newTimeout);
+                pos, world.provider.getDimension(), newState, newTimeout);
         SGState oldState = state;
         state = newState;
         timeout = newTimeout;
         markChanged();
         if ((oldState == SGState.Idle) != (newState == SGState.Idle)) {
             updateChunkLoadingStatus();
-            worldObj.notifyNeighborsOfStateChange(pos, getBlockType());
+            world.notifyNeighborsOfStateChange(pos, getBlockType(), true);
+            //Update: may not need observer update here.
         }
         String oldDesc = sgStateDescription(oldState);
         String newDesc = sgStateDescription(newState);
@@ -498,7 +499,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
         //System.out.printf("SGBaseTE.getLinkedControllerTE: isLinkedToController = %s, linkedPos = %s\n",
         //    isLinkedToController, linkedPos);
         if (isLinkedToController) {
-            TileEntity cte = worldObj.getTileEntity(linkedPos);
+            TileEntity cte = world.getTileEntity(linkedPos);
             if (cte instanceof DHDTE)
                 return (DHDTE)cte;
         }
@@ -514,7 +515,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
         for (int i = -rangeXY; i <= rangeXY; i++)
             for (int j = -rangeZ; j <= rangeZ; j++)
                 for (int k = -rangeXY; k <= rangeXY; k++) {
-                    TileEntity te = worldObj.getTileEntity(pos.add(i, j, k));
+                    TileEntity te = world.getTileEntity(pos.add(i, j, k));
                     if (te instanceof DHDTE)
                         ((DHDTE)te).checkForLink();
                 }
@@ -574,7 +575,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
         if (homeAddress.equals(""))
             return diallingFailure(player, "Coordinates of dialling stargate are out of range");
         try {
-            dte = SGAddressing.findAddressedStargate(address, worldObj);
+            dte = SGAddressing.findAddressedStargate(address, world);
         }
         catch (SGAddressing.AddressingError e) {
             return diallingFailure(player, e.getMessage());
@@ -641,7 +642,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
     }
     
     static void sendChatMessage(EntityPlayer player, String mess) {
-        player.addChatMessage(new TextComponentTranslation(mess));
+        player.sendMessage(new TextComponentTranslation(mess));
     }
     
     String findHomeAddress() {
@@ -712,7 +713,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
         }
         if (isMerged) {
             if (debugState && state != SGState.Connected && timeout > 0) {
-                int dimension = worldObj.provider.getDimension();
+                int dimension = world.provider.getDimension();
                 System.out.printf(
                     "SGBaseTE.serverUpdate at %d in dimension %d: state %s, timeout %s\n",
                     pos, dimension, state, timeout);
@@ -806,7 +807,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
         Trans3 t = localToGlobalTransformation();
         for (int i = -2; i <= 2; i++) {
             BlockPos bp = t.p(i, -1, 0).blockPos();
-            TileEntity nte = worldObj.getTileEntity(bp);
+            TileEntity nte = world.getTileEntity(bp);
 //             System.out.printf("SGBaseTE.findEnergySources: %s at %s\n", nte, bp);
             if (nte instanceof ISGEnergySource)
                 result.add((ISGEnergySource)nte);
@@ -860,12 +861,12 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
         AxisAlignedBB box = new AxisAlignedBB(q0.x, q0.y, q0.z, q1.x, q1.y, q1.z);
         if (debugTransientDamage) {
             System.out.printf("SGBaseTE.performTransientDamage: players in world:\n");
-            for (Entity ent : (List<Entity>)worldObj.loadedEntityList)
+            for (Entity ent : (List<Entity>)world.loadedEntityList)
                 if (ent instanceof EntityPlayer)
                     System.out.printf("--- %s\n", ent);
             System.out.printf("SGBaseTE.performTransientDamage: box = %s\n", box);
         }
-        List<EntityLivingBase> ents = worldObj.getEntitiesWithinAABB(EntityLivingBase.class, box);
+        List<EntityLivingBase> ents = world.getEntitiesWithinAABB(EntityLivingBase.class, box);
         for (EntityLivingBase ent : ents) {
             Vector3 ep = new Vector3(ent.posX, ent.posY, ent.posZ);
             Vector3 gp = t.p(0, 2, 0.5);
@@ -972,7 +973,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
             Trans3 t = localToGlobalTransformation();
             AxisAlignedBB box = t.box(p0, p1);
             //System.out.printf("SGBaseTE.checkForEntitiesInPortal: %s\n", box);
-            List<Entity> ents = (List<Entity>)worldObj.getEntitiesWithinAABB(Entity.class, box);
+            List<Entity> ents = (List<Entity>)world.getEntitiesWithinAABB(Entity.class, box);
             for (Entity entity : ents) {
                 if (entity instanceof EntityFishHook)
                     continue;
@@ -1000,7 +1001,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
             double z0 = 0.0;
             if (p0.z >= z0 && p1.z < z0 && p1.z > z0 - 5.0) {
                 //System.out.printf("SGBaseTE.entityInPortal: %s passed through event horizon of stargate at (%d,%d,%d) in %s\n",
-                //  repr(entity), xCoord, yCoord, zCoord, worldObj);
+                //  repr(entity), xCoord, yCoord, zCoord, world);
                 entity.motionX = vx;
                 entity.motionY = vy;
                 entity.motionZ = vz;
@@ -1061,7 +1062,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
         AxisAlignedBB box = new AxisAlignedBB(
             entity.posX - 7.0D, entity.posY - 7.0D, entity.posZ - 7.0D,
             entity.posX + 7.0D, entity.posY + 7.0D, entity.posZ + 7.0D);
-        return entity.worldObj.getEntitiesWithinAABB(EntityLiving.class, box);
+        return entity.world.getEntitiesWithinAABB(EntityLiving.class, box);
     }
 
     static Entity teleportEntity(Entity entity, Trans3 t1, Trans3 t2, int dimension, boolean destBlocked) {
@@ -1118,7 +1119,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
         if (player.capabilities.isCreativeMode)
             sendChatMessage(player, "Destination blocked by iris");
         else {
-            if (!(preserveInventory || player.worldObj.getGameRules().getBoolean("keepInventory")))
+            if (!(preserveInventory || player.world.getGameRules().getBoolean("keepInventory")))
                 player.inventory.clear();
             player.attackEntityFrom(irisDamageSource, irisDamageAmount);
         }
@@ -1142,13 +1143,13 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
         if (entity instanceof EntityPlayerMP)
             return teleportPlayerWithinDimension((EntityPlayerMP)entity, p, v, a);
         else
-            return teleportEntityToWorld(entity, p, v, a, (WorldServer)entity.worldObj, destBlocked);
+            return teleportEntityToWorld(entity, p, v, a, (WorldServer)entity.world, destBlocked);
     }
     
     static Entity teleportPlayerWithinDimension(EntityPlayerMP entity, Vector3 p, Vector3 v, double a) {
         entity.rotationYaw = (float)a;
         entity.setPositionAndUpdate(p.x, p.y, p.z);
-        entity.worldObj.updateEntityWithOptionalForce(entity, false);
+        entity.world.updateEntityWithOptionalForce(entity, false);
         return entity;
     }
 
@@ -1178,8 +1179,8 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
         PlayerList scm = server.getPlayerList();
         int oldDimension = player.dimension;
         player.dimension = newDimension;
-        WorldServer oldWorld = server.worldServerForDimension(oldDimension);
-        WorldServer newWorld = server.worldServerForDimension(newDimension);
+        WorldServer oldWorld = server.getWorld(oldDimension);
+        WorldServer newWorld = server.getWorld(newDimension);
         //System.out.printf("SGBaseTE.transferPlayerToDimension: %s with %s\n", newWorld, newWorld.getEntityTracker());
         // <<< Fix for MCPC+
         // -- Is this still necessary now that we are calling firePlayerChangedDimensionEvent?
@@ -1188,14 +1189,14 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
         // >>>
         player.closeScreen();
         player.connection.sendPacket(new SPacketRespawn(player.dimension,
-            player.worldObj.getDifficulty(), newWorld.getWorldInfo().getTerrainType(),
+            player.world.getDifficulty(), newWorld.getWorldInfo().getTerrainType(),
             player.interactionManager.getGameType()));
 //         if (SGCraft.mystcraftIntegration != null) //[MYST]
 //             SGCraft.mystcraftIntegration.sendAgeData(newWorld, player);
         oldWorld.removeEntityDangerously(player); // Removes player right now instead of waiting for next tick
         player.isDead = false;
         player.setLocationAndAngles(p.x, p.y, p.z, (float)a, player.rotationPitch);
-        newWorld.spawnEntityInWorld(player);
+        newWorld.spawnEntity(player);
         player.setWorld(newWorld);
         scm.preparePlayer(player, oldWorld);
         player.connection.setPlayerLocation(p.x, p.y, p.z, (float)a, player.rotationPitch);
@@ -1215,7 +1216,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
     static Entity teleportEntityToDimension(Entity entity, Vector3 p, Vector3 v, double a, int dimension, boolean destBlocked) {
         //System.out.printf("SGBaseTE.teleportEntityToDimension: %s to dimension %d\n", repr(entity), dimension);
         MinecraftServer server = BaseUtils.getMinecraftServer();
-        WorldServer world = server.worldServerForDimension(dimension);
+        WorldServer world = server.getWorld(dimension);
         return teleportEntityToWorld(entity, p, v, a, world, destBlocked);
     }
     
@@ -1223,7 +1224,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
         if (debugTeleport)
             System.out.printf("SGBaseTE.teleportEntityToWorld: %s to %s, destBlocked = %s\n",
                 repr(oldEntity), newWorld, destBlocked);
-        WorldServer oldWorld = (WorldServer)oldEntity.worldObj;
+        WorldServer oldWorld = (WorldServer)oldEntity.world;
         NBTTagCompound nbt = new NBTTagCompound();
         oldEntity.writeToNBT(nbt);
         extractEntityFromWorld(oldWorld, oldEntity);
@@ -1240,7 +1241,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
             checkChunk(newWorld, newEntity);
             //System.out.printf("SGBaseTE.teleportEntityToWorld: Spawning %s in %s\n", repr(newEntity), newWorld);
             newEntity.forceSpawn = true; // Force spawn packet to be sent as soon as possible
-            newWorld.spawnEntityInWorld(newEntity);
+            newWorld.spawnEntity(newEntity);
             newEntity.setWorld(newWorld);
             if (debugTeleport)
                 System.out.printf(
@@ -1300,8 +1301,8 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
     }
     
     static void checkChunk(World world, Entity entity) {
-        int cx = MathHelper.floor_double(entity.posX / 16.0D);
-        int cy = MathHelper.floor_double(entity.posZ / 16.0D);
+        int cx = MathHelper.floor(entity.posX / 16.0D);
+        int cy = MathHelper.floor(entity.posZ / 16.0D);
         Chunk chunk = world.getChunkFromChunkCoords(cx, cy);
     }
     
@@ -1514,7 +1515,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
             String newDesc = irisStateDescription(newState);
             irisState = newState;
             markChanged();
-            if (!worldObj.isRemote) {
+            if (!world.isRemote) {
                 switch (newState) {
                     case Opening:
                         playSGSoundEffect(irisOpenSound, 1.0F, 1.0F);
@@ -1541,8 +1542,8 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
     }
     
     public void onNeighborBlockChange() {
-        if (!worldObj.isRemote) {
-            boolean newInput = BaseBlockUtils.blockIsGettingExternallyPowered(worldObj, pos);
+        if (!world.isRemote) {
+            boolean newInput = BaseBlockUtils.blockIsGettingExternallyPowered(world, pos);
             if (redstoneInput != newInput) {
                 redstoneInput = newInput;
                 markDirty();
@@ -1555,11 +1556,11 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
     }
     
     void updateIrisEntity() {
-        if (!worldObj.isRemote) {
+        if (!world.isRemote) {
             if (isMerged && hasIrisUpgrade) {
                 if (!hasIrisEntity()) {
                     IrisEntity ent = new IrisEntity(this);
-                    worldObj.spawnEntityInWorld(ent);
+                    world.spawnEntity(ent);
                     //System.out.printf("SGBaseTE.updateIrisEntity: Spawned %s with bounds %s\n", ent,
                     //    ent.getEntityBoundingBox());
                 }
@@ -1568,7 +1569,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
                 //System.out.printf("SGBaseTE.updateIrisEntity: Removing iris entities\n");
                 for (IrisEntity ent : findIrisEntities()) {
                     //System.out.printf("SGBaseTE.updateIrisEntity: Removing %s\n", ent);
-                    worldObj.removeEntity(ent);
+                    world.removeEntity(ent);
                 }
             }
         }
@@ -1583,7 +1584,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
         AxisAlignedBB box = new AxisAlignedBB(
             x, y, z, x + 1, y + 2, z + 1);
         //System.out.printf("SGBaseTE.findIrisEntities: in %s\n", box);
-        return (List<IrisEntity>)worldObj.getEntitiesWithinAABB(IrisEntity.class, box);
+        return (List<IrisEntity>)world.getEntitiesWithinAABB(IrisEntity.class, box);
     }
     
     ItemStack getCamouflageStack(BlockPos cpos) {
@@ -1612,14 +1613,14 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
             //System.out.printf("SGBaseTE.onInventoryChanged: Camouflage slot changed\n");
             for (int dx = -2; dx <= 2; dx++)
                 for (int dz = -2; dz <= 2; dz++)
-                    BaseBlockUtils.markBlockForUpdate(worldObj, pos.add(dx, 0, dz));
+                    BaseBlockUtils.markBlockForUpdate(world, pos.add(dx, 0, dz));
         }
     }
     
     public int numItemsInSlot(int slot) {
         ItemStack stack = getStackInSlot(slot);
         if (stack != null)
-            return stack.stackSize;
+            return stack.getCount();
         else
             return 0;
     }
@@ -1655,7 +1656,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
         Trans3 t = localToGlobalTransformation();
         for (int i = -2; i <= 2; i++) {
             BlockPos bp = t.p(i, -1, 0).blockPos();
-            TileEntity te = getWorldTileEntity(worldObj, bp);
+            TileEntity te = getWorldTileEntity(world, bp);
             if (te != null)
                 result.add(new BlockRef(te));
         }
@@ -1735,7 +1736,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
 
 class BlockRef {
 
-    public IBlockAccess worldObj;
+    public IBlockAccess world;
     BlockPos pos;
     
     public BlockRef(TileEntity te) {
@@ -1743,12 +1744,12 @@ class BlockRef {
     }
     
     public BlockRef(IBlockAccess world, BlockPos pos) {
-        worldObj = world;
+        world = world;
         this.pos = pos;
     }
     
     public TileEntity getTileEntity() {
-        return worldObj.getTileEntity(pos);
+        return world.getTileEntity(pos);
     }
     
 }

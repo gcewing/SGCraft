@@ -14,7 +14,7 @@ import net.minecraft.init.*;
 import net.minecraft.util.math.*;
 import net.minecraft.world.*;
 import net.minecraft.world.chunk.*;
-
+import net.minecraft.world.gen.IChunkGenerator;
 import net.minecraftforge.fml.common.*;
 
 public class NaquadahOreWorldGen implements IWorldGenerator {
@@ -62,8 +62,8 @@ public class NaquadahOreWorldGen implements IWorldGenerator {
     public void regenerate(Chunk chunk) {
         this.chunk = chunk;
         world = chunk.getWorld();
-        int chunkX = chunk.xPosition;
-        int chunkZ = chunk.zPosition;
+        int chunkX = chunk.x;
+        int chunkZ = chunk.z;
         long worldSeed = world.getSeed();
         random = new Random(worldSeed);
         long xSeed = random.nextLong() >> 2 + 1L;

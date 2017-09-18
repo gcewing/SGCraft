@@ -59,6 +59,9 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
 
     interface ITextureConsumer {
         String[] getTextureNames();
+
+        IBlockState onBlockPlacedBy(World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, int meta,
+                EntityLivingBase placer);
     }
     
     interface IBlock extends ITextureConsumer {
@@ -613,7 +616,7 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
             WorldServer world = (WorldServer)te.getWorld();
             PlayerList cm = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList();
             PlayerChunkMap pm = world.getPlayerChunkMap();
-            for (EntityPlayerMP player : cm.getPlayerList())
+            for (EntityPlayerMP player : cm.getPlayers())
                 if (pm.isPlayerWatchingChunk(player, x, z)) {
                     //System.out.printf("BaseMod.sendTileEntityUpdate: to %s\n", player);
                     player.connection.sendPacket(packet);

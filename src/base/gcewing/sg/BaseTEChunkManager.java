@@ -130,7 +130,7 @@ public class BaseTEChunkManager implements ForgeChunkManager.LoadingCallback {
             System.out.printf("Loaded chunks:");
             for (Object item : te.chunkTicket.getChunkList()) {
                 ChunkPos coords = (ChunkPos)item;
-                System.out.printf(" (%d,%d)", coords.chunkXPos, coords.chunkZPos);
+                System.out.printf(" (%d,%d)", coords.x, coords.z);
             }
             System.out.printf("\n");
         }

@@ -62,10 +62,10 @@ public class BaseTileEntity extends TileEntity
 //  }
     
     public Trans3 localToGlobalTransformation(Vector3 origin) {
-        IBlockState state = worldObj.getBlockState(pos);
+        IBlockState state = world.getBlockState(pos);
         Block block = state.getBlock();
         if (block instanceof IBlock)
-            return ((IBlock)block).localToGlobalTransformation(worldObj, pos, state, origin);
+            return ((IBlock)block).localToGlobalTransformation(world, pos, state, origin);
         else {
             System.out.printf("BaseTileEntity.localToGlobalTransformation: Wrong block type at %s\n", pos);
             return new Trans3(origin);
@@ -101,7 +101,7 @@ public class BaseTileEntity extends TileEntity
         NBTTagCompound nbt = pkt.getNbtCompound();
         readFromNBT(nbt);
         if (nbt.getBoolean("updateChunk"))
-            worldObj.markBlockRangeForRenderUpdate(pos, pos);
+            world.markBlockRangeForRenderUpdate(pos, pos);
     }
     
     boolean syncWithClient() {
@@ -110,7 +110,7 @@ public class BaseTileEntity extends TileEntity
     
     public void markBlockForUpdate() {
         updateChunk = true;
-        BaseBlockUtils.markBlockForUpdate(worldObj, pos);
+        BaseBlockUtils.markBlockForUpdate(world, pos);
     }
     
     protected static Field changedSectionFilter = getFieldDef(
@@ -118,11 +118,11 @@ public class BaseTileEntity extends TileEntity
         "changedSectionFilter", "field_187288_h");
 
     public void markForUpdate() {
-        if (!worldObj.isRemote) {
+        if (!world.isRemote) {
             int x = pos.getX();
             int y = pos.getY();
             int z = pos.getZ();
-            PlayerChunkMap pm = ((WorldServer)worldObj).getPlayerChunkMap();
+            PlayerChunkMap pm = ((WorldServer)world).getPlayerChunkMap();
             PlayerChunkMapEntry entry = pm.getEntry(x >> 4, z >> 4);
             if (entry != null) {
                 int oldFlags = getIntField(entry, changedSectionFilter);
@@ -133,7 +133,7 @@ public class BaseTileEntity extends TileEntity
     }
 
     public void playSoundEffect(SoundEvent name, float volume, float pitch) {
-        worldObj.playSound(null, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, name, SoundCategory.BLOCKS, volume, pitch);
+        world.playSound(null, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, name, SoundCategory.BLOCKS, volume, pitch);
     }
     
     @Override

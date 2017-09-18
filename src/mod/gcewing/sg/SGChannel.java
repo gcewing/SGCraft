@@ -32,7 +32,7 @@ public class SGChannel extends BaseDataChannel {
     public void handleConnectOrDisconnectFromClient(EntityPlayer player, ChannelInput data) {
         BlockPos pos = readCoords(data);
         String address = data.readUTF();
-        SGBaseTE te = SGBaseTE.at(player.worldObj, pos);
+        SGBaseTE te = SGBaseTE.at(player.world, pos);
         if (te != null)
             te.connectOrDisconnect(address, player);
     }
@@ -48,7 +48,7 @@ public class SGChannel extends BaseDataChannel {
     public void handleEnteredAddressFromClient(EntityPlayer player, ChannelInput data) {
         BlockPos pos = readCoords(data);
         String address = data.readUTF();
-        DHDTE te = DHDTE.at(player.worldObj, pos);
+        DHDTE te = DHDTE.at(player.world, pos);
         if (te != null)
             te.setEnteredAddress(address);
     }

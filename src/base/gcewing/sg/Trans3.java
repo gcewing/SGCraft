@@ -176,7 +176,7 @@ public class Trans3 {
     }
     
     public Vector3 iv(Vec3d u) {
-        return iv(u.xCoord, u.yCoord, u.zCoord);
+        return iv(u.x, u.y, u.z);
     }
     
     public AxisAlignedBB t(AxisAlignedBB box) {

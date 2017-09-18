@@ -12,7 +12,9 @@ import net.minecraft.item.*;
 import net.minecraft.nbt.*;
 import net.minecraft.tileentity.*;
 import net.minecraft.util.*;
+import net.minecraft.util.datafix.walkers.ItemStackData;
 import net.minecraft.util.text.*;
+import net.minecraftforge.items.ItemStackHandler;
 
 public class BaseTileInventory extends BaseTileEntity implements IInventory, ISidedInventory {
 
@@ -163,9 +165,9 @@ public class BaseTileInventory extends BaseTileEntity implements IInventory, ISi
      * Do not make give this method the name canInteractWith because it clashes with Container
      */
     @Override
-    public boolean isUseableByPlayer(EntityPlayer player) {
+    public boolean isUsableByPlayer(EntityPlayer player) {
         IInventory inventory = getInventory();
-        return (inventory != null) ? inventory.isUseableByPlayer(player) : true;
+        return (inventory != null) ? inventory.isUsableByPlayer(player) : true;
     }
 
     @Override

@@ -476,7 +476,7 @@ public class BaseRenderingManager<MOD extends BaseMod<? extends BaseModClient>> 
         Block block = state.getBlock();
         if (!block.hasTileEntity(state)) {
             try {
-                VertexBuffer tess = ((BaseWorldRenderTarget)target).getWorldRenderer();
+                BufferBuilder tess = ((BaseWorldRenderTarget)target).getWorldRenderer();
                 return blockRendererDispatcher.renderBlock(state, pos, world, tess);
             }
             catch (Exception e) {

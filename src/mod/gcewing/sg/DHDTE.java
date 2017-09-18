@@ -125,7 +125,7 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
 
     SGBaseTE getLinkedStargateTE() {
         if (isLinkedToStargate) {
-            TileEntity gte = getWorldTileEntity(worldObj, linkedPos);
+            TileEntity gte = getWorldTileEntity(world, linkedPos);
             if (gte instanceof SGBaseTE)
                 return (SGBaseTE)gte;
         }
@@ -147,7 +147,7 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
                         BlockPos bp = new BlockPos(p.floorX(), p.floorY(), p.floorZ());
                         if (debugLink)
                             System.out.printf("DHDTE.checkForLink: probing %s\n", bp);
-                        TileEntity te = worldObj.getTileEntity(bp);
+                        TileEntity te = world.getTileEntity(bp);
                         if (te instanceof SGBaseTE) {
                             if (debugLink)
                                 System.out.printf("DHDTE.checkForLink: Found stargate at %s\n",
@@ -189,7 +189,7 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
         for (int i = 0; i < numFuelSlots; i++) {
             ItemStack stack = fuelStackInSlot(i);
             if (stack != null)
-                energy += stack.stackSize * SGBaseTE.energyPerFuelItem;
+                energy += stack.getCount() * SGBaseTE.energyPerFuelItem;
         }
         return energy;
     }
@@ -234,7 +234,7 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
     }
     
     public static boolean isValidFuelItem(ItemStack stack) {
-        return stack != null && stack.getItem() == SGCraft.naquadah && stack.stackSize > 0;
+        return stack != null && stack.getItem() == SGCraft.naquadah && stack.getCount() > 0;
     }
 
     @Override

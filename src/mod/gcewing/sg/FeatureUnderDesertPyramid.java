@@ -38,8 +38,9 @@ public class FeatureUnderDesertPyramid extends StructureComponent {
             System.out.printf("SGCraft: Instantiating FeatureUnderDesertPyramid\n");
         this.base = base;
         StructureBoundingBox baseBox = base.getBoundingBox();
-        int cx = baseBox.getCenter().getX();
-        int cz = baseBox.getCenter().getZ();
+        int cx = baseBox.getLength().getX();
+        int cz = baseBox.getLength().getZ();
+        // Update: getLength() was .getCenter()
         int bottom = baseBox.minY - 7;
         boundingBox = new StructureBoundingBox(cx - 5, bottom, cz - 5, cx + 5, bottom + 7, cz + 8);
         setCoordBaseMode(EnumFacing.SOUTH);

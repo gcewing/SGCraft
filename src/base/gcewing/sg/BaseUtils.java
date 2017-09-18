@@ -16,7 +16,7 @@ import net.minecraft.util.*;
 import net.minecraft.util.math.*;
 import net.minecraft.world.*;
 import net.minecraft.world.storage.MapStorage;
-
+import net.minecraft.world.storage.WorldSavedData;
 import net.minecraftforge.common.DimensionManager;
 
 public class BaseUtils {
@@ -82,7 +82,7 @@ public class BaseUtils {
     }
     
     public static WorldServer getWorldForDimension(int id) {
-        return getMinecraftServer().worldServerForDimension(id);
+        return getMinecraftServer().getWorld(id);
     }
     
     public static <T extends WorldSavedData> T getWorldData(World world, Class<T> cls, String name) {

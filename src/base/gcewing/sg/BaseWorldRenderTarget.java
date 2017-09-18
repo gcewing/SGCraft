@@ -16,6 +16,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.block.model.*;
 import net.minecraft.client.renderer.texture.*;
+import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.client.renderer.block.model.*;
 import net.minecraft.item.*;
 import net.minecraft.util.*;
@@ -33,7 +34,7 @@ public class BaseWorldRenderTarget extends BaseRenderTarget {
     protected BlockPos blockPos;
     protected IBlockState blockState;
     protected Block block;
-    protected VertexBuffer tess;
+    protected BufferBuilder tess;
     protected float cmr = 1, cmg = 1, cmb = 1;
     protected boolean ao;
     protected boolean axisAlignedNormal;
@@ -41,7 +42,7 @@ public class BaseWorldRenderTarget extends BaseRenderTarget {
     protected float vr, vg, vb, va; // Colour to be applied to next vertex
     protected int vlm1, vlm2; // Light map values to be applied to next vertex
     
-    public BaseWorldRenderTarget(IBlockAccess world, BlockPos pos, VertexBuffer tess, TextureAtlasSprite overrideIcon) {
+    public BaseWorldRenderTarget(IBlockAccess world, BlockPos pos, BufferBuilder tess, TextureAtlasSprite overrideIcon) {
         super(pos.getX(), pos.getY(), pos.getZ(), overrideIcon);
         //System.out.printf("BaseWorldRenderTarget(%s)\n", pos);
         this.world = world;
@@ -53,7 +54,7 @@ public class BaseWorldRenderTarget extends BaseRenderTarget {
         expandTrianglesToQuads = true;
     }
     
-    VertexBuffer getWorldRenderer() {
+    BufferBuilder getWorldRenderer() {
         return tess;
     }
 

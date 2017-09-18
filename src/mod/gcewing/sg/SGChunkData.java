@@ -32,7 +32,7 @@ public class SGChunkData {
     public static SGChunkData forChunk(Chunk chunk, NBTTagCompound nbt) {
         //System.out.printf("SGChunkData.forChunk: (%d, %d): %s\n",
         //    chunk.xPosition, chunk.zPosition, chunk);
-        ChunkPos coords = new ChunkPos(chunk.xPosition, chunk.zPosition);
+        ChunkPos coords = new ChunkPos(chunk.x, chunk.z);
         SGChunkData data = map.get(coords);
         if (data == null) {
             //System.out.printf("SGChunkData.forChunk: Creating new chunk data\n");
@@ -63,7 +63,7 @@ public class SGChunkData {
         //      chunk.xPosition, chunk.zPosition);
         if (!data.oresGenerated && SGCraft.addOresToExistingWorlds) {
             if (debug)
-                System.out.printf("SGChunkData.onChunkLoad: Adding ores to chunk (%d, %d)\n", chunk.xPosition, chunk.zPosition);
+                System.out.printf("SGChunkData.onChunkLoad: Adding ores to chunk (%d, %d)\n", chunk.x, chunk.z);
             SGCraft.naquadahOreGenerator.regenerate(chunk);
         }
     }

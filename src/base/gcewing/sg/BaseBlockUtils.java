@@ -89,7 +89,8 @@ public class BaseBlockUtils {
 //     }   
     
     public static void notifyWorldNeighborsOfStateChange(World world, BlockPos pos, Block block) {
-        world.notifyNeighborsOfStateChange(pos, block);
+        // Update: Updating observers may be wrong here.
+        world.notifyNeighborsOfStateChange(pos, block, true);
     }   
     
     public static TileEntity getWorldTileEntity(IBlockAccess world, BlockPos pos) {
@@ -105,7 +106,7 @@ public class BaseBlockUtils {
     }
     
     public static boolean blockCanRenderInLayer(Block block, BlockRenderLayer layer) {
-        return block.canRenderInLayer(layer);
+        return block.canRenderInLayer((IBlockState) block.getBlockState(),layer);
     }
     
     public static ItemStack blockStackWithState(IBlockState state, int size) {

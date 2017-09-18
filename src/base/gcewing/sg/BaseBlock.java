@@ -347,8 +347,7 @@ public class BaseBlock<TE extends TileEntity>
     // -------------------------------------------------------------------
 
     @Override
-    public IBlockState onBlockPlaced(World world, BlockPos pos, EnumFacing side, 
-        float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
+    public IBlockState onBlockPlacedBy(World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
     {
         IBlockState state = getOrientationHandler().onBlockPlaced(this, world, pos, side,
             hitX, hitY, hitZ, getStateFromMeta(meta), placer);
@@ -493,8 +492,8 @@ public class BaseBlock<TE extends TileEntity>
 			return super.getBoundingBox(state, world, pos);
 	}
 
-    @Override
     public AxisAlignedBB getCollisionBoundingBox(IBlockState state, World world, BlockPos pos) {
+        // Update: This had an override above the method, may be needed.
         return getBoundingBox(state, world, pos);
     }
 
@@ -513,15 +512,15 @@ public class BaseBlock<TE extends TileEntity>
 
     @Override
 	public void addCollisionBoxToList(IBlockState state, World world, BlockPos pos, 
-		AxisAlignedBB clip, List result, Entity entity)
+		AxisAlignedBB clip, List result, Entity entity, boolean enableStats)
 	{
 		List<AxisAlignedBB> list = getGlobalCollisionBoxes(world, pos, state, entity);
 		if (list != null)
 			for (AxisAlignedBB box : list)
-				if (clip.intersectsWith(box))
+				if (clip.intersects(box))
 					result.add(box);
 	    else
-	        super.addCollisionBoxToList(state, world, pos, clip, result, entity);
+	        super.addCollisionBoxToList(state, world, pos, clip, result, entity, enableStats);
 	}
 
 	protected List<AxisAlignedBB> getGlobalCollisionBoxes(IBlockAccess world, BlockPos pos,
@@ -550,5 +549,4 @@ public class BaseBlock<TE extends TileEntity>
         }
         return null;
 	}
-
 }
