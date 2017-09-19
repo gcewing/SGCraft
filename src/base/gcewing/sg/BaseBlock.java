@@ -37,7 +37,7 @@ public class BaseBlock<TE extends TileEntity>
     extends BlockContainer implements BaseMod.IBlock
 {
 
-    public static boolean debugState = false;
+    public static boolean debugState = true;
 
     // --------------------------- Orientation -------------------------------
 
@@ -347,7 +347,7 @@ public class BaseBlock<TE extends TileEntity>
     // -------------------------------------------------------------------
 
     @Override
-    public IBlockState onBlockPlacedBy(World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
+    public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)    
     {
         IBlockState state = getOrientationHandler().onBlockPlaced(this, world, pos, side,
             hitX, hitY, hitZ, getStateFromMeta(meta), placer);

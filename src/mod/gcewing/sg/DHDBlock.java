@@ -26,7 +26,7 @@ public class DHDBlock extends BaseBlock<DHDTE> {
     protected static String[] textures = {
         "dhd_top",
         "dhd_side",
-        "stargateBlock",
+        "stargateblock",
         "dhd_button_dim",
     };
     protected static ModelSpec model = new ModelSpec("dhd.smeg", new Vector3(0, -0.5, 0), textures);

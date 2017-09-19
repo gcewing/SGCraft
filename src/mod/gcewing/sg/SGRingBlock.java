@@ -6,26 +6,16 @@
 
 package gcewing.sg;
 
-import java.util.*;
-
 import net.minecraft.block.*;
 import net.minecraft.block.material.*;
 import net.minecraft.block.properties.*;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.*;
-import net.minecraft.client.renderer.texture.*;
-import net.minecraft.entity.*;
 import net.minecraft.entity.player.*;
 import net.minecraft.item.*;
-import net.minecraft.tileentity.*;
 import net.minecraft.util.*;
 import net.minecraft.util.math.*;
 import net.minecraft.world.*;
-import net.minecraftforge.common.*;
-import net.minecraftforge.common.util.*;
-import net.minecraftforge.fml.common.registry.*;
-import net.minecraftforge.fml.relauncher.*;
-
 import gcewing.sg.BaseMod.ModelSpec;
 
 public class SGRingBlock extends SGBlock<SGRingTE> {
@@ -34,10 +24,10 @@ public class SGRingBlock extends SGBlock<SGRingTE> {
 
     public static IProperty<Integer> VARIANT = PropertyInteger.create("variant", 0, 1);
 
-    static String[] textures = {"stargateBlock", "stargateRing", "stargateChevron"};
+    static String[] textures = {"stargateblock", "stargatering", "stargatechevron"};
     static ModelSpec models[] = {
-        new ModelSpec("block/sg_ring_block.smeg", "stargateBlock", "stargateRing"),
-        new ModelSpec("block/sg_ring_block.smeg", "stargateBlock", "stargateChevron")
+        new ModelSpec("block/sg_ring_block.smeg", "stargateblock", "stargatering"),
+        new ModelSpec("block/sg_ring_block.smeg", "stargateblock", "stargatechevron")
     };
     
     static String[] subBlockTitles = {
@@ -135,8 +125,10 @@ public class SGRingBlock extends SGBlock<SGRingTE> {
     
     @Override
     public void getSubBlocks(CreativeTabs tab, NonNullList<ItemStack> list) {
-        for (int i = 0; i < numSubBlocks; i++)
-            list.add(new ItemStack(this, 1, i));
+        for (int i = 0; i < numSubBlocks; i++) {
+            ItemStack item = new ItemStack(this,1,i);
+            list.add(item);
+        }
             // Update: may be incorrect, needs testing.
     }
 

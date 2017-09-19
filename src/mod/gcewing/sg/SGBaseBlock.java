@@ -40,7 +40,7 @@ public class SGBaseBlock extends SGBlock<SGBaseTE>  {
         {2, 1, 0, 1, 2},
     };
 
-    protected static String[] textures = {"stargateBlock", "stargateRing", "stargateBase_front"};
+    protected static String[] textures = {"stargateblock", "stargatering", "stargatebase_front"};
     protected static ModelSpec model = new ModelSpec("block/sg_base_block.smeg", textures);
     
     public static void configure(BaseConfiguration config) {

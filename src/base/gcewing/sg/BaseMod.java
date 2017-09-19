@@ -48,6 +48,7 @@ import net.minecraftforge.fml.common.registry.VillagerRegistry.*;
 import net.minecraftforge.fml.relauncher.*;
 
 import gcewing.sg.BaseModClient.IModel;
+import jline.internal.Log;
 
 public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
     extends BaseSubsystem implements IGuiHandler
@@ -59,9 +60,6 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
 
     interface ITextureConsumer {
         String[] getTextureNames();
-
-        IBlockState onBlockPlacedBy(World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, int meta,
-                EntityLivingBase placer);
     }
     
     interface IBlock extends ITextureConsumer {
@@ -126,8 +124,8 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
     public List<BaseSubsystem> subsystems = new ArrayList<BaseSubsystem>();
 
     public boolean debugGui = false;
-    public boolean debugBlockRegistration = false;
-    public boolean debugCreativeTabs = false;
+    public boolean debugBlockRegistration = true;
+    public boolean debugCreativeTabs = true;
 
     public String resourcePath(String fileName) {
         return resourceDir + fileName;
@@ -354,11 +352,7 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
         item.setRegistryName(assetKey, name);
         ForgeRegistries.ITEMS.register(item);
 
-        if (debugBlockRegistration)
-            System.out.printf("BaseMod.addItem: Registered %s as %s\n", item, name);
         if (creativeTab != null) {
-            if (debugCreativeTabs)
-                System.out.printf("BaseMod.addItem: Setting creativeTab of %s to %s\n", name, creativeTab);
             item.setCreativeTab(creativeTab);
         }
         registeredItems.add(item);
@@ -394,17 +388,25 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
     public <BLOCK extends Block> BLOCK addBlock(BLOCK block, String name, Class itemClass) {
         String qualName = assetKey + ":" + name;
         block.setUnlocalizedName(qualName);
-//      block.setBlockTextureName(qualName);
-        System.out.printf("BaseMod.addBlock: name '%s' qualName '%s' %s\n", name, qualName, block);
         block.setRegistryName(assetKey, name);
         ForgeRegistries.BLOCKS.register(block);
+
+        final Item item = new ItemBlock(block).setRegistryName(block.getRegistryName());
+
+        if (block instanceof SGRingBlock) {
+            final Item ringItem = new SGRingItem(block).setRegistryName(block.getRegistryName());
+            ForgeRegistries.ITEMS.register(ringItem);
+        } else {         
+            ForgeRegistries.ITEMS.register(item);
+        }
+
         if (creativeTab != null) {
-            System.out.printf("BaseMod.addBlock: Setting creativeTab to %s\n", creativeTab);
             block.setCreativeTab(creativeTab);
         }
         if (block instanceof BaseBlock)
             ((BaseBlock)block).mod = this;
         registeredBlocks.add(block);
+
         return block;
     }
     
