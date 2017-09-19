@@ -1173,44 +1173,12 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
         channel.writeAndFlush(msg).addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
     }
     
+    
     static void transferPlayerToDimension(EntityPlayerMP player, int newDimension, Vector3 p, double a) {
         //System.out.printf("SGBaseTE.transferPlayerToDimension: %s to dimension %d\n", repr(player), newDimension);
         MinecraftServer server = BaseUtils.getMinecraftServer();
-        PlayerList scm = server.getPlayerList();
-        int oldDimension = player.dimension;
-        player.dimension = newDimension;
-        WorldServer oldWorld = server.getWorld(oldDimension);
-        WorldServer newWorld = server.getWorld(newDimension);
-        //System.out.printf("SGBaseTE.transferPlayerToDimension: %s with %s\n", newWorld, newWorld.getEntityTracker());
-        // <<< Fix for MCPC+
-        // -- Is this still necessary now that we are calling firePlayerChangedDimensionEvent?
-        // -- Yes, apparently it is.
-        sendDimensionRegister(player, newDimension);
-        // >>>
-        player.closeScreen();
-        player.connection.sendPacket(new SPacketRespawn(player.dimension,
-            player.world.getDifficulty(), newWorld.getWorldInfo().getTerrainType(),
-            player.interactionManager.getGameType()));
-//         if (SGCraft.mystcraftIntegration != null) //[MYST]
-//             SGCraft.mystcraftIntegration.sendAgeData(newWorld, player);
-        oldWorld.removeEntityDangerously(player); // Removes player right now instead of waiting for next tick
-        player.isDead = false;
-        player.setLocationAndAngles(p.x, p.y, p.z, (float)a, player.rotationPitch);
-        newWorld.spawnEntity(player);
-        player.setWorld(newWorld);
-        scm.preparePlayer(player, oldWorld);
-        player.connection.setPlayerLocation(p.x, p.y, p.z, (float)a, player.rotationPitch);
-        player.interactionManager.setWorld(newWorld);
-        scm.updateTimeAndWeatherForPlayer(player, newWorld);
-        scm.syncPlayerInventory(player);
-        Iterator var6 = player.getActivePotionEffects().iterator();
-        while (var6.hasNext()) {
-            PotionEffect effect = (PotionEffect)var6.next();
-            player.connection.sendPacket(new SPacketEntityEffect(player.getEntityId(), effect));
-        }
-        player.connection.sendPacket(new SPacketSetExperience(player.experience, player.experienceTotal, player.experienceLevel));
-        FMLCommonHandler.instance().firePlayerChangedDimensionEvent(player, oldDimension, newDimension);
-        //System.out.printf("SGBaseTE.transferPlayerToDimension: Transferred %s\n", repr(player));
+        // This change should fix Sponge Compatibility.
+        PlayerList scm = server.getPlayerList(); scm.changePlayerDimension(player, newDimension);
     }   
     
     static Entity teleportEntityToDimension(Entity entity, Vector3 p, Vector3 v, double a, int dimension, boolean destBlocked) {

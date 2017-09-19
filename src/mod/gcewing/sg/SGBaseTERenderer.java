@@ -178,7 +178,6 @@ class SGBaseTERenderer extends BaseTileEntityRenderer {
 
     // Render a chevron at the given position (0 to 8, with 4 being top dead centre)
     void renderChevronAtPosition(int i, float a, boolean engaged) {
-        System.out.print("SGBaseTERender");
         glPushMatrix();
         glRotatef(90 - (i - 4) * a, 0, 0, 1);
         chevron(engaged);
