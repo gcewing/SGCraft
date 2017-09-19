@@ -37,7 +37,7 @@ public class BaseBlock<TE extends TileEntity>
     extends BlockContainer implements BaseMod.IBlock
 {
 
-    public static boolean debugState = true;
+    public static boolean debugState = false;
 
     // --------------------------- Orientation -------------------------------
 
