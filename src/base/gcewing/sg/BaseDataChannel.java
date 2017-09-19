@@ -419,7 +419,7 @@ public class BaseDataChannel {
             if (ctx.channel() == channel.pipes.get(Side.SERVER)) {
                 INetHandler net = ctx.channel().attr(NetworkRegistry.NET_HANDLER).get();
                 EntityPlayer player = ((NetHandlerPlayServer)net).player;
-                channel.onReceiveFromClient(player, data);
+                player.getServer().addScheduledTask(() -> channel.onReceiveFromClient(player, data));
             }
             else
                 channel.onReceiveFromServer(data);
