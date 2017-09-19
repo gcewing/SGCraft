@@ -72,8 +72,7 @@ class SGBaseTERenderer extends BaseTileEntityRenderer {
     double u0, v0;
 
     @Override
-    public void renderTileEntityAt(TileEntity te, double x, double y, double z, float t, int destroyStage) {
-        //System.out.printf("SGBaseTERenderer.renderTileEntityAt (%g,%g,%g)\n", x, y, z);
+    public void render(TileEntity te, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {
         SGBaseTE tesg = (SGBaseTE)te;
         if (tesg.isMerged) {
             glPushMatrix();
@@ -86,7 +85,7 @@ class SGBaseTERenderer extends BaseTileEntityRenderer {
             glEnable(GL_RESCALE_NORMAL);
             glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
             glTranslated(x + 0.5, y + 2.5, z + 0.5);
-            renderStargate(tesg, t);
+            renderStargate(tesg, partialTicks);
             glDisable(GL_RESCALE_NORMAL);
             glPopMatrix();
         }
@@ -179,6 +178,7 @@ class SGBaseTERenderer extends BaseTileEntityRenderer {
 
     // Render a chevron at the given position (0 to 8, with 4 being top dead centre)
     void renderChevronAtPosition(int i, float a, boolean engaged) {
+        System.out.print("SGBaseTERender");
         glPushMatrix();
         glRotatef(90 - (i - 4) * a, 0, 0, 1);
         chevron(engaged);

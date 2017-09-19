@@ -6,21 +6,16 @@
 
 package gcewing.sg;
 
-import java.io.*;
 import org.lwjgl.input.*;
 import org.lwjgl.opengl.*;
 import static org.lwjgl.opengl.GL11.*;
 
 import net.minecraft.client.audio.*;
-import net.minecraft.client.gui.*;
-import net.minecraft.client.renderer.*;
 import net.minecraft.entity.player.*;
 import net.minecraft.tileentity.*;
 import net.minecraft.util.*;
 import net.minecraft.util.math.*;
 import net.minecraft.world.*;
-
-import net.minecraftforge.client.*;
 
 import static gcewing.sg.BaseBlockUtils.*;
 

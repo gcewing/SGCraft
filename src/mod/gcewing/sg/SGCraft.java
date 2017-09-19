@@ -165,7 +165,7 @@ public class SGCraft extends BaseMod<SGCraftClient> {
         addOre("naquadah", naquadah);
         addOre("ingotNaquadahAlloy", naquadahIngot);
     }
-    
+
     @Override
     protected void registerRecipes() {
         ItemStack chiselledSandstone = new ItemStack(Blocks.SANDSTONE, 1, 1);

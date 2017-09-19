@@ -6,18 +6,15 @@
 
 package gcewing.sg;
 
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.inventory.*;
 import net.minecraft.item.*;
 import net.minecraft.nbt.*;
 import net.minecraft.tileentity.*;
 import net.minecraft.world.*;
-import net.minecraft.util.*;
 import net.minecraft.util.math.*;
 
 import static gcewing.sg.BaseBlockUtils.*;
 import static gcewing.sg.BaseUtils.*;
-import static gcewing.sg.Utils.*;
 
 public class DHDTE extends BaseTileInventory implements ISGEnergySource {
 
