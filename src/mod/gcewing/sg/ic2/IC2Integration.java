@@ -38,9 +38,9 @@ public class IC2Integration extends BaseSubsystem<SGCraft, SGCraftClient> {
         ItemStack machine = getIC2Item("resource", "machine");
         ItemStack wire = getIC2Item("cable", "type:copper,insulation:0");
         ItemStack circuit = getIC2Item("crafting", "circuit");
-        mod.newRecipe(mod.ic2Capacitor, 1, "ppp", "rrr", "ppp",
+        mod.newRecipe("ic2capacitor",mod.ic2Capacitor, 1, "ppp", "rrr", "ppp",
             'p', copperPlate, 'r', rubber);
-        mod.newRecipe(mod.ic2PowerUnit,  1, "cwc", "wMw", "cec",
+        mod.newRecipe("ic2powerunit", mod.ic2PowerUnit,  1, "cwc", "wMw", "cec",
             'c', mod.ic2Capacitor, 'w', wire, 'M', machine, 'e', circuit);
     }
     

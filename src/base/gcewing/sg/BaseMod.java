@@ -24,6 +24,7 @@ import net.minecraft.entity.*;
 import net.minecraft.entity.player.*;
 import net.minecraft.inventory.*;
 import net.minecraft.item.*;
+import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.network.Packet;
 import net.minecraft.server.management.*;
 import net.minecraft.tileentity.*;
@@ -54,7 +55,7 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
     extends BaseSubsystem implements IGuiHandler
 {
 
-    public boolean debugLoot = true;
+    public boolean debugLoot = false;
 
     protected Map<ResourceLocation, IModel> modelCache = new HashMap<ResourceLocation, IModel>();
 
@@ -441,28 +442,29 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
 
     //--------------- Recipe construction ----------------------------------------------------------
 
-    public void newRecipe(Item product, int qty, Object... params) {
-        newRecipe(new ItemStack(product, qty), params);
+    public void newRecipe(String name, Item product, int qty, Object... params) {
+        newRecipe(name, new ItemStack(product, qty), params);
     }
     
-    public void newRecipe(Block product, int qty, Object... params) {
-        newRecipe(new ItemStack(product, qty), params);
+    public void newRecipe(String name, Block product, int qty, Object... params) {
+        newRecipe(name, new ItemStack(product, qty), params);
     }
 
-    public void newRecipe(ItemStack product, Object... params) {
-        //GameRegistry.addRecipe(new ShapedOreRecipe(product, params));       
+    public void newRecipe(String name, ItemStack product, Object... params) {
+        // Todo: Recipe needs group registration
+        GameRegistry.addShapedRecipe(new ResourceLocation("sgcraft", name),new ResourceLocation("sgcraft","Stargate"), product, params);
     }
 
-    public void newShapelessRecipe(Block product, int qty, Object... params) {
-        newShapelessRecipe(new ItemStack(product, qty), params);
+    //public void newShapelessRecipe(Block product, int qty, Ingredient... params) {
+    //    newShapelessRecipe(new ItemStack(product, qty), params);
+    //}
+    
+    public void newShapelessRecipe(String name, Item product, int qty, Ingredient... params) {
+        newShapelessRecipe(name, new ItemStack(product, qty), params);
     }
     
-    public void newShapelessRecipe(Item product, int qty, Object... params) {
-        newShapelessRecipe(new ItemStack(product, qty), params);
-    }
-    
-    public void newShapelessRecipe(ItemStack product, Object... params) {
-        //GameRegistry.addRecipe(new ShapelessOreRecipe(product, params));
+    public void newShapelessRecipe(String name, ItemStack product, Ingredient... params) {
+        GameRegistry.addShapelessRecipe(new ResourceLocation("sgcraft",name), new ResourceLocation("sgcraft","Stargate"), product, params);
     }
 
     public void newSmeltingRecipe(Item product, int qty, Item input) {
@@ -472,7 +474,7 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
     public void newSmeltingRecipe(Item product, int qty, Item input, int xp) {
         GameRegistry.addSmelting(input, new ItemStack(product, qty), xp);
     }
-    
+
     public void newSmeltingRecipe(Item product, int qty, Block input) {
         newSmeltingRecipe(product, qty, input, 0);
     }
@@ -480,7 +482,7 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
     public void newSmeltingRecipe(Item product, int qty, Block input, int xp) {
         GameRegistry.addSmelting(input, new ItemStack(product, qty), xp);
     }
-    
+
     //--------------- Dungeon loot ----------------------------------------------------------
 
 //     public void addRandomChestItem(ItemStack stack, int minQty, int maxQty, int weight, String... category) {

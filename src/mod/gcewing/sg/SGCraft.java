@@ -13,6 +13,7 @@ import net.minecraft.block.material.*;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.*;
 import net.minecraft.item.*;
+import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.tileentity.*;
 import net.minecraft.util.*;
 import net.minecraft.world.*;
@@ -173,33 +174,34 @@ public class SGCraft extends BaseMod<SGCraftClient> {
         ItemStack sgChevronBlock = new ItemStack(sgRingBlock, 1, 1);
         ItemStack blueDye = new ItemStack(Items.DYE, 1, 4);
         ItemStack orangeDye = new ItemStack(Items.DYE, 1, 14);
+
         if (config.getBoolean("options", "allowCraftingNaquadah", false))
-            newShapelessRecipe(naquadah, 1, Items.COAL, Items.SLIME_BALL, Items.BLAZE_POWDER);
-        newRecipe(sgRingBlock, 1, "CCC", "NNN", "SSS",
+            newShapelessRecipe("naquada",naquadah, 1, Ingredient.fromItems(Items.COAL, Items.SLIME_BALL, Items.BLAZE_POWDER));
+        newRecipe("sgringblock", sgRingBlock, 1, "CCC", "NNN", "SSS",
             'S', smoothSandstone, 'N', "ingotNaquadahAlloy", 'C', chiselledSandstone);
-        newRecipe(sgChevronBlock, "CgC", "NpN", "SrS",
+        newRecipe("sgcheveronblock", sgChevronBlock, "CgC", "NpN", "SrS",
             'S', smoothSandstone, 'N', "ingotNaquadahAlloy", 'C', chiselledSandstone,
             'g', Items.GLOWSTONE_DUST, 'r', Items.REDSTONE, 'p', Items.ENDER_PEARL);
-        newRecipe(sgBaseBlock, 1, "CrC", "NeN", "ScS",
+        newRecipe("sgbaseblock", sgBaseBlock, 1, "CrC", "NeN", "ScS",
             'S', smoothSandstone, 'N', "ingotNaquadahAlloy", 'C', chiselledSandstone,
             'r', Items.REDSTONE, 'e', Items.ENDER_EYE, 'c', sgCoreCrystal);
-        newRecipe(sgControllerBlock, 1, "bbb", "OpO", "OcO",
+        newRecipe("sgcontrollerblock", sgControllerBlock, 1, "bbb", "OpO", "OcO",
             'b', Blocks.STONE_BUTTON, 'O', Blocks.OBSIDIAN, 'p', Items.ENDER_PEARL,
-            'r', Items.REDSTONE, 'c', sgControllerCrystal);
-        newShapelessRecipe(naquadahIngot, 1, "naquadah", Items.IRON_INGOT);
-        newRecipe(naquadahBlock, 1, "NNN", "NNN", "NNN", 'N', "ingotNaquadahAlloy");
-        newRecipe(sgChevronUpgrade, 1, "g g", "pNp", "r r",
+            'c', sgControllerCrystal);
+        newShapelessRecipe("naquadahingot",naquadahIngot, 1, Ingredient.fromItems(Items.IRON_INGOT,Item.getByNameOrId("naquada")));
+        newRecipe("naquadahblock", naquadahBlock, 1, "NNN", "NNN", "NNN", 'N', "ingotNaquadahAlloy");
+        newRecipe("sgchevronupgrade", sgChevronUpgrade, 1, "g g", "pNp", "r r",
             'N', "ingotNaquadahAlloy",
             'g', Items.GLOWSTONE_DUST, 'r', Items.REDSTONE, 'p', Items.ENDER_PEARL);
-        newRecipe(naquadahIngot, 9, "B", 'B', naquadahBlock);
-        newRecipe(sgIrisBlade, 1, " ii", "ic ", "i  ",
+        newRecipe("naquadahingot", naquadahIngot, 9, "B", 'B', naquadahBlock);
+        newRecipe("sgirisblade", sgIrisBlade, 1, " ii", "ic ", "i  ",
             'i', Items.IRON_INGOT, 'c', new ItemStack(Items.COAL, 1, 1));
-        newRecipe(sgIrisUpgrade, 1, "bbb", "brb", "bbb",
+        newRecipe("sgirisupgrade", sgIrisUpgrade, 1, "bbb", "brb", "bbb",
             'b', sgIrisBlade, 'r', Items.REDSTONE);
         if (config.getBoolean("options", "allowCraftingCrystals", false)) {
-            newRecipe(sgCoreCrystal, 1, "bbr", "rdb", "brb",
+            newRecipe("sgcorecrystal", sgCoreCrystal, 1, "bbr", "rdb", "brb",
                 'b', blueDye, 'r', Items.REDSTONE, 'd', Items.DIAMOND);
-            newRecipe(sgControllerCrystal, 1, "roo", "odr", "oor",
+            newRecipe("sgcontrollercrystal", sgControllerCrystal, 1, "roo", "odr", "oor",
                 'o', orangeDye, 'r', Items.REDSTONE, 'd', Items.DIAMOND);
         }
         if (rfAvailable && !isModLoaded("IC2"))
@@ -207,7 +209,7 @@ public class SGCraft extends BaseMod<SGCraftClient> {
     }
     
     protected void addGenericCapacitorRecipe() {
-        newRecipe(ic2Capacitor, 1, "iii", "ppp", "iii",
+        newRecipe("ic2capacitor", ic2Capacitor, 1, "iii", "ppp", "iii",
             'i', "ingotIron", 'p', "paper");
     }
 

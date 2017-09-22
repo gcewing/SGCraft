@@ -42,7 +42,7 @@ public class OCIntegration extends IntegrationBase {
         ItemStack cable = ocItem("cable");
         ItemStack microchip1 = ocItem("chip1");
         ItemStack pcb = ocItem("printedCircuitBoard");
-        mod.newRecipe(ocInterface, 1, "ini", "cmc", "ibi",
+        mod.newRecipe("ocInterface", ocInterface, 1, "ini", "cmc", "ibi",
             'i', Items.IRON_INGOT, 'n', "ingotNaquadahAlloy",
             'c', cable, 'm', microchip1, 'b', pcb);
     }
