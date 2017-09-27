@@ -89,9 +89,9 @@ public class SGCraft extends BaseMod<SGCraftClient> {
         rfAvailable = classAvailable("cofh.api.energy.IEnergyConnection");
         if (rfAvailable)
             loadSubsystem("gcewing.sg.rf.RFIntegration"); //[RF]
-        ic2Integration = integrateWithMod("IC2", "gcewing.sg.ic2.IC2Integration"); //[IC2]
+        ic2Integration = integrateWithMod("ic2", "gcewing.sg.ic2.IC2Integration"); //[IC2]
 //         ccIntegration = (CCIntegration)integrateWithMod("ComputerCraft", "gcewing.sg.cc.CCIntegration"); //[CC]
-        ocIntegration = (OCIntegration)integrateWithMod("OpenComputers", "gcewing.sg.oc.OCIntegration"); //[OC]
+        ocIntegration = (OCIntegration)integrateWithMod("opencomputers", "gcewing.sg.oc.OCIntegration"); //[OC]
 //         mystcraftIntegration = (MystcraftIntegration)integrateWithMod("Mystcraft", "gcewing.sg.MystcraftIntegration"); //[MYST]
         super.preInit(e);
     }
@@ -151,8 +151,8 @@ public class SGCraft extends BaseMod<SGCraftClient> {
         sgChevronUpgrade = addItem(new SGChevronUpgradeItem(), "sgChevronUpgrade");
         sgIrisUpgrade = addItem(new SGIrisUpgradeItem(), "sgIrisUpgrade");
         sgIrisBlade = newItem("sgIrisBlade");
-        if (isModLoaded("IC2") || (rfAvailable && !isModLoaded("ThermalExpansion"))) {
-            ic2Capacitor = newItem("ic2Capacitor");
+        if (isModLoaded("ice") || (rfAvailable && !isModLoaded("thermalexpansion"))) {
+            ic2Capacitor = newItem("ic2capacitor");
         }
     }
     
@@ -204,7 +204,7 @@ public class SGCraft extends BaseMod<SGCraftClient> {
             newRecipe("sgcontrollercrystal", sgControllerCrystal, 1, "roo", "odr", "oor",
                 'o', orangeDye, 'r', Items.REDSTONE, 'd', Items.DIAMOND);
         }
-        if (rfAvailable && !isModLoaded("IC2"))
+        if (rfAvailable && !isModLoaded("ic2"))
             addGenericCapacitorRecipe();
     }
     
