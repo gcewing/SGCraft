@@ -151,8 +151,8 @@ public class SGCraft extends BaseMod<SGCraftClient> {
         sgChevronUpgrade = addItem(new SGChevronUpgradeItem(), "sgChevronUpgrade");
         sgIrisUpgrade = addItem(new SGIrisUpgradeItem(), "sgIrisUpgrade");
         sgIrisBlade = newItem("sgIrisBlade");
-        if (isModLoaded("ice") || (rfAvailable && !isModLoaded("thermalexpansion"))) {
-            ic2Capacitor = newItem("ic2capacitor");
+        if (isModLoaded("ic2") || (rfAvailable && !isModLoaded("thermalexpansion"))) {
+            ic2Capacitor = newItem("ic2Capacitor");
         }
     }
     
