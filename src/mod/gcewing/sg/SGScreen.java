@@ -38,7 +38,7 @@ public class SGScreen extends BaseGui.Screen {
     float red = 1.0F, green = 1.0F, blue = 1.0F;
 
     public SGScreen() {
-        super(new BaseContainer(0, 0));
+        super(new BaseContainer(Minecraft.getMinecraft().displayWidth,Minecraft.getMinecraft().displayHeight));
     }
 
     public SGScreen(Container container, int width, int height) {
