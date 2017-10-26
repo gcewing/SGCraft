@@ -8,6 +8,7 @@ package gcewing.sg;
 
 import net.minecraft.entity.player.*;
 import net.minecraft.inventory.*;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.*;
 import net.minecraft.util.math.*;
 import net.minecraft.world.*;
@@ -43,6 +44,14 @@ public class SGBaseContainer extends BaseContainer {
     
     void addCamouflageSlots() {
         addSlots(te, 0, te.numCamouflageSlots, 48, 104, 1, CamouflageSlot.class);
+    }
+
+    @Override
+    protected SlotRange transferSlotRange(int srcSlotIndex, ItemStack stack) {
+        SlotRange range = new SlotRange();
+        range.firstSlot = 0;
+        range.numSlots = SGBaseTE.numCamouflageSlots;
+        return range;
     }
     
 //  void addFuelSlots() {

@@ -8,6 +8,7 @@ package gcewing.sg;
 
 import java.util.*;
 
+import gcewing.sg.rf.RFIntegration;
 import net.minecraft.block.*;
 import net.minecraft.block.material.*;
 import net.minecraft.creativetab.CreativeTabs;
@@ -33,11 +34,11 @@ import net.minecraftforge.fml.common.registry.*;
 import static net.minecraftforge.fml.common.registry.VillagerRegistry.*;
 
 // import dan200.computercraft.api.*; //[CC]
-// import gcewing.sg.cc.*; //[CC]
+import gcewing.sg.cc.*; //[CC]
 import gcewing.sg.oc.*; //[OC]
 
 @Mod(modid = Info.modID, name = Info.modName, version = Info.versionNumber,
-    acceptableRemoteVersions = Info.versionBounds)
+    acceptableRemoteVersions = Info.versionBounds, dependencies = "after:opencomputers;after:ic2;after:computercraft")
 
 public class SGCraft extends BaseMod<SGCraftClient> {
 
@@ -65,11 +66,10 @@ public class SGCraft extends BaseMod<SGCraftClient> {
     public static NaquadahOreWorldGen naquadahOreGenerator;
 //     public static int tokraVillagerID;
     
-    public static boolean rfAvailable;
-    
     public static BaseSubsystem ic2Integration; //[IC2]
-//     public static IIntegration ccIntegration; //[CC]
+    public static IIntegration ccIntegration; //[CC]
     public static OCIntegration ocIntegration; //[OC]
+    public static RFIntegration rfIntegration; //[RF]
 //     public static MystcraftIntegration mystcraftIntegration; //[MYST]
 
     public SGCraft() {
@@ -86,11 +86,9 @@ public class SGCraft extends BaseMod<SGCraftClient> {
     @Override
     public void preInit(FMLPreInitializationEvent e) {
         FMLCommonHandler.instance().bus().register(this);
-        rfAvailable = classAvailable("cofh.api.energy.IEnergyConnection");
-        if (rfAvailable)
-            loadSubsystem("gcewing.sg.rf.RFIntegration"); //[RF]
+        rfIntegration = (RFIntegration) integrateWithMod("forge", "gcewing.sg.rf.RFIntegration"); //[RF]
         ic2Integration = integrateWithMod("ic2", "gcewing.sg.ic2.IC2Integration"); //[IC2]
-//         ccIntegration = (CCIntegration)integrateWithMod("ComputerCraft", "gcewing.sg.cc.CCIntegration"); //[CC]
+        ccIntegration = (CCIntegration)integrateWithMod("computercraft", "gcewing.sg.cc.CCIntegration"); //[CC]
         ocIntegration = (OCIntegration)integrateWithMod("opencomputers", "gcewing.sg.oc.OCIntegration"); //[OC]
 //         mystcraftIntegration = (MystcraftIntegration)integrateWithMod("Mystcraft", "gcewing.sg.MystcraftIntegration"); //[MYST]
         super.preInit(e);
@@ -151,7 +149,7 @@ public class SGCraft extends BaseMod<SGCraftClient> {
         sgChevronUpgrade = addItem(new SGChevronUpgradeItem(), "sgChevronUpgrade");
         sgIrisUpgrade = addItem(new SGIrisUpgradeItem(), "sgIrisUpgrade");
         sgIrisBlade = newItem("sgIrisBlade");
-        if (isModLoaded("ic2") || (rfAvailable && !isModLoaded("thermalexpansion"))) {
+        if (isModLoaded("ic2") || !isModLoaded("thermalexpansion")) {
             ic2Capacitor = newItem("ic2Capacitor");
         }
     }
@@ -188,12 +186,13 @@ public class SGCraft extends BaseMod<SGCraftClient> {
         newRecipe("sgcontrollerblock", sgControllerBlock, 1, "bbb", "OpO", "OcO",
             'b', Blocks.STONE_BUTTON, 'O', Blocks.OBSIDIAN, 'p', Items.ENDER_PEARL,
             'c', sgControllerCrystal);
-        newShapelessRecipe("naquadahingot",naquadahIngot, 1, Ingredient.fromItems(Items.IRON_INGOT,Item.getByNameOrId("naquada")));
+        newShapelessRecipe("naquadahingot",naquadahIngot, 1, Ingredient.fromItem(Items.IRON_INGOT),
+                Ingredient.fromItem(naquadah));
         newRecipe("naquadahblock", naquadahBlock, 1, "NNN", "NNN", "NNN", 'N', "ingotNaquadahAlloy");
         newRecipe("sgchevronupgrade", sgChevronUpgrade, 1, "g g", "pNp", "r r",
             'N', "ingotNaquadahAlloy",
             'g', Items.GLOWSTONE_DUST, 'r', Items.REDSTONE, 'p', Items.ENDER_PEARL);
-        newRecipe("naquadahingot", naquadahIngot, 9, "B", 'B', naquadahBlock);
+        newRecipe("naquadahingot_from_block", naquadahIngot, 9, "B", 'B', naquadahBlock);
         newRecipe("sgirisblade", sgIrisBlade, 1, " ii", "ic ", "i  ",
             'i', Items.IRON_INGOT, 'c', new ItemStack(Items.COAL, 1, 1));
         newRecipe("sgirisupgrade", sgIrisUpgrade, 1, "bbb", "brb", "bbb",
@@ -204,7 +203,7 @@ public class SGCraft extends BaseMod<SGCraftClient> {
             newRecipe("sgcontrollercrystal", sgControllerCrystal, 1, "roo", "odr", "oor",
                 'o', orangeDye, 'r', Items.REDSTONE, 'd', Items.DIAMOND);
         }
-        if (rfAvailable && !isModLoaded("ic2"))
+        if (!isModLoaded("ic2"))
             addGenericCapacitorRecipe();
     }
     

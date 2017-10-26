@@ -28,8 +28,16 @@ public class OCInterfaceContainer extends BaseContainer {
     public OCInterfaceContainer(EntityPlayer player, World world, BlockPos pos) {
         super(guiWidth, guiHeight);
         te = (OCInterfaceTE)getWorldTileEntity(world, pos);
-        addPlayerSlots(player);
         addSlots(te, slotsLeft, slotsTop, 1, UpgradeSlot.class);
+        addPlayerSlots(player);
+    }
+
+    @Override
+    protected SlotRange transferSlotRange(int srcSlotIndex, ItemStack stack) {
+        SlotRange range = new SlotRange();
+        range.firstSlot = 0;
+        range.numSlots = 1;
+        return range;
     }
 
     public static class UpgradeSlot extends Slot {

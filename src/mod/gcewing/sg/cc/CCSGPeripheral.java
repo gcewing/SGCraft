@@ -9,6 +9,7 @@ package gcewing.sg.cc;
 import com.google.common.base.Joiner;
 
 import net.minecraft.tileentity.*;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.*;
 import net.minecraft.util.*;
 import net.minecraftforge.common.util.*;

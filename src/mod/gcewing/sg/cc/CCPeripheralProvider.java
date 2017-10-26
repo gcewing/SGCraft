@@ -8,6 +8,7 @@ package gcewing.sg.cc;
 
 import net.minecraft.block.*;
 import net.minecraft.tileentity.*;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.*;
 import net.minecraft.util.*;
 import dan200.computercraft.api.peripheral.*;

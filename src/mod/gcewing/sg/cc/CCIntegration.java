@@ -36,8 +36,8 @@ public class CCIntegration extends BaseSubsystem implements IIntegration {
     
     @Override
     public void registerRecipes() {
-        SGCraft.mod.newRecipe(ccInterface, 1, "SnS", "SrS", "SSS",
-            'S', Blocks.stone, 'n', "ingotNaquadahAlloy", 'r', Items.redstone);
+        SGCraft.mod.newRecipe("cc_interface",ccInterface, 1, "SnS", "SrS", "SSS",
+            'S', Blocks.STONE, 'n', "ingotNaquadahAlloy", 'r', Items.REDSTONE);
     }
     
     @Override

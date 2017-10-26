@@ -1750,6 +1750,8 @@ class BlockRef {
     }
     
     public TileEntity getTileEntity() {
+        if (world == null || pos == null)
+            return null;
         return world.getTileEntity(pos);
     }
     
