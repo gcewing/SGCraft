@@ -32,11 +32,12 @@ archivesBaseName = jarName
 dependencies
     {        
         compile files('lib/industrialcraft-2-2.8.25-ex112-api.jar')
-        compile files('lib/OpenComputers-MC1.12.1-1.7.0.4.jar')        
+        compile files('lib/OpenComputers-MC1.12.1-1.7.0.20.jar')
+        compile files('lib/ComputerCraft1.80pr1.jar')
     }
 
 minecraft {    
-    version = "1.12.1-14.22.1.2478"
+    version = "1.12.2-14.23.0.2491"
     runDir = "run"
     mappings = 'snapshot_20170706'    
     useDepAts = true

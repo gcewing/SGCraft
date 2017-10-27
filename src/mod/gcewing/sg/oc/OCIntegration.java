@@ -34,14 +34,14 @@ public class OCIntegration extends IntegrationBase {
     
     @Override
     public void registerItems() {
-        networkCard = ocItem("lanCard");
+        networkCard = ocItem("lancard");
     }
     
     @Override
     public void registerRecipes() {
         ItemStack cable = ocItem("cable");
         ItemStack microchip1 = ocItem("chip1");
-        ItemStack pcb = ocItem("printedCircuitBoard");
+        ItemStack pcb = ocItem("printedcircuitboard");
         mod.newRecipe("ocInterface", ocInterface, 1, "ini", "cmc", "ibi",
             'i', Items.IRON_INGOT, 'n', "ingotNaquadahAlloy",
             'c', cable, 'm', microchip1, 'b', pcb);

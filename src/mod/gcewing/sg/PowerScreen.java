@@ -61,6 +61,7 @@ public class PowerScreen extends BaseGui.Screen {
         glBlendFunc(GL_ONE, GL_ONE);
         setColor(1, 0, 0);
         drawRect(19, 27, 25 * te.energyBuffer / te.energyMax, 10);
+        glBlendFunc(GL_ONE, GL_ZERO);
         glPopAttrib();
         gRestore();
     }

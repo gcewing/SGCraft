@@ -49,6 +49,14 @@ public class DHDFuelContainer extends BaseContainer {
             addSlotToContainer(new FuelSlot(te, b + i, x, y));
         }
     }
+
+    @Override
+    protected SlotRange transferSlotRange(int srcSlotIndex, ItemStack stack) {
+        SlotRange range = new SlotRange();
+        range.firstSlot = DHDTE.firstFuelSlot;
+        range.numSlots = DHDTE.numFuelSlots;
+        return range;
+    }
     
 //  @Override
 //  void sendStateTo(ICrafting crafter) {
