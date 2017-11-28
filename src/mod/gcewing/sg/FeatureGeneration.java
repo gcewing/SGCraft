@@ -8,9 +8,10 @@ package gcewing.sg;
 
 import java.util.*;
 import java.lang.reflect.Field;
-import net.minecraft.util.EnumFacing;
+
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.gen.*;
-import net.minecraft.world.gen.feature.*;
 import net.minecraft.world.gen.structure.*;
 
 import net.minecraftforge.event.terraingen.*;
@@ -56,10 +57,15 @@ public class FeatureGeneration {
 
 }
 
-class SGStructureMap extends HashMap {
+class SGStructureMap extends Long2ObjectOpenHashMap {
+
+    public SGStructureMap() {
+        super(1024);
+    }
 
     @Override
-    public Object put(Object key, Object value) {
+    @SuppressWarnings("unchecked")
+    public Object put(final long key, final Object value) {
         if (FeatureGeneration.debugStructures)
             System.out.printf("SGCraft: FeatureGeneration: SGStructureMap.put: %s\n", value);
         if (value instanceof StructureStart)
@@ -75,10 +81,11 @@ class SGStructureMap extends HashMap {
             System.out.printf("SGCraft: FeatureGeneration: Found component %s\n", comp);
             if (comp instanceof ComponentScatteredFeaturePieces.DesertPyramid) {
                 StructureBoundingBox box = ((StructureComponent)comp).getBoundingBox();
-                if (FeatureGeneration.debugStructures)
+                if (FeatureGeneration.debugStructures) {
+                    BlockPos boxCenter = new BlockPos(box.minX + (box.maxX - box.minX + 1) / 2, box.minY + (box.maxY - box.minY + 1) / 2, box.minZ + (box.maxZ - box.minZ + 1) / 2);
                     System.out.printf("SGCraft: FeatureGeneration: Augmenting %s at (%s, %s)\n",
-                        comp.getClass().getSimpleName(), box.getLength().getX(), box.getLength().getZ());
-                        // Update: This .getLength() was .getCenter().
+                            comp.getClass().getSimpleName(), boxCenter.getX(), boxCenter.getZ());
+                }
                 StructureComponent newComp = new FeatureUnderDesertPyramid((StructureComponent)comp);
                 start.getBoundingBox().expandTo(newComp.getBoundingBox());
                 newComponents.add(newComp);
@@ -86,5 +93,4 @@ class SGStructureMap extends HashMap {
         }
         oldComponents.addAll(newComponents);
     }
-
 }

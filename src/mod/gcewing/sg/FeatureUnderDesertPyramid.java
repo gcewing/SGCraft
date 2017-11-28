@@ -41,14 +41,15 @@ public class FeatureUnderDesertPyramid extends StructureComponent {
             System.out.printf("SGCraft: Instantiating FeatureUnderDesertPyramid\n");
         this.base = base;
         StructureBoundingBox baseBox = base.getBoundingBox();
-        int cx = baseBox.getLength().getX();
-        int cz = baseBox.getLength().getZ();
-        // Update: getLength() was .getCenter()
+        BlockPos boxCenter = new BlockPos(baseBox.minX + (baseBox.maxX - baseBox.minX + 1) / 2, baseBox.minY + (baseBox.maxY - baseBox.minY + 1) / 2, baseBox.minZ + (baseBox.maxZ - baseBox.minZ + 1) / 2);
+        int cx = boxCenter.getX();
+        int cz = boxCenter.getZ();
         int bottom = baseBox.minY - 7;
         boundingBox = new StructureBoundingBox(cx - 5, bottom, cz - 5, cx + 5, bottom + 7, cz + 8);
         setCoordBaseMode(EnumFacing.SOUTH);
     }
-    
+
+    @Override
     public boolean addComponentParts(World world, Random rand, StructureBoundingBox clip) {
         if (rand.nextInt(100) < FeatureGeneration.structureAugmentationChance)
             return addAugmentationParts(world, rand, clip);
@@ -69,8 +70,8 @@ public class FeatureUnderDesertPyramid extends StructureComponent {
         IBlockState orange = Blocks.STAINED_HARDENED_CLAY.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.ORANGE);
         IBlockState stairs = Blocks.SANDSTONE_STAIRS.getDefaultState().withProperty(BlockStairs.FACING, EnumFacing.EAST);
         IBlockState ladder = Blocks.LADDER.getDefaultState();
-        IBlockState dhd = SGCraft.sgControllerBlock.getDefaultState().withProperty(BaseOrientation.Orient4WaysByState.FACING, EnumFacing.EAST);
-        IBlockState sgBase = SGCraft.sgBaseBlock.getDefaultState().withProperty(BaseOrientation.Orient4WaysByState.FACING, EnumFacing.EAST);
+        IBlockState dhd = SGCraft.sgControllerBlock.getDefaultState().withProperty(BaseOrientation.Orient4WaysByState.FACING, EnumFacing.NORTH);
+        IBlockState sgBase = SGCraft.sgBaseBlock.getDefaultState().withProperty(BaseOrientation.Orient4WaysByState.FACING, EnumFacing.NORTH);
         IBlockState[] sgRings = new IBlockState[2];
         sgRings[0] = SGCraft.sgRingBlock.getDefaultState();
         sgRings[1] = sgRings[0].withProperty(SGRingBlock.VARIANT, 1);
