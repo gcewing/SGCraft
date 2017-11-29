@@ -34,6 +34,7 @@ public class FeatureGeneration {
     public static void onInitMapGen(InitMapGenEvent e) {
         if (debugStructures)
             System.out.printf("SGCraft: FeatureGeneration.onInitMapGen: %s\n", e.getType());
+
         if (augmentStructures) {
             switch (e.getType()) {
                 case SCATTERED_FEATURE:
@@ -74,11 +75,16 @@ class SGStructureMap extends Long2ObjectOpenHashMap {
     }
     
     void augmentStructureStart(StructureStart start) {
-        System.out.printf("SGCraft: FeatureGeneration: augmentStructureStart: %s\n", start);
+        if (FeatureGeneration.debugStructures) {
+            System.out.printf("SGCraft: FeatureGeneration: augmentStructureStart: %s\n", start);
+        }
         List<StructureComponent> oldComponents = start.getComponents();
         List<StructureComponent> newComponents = new ArrayList<StructureComponent>();
         for (Object comp : oldComponents) {
-            System.out.printf("SGCraft: FeatureGeneration: Found component %s\n", comp);
+            if (FeatureGeneration.debugStructures) {
+                System.out.printf("SGCraft: FeatureGeneration: Found component %s\n", comp);
+                System.out.println("SGCraft: Instance: " + comp.getClass().getCanonicalName() + " -- " + comp.getClass().getSimpleName());
+            }
             if (comp instanceof ComponentScatteredFeaturePieces.DesertPyramid) {
                 StructureBoundingBox box = ((StructureComponent)comp).getBoundingBox();
                 if (FeatureGeneration.debugStructures) {
