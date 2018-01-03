@@ -234,6 +234,9 @@ public class DHDScreen extends SGScreen {
         }
         glPopAttrib();
     }
+    
+    @Override
+    public void drawDefaultBackground() {}
 
     void drawBackgroundImage() {
         bindTexture(SGCraft.mod.resourceLocation("textures/gui/dhd_gui.png"));
