@@ -6,18 +6,20 @@
 
 package gcewing.sg;
 
-import org.lwjgl.input.*;
-import org.lwjgl.opengl.*;
+import net.minecraft.client.audio.ISound;
+import net.minecraft.client.audio.PositionedSoundRecord;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.SoundEvents;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvent;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import org.lwjgl.input.Keyboard;
+import org.lwjgl.opengl.GL11;
+
+import static gcewing.sg.BaseBlockUtils.getWorldTileEntity;
 import static org.lwjgl.opengl.GL11.*;
-
-import net.minecraft.client.audio.*;
-import net.minecraft.entity.player.*;
-import net.minecraft.tileentity.*;
-import net.minecraft.util.*;
-import net.minecraft.util.math.*;
-import net.minecraft.world.*;
-
-import static gcewing.sg.BaseBlockUtils.*;
 
 public class DHDScreen extends SGScreen {
 
@@ -89,7 +91,7 @@ public class DHDScreen extends SGScreen {
             }
         }
     }
-    
+
     @Override
     protected void mousePressed(int x, int y, int mouseButton) {
         //System.out.printf("DHDScreen.mousePressed: %d, %d, %d\n", x, y, mouseButton);
@@ -97,7 +99,6 @@ public class DHDScreen extends SGScreen {
             int i = findDHDButton(x, y);
             if (i >= 0) {
                 dhdButtonPressed(i);
-                return;
             }
         }
     }
@@ -142,48 +143,54 @@ public class DHDScreen extends SGScreen {
     
     void dhdButtonPressed(int i) {
         //System.out.printf("DHDScreen.dhdButtonPressed: %d\n", i);
-        buttonSound();
-        if (i == 0)
-            orangeButtonPressed(false);
-        else if (i >= 37)
+        if (i == 0) {
+            orangeButtonPressed();
+        } else if (i >= 37) {
             backspace();
-        else
+        } else {
             enterCharacter(SGBaseTE.symbolToChar(i - 1));
+        }
     }
     
-    void buttonSound() {
-        //mc.sndManager.playSoundFX("random.click", 1.0F, 1.0F);
+    void buttonSound(SoundEvent sound) {
         EntityPlayer player = mc.player;
-        ISound sound = new PositionedSoundRecord(
-            new ResourceLocation("ui.button.click"), SoundCategory.BLOCKS,
+        ISound s = new PositionedSoundRecord(sound, SoundCategory.BLOCKS,
             1.0F, 1.0F,
-            false, 0, ISound.AttenuationType.LINEAR,
             (float)player.posX, (float)player.posY, (float)player.posZ);
-        mc.getSoundHandler().playSound(sound);
+        mc.getSoundHandler().playSound(s);
     }
 
     @Override
     protected void keyTyped(char c, int key) {
-        if (key == Keyboard.KEY_ESCAPE)
-            close();
-        else if (key == Keyboard.KEY_BACK || key == Keyboard.KEY_DELETE)
-            backspace();
-        else if (key == Keyboard.KEY_RETURN || key == Keyboard.KEY_NUMPADENTER)
-            orangeButtonPressed(true);
-        else {
-            String C = String.valueOf(c).toUpperCase();
-            if (SGAddressing.isValidSymbolChar(C))
-                enterCharacter(C.charAt(0));
+        switch (key) {
+            case Keyboard.KEY_ESCAPE:
+                close();
+                break;
+            case Keyboard.KEY_BACK:
+            case Keyboard.KEY_DELETE:
+                backspace();
+                break;
+            case Keyboard.KEY_RETURN:
+            case Keyboard.KEY_NUMPADENTER:
+                orangeButtonPressed();
+                break;
+            default:
+                String C = String.valueOf(c).toUpperCase();
+                if (SGAddressing.isValidSymbolChar(C))
+                    enterCharacter(C.charAt(0));
+                break;
         }
     }
     
-    void orangeButtonPressed(boolean connectOnly) {
+    void orangeButtonPressed() {
         SGBaseTE te = getStargateTE();
         if (te != null) {
-            if (te.state == SGState.Idle)
+            buttonSound(SGBaseTE.dhdDialSound);
+            if (te.state == SGState.Idle) {
                 sendConnectOrDisconnect(te, getEnteredAddress());
-            else if (!connectOnly)
+            } else {
                 sendConnectOrDisconnect(te, "");
+            }
         }
     }
     
@@ -194,7 +201,7 @@ public class DHDScreen extends SGScreen {
         
     void backspace() {
         if (stargateIsIdle()) {
-            buttonSound();
+            buttonSound(SoundEvents.UI_BUTTON_CLICK);
             String a = getEnteredAddress();
             int n = a.length();
             if (n > 0)
@@ -204,7 +211,7 @@ public class DHDScreen extends SGScreen {
     
     void enterCharacter(char c) {
         if (stargateIsIdle()) {
-            buttonSound();
+            buttonSound(SGBaseTE.dhdPressSound);
             String a = getEnteredAddress();
             int n = a.length();
             if (n < addressLength)
@@ -234,9 +241,6 @@ public class DHDScreen extends SGScreen {
         }
         glPopAttrib();
     }
-    
-    @Override
-    public void drawDefaultBackground() {}
 
     void drawBackgroundImage() {
         bindTexture(SGCraft.mod.resourceLocation("textures/gui/dhd_gui.png"));
