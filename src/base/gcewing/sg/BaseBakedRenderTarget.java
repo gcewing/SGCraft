@@ -6,28 +6,24 @@
 
 package gcewing.sg;
 
-import java.util.*;
-import java.nio.*;
-//import javax.vecmath.Vector3f;
+import net.minecraft.client.renderer.block.model.*;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.vertex.VertexFormat;
+import net.minecraft.client.renderer.vertex.VertexFormatElement;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
 import org.lwjgl.util.vector.Vector3f;
-import net.minecraft.client.renderer.Tessellator;
 
-import net.minecraft.block.*;
-import net.minecraft.block.state.*;
-import net.minecraft.client.renderer.block.model.*;
-import net.minecraft.client.renderer.texture.*;
-import net.minecraft.client.renderer.vertex.*;
-import net.minecraft.client.renderer.block.model.*;
-import net.minecraft.item.*;
-import net.minecraft.util.*;
-import net.minecraft.util.math.*;
-import net.minecraft.world.*;
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static net.minecraft.client.renderer.vertex.DefaultVertexFormats.*;
 
-import net.minecraftforge.client.model.*;
-
-import gcewing.sg.BaseModClient.ITexture;
+//import javax.vecmath.Vector3f;
 
 public class BaseBakedRenderTarget extends BaseRenderTarget {
 
@@ -53,7 +49,7 @@ public class BaseBakedRenderTarget extends BaseRenderTarget {
     //protected VertexFormat format = Attributes.DEFAULT_BAKED_FORMAT;
     //protected VertexFormat format = DefaultVertexFormats.ITEM;
     protected VertexFormat format = theFormat;
-    protected int bytesPerVertex = format.getNextOffset();
+    protected int bytesPerVertex = format.getSize();
     protected int intsPerVertex = bytesPerVertex / 4;
     protected ByteBuffer buf = ByteBuffer.allocate(bytesPerVertex * 4);
     
