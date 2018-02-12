@@ -36,7 +36,9 @@ import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.DimensionType;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -575,9 +577,9 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
             if (state != SGState.Disconnecting)
                 disconnect();
                 return null;
+        } else {
+            return operationFailure(player, "incomingConnection");
         }
-        else
-            return operationFailure(player, "Connection initiated from other end");
     }
     
     public boolean disconnectionAllowed() {
@@ -587,39 +589,38 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
     String connect(String address, EntityPlayer player) {
         SGBaseTE dte;
         if (state != SGState.Idle)
-            return diallingFailure(player, "Stargate is busy");
+            return diallingFailure(player, "selfBusy");
         String homeAddress = findHomeAddress();
         if (homeAddress.equals(""))
-            return diallingFailure(player, "Coordinates of dialling stargate are out of range");
+            return diallingFailure(player, "selfOutOfRange");
         try {
             dte = SGAddressing.findAddressedStargate(address, world);
-        }
-        catch (SGAddressing.AddressingError e) {
+        } catch (SGAddressing.AddressingError e) {
             return diallingFailure(player, e.getMessage());
         }
         if (dte == null || !dte.isMerged)
-            return diallingFailure(player, "No stargate at address " + address);
+            return diallingFailure(player, "unknownAddress", address);
         if (getWorld() == dte.getWorld()) {
             address = SGAddressing.localAddress(address);
             homeAddress = SGAddressing.localAddress(homeAddress);
         }
         if (address.length() > getNumChevrons())
-            return diallingFailure(player, "Not enough chevrons to dial " + address);
+            return diallingFailure(player, "selfLackChevrons", address);
         if (dte == this)
-            return diallingFailure(player, "Stargate cannot connect to itself");
+            return diallingFailure(player, "diallingItself");
         if (debugConnect)
             System.out.printf("SGBaseTE.connect: to %s in dimension %d with state %s\n",
                 dte.getPos(), dte.getWorld().provider.getDimension(),
                 dte.state);
         if (dte.getNumChevrons() < homeAddress.length())
-            return diallingFailure(player, "Destination stargate has insufficient chevrons");
+            return diallingFailure(player, "targetLackChevrons");
         if (dte.state != SGState.Idle)
-            return diallingFailure(player, "Stargate at address " + address + " is busy");
+            return diallingFailure(player, "targetBusy", address);
         distanceFactor = distanceFactorForCoordDifference(this, dte);
         if (debugEnergyUse)
             System.out.printf("SGBaseTE: distanceFactor = %s\n", distanceFactor);
         if (!energyIsAvailable(energyToOpen * distanceFactor))
-            return diallingFailure(player, "Stargate has insufficient energy");
+            return diallingFailure(player, "insufficientEnergy");
         startDiallingStargate(address, dte, true);
         dte.startDiallingStargate(homeAddress, this, false);
         return null;
@@ -643,32 +644,32 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
     public void playSGSoundEffect(SoundEvent se, float volume, float pitch) {
         playSoundEffect(se, volume * soundVolume, pitch);
     }
-    
-    String diallingFailure(EntityPlayer player, String mess) {
+
+    public String diallingFailure(EntityPlayer player, String msg, Object... args) {
         if (player != null) {
             if (state == SGState.Idle)
                 playSGSoundEffect(abortSound, 1.0F, 1.0F);
         }
-        return operationFailure(player, mess);
+        return operationFailure(player, msg, args);
     }
-    
-    String operationFailure(EntityPlayer player, String mess) {
+
+    public String operationFailure(EntityPlayer player, String msg, Object... args) {
         if (player != null)
-            sendChatMessage(player, mess);
-        return mess;
+            sendErrorMsg(player, msg, args);
+        return msg;
     }
-    
-    static void sendChatMessage(EntityPlayer player, String mess) {
-        player.sendMessage(new TextComponentTranslation(mess));
+
+    public static void sendErrorMsg(EntityPlayer player, String msg, Object... args) {
+        ITextComponent component = new TextComponentTranslation("message.sgcraft:" + msg, args);
+        component.getStyle().setColor(TextFormatting.RED);
+        player.sendMessage(component);
     }
     
     String findHomeAddress() {
-        String homeAddress;
         try {
             return getHomeAddress();
-        }
-        catch (SGAddressing.AddressingError e) {
-            System.out.printf("SGBaseTE.findHomeAddress: %s\n", e);
+        } catch (SGAddressing.AddressingError e) {
+            //System.out.printf("SGBaseTE.findHomeAddress: %s\n", e);
             return "";
         }
     }
@@ -1134,7 +1135,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
     
     static void terminatePlayerByIrisImpact(EntityPlayer player) {
         if (player.capabilities.isCreativeMode)
-            sendChatMessage(player, "Destination blocked by iris");
+            sendErrorMsg(player, "irisAtDestination");
         else {
             if (!(preserveInventory || player.world.getGameRules().getBoolean("keepInventory")))
                 player.inventory.clear();
@@ -1762,7 +1763,7 @@ class BlockRef {
     }
     
     public BlockRef(IBlockAccess world, BlockPos pos) {
-        world = world;
+        this.world = world;
         this.pos = pos;
     }
     
