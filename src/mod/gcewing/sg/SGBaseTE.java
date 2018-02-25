@@ -6,45 +6,60 @@
 
 package gcewing.sg;
 
-import java.util.*;
-import java.lang.reflect.Method;
-import org.apache.logging.log4j.*;
-import io.netty.channel.*;
-
-import net.minecraft.block.*;
-import net.minecraft.block.state.*;
-import net.minecraft.entity.*;
-import net.minecraft.entity.player.*;
+import gcewing.sg.oc.OCWirelessEndpoint;
+import io.netty.channel.ChannelFutureListener;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockSlab;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.entity.projectile.EntityFishHook;
-import net.minecraft.inventory.*;
-import net.minecraft.item.*;
-import net.minecraft.nbt.*;
-import net.minecraft.network.*;
-import net.minecraft.network.play.server.*;
-import net.minecraft.potion.*;
-import net.minecraft.server.*;
-import net.minecraft.server.management.*;
-import net.minecraft.tileentity.*;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.InventoryBasic;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.play.server.SPacketEntityEffect;
+import net.minecraft.network.play.server.SPacketRespawn;
+import net.minecraft.network.play.server.SPacketSetExperience;
+import net.minecraft.network.play.server.SPacketUpdateTileEntity;
+import net.minecraft.potion.PotionEffect;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.management.PlayerList;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.*;
-import net.minecraft.util.math.*;
-import net.minecraft.util.text.*;
-import net.minecraft.world.*;
-import net.minecraft.world.chunk.*;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.world.DimensionType;
+import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.ChunkProviderServer;
-
-import net.minecraftforge.common.*;
-import net.minecraftforge.common.util.*;
-import net.minecraftforge.common.network.*;
+import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.common.network.ForgeMessage;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.network.*;
+import net.minecraftforge.fml.common.network.FMLEmbeddedChannel;
+import net.minecraftforge.fml.common.network.FMLOutboundHandler;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.relauncher.Side;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import gcewing.sg.SGAddressing.AddressingError;
-import gcewing.sg.oc.OCWirelessEndpoint; //[OC]
-import static gcewing.sg.BaseBlockUtils.*;
-import static gcewing.sg.BaseUtils.*;
-import static gcewing.sg.Utils.*;
+import java.util.*;
+
+import static gcewing.sg.BaseBlockUtils.getWorldTileEntity;
+import static gcewing.sg.BaseUtils.max;
+import static gcewing.sg.BaseUtils.min;
 
 public class SGBaseTE extends BaseTileInventory implements ITickable {
 
@@ -65,7 +80,9 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
         irisOpenSound,
         irisCloseSound,
         irisHitSound,
-        diallingSound;
+        diallingSound,
+        dhdPressSound,
+        dhdDialSound;
     
     public static void registerSounds(SGCraft mod) {
         abortSound = mod.newSound("sg_abort");
@@ -75,6 +92,8 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
         irisCloseSound = mod.newSound("iris_close");
         irisHitSound = mod.newSound("iris_hit");
         diallingSound = mod.newSound("sg_dial7");
+        dhdPressSound = mod.newSound("dhd_press");
+        dhdDialSound = mod.newSound("dhd_dial");
     }
 
     public final static String symbolChars = SGAddressing.symbolChars;
@@ -558,9 +577,9 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
             if (state != SGState.Disconnecting)
                 disconnect();
                 return null;
+        } else {
+            return operationFailure(player, "incomingConnection");
         }
-        else
-            return operationFailure(player, "Connection initiated from other end");
     }
     
     public boolean disconnectionAllowed() {
@@ -570,39 +589,38 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
     String connect(String address, EntityPlayer player) {
         SGBaseTE dte;
         if (state != SGState.Idle)
-            return diallingFailure(player, "Stargate is busy");
+            return diallingFailure(player, "selfBusy");
         String homeAddress = findHomeAddress();
         if (homeAddress.equals(""))
-            return diallingFailure(player, "Coordinates of dialling stargate are out of range");
+            return diallingFailure(player, "selfOutOfRange");
         try {
             dte = SGAddressing.findAddressedStargate(address, world);
-        }
-        catch (SGAddressing.AddressingError e) {
+        } catch (SGAddressing.AddressingError e) {
             return diallingFailure(player, e.getMessage());
         }
         if (dte == null || !dte.isMerged)
-            return diallingFailure(player, "No stargate at address " + address);
+            return diallingFailure(player, "unknownAddress", address);
         if (getWorld() == dte.getWorld()) {
             address = SGAddressing.localAddress(address);
             homeAddress = SGAddressing.localAddress(homeAddress);
         }
         if (address.length() > getNumChevrons())
-            return diallingFailure(player, "Not enough chevrons to dial " + address);
+            return diallingFailure(player, "selfLackChevrons", address);
         if (dte == this)
-            return diallingFailure(player, "Stargate cannot connect to itself");
+            return diallingFailure(player, "diallingItself");
         if (debugConnect)
             System.out.printf("SGBaseTE.connect: to %s in dimension %d with state %s\n",
                 dte.getPos(), dte.getWorld().provider.getDimension(),
                 dte.state);
         if (dte.getNumChevrons() < homeAddress.length())
-            return diallingFailure(player, "Destination stargate has insufficient chevrons");
+            return diallingFailure(player, "targetLackChevrons");
         if (dte.state != SGState.Idle)
-            return diallingFailure(player, "Stargate at address " + address + " is busy");
+            return diallingFailure(player, "targetBusy", address);
         distanceFactor = distanceFactorForCoordDifference(this, dte);
         if (debugEnergyUse)
             System.out.printf("SGBaseTE: distanceFactor = %s\n", distanceFactor);
         if (!energyIsAvailable(energyToOpen * distanceFactor))
-            return diallingFailure(player, "Stargate has insufficient energy");
+            return diallingFailure(player, "insufficientEnergy");
         startDiallingStargate(address, dte, true);
         dte.startDiallingStargate(homeAddress, this, false);
         return null;
@@ -626,32 +644,32 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
     public void playSGSoundEffect(SoundEvent se, float volume, float pitch) {
         playSoundEffect(se, volume * soundVolume, pitch);
     }
-    
-    String diallingFailure(EntityPlayer player, String mess) {
+
+    public String diallingFailure(EntityPlayer player, String msg, Object... args) {
         if (player != null) {
             if (state == SGState.Idle)
                 playSGSoundEffect(abortSound, 1.0F, 1.0F);
         }
-        return operationFailure(player, mess);
+        return operationFailure(player, msg, args);
     }
-    
-    String operationFailure(EntityPlayer player, String mess) {
+
+    public String operationFailure(EntityPlayer player, String msg, Object... args) {
         if (player != null)
-            sendChatMessage(player, mess);
-        return mess;
+            sendErrorMsg(player, msg, args);
+        return msg;
     }
-    
-    static void sendChatMessage(EntityPlayer player, String mess) {
-        player.sendMessage(new TextComponentTranslation(mess));
+
+    public static void sendErrorMsg(EntityPlayer player, String msg, Object... args) {
+        ITextComponent component = new TextComponentTranslation("message.sgcraft:" + msg, args);
+        component.getStyle().setColor(TextFormatting.RED);
+        player.sendMessage(component);
     }
     
     String findHomeAddress() {
-        String homeAddress;
         try {
             return getHomeAddress();
-        }
-        catch (SGAddressing.AddressingError e) {
-            System.out.printf("SGBaseTE.findHomeAddress: %s\n", e);
+        } catch (SGAddressing.AddressingError e) {
+            //System.out.printf("SGBaseTE.findHomeAddress: %s\n", e);
             return "";
         }
     }
@@ -1054,7 +1072,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
         if (entity instanceof EntityLiving)
             ((EntityLiving)entity).clearLeashed(true, false);
         for (EntityLiving entity2 : entitiesWithinLeashRange(entity))
-            if (entity2.getLeashed() && entity2.getLeashedToEntity() == entity)
+            if (entity2.getLeashed() && entity2.getLeashHolder() == entity)
                 entity2.clearLeashed(true, false);
     }
     
@@ -1117,7 +1135,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable {
     
     static void terminatePlayerByIrisImpact(EntityPlayer player) {
         if (player.capabilities.isCreativeMode)
-            sendChatMessage(player, "Destination blocked by iris");
+            sendErrorMsg(player, "irisAtDestination");
         else {
             if (!(preserveInventory || player.world.getGameRules().getBoolean("keepInventory")))
                 player.inventory.clear();
@@ -1745,7 +1763,7 @@ class BlockRef {
     }
     
     public BlockRef(IBlockAccess world, BlockPos pos) {
-        world = world;
+        this.world = world;
         this.pos = pos;
     }
     

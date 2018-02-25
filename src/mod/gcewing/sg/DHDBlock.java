@@ -6,20 +6,19 @@
 
 package gcewing.sg;
 
-import net.minecraft.block.*;
-import net.minecraft.block.material.*;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.texture.*;
-import net.minecraft.creativetab.*;
-import net.minecraft.entity.*;
-import net.minecraft.entity.player.*;
-import net.minecraft.item.*;
-import net.minecraft.tileentity.*;
-import net.minecraft.util.*;
-import net.minecraft.util.math.*;
-import net.minecraft.world.*;
-
 import gcewing.sg.BaseMod.ModelSpec;
+import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumBlockRenderType;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
 
 public class DHDBlock extends BaseBlock<DHDTE> {
 
@@ -29,7 +28,7 @@ public class DHDBlock extends BaseBlock<DHDTE> {
         "stargateblock",
         "dhd_button_dim",
     };
-    protected static ModelSpec model = new ModelSpec("dhd.smeg", new Vector3(0, -0.5, 0), textures);
+    protected static ModelSpec model = new ModelSpec("block/dhd.smeg", new Vector3(0, -0.5, 0), textures);
 
     public DHDBlock() {
         super(Material.ROCK, DHDTE.class);

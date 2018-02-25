@@ -6,5 +6,18 @@
 	"sg_open":  {"category": "ambient", "sounds": ["sgcraft:sg_open"]},
 	"iris_open":  {"category": "ambient", "sounds": ["sgcraft:iris_open"]},
 	"iris_close": {"category": "ambient", "sounds": ["sgcraft:iris_close"]},
-	"iris_hit": {"category": "ambient", "sounds": ["sgcraft:iris_hit"]}
+	"iris_hit": {"category": "ambient", "sounds": ["sgcraft:iris_hit"]},
+	"dhd_press": {
+		"category": "ambient",
+		"sounds": [
+			"sgcraft:dhd_usual1",
+			"sgcraft:dhd_usual2",
+			"sgcraft:dhd_usual3",
+			"sgcraft:dhd_usual4",
+			"sgcraft:dhd_usual5",
+			"sgcraft:dhd_usual6",
+			"sgcraft:dhd_usual7"
+		]
+	},
+	"dhd_dial": {"category": "ambient", "sounds": ["sgcraft:dhd_usual_dial"]}
 }

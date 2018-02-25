@@ -1,21 +1,16 @@
-buildscript
-{
-    repositories
-    {
+buildscript {
+    repositories {
         mavenCentral()
         mavenLocal()
         jcenter()
-        maven
-        {
+        maven {
             url = "http://files.minecraftforge.net/maven"
         }
-        maven
-        {
+        maven {
             url = "https://oss.sonatype.org/content/repositories/snapshots/"
         }
     }
-    dependencies
-    {
+    dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
     }
 }
@@ -29,17 +24,21 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 //group= "com.yourname.modid" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = jarName
 
-dependencies
-    {        
-        compile files('lib/industrialcraft-2-2.8.25-ex112-api.jar')
-        compile files('lib/OpenComputers-MC1.12.1-1.7.0.20.jar')
-        compile files('lib/ComputerCraft1.80pr1.jar')
-    }
+repositories {
+    maven { url = "http://maven.cil.li/" }
+    maven { url = "http://maven.ic2.player.to" }
+}
 
-minecraft {    
-    version = "1.12.2-14.23.0.2491"
+dependencies {
+    compile "li.cil.oc:OpenComputers:MC1.12.1-1.7.1.52"
+    compile "net.industrial-craft:industrialcraft-2:2.8.9-ex112:api"
+    compile files('lib/ComputerCraft1.80pr1.jar')
+}
+
+minecraft {
+    version = "1.12.2-14.23.0.2529"
     runDir = "run"
-    mappings = 'snapshot_20170706'    
+    mappings = 'snapshot_20180114'
     useDepAts = true
 
     // the mappings can be changed at any time, and must be in the following format.
