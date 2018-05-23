@@ -6,15 +6,13 @@
 
 package gcewing.sg;
 
-import static java.lang.Math.*;
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL12.*;
-
 import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.tileentity.*;
-import net.minecraft.tileentity.*;
-import net.minecraft.util.*;
-import net.minecraft.util.math.*;
+import net.minecraft.tileentity.TileEntity;
+import org.lwjgl.opengl.GL11;
+
+import static java.lang.Math.min;
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL12.GL_RESCALE_NORMAL;
 
 class SGBaseTERenderer extends BaseTileEntityRenderer {
 
@@ -299,6 +297,8 @@ class SGBaseTERenderer extends BaseTileEntityRenderer {
 
     void renderEventHorizon(SGBaseTE te) {
         bindTexture(SGCraft.mod.resourceLocation("textures/tileentity/eventhorizon.png"));
+        GL11.glDisable(GL_LIGHTING);
+        setLightingDisabled(true);
         glDisable(GL_CULL_FACE);
         glNormal3d(0, 0, 1);
         double grid[][] = te.getEventHorizonGrid()[0];
@@ -319,6 +319,8 @@ class SGBaseTERenderer extends BaseTileEntityRenderer {
         glEnd();
         glDepthMask(true);
         glEnable(GL_CULL_FACE);
+        GL11.glEnable(GL_LIGHTING);
+        setLightingDisabled(false);
     }
     
     void ehVertex(double[][] grid, int i, int j, double rclip) {
