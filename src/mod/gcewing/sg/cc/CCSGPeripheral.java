@@ -6,13 +6,9 @@
 
 package gcewing.sg.cc;
 
-import com.google.common.base.Joiner;
-
 import net.minecraft.tileentity.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.*;
-import net.minecraft.util.*;
-import net.minecraftforge.common.util.*;
 
 import dan200.computercraft.api.lua.*;
 import dan200.computercraft.api.peripheral.*;
@@ -185,16 +181,14 @@ abstract class SGMethod extends CCMethod {
                 if (result == null)
                     result = success;
                 return result;
+            } else {
+                throw new IllegalArgumentException("diagnosticsFailed");
             }
-            else
-                throw new IllegalArgumentException("Stargate interface failed internal diagnostics");
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return new Object[] {null, e.getMessage()};
         }
     }
     
     abstract Object[] call(SGInterfaceTE te, Object[] args);
-
 }
 

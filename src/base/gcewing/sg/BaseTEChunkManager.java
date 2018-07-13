@@ -11,15 +11,11 @@ import java.util.*;
 import net.minecraft.nbt.*;
 import net.minecraft.tileentity.*;
 import net.minecraft.world.*;
-import net.minecraft.world.chunk.*;
-import net.minecraft.util.*;
 import net.minecraft.util.math.*;
 
 import net.minecraftforge.common.*;
 import net.minecraftforge.common.ForgeChunkManager.Ticket;
 import net.minecraftforge.common.ForgeChunkManager.Type;
-import net.minecraftforge.event.*;
-import net.minecraftforge.event.world.*;
 
 public class BaseTEChunkManager implements ForgeChunkManager.LoadingCallback {
 

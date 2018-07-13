@@ -6,36 +6,47 @@
 
 package gcewing.sg;
 
-import java.net.*;
-import java.util.*;
-
-import static org.lwjgl.opengl.GL11.*;
 import com.google.common.collect.ImmutableList;
-
-import net.minecraft.block.*;
+import gcewing.sg.BaseMod.IBlock;
+import gcewing.sg.BaseMod.IItem;
+import gcewing.sg.BaseMod.ITextureConsumer;
+import gcewing.sg.BaseMod.ModelSpec;
+import gcewing.sg.BaseModClient.*;
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.*;
-import net.minecraft.client.renderer.*;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.BlockModelShapes;
+import net.minecraft.client.renderer.BlockRendererDispatcher;
+import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.block.model.*;
 import net.minecraft.client.renderer.block.statemap.DefaultStateMapper;
-import net.minecraft.client.renderer.block.statemap.IStateMapper;
-import net.minecraft.client.renderer.texture.*;
-import net.minecraft.entity.*;
-import net.minecraft.item.*;
-import net.minecraft.util.*;
-import net.minecraft.util.math.*;
-import net.minecraft.world.*;
-
-import net.minecraftforge.client.event.*;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.BlockRenderLayer;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
 import net.minecraftforge.client.MinecraftForgeClient;
+import net.minecraftforge.client.event.ModelBakeEvent;
+import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.eventhandler.*;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import gcewing.sg.BaseMod.*;
-import gcewing.sg.BaseModClient.*;
-import static gcewing.sg.BaseReflectionUtils.setField;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.lwjgl.opengl.GL11.GL_SMOOTH;
 
 public class BaseRenderingManager<MOD extends BaseMod<? extends BaseModClient>> implements IRenderingManager {
 

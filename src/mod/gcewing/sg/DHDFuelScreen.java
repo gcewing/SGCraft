@@ -6,10 +6,8 @@
 
 package gcewing.sg;
 
-import org.lwjgl.input.*;
 import org.lwjgl.opengl.*;
 
-import net.minecraft.client.gui.*;
 import net.minecraft.entity.player.*;
 import net.minecraft.util.math.*;
 import net.minecraft.world.*;

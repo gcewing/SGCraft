@@ -35,12 +35,6 @@ class SGBaseTERenderer extends BaseTileEntityRenderer {
     final static double textureScaleU = 1.0/(textureTilesWide * 16);
     final static double textureScaleV = 1.0/(textureTilesHigh * 16);
     
-    final static int ringFaceTextureIndex = 0x01; //0x14;
-    final static int ringTextureIndex = 0x00; //0x15;
-    final static int ringSymbolTextureIndex = 0x20; //0x20;
-    final static int chevronTextureIndex = 0x03; //0x05;
-    final static int chevronLitTextureIndex = 0x02; //0x16;
-    
     final static double ringSymbolTextureLength = 512.0; //27 * 8;
     final static double ringSymbolTextureHeight = 16.0; //12;
     final static double ringSymbolSegmentWidth = ringSymbolTextureLength / numRingSegments;
@@ -71,8 +65,8 @@ class SGBaseTERenderer extends BaseTileEntityRenderer {
 
     @Override
     public void render(TileEntity te, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {
-        SGBaseTE tesg = (SGBaseTE)te;
-        if (tesg.isMerged) {
+        SGBaseTE gate = (SGBaseTE)te;
+        if (gate.isMerged) {
             glPushMatrix();
             if (SGBaseTE.transparency) {
                 glEnable(GL_BLEND);
@@ -83,29 +77,29 @@ class SGBaseTERenderer extends BaseTileEntityRenderer {
             glEnable(GL_RESCALE_NORMAL);
             glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
             glTranslated(x + 0.5, y + 2.5, z + 0.5);
-            renderStargate(tesg, partialTicks);
+            renderStargate(gate, partialTicks);
             glDisable(GL_RESCALE_NORMAL);
             glPopMatrix();
         }
     }
 
-    void renderStargate(SGBaseTE te, float t) {
-        //glRotatef(90 * te.turn, 0, 1, 0);
-        BaseGLUtils.glMultMatrix(te.localToGlobalTransformation(Vector3.zero));
+    void renderStargate(SGBaseTE gate, float partialTicks) {
+        BaseGLUtils.glMultMatrix(gate.localToGlobalTransformation(Vector3.zero));
         bindTexture(SGCraft.mod.resourceLocation("textures/tileentity/stargate.png"));
         glNormal3f(0, 1, 0);
         renderRing(ringMidRadius - ringOverlap, ringOuterRadius, RingType.Outer, ringZOffset);
-        renderInnerRing(te, t);
-        renderChevrons(te);
-        if (te.hasIrisUpgrade)
-            renderIris(te, t);
-        if (te.isConnected())
-            renderEventHorizon(te);
+        renderInnerRing(gate, partialTicks);
+        renderChevrons(gate);
+        if (gate.hasIrisUpgrade)
+            renderIris(gate, partialTicks);
+        if (gate.isConnected() && gate.state != SGState.SyncAwait) {
+            renderEventHorizon(gate, partialTicks);
+        }
     }
     
-    void renderInnerRing(SGBaseTE te, float t) {
+    void renderInnerRing(SGBaseTE te, float partialTicks) {
         glPushMatrix();
-        glRotatef((float)(te.interpolatedRingAngle(t) + SGBaseTE.ringSymbolAngle / 2), 0, 0, 1);
+        glRotatef((float)(te.interpolatedRingAngle(partialTicks) + SGBaseTE.ringSymbolAngle / 2), 0, 0, 1);
         renderRing(ringInnerRadius, ringMidRadius, RingType.Inner, 0);
         glPopMatrix();
     }
@@ -115,22 +109,22 @@ class SGBaseTERenderer extends BaseTileEntityRenderer {
         double u = 0, du = 0, dv = 0;
         glBegin(GL_QUADS);
         for (int i = 0; i < numRingSegments; i++) {
-            selectTile(ringTextureIndex);
-            // Outer
-            if (type == RingType.Outer) {
-                glNormal3d(c[i], s[i], 0);
-                vertex(r2*c[i],   r2*s[i],    z,    0,  0);
-                vertex(r2*c[i],   r2*s[i],   -z,    0, 16);
-                vertex(r2*c[i+1], r2*s[i+1], -z,   16, 16);
-                vertex(r2*c[i+1], r2*s[i+1],  z,   16,  0);
-            }
-            // Inner
-            if (type == RingType.Inner) {
-                glNormal3d(-c[i], -s[i], 0);
-                vertex(r1*c[i],   r1*s[i],   -z,    0,  0);
-                vertex(r1*c[i],   r1*s[i],    z,    0, 16);
-                vertex(r1*c[i+1], r1*s[i+1],  z,   16, 16);
-                vertex(r1*c[i+1], r1*s[i+1], -z,   16,  0);
+            selectTile(TextureIndex.RING);
+            switch (type) {
+                case Outer:
+                    glNormal3d(c[i], s[i], 0);
+                    vertex(r2 * c[i], r2 * s[i], z, 0, 0);
+                    vertex(r2 * c[i], r2 * s[i], -z, 0, 16);
+                    vertex(r2 * c[i + 1], r2 * s[i + 1], -z, 16, 16);
+                    vertex(r2 * c[i + 1], r2 * s[i + 1], z, 16, 0);
+                    break;
+                case Inner:
+                    glNormal3d(-c[i], -s[i], 0);
+                    vertex(r1 * c[i], r1 * s[i], -z, 0, 0);
+                    vertex(r1 * c[i], r1 * s[i], z, 0, 16);
+                    vertex(r1 * c[i + 1], r1 * s[i + 1], z, 16, 16);
+                    vertex(r1 * c[i + 1], r1 * s[i + 1], -z, 16, 0);
+                    break;
             }
             // Back
             glNormal3f(0, 0, -1);
@@ -142,13 +136,13 @@ class SGBaseTERenderer extends BaseTileEntityRenderer {
             glNormal3f(0, 0, 1);
             switch (type) {
                 case Outer:
-                    selectTile(ringFaceTextureIndex);
+                    selectTile(TextureIndex.RING_FACE);
                     u = 0;
                     du = 16;
                     dv = 16;
                     break;
                 case Inner:
-                    selectTile(ringSymbolTextureIndex);
+                    selectTile(TextureIndex.RING_SYMBOL);
                     u = ringSymbolTextureLength - (i + 1) * ringSymbolSegmentWidth;
                     du = ringSymbolSegmentWidth;
                     dv = ringSymbolTextureHeight;
@@ -196,7 +190,7 @@ class SGBaseTERenderer extends BaseTileEntityRenderer {
             glTranslated(-chevronMotionDistance, 0, 0);
         glBegin(GL_QUADS);
         
-        selectTile(chevronTextureIndex);
+        selectTile(TextureIndex.CHEVRON);
         
         // Face 1
         vertex(x2, y2, z1, 0, 2);
@@ -254,7 +248,7 @@ class SGBaseTERenderer extends BaseTileEntityRenderer {
         
         glEnd();
 
-        selectTile(chevronLitTextureIndex);
+        selectTile(TextureIndex.CHEVRON_LIT);
         if (!engaged)
             glColor3d(0.5, 0.5, 0.5);
         else {
@@ -295,14 +289,14 @@ class SGBaseTERenderer extends BaseTileEntityRenderer {
         OpenGlHelper.setActiveTexture(OpenGlHelper.defaultTexUnit);
     }
 
-    void renderEventHorizon(SGBaseTE te) {
+    void renderEventHorizon(SGBaseTE te, float partialTicks) {
         bindTexture(SGCraft.mod.resourceLocation("textures/tileentity/eventhorizon.png"));
         GL11.glDisable(GL_LIGHTING);
         setLightingDisabled(true);
         glDisable(GL_CULL_FACE);
         glNormal3d(0, 0, 1);
         double grid[][] = te.getEventHorizonGrid()[0];
-        double rclip = 2.5 * (te.irisIsClosed() ?  te.getIrisAperture(0) : 1.0);
+        double rclip = 2.5 * (te.irisIsClosed() ?  te.getIrisAperture(partialTicks) : 1.0);
         for (int i = 1; i < ehGridRadialSize; i++) {
             glBegin(GL_QUAD_STRIP);
             for (int j = 0; j <= ehGridPolarSize; j++) {
@@ -382,9 +376,9 @@ class SGBaseTERenderer extends BaseTileEntityRenderer {
         glPopMatrix();
     }
     
-    void selectTile(int index) {
-        u0 = (index % textureTilesWide) * (textureScaleU * 16);
-        v0 = (index / textureTilesWide) * (textureScaleV * 16);
+    void selectTile(TextureIndex index) {
+        u0 = (index.index % textureTilesWide) * (textureScaleU * 16);
+        v0 = (index.index / textureTilesWide) * (textureScaleV * 16);
     }
     
     void vertex(double x, double y, double z, double u, double v) {
@@ -392,6 +386,20 @@ class SGBaseTERenderer extends BaseTileEntityRenderer {
         glVertex3d(x, y, z);
     }
 
+}
+
+enum TextureIndex {
+    RING_FACE(1),
+    RING(0),
+    RING_SYMBOL(32),
+    CHEVRON(3),
+    CHEVRON_LIT(2);
+
+    public final int index;
+
+    TextureIndex(int index) {
+        this.index = index;
+    }
 }
 
 enum RingType {

@@ -6,10 +6,6 @@
 
 package gcewing.sg.cc;
 
-import net.minecraft.tileentity.*;
-import net.minecraft.world.*;
-import net.minecraftforge.common.util.*;
-
 import gcewing.sg.*;
 
 public class CCInterfaceBlock extends SGInterfaceBlock<CCInterfaceTE> {

@@ -15,8 +15,8 @@ public class NaquadahBlock extends Block {
 
     public NaquadahBlock() {
         super(Material.ROCK, MapColor.GREEN);
-        setHardness(5.0F);
-        setResistance(10.0F);
+        setHardness(5F);
+        setResistance(10F);
         setSoundType(SoundType.METAL);
     }
 

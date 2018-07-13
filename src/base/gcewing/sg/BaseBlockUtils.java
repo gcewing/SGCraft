@@ -9,15 +9,12 @@ package gcewing.sg;
 import java.io.*;
 
 import net.minecraft.block.*;
-import net.minecraft.block.material.*;
 import net.minecraft.block.state.*;
-import net.minecraft.client.renderer.texture.*;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.*;
 import net.minecraft.util.*;
 import net.minecraft.util.math.*;
 import net.minecraft.world.*;
-import net.minecraftforge.common.util.*;
 
 import static gcewing.sg.BaseUtils.*;
 

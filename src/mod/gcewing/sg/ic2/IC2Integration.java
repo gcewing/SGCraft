@@ -6,8 +6,6 @@
 
 package gcewing.sg.ic2;
 
-import net.minecraft.block.*;
-import net.minecraft.init.*;
 import net.minecraft.item.*;
 import gcewing.sg.*;
 

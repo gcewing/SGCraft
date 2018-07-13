@@ -9,7 +9,6 @@ package gcewing.sg;
 import java.io.*;
 import java.util.*;
 import com.google.gson.*;
-import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import gcewing.sg.BaseModClient.*;

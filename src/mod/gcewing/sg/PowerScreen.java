@@ -6,13 +6,9 @@
 
 package gcewing.sg;
 
-import org.lwjgl.input.*;
-import org.lwjgl.opengl.*;
 import static org.lwjgl.opengl.GL11.*;
 
-import net.minecraft.client.gui.*;
 import net.minecraft.entity.player.*;
-import net.minecraft.util.*;
 import net.minecraft.util.math.*;
 import net.minecraft.world.*;
 
@@ -48,9 +44,9 @@ public class PowerScreen extends BaseGui.Screen {
         int cx = xSize / 2;
         drawCenteredString(te.getScreenTitle(), cx, 8);
         drawRightAlignedString(te.getUnitName(), 72, 28);
-        drawRightAlignedString(String.format("%.0f", te.energyBuffer), 121, 28);
+        drawRightAlignedString(String.format("%F", te.energyBuffer), 121, 28);
         drawRightAlignedString("Max", 72, 42);
-        drawRightAlignedString(String.format("%.0f", te.energyMax), 121, 42);
+        drawRightAlignedString(String.format("%F", te.energyMax), 121, 42);
          drawPowerGauge();
     }
     

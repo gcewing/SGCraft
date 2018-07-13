@@ -12,7 +12,6 @@ import static java.lang.Math.*;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.*;
 import net.minecraft.util.math.*;
-import net.minecraftforge.common.util.*;
 
 import static gcewing.sg.Vector3.getDirectionVec;
 
@@ -85,7 +84,8 @@ public class Trans3 {
         return new Trans3(
             offset.add(rotation.mul(dx * scaling, dy * scaling, dz * scaling)),
             rotation,
-            scaling);
+            scaling
+        );
     }
     
     public Trans3 rotate(Matrix3 m) {

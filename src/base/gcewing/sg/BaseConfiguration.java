@@ -7,10 +7,8 @@
 package gcewing.sg;
 
 import java.io.*;
-import java.util.*;
-import net.minecraftforge.common.*;
+
 import net.minecraftforge.common.config.*;
-import net.minecraftforge.fml.common.registry.*;
 
 public class BaseConfiguration extends Configuration {
 

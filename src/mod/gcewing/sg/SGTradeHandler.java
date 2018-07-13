@@ -18,7 +18,7 @@ import net.minecraft.item.*;
 import net.minecraft.village.*;
 
 // import net.minecraftforge.fml.common.registry.*;
-import net.minecraftforge.fml.common.registry.VillagerRegistry.*;
+
 
 public class SGTradeHandler implements ITradeList {
 

@@ -9,9 +9,7 @@ package gcewing.sg;
 import java.util.*;
 
 import net.minecraft.block.*;
-import net.minecraft.block.material.*;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.texture.*;
 import net.minecraft.entity.*;
 import net.minecraft.entity.player.*;
 import net.minecraft.item.*;
@@ -19,7 +17,6 @@ import net.minecraft.nbt.*;
 import net.minecraft.util.*;
 import net.minecraft.util.math.*;
 import net.minecraft.world.*;
-import net.minecraftforge.common.util.*;
 
 public class PowerBlock<TE extends PowerTE> extends BaseBlock<TE> {
 
@@ -28,7 +25,7 @@ public class PowerBlock<TE extends PowerTE> extends BaseBlock<TE> {
     public PowerBlock(Class teClass) {
         super(SGCraft.machineMaterial, teClass);
         setHardness(1.5F);
-        setResistance(10.0F);
+        setResistance(10F);
         setSoundType(SoundType.METAL);
         setHarvestLevel("pickaxe", 0);
     }

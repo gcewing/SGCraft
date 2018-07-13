@@ -6,28 +6,22 @@
 
 package gcewing.sg.oc;
 
-import java.util.*;
-import net.minecraft.entity.player.*;
-import net.minecraft.inventory.*;
-import net.minecraft.item.*;
-import net.minecraft.nbt.*;
-import net.minecraft.world.*;
-import net.minecraft.util.*;
-import net.minecraft.util.text.*;
-import net.minecraft.tileentity.*;
-
+import gcewing.sg.IComputerInterface;
+import gcewing.sg.SGBaseTE;
+import gcewing.sg.SGInterfaceTE;
 import li.cil.oc.api.Network;
-import li.cil.oc.api.machine.Value;
 import li.cil.oc.api.machine.Arguments;
-import li.cil.oc.api.machine.Context;
 import li.cil.oc.api.machine.Callback;
-import li.cil.oc.api.network.Environment;
-import li.cil.oc.api.network.Message;
-import li.cil.oc.api.network.Node;
-import li.cil.oc.api.network.Packet;
-import li.cil.oc.api.network.Visibility;
-
-import gcewing.sg.*;
+import li.cil.oc.api.machine.Context;
+import li.cil.oc.api.network.*;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.InventoryBasic;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ITickable;
+import net.minecraft.util.text.ITextComponent;
 
 public class OCInterfaceTE extends SGInterfaceTE
     implements IComputerInterface, Environment, IInventory, ITickable
@@ -76,7 +70,7 @@ public class OCInterfaceTE extends SGInterfaceTE
         if (packet instanceof Packet && hasNetworkCard()) {
             if (node != null) {
                 if (debugNetworking)
-                    System.out.printf("OCInterfaceTE.rebroadcastNetworkPacket\n");
+                    System.out.print("OCInterfaceTE.rebroadcastNetworkPacket\n");
                 node.sendToReachable("network.message", packet);
             }
         }
@@ -247,7 +241,7 @@ public class OCInterfaceTE extends SGInterfaceTE
                 System.out.printf("OCInterfaceTE.onMessage from %s: %s", msg.source(), msg.name());
                 for (Object obj : msg.data())
                     System.out.printf(" %s", obj);
-                System.out.printf("\n");
+                System.out.print("\n");
             }
                 forwardNetworkPacket((Packet)msg.data()[0]);
         }
@@ -421,7 +415,7 @@ public class OCInterfaceTE extends SGInterfaceTE
     @Override
     public boolean isUsableByPlayer(EntityPlayer player) {
         IInventory inventory = getInventory();
-        return (inventory != null) ? inventory.isUsableByPlayer(player) : true;
+        return (inventory == null) || inventory.isUsableByPlayer(player);
     }
 
     @Override

@@ -30,7 +30,7 @@ repositories {
 }
 
 dependencies {
-    compile "li.cil.oc:OpenComputers:MC1.12.1-1.7.1.52"
+    compile "li.cil.oc:OpenComputers:MC1.12.2-1.7.2.67"
     compile "net.industrial-craft:industrialcraft-2:2.8.9-ex112:api"
     compile files('lib/ComputerCraft1.80pr1.jar')
 }

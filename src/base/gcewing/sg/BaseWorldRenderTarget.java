@@ -6,26 +6,16 @@
 
 package gcewing.sg;
 
-import java.util.*;
-import java.nio.*;
 import static java.lang.Math.*;
 
 import net.minecraft.block.*;
 import net.minecraft.block.state.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.block.model.*;
 import net.minecraft.client.renderer.texture.*;
-import net.minecraft.client.renderer.vertex.VertexBuffer;
-import net.minecraft.client.renderer.block.model.*;
-import net.minecraft.item.*;
-import net.minecraft.util.*;
 import net.minecraft.util.math.*;
 import net.minecraft.world.*;
 
-import net.minecraftforge.client.model.*;
-
-import gcewing.sg.BaseModClient.ITexture;
 import static gcewing.sg.BaseUtils.*;
 
 public class BaseWorldRenderTarget extends BaseRenderTarget {
@@ -133,7 +123,7 @@ public class BaseWorldRenderTarget extends BaseRenderTarget {
                             lv = state.getBlock().getAmbientOcclusionLightValue(state);
                         }
                         else
-                            lv = 1.0f;
+                            lv = 1F;
                         //System.out.printf("BaseWorldRenderTarget.aoLightVertex: (%s,%s,%s) br = 0x%08x lv = %.3f w = %.3f\n", X, Y, Z, br, lv, w);
                         if (br != 0) {
                             double br1 = ((br >> 16) & 0xff) / 240.0;

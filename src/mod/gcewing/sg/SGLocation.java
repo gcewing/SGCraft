@@ -8,11 +8,8 @@ package gcewing.sg;
 
 import net.minecraft.nbt.*;
 import net.minecraft.tileentity.*;
-import net.minecraft.util.*;
 import net.minecraft.util.math.*;
 import net.minecraft.world.*;
-
-import net.minecraftforge.common.*;
 
 public class SGLocation {
 
@@ -54,10 +51,6 @@ public class SGLocation {
                 return null;
         }
         TileEntity te = world.getTileEntity(pos);
-        if (te instanceof SGBaseTE)
-            return (SGBaseTE)te;
-        else
-            return null;
+        return te instanceof SGBaseTE ? (SGBaseTE) te : null;
     }
-
 }

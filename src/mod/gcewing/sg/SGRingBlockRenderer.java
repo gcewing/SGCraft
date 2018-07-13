@@ -6,16 +6,11 @@
 
 package gcewing.sg;
 
-import net.minecraft.block.*;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.*;
 import net.minecraft.item.*;
 import net.minecraft.world.*;
-import net.minecraft.world.biome.*;
-import net.minecraft.tileentity.*;
 import net.minecraft.util.*;
 import net.minecraft.util.math.*;
-import net.minecraftforge.common.util.*;
 
 import gcewing.sg.BaseModClient.*;
 
