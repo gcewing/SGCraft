@@ -1544,7 +1544,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
 
     public boolean irisIsClosed() {
         //System.out.printf("SGBaseTE.irisIsClosed: irisPhase = %s\n", irisPhase);
-        return hasIrisUpgrade && irisPhase <= maxIrisPhase;
+        return hasIrisUpgrade && irisPhase <= maxIrisPhase / 2;
     }
     
     public double getIrisAperture(double partialTicks) {
