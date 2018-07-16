@@ -10,10 +10,8 @@ import java.util.*;
 
 import net.minecraft.block.*;
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.*;
 import net.minecraft.item.*;
 import net.minecraft.nbt.*;
-import net.minecraft.util.*;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
@@ -34,7 +32,7 @@ public class PowerItem extends ItemBlock {
         NBTTagCompound nbt = stack.getTagCompound();
         if (nbt != null) {
             double eu = nbt.getDouble("energyBuffer");
-            list.add(String.format("%.0f %s / %.0f", eu, unitName, maxEnergy));
+            list.add(String.format("%F %s / %F", eu, unitName, maxEnergy));
         }
     }
 

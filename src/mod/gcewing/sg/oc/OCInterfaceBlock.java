@@ -8,13 +8,9 @@ package gcewing.sg.oc;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.*;
-import net.minecraft.item.*;
-import net.minecraft.tileentity.*;
 import net.minecraft.util.*;
 import net.minecraft.util.math.*;
 import net.minecraft.world.*;
-
-import net.minecraftforge.common.util.*;
 
 import gcewing.sg.*;
 

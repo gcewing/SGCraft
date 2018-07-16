@@ -43,7 +43,7 @@ public class SGInterfaceTE extends BaseTileEntity {
         SGBaseTE te = getBaseTE();
         if (te != null && te.isMerged)
             return te;
-        throw new IllegalArgumentException("No stargate connected to interface");
+        throw new IllegalArgumentException("missingStargate");
     }
     
     public SGBaseTE requireIrisTE() {
@@ -51,7 +51,7 @@ public class SGInterfaceTE extends BaseTileEntity {
         if (te != null && te.hasIrisUpgrade)
             return te;
         else
-            throw new IllegalArgumentException("No iris fitted to stargate");
+            throw new IllegalArgumentException("missingIris");
     }
     
     String directionDescription(SGBaseTE te) {
@@ -77,7 +77,7 @@ public class SGInterfaceTE extends BaseTileEntity {
             address = SGAddressing.normalizeAddress(address);
             SGBaseTE dte = SGAddressing.findAddressedStargate(address, te.getWorld());
             if (dte == null)
-                throw new IllegalArgumentException("No stargate at address " + address);
+                throw new IllegalArgumentException("unknownAddress");
             double distanceFactor = SGBaseTE.distanceFactorForCoordDifference(te, dte);
             return SGBaseTE.energyToOpen * distanceFactor;
         } catch (AddressingError e) {

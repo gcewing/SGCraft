@@ -87,7 +87,7 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
     }
     
 //     public Trans3 localToGlobalTransformation() {
-//         World world = getWorld();
+//         World world = getSoundWorld();
 //         IBlockState state = world.getBlockState(pos);
 //         return getBlock().localToGlobalTransformation(world, pos, state);
 //     }

@@ -6,30 +6,31 @@
 
 package gcewing.sg;
 
-import java.util.*;
-
-import net.minecraft.block.*;
+import net.minecraft.block.BlockColored;
+import net.minecraft.block.BlockSandStone;
+import net.minecraft.block.BlockStairs;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.init.*;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.EnumDyeColor;
-import net.minecraft.nbt.*;
-import net.minecraft.util.*;
-import net.minecraft.util.math.*;
-import net.minecraft.world.*;
-import net.minecraft.world.gen.structure.*;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import net.minecraft.world.gen.structure.StructureBoundingBox;
+import net.minecraft.world.gen.structure.StructureComponent;
 import net.minecraft.world.gen.structure.template.TemplateManager;
+
+import java.util.Random;
 
 public class FeatureUnderDesertPyramid extends StructureComponent {
 
     StructureComponent base;
 
     @Override
-    protected void readStructureFromNBT(NBTTagCompound par1NBTTagCompound, TemplateManager templateManager) {
-    }
+    protected void readStructureFromNBT(NBTTagCompound compound, TemplateManager templateManager) {}
 
     @Override
-    protected void writeStructureToNBT(NBTTagCompound par1NBTTagCompound) {
-    }
+    protected void writeStructureToNBT(NBTTagCompound compound) {}
 
     public FeatureUnderDesertPyramid() {
         //System.out.printf("SGCraft: FeatureUnderDesertPyramid instantiated with no arguments\n");
@@ -38,7 +39,7 @@ public class FeatureUnderDesertPyramid extends StructureComponent {
     public FeatureUnderDesertPyramid(StructureComponent base) {
         super(0);
         if (FeatureGeneration.debugStructures)
-            System.out.printf("SGCraft: Instantiating FeatureUnderDesertPyramid\n");
+            System.out.println("SGCraft: Instantiating FeatureUnderDesertPyramid");
         this.base = base;
         StructureBoundingBox baseBox = base.getBoundingBox();
         BlockPos boxCenter = new BlockPos(baseBox.minX + (baseBox.maxX - baseBox.minX + 1) / 2, baseBox.minY + (baseBox.maxY - baseBox.minY + 1) / 2, baseBox.minZ + (baseBox.maxZ - baseBox.minZ + 1) / 2);
@@ -51,10 +52,7 @@ public class FeatureUnderDesertPyramid extends StructureComponent {
 
     @Override
     public boolean addComponentParts(World world, Random rand, StructureBoundingBox clip) {
-        if (rand.nextInt(100) < FeatureGeneration.structureAugmentationChance)
-            return addAugmentationParts(world, rand, clip);
-        else
-            return true;
+        return rand.nextInt(100) >= FeatureGeneration.structureAugmentationChance || addAugmentationParts(world, rand, clip);
     }
     
     protected boolean addAugmentationParts(World world, Random rand, StructureBoundingBox clip) {

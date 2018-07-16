@@ -6,10 +6,7 @@
 
 package gcewing.sg.rf;
 
-import java.util.*;
-
 import net.minecraft.block.*;
-import net.minecraft.item.*;
 
 import gcewing.sg.*;
 

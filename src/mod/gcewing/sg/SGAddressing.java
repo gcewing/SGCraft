@@ -30,6 +30,8 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
 
+import javax.annotation.Nullable;
+
 public class SGAddressing {
 
     static boolean debugAddressing = false;
@@ -258,10 +260,9 @@ public class SGAddressing {
             System.out.printf("SGAddressing.hash(%s, %s, %s) = %s\n", i, f, m, h);
         return h;
     }
-                
+
+    @Nullable
     public static WorldServer getWorld(int dimension) {
-//         MinecraftServer server = BaseUtils.getMinecraftServer();
-//         return server.worldServerForDimension(dimension);
         return BaseUtils.getWorldForDimension(dimension);
     }
     

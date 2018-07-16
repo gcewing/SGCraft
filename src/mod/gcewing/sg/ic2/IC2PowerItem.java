@@ -6,11 +6,8 @@
 
 package gcewing.sg.ic2;
 
-import java.util.*;
-
 import net.minecraft.block.*;
 //import net.minecraft.entity.player.*;
-import net.minecraft.item.*;
 //import net.minecraft.nbt.*;
 //import net.minecraft.util.*;
 

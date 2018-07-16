@@ -155,7 +155,7 @@ public class DHDScreen extends SGScreen {
     void buttonSound(SoundEvent sound) {
         EntityPlayer player = mc.player;
         ISound s = new PositionedSoundRecord(sound, SoundCategory.BLOCKS,
-            1.0F, 1.0F,
+            1F, 1F,
             (float)player.posX, (float)player.posY, (float)player.posZ);
         mc.getSoundHandler().playSound(s);
     }

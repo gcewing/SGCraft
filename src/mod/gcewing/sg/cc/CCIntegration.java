@@ -8,7 +8,6 @@ package gcewing.sg.cc;
 
 import net.minecraft.block.*;
 import net.minecraft.init.*;
-import net.minecraft.item.*;
 import dan200.computercraft.api.*;
 import gcewing.sg.*;
 

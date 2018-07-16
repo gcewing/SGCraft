@@ -1,9 +1,31 @@
 {
-	"sg_abort": {"category": "ambient", "sounds": ["sgcraft:sg_abort"]},
-	"sg_close": {"category": "ambient", "sounds": ["sgcraft:sg_close"]},
-	"sg_dial7": {"category": "ambient", "sounds": ["sgcraft:sg_dial7"]},
-	"sg_dial9": {"category": "ambient", "sounds": ["sgcraft:sg_dial9"]},
-	"sg_open":  {"category": "ambient", "sounds": ["sgcraft:sg_open"]},
+	"dial_fail": {"category": "ambient", "sounds": ["sgcraft:dial_fail"]},
+	"chevron_outgoing": {
+		"category": "ambient",
+		"sounds": [
+			"sgcraft:chev_usual1",
+			"sgcraft:chev_usual2",
+			"sgcraft:chev_usual3",
+			"sgcraft:chev_usual4",
+			"sgcraft:chev_usual5",
+			"sgcraft:chev_usual6",
+			"sgcraft:chev_usual7"
+		]
+	},
+	"chevron_incoming": {
+		"category": "ambient",
+		"sounds": [
+			"sgcraft:chev_incoming1",
+			"sgcraft:chev_incoming2",
+			"sgcraft:chev_incoming3",
+			"sgcraft:chev_incoming4",
+			"sgcraft:chev_incoming5",
+			"sgcraft:chev_incoming6",
+			"sgcraft:chev_incoming7"
+		]
+	},
+	"gate_open": {"category": "ambient", "sounds": ["sgcraft:gate_open"]},
+	"gate_close": {"category": "ambient", "sounds": ["sgcraft:gate_close"]},
 	"iris_open":  {"category": "ambient", "sounds": ["sgcraft:iris_open"]},
 	"iris_close": {"category": "ambient", "sounds": ["sgcraft:iris_close"]},
 	"iris_hit": {"category": "ambient", "sounds": ["sgcraft:iris_hit"]},
@@ -19,5 +41,8 @@
 			"sgcraft:dhd_usual7"
 		]
 	},
-	"dhd_dial": {"category": "ambient", "sounds": ["sgcraft:dhd_usual_dial"]}
+	"dhd_dial": {"category": "ambient", "sounds": ["sgcraft:dhd_usual_dial"]},
+	"gate_roll": {"category": "ambient", "sounds": ["sgcraft:gate_roll"]},
+	"lock_outgoing": {"category": "ambient", "sounds": ["sgcraft:lock_outgoing"]},
+	"lock_incoming": {"category": "ambient", "sounds": ["sgcraft:lock_incoming"]}
 }

@@ -9,21 +9,16 @@ package gcewing.sg;
 import java.io.IOException;
 import java.lang.reflect.*;
 import java.util.*;
-import org.lwjgl.input.*;
+
 import org.lwjgl.opengl.*;
 import static org.lwjgl.opengl.GL11.*;
 
 import net.minecraft.client.*;
-import net.minecraft.client.gui.*;
 import net.minecraft.client.gui.inventory.*;
 import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.vertex.VertexBuffer;
-import net.minecraft.entity.player.*;
 import net.minecraft.inventory.*;
 import net.minecraft.util.*;
 import net.minecraft.util.text.translation.I18n;
-
-import net.minecraftforge.client.*;
 
 import static gcewing.sg.BaseUtils.*;
 
@@ -83,7 +78,7 @@ public class BaseGui {
         @Override
         protected void drawGuiContainerBackgroundLayer(float f, int mouseX, int mouseY) {
             GL11.glPushMatrix();
-            GL11.glTranslatef(guiLeft, guiTop, 0.0F);
+            GL11.glTranslatef(guiLeft, guiTop, 0F);
             drawBackgroundLayer();
             if (title != null)
                 drawTitle(title);

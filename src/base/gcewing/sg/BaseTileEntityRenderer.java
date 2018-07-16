@@ -8,7 +8,6 @@ package gcewing.sg;
 
 import net.minecraft.client.renderer.tileentity.*;
 import net.minecraft.tileentity.*;
-import net.minecraft.util.*;
 
 import gcewing.sg. BaseModClient.IRenderTarget;
 

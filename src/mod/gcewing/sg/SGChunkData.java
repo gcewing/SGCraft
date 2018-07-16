@@ -6,16 +6,12 @@
 
 package gcewing.sg;
 
-import java.util.*;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.math.ChunkPos;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraftforge.event.world.ChunkDataEvent;
 
-import net.minecraft.nbt.*;
-import net.minecraft.util.math.*;
-import net.minecraft.world.*;
-import net.minecraft.world.chunk.*;
-
-import net.minecraftforge.common.*;
-import net.minecraftforge.event.*;
-import net.minecraftforge.event.world.*;
+import java.util.HashMap;
 
 public class SGChunkData {
 

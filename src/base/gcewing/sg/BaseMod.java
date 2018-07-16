@@ -6,50 +6,61 @@
 
 package gcewing.sg;
 
-import java.io.*;
-import java.lang.annotation.*;
-import java.lang.reflect.*;
-import java.net.*;
-import java.util.*;
-import java.util.jar.*;
-
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 import com.google.gson.Gson;
-
-import net.minecraft.block.*;
+import gcewing.sg.BaseModClient.IModel;
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.creativetab.*;
-import net.minecraft.entity.*;
-import net.minecraft.entity.player.*;
-import net.minecraft.inventory.*;
-import net.minecraft.item.*;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.inventory.Container;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
+import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.network.Packet;
-import net.minecraft.server.management.*;
-import net.minecraft.tileentity.*;
-import net.minecraft.util.*;
-import net.minecraft.util.math.*;
-import net.minecraft.world.*;
-import net.minecraft.world.storage.loot.*;
-
-import net.minecraftforge.common.*;
-import net.minecraftforge.common.config.*;
-import net.minecraftforge.client.*;
-import net.minecraftforge.oredict.*;
-
+import net.minecraft.server.management.PlayerChunkMap;
+import net.minecraft.server.management.PlayerList;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundEvent;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
+import net.minecraft.world.storage.loot.LootPool;
+import net.minecraft.world.storage.loot.LootTable;
+import net.minecraft.world.storage.loot.LootTableManager;
+import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.LootTableLoadEvent;
-
-import net.minecraftforge.fml.common.*;
-import net.minecraftforge.fml.common.event.*;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.network.*;
-import net.minecraftforge.fml.common.registry.*;
-import net.minecraftforge.fml.common.registry.VillagerRegistry.*;
-import net.minecraftforge.fml.relauncher.*;
+import net.minecraftforge.fml.common.network.IGuiHandler;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.registry.EntityEntry;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
+import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.oredict.OreDictionary;
 
-import gcewing.sg.BaseModClient.IModel;
-import jline.internal.Log;
+import java.io.File;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
     extends BaseSubsystem implements IGuiHandler
@@ -507,13 +518,11 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
         addEntity(cls, name, id.ordinal(), updateFrequency, sendVelocityUpdates);
     }
     
-    public void addEntity(Class<? extends Entity> cls, String name, int id,
-        int updateFrequency, boolean sendVelocityUpdates)
-    {
+    public void addEntity(Class<? extends Entity> cls, String name, int id, int updateFrequency, boolean sendVelocityUpdates) {
         System.out.printf("%s: BaseMod.addEntity: %s, \"%s\", %s\n",
             getClass().getSimpleName(), cls.getSimpleName(), name, id);
             EntityEntry toRegister = new EntityEntry(cls, name);
-            toRegister.setRegistryName("SGCraft Entity");
+            toRegister.setRegistryName(name);
         //EntityRegistry.registerModEntity(cls, name, id, /*base*/this, 256, updateFrequency, sendVelocityUpdates);
         ForgeRegistries.ENTITIES.register(toRegister);
     }

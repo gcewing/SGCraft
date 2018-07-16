@@ -6,45 +6,32 @@
 
 package gcewing.sg;
 
-import java.net.*;
 import java.util.*;
 import java.lang.reflect.*;
-import java.lang.Thread;
 
 import net.minecraft.block.*;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.*;
 import net.minecraft.client.gui.*;
-import net.minecraft.client.audio.*;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.entity.*;
 import net.minecraft.client.renderer.texture.*;
 import net.minecraft.client.renderer.tileentity.*;
 import net.minecraft.client.renderer.block.model.*;
-import net.minecraft.creativetab.*;
 import net.minecraft.entity.*;
 import net.minecraft.entity.player.*;
-import net.minecraft.inventory.*;
 import net.minecraft.item.*;
-import net.minecraft.network.*;
 import net.minecraft.tileentity.*;
 import net.minecraft.util.*;
 import net.minecraft.util.math.*;
 import net.minecraft.world.*;
 
 import net.minecraftforge.common.*;
-import net.minecraftforge.client.*;
-import net.minecraftforge.client.event.*;
-import net.minecraftforge.client.model.*;
 
 import net.minecraftforge.fml.client.*;
 import net.minecraftforge.fml.client.registry.*;
 import net.minecraftforge.fml.common.*;
 import net.minecraftforge.fml.common.event.*;
-import net.minecraftforge.fml.common.eventhandler.*;
 import net.minecraftforge.fml.common.network.*;
-import net.minecraftforge.fml.common.registry.*;
 
 //import gcewing.sg.BaseMod.IBlock;
 import gcewing.sg.BaseMod.*;

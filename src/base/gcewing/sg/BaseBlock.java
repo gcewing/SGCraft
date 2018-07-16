@@ -13,13 +13,10 @@ import net.minecraft.block.material.*;
 import net.minecraft.block.properties.*;
 import net.minecraft.block.state.*;
 import net.minecraft.client.particle.*;
-import net.minecraft.client.renderer.texture.*;
 import net.minecraft.entity.*;
-import net.minecraft.entity.item.*;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.*;
 import net.minecraft.item.*;
-import net.minecraft.nbt.*;
 import net.minecraft.tileentity.*;
 import net.minecraft.util.*;
 import net.minecraft.util.math.*;
@@ -30,8 +27,6 @@ import net.minecraftforge.fml.relauncher.*;
 
 import static gcewing.sg.BaseMod.*;
 import static gcewing.sg.BaseModClient.*;
-import static gcewing.sg.BaseUtils.*;
-import static gcewing.sg.BaseBlockUtils.*;
 
 public class BaseBlock<TE extends TileEntity>
     extends BlockContainer implements BaseMod.IBlock
@@ -394,9 +389,9 @@ public class BaseBlock<TE extends TileEntity>
         int k = pos.getZ();
         AxisAlignedBB boundingBox = blockState.getBoundingBox(world, pos);
         float f = 0.1F;
-        double d0 = i + RANDOM.nextDouble() * (boundingBox.maxX - boundingBox.minX - (f * 2.0F)) + f + boundingBox.minX;
-        double d1 = j + RANDOM.nextDouble() * (boundingBox.maxY - boundingBox.minY - (f * 2.0F)) + f + boundingBox.minY;
-        double d2 = k + RANDOM.nextDouble() * (boundingBox.maxZ - boundingBox.minZ - (f * 2.0F)) + f + boundingBox.minZ;
+        double d0 = i + RANDOM.nextDouble() * (boundingBox.maxX - boundingBox.minX - (f * 2F)) + f + boundingBox.minX;
+        double d1 = j + RANDOM.nextDouble() * (boundingBox.maxY - boundingBox.minY - (f * 2F)) + f + boundingBox.minY;
+        double d2 = k + RANDOM.nextDouble() * (boundingBox.maxZ - boundingBox.minZ - (f * 2F)) + f + boundingBox.minZ;
         switch (target.sideHit) {
             case DOWN: d1 = j + boundingBox.minY - f; break;
             case UP: d1 = j + boundingBox.maxY + f; break;

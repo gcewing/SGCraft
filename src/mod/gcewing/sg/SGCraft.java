@@ -6,36 +6,43 @@
 
 package gcewing.sg;
 
-import java.util.*;
-
+import gcewing.sg.oc.OCIntegration;
 import gcewing.sg.rf.RFIntegration;
-import net.minecraft.block.*;
-import net.minecraft.block.material.*;
+import net.minecraft.block.Block;
+import net.minecraft.block.material.MapColor;
+import net.minecraft.block.material.Material;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.init.*;
-import net.minecraft.item.*;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.tileentity.*;
-import net.minecraft.util.*;
-import net.minecraft.world.*;
-import net.minecraft.world.chunk.*;
-import net.minecraft.world.gen.structure.*;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvent;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.gen.structure.MapGenStructureIO;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.terraingen.InitMapGenEvent;
+import net.minecraftforge.event.world.ChunkDataEvent;
+import net.minecraftforge.event.world.ChunkEvent;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
+import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
-import net.minecraftforge.common.*;
-import net.minecraftforge.event.*;
-import net.minecraftforge.event.world.*;
-import net.minecraftforge.event.terraingen.*;
-
-import net.minecraftforge.fml.common.*;
-import net.minecraftforge.fml.common.event.*;
-import net.minecraftforge.fml.common.gameevent.*;
-import net.minecraftforge.fml.common.eventhandler.*;
-import net.minecraftforge.fml.common.registry.*;
-import static net.minecraftforge.fml.common.registry.VillagerRegistry.*;
+import static net.minecraftforge.fml.common.registry.VillagerRegistry.VillagerCareer;
+import static net.minecraftforge.fml.common.registry.VillagerRegistry.VillagerProfession;
 
 // import dan200.computercraft.api.*; //[CC]
-import gcewing.sg.cc.*; //[CC]
-import gcewing.sg.oc.*; //[OC]
 
 @Mod(modid = Info.modID, name = Info.modName, version = Info.versionNumber,
     acceptableRemoteVersions = Info.versionBounds, dependencies = "after:opencomputers;after:ic2;after:computercraft")
@@ -86,9 +93,9 @@ public class SGCraft extends BaseMod<SGCraftClient> {
     @Override
     public void preInit(FMLPreInitializationEvent e) {
         FMLCommonHandler.instance().bus().register(this);
-        rfIntegration = (RFIntegration) integrateWithMod("forge", "gcewing.sg.rf.RFIntegration"); //[RF]
+        rfIntegration = (RFIntegration) integrateWithMod("redstoneflux", "gcewing.sg.rf.RFIntegration"); //[RF]
         ic2Integration = integrateWithMod("ic2", "gcewing.sg.ic2.IC2Integration"); //[IC2]
-        ccIntegration = (CCIntegration)integrateWithMod("computercraft", "gcewing.sg.cc.CCIntegration"); //[CC]
+        ccIntegration = (IIntegration) integrateWithMod("computercraft", "gcewing.sg.cc.CCIntegration"); //[CC]
         ocIntegration = (OCIntegration)integrateWithMod("opencomputers", "gcewing.sg.oc.OCIntegration"); //[OC]
 //         mystcraftIntegration = (MystcraftIntegration)integrateWithMod("Mystcraft", "gcewing.sg.MystcraftIntegration"); //[MYST]
         super.preInit(e);
@@ -152,6 +159,22 @@ public class SGCraft extends BaseMod<SGCraftClient> {
         if (isModLoaded("ic2") || !isModLoaded("thermalexpansion")) {
             ic2Capacitor = newItem("ic2Capacitor");
         }
+    }
+
+    @SideOnly(Side.CLIENT)
+    public static void playSound(SoundSource source, SoundEvent sound) {
+        playSound(source, sound, SoundCategory.AMBIENT);
+    }
+
+    @SideOnly(Side.CLIENT)
+    public static void playSound(SoundSource source, SoundEvent sound, SoundCategory category) {
+        SoundHandler soundHandler = getSoundHandler();
+        soundHandler.playSound(new Sound(source, sound, category));
+    }
+
+    @SideOnly(Side.CLIENT)
+    private static SoundHandler getSoundHandler() {
+        return Minecraft.getMinecraft().getSoundHandler();
     }
     
     public static boolean isValidStargateUpgrade(Item item) {
@@ -226,8 +249,7 @@ public class SGCraft extends BaseMod<SGCraftClient> {
             naquadahOreGenerator = new NaquadahOreWorldGen();
             GameRegistry.registerWorldGenerator(naquadahOreGenerator, 0);
         }
-        MapGenStructureIO.registerStructureComponent(FeatureUnderDesertPyramid.class,
-            "SGCraft:FeatureUnderDesertPyramid");
+        MapGenStructureIO.registerStructureComponent(FeatureUnderDesertPyramid.class, "SGCraft:FeatureUnderDesertPyramid");
     }
     
     @Override //[VILL]
@@ -241,7 +263,7 @@ public class SGCraft extends BaseMod<SGCraftClient> {
 
     @Override
     protected void registerEntities() {
-        addEntity(IrisEntity.class, "Stargate Iris", SGEntity.Iris, 1000000, false);
+        addEntity(EntityStargateIris.class, "stargate_iris", SGEntity.Iris, 1000000, false);
     }
     
     @Override

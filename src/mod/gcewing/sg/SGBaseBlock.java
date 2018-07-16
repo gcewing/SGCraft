@@ -6,22 +6,16 @@
 
 package gcewing.sg;
 
-import java.util.*;
-
 import net.minecraft.block.*;
 import net.minecraft.block.material.*;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.texture.*;
 import net.minecraft.creativetab.*;
-import net.minecraft.entity.*;
 import net.minecraft.entity.player.*;
 import net.minecraft.init.*;
 import net.minecraft.item.*;
 import net.minecraft.world.*;
 import net.minecraft.util.*;
 import net.minecraft.util.math.*;
-import net.minecraftforge.common.*;
-import net.minecraftforge.common.util.*;
 
 import gcewing.sg.BaseMod.*;
 
@@ -151,7 +145,7 @@ public class SGBaseBlock extends SGBlock<SGBaseTE>  {
     
     @Override    
     public void neighborChanged(IBlockState state, World world, BlockPos pos, Block block, BlockPos from) {
-        System.out.printf("SGBaseBlock.neighborChanged: %s\n", pos);
+        //System.out.printf("SGBaseBlock.neighborChanged: %s\n", pos);
         neighbourChanged(world, pos);
     }
 

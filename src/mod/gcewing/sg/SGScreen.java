@@ -6,18 +6,10 @@
 
 package gcewing.sg;
 
-import org.lwjgl.input.*;
-import org.lwjgl.opengl.*;
 import static org.lwjgl.opengl.GL11.*;
 
 import net.minecraft.client.*;
-import net.minecraft.client.gui.*;
-import net.minecraft.client.gui.inventory.*;
-import net.minecraft.client.renderer.*;
-import net.minecraft.entity.player.*;
 import net.minecraft.inventory.*;
-
-import net.minecraftforge.client.*;
 
 //------------------------------------------------------------------------------------------------
 
@@ -35,7 +27,7 @@ public class SGScreen extends BaseGui.Screen {
     final static int cellSize = 24;
 
     double uscale, vscale;
-    float red = 1.0F, green = 1.0F, blue = 1.0F;
+    float red = 1F, green = 1F, blue = 1F;
 
     public SGScreen() {
         super(new BaseContainer(Minecraft.getMinecraft().displayWidth,Minecraft.getMinecraft().displayHeight));
