@@ -56,7 +56,10 @@ import net.minecraftforge.fml.relauncher.Side;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Random;
 
 import static gcewing.sg.BaseBlockUtils.getWorldTileEntity;
 import static gcewing.sg.BaseUtils.max;
@@ -1544,7 +1547,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
 
     public boolean irisIsClosed() {
         //System.out.printf("SGBaseTE.irisIsClosed: irisPhase = %s\n", irisPhase);
-        return hasIrisUpgrade && irisPhase <= maxIrisPhase;
+        return hasIrisUpgrade && irisPhase <= maxIrisPhase / 2;
     }
     
     public double getIrisAperture(double partialTicks) {
