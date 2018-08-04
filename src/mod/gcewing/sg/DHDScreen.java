@@ -47,18 +47,12 @@ public class DHDScreen extends SGScreen {
     }
     
     SGBaseTE getStargateTE() {
-        if (cte != null)
-            return cte.getLinkedStargateTE();
-        else
-            return null;
+        return cte != null ? cte.getLinkedStargateTE() : null;
     }
     
     DHDTE getControllerTE() {
         TileEntity te = getWorldTileEntity(world, pos);
-        if (te instanceof DHDTE)
-            return (DHDTE)te;
-        else
-            return null;
+        return te instanceof DHDTE ? (DHDTE) te : null;
     }
     
     String getEnteredAddress() {
@@ -67,7 +61,6 @@ public class DHDScreen extends SGScreen {
     
     void setEnteredAddress(String address) {
         cte.enteredAddress = address;
-        SGChannel.sendEnteredAddressToServer(cte, address);
     }
 
     @Override
@@ -86,7 +79,8 @@ public class DHDScreen extends SGScreen {
         super.updateScreen();
         if (closingDelay > 0) {
             if (--closingDelay == 0) {
-                setEnteredAddress("");
+                cte.enteredAddress = "";
+                SGChannel.sendClearAddressToServer(cte);
                 close();
             }
         }
@@ -144,11 +138,11 @@ public class DHDScreen extends SGScreen {
     void dhdButtonPressed(int i) {
         //System.out.printf("DHDScreen.dhdButtonPressed: %d\n", i);
         if (i == 0) {
-            orangeButtonPressed();
+            dial();
         } else if (i >= 37) {
-            backspace();
+            erase();
         } else {
-            enterCharacter(SGBaseTE.symbolToChar(i - 1));
+            chevron(SGBaseTE.symbolToChar(i - 1));
         }
     }
     
@@ -168,29 +162,25 @@ public class DHDScreen extends SGScreen {
                 break;
             case Keyboard.KEY_BACK:
             case Keyboard.KEY_DELETE:
-                backspace();
+                erase();
                 break;
             case Keyboard.KEY_RETURN:
             case Keyboard.KEY_NUMPADENTER:
-                orangeButtonPressed();
+                dial();
                 break;
             default:
                 String C = String.valueOf(c).toUpperCase();
                 if (SGAddressing.isValidSymbolChar(C))
-                    enterCharacter(C.charAt(0));
+                    chevron(C.charAt(0));
                 break;
         }
     }
     
-    void orangeButtonPressed() {
+    void dial() {
         SGBaseTE te = getStargateTE();
         if (te != null) {
             buttonSound(SGBaseTE.dhdDialSound);
-            if (te.state == SGState.Idle) {
-                sendConnectOrDisconnect(te, getEnteredAddress());
-            } else {
-                sendConnectOrDisconnect(te, "");
-            }
+            sendConnectOrDisconnect(te, te.state == SGState.Idle ? getEnteredAddress() : "");
         }
     }
     
@@ -199,23 +189,26 @@ public class DHDScreen extends SGScreen {
         closeAfterDelay(10);
     }
         
-    void backspace() {
+    void erase() {
         if (stargateIsIdle()) {
             buttonSound(SoundEvents.UI_BUTTON_CLICK);
-            String a = getEnteredAddress();
-            int n = a.length();
-            if (n > 0)
-                setEnteredAddress(a.substring(0, n - 1));
+            String enteredAddress = getEnteredAddress();
+            if (!enteredAddress.isEmpty()) {
+                cte.unsetSymbol();
+                SGChannel.sendUnsetSymbolToServer(cte);
+            }
         }
     }
     
-    void enterCharacter(char c) {
+    void chevron(char c) {
         if (stargateIsIdle()) {
             buttonSound(SGBaseTE.dhdPressSound);
             String a = getEnteredAddress();
             int n = a.length();
-            if (n < addressLength)
-                setEnteredAddress(a + c);
+            if (n < addressLength) {
+                cte.enterSymbol(c);
+                SGChannel.sendEnterSymbolToServer(cte, c);
+            }
         }
     }
     
