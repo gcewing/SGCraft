@@ -6,12 +6,16 @@
 
 package gcewing.sg;
 
-import java.io.*;
-import java.util.*;
-import com.google.gson.*;
+import com.google.gson.Gson;
+import gcewing.sg.BaseModClient.IModel;
+import gcewing.sg.BaseModClient.IRenderTarget;
+import gcewing.sg.BaseModClient.ITexture;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
-import gcewing.sg.BaseModClient.*;
+
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.List;
 
 public class BaseModel implements IModel {
 
@@ -55,11 +59,12 @@ public class BaseModel implements IModel {
     
     public void addBoxesToList(Trans3 t, List list) {
         if (boxes != null && boxes.length > 0) {
-            for (int i = 0; i < boxes.length; i++)
-                addBoxToList(boxes[i], t, list);
-        }
-        else
+            for (double[] box : boxes) {
+                addBoxToList(box, t, list);
+            }
+        } else {
             addBoxToList(bounds, t, list);
+        }
     }
     
     protected void addBoxToList(double[] b, Trans3 t, List list) {

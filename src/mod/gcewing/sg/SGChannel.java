@@ -33,24 +33,59 @@ public class SGChannel extends BaseDataChannel {
         BlockPos pos = readCoords(data);
         String address = data.readUTF();
         SGBaseTE te = SGBaseTE.at(player.world, pos);
-        if (te != null)
+        if (te != null) {
             te.connectOrDisconnect(address, player);
+        }
     }
     
-    public static void sendEnteredAddressToServer(DHDTE te, String address) {
-        ChannelOutput data = channel.openServer("EnteredAddress");
+    public static void sendClearAddressToServer(DHDTE te) {
+        ChannelOutput data = channel.openServer("ClearAddress");
         writeCoords(data, te);
-        data.writeUTF(address);
         data.close();
     }
     
-    @ServerMessageHandler("EnteredAddress")
-    public void handleEnteredAddressFromClient(EntityPlayer player, ChannelInput data) {
+    @ServerMessageHandler("ClearAddress")
+    public void handleClearAddressFromClient(EntityPlayer player, ChannelInput data) {
         BlockPos pos = readCoords(data);
-        String address = data.readUTF();
         DHDTE te = DHDTE.at(player.world, pos);
         if (te != null)
-            te.setEnteredAddress(address);
+            te.clearAddress();
+    }
+
+    public static void sendUnsetSymbolToServer(DHDTE te) {
+        ChannelOutput data = channel.openServer("UnsetSymbol");
+        writeCoords(data, te);
+        data.close();
+    }
+
+    @ServerMessageHandler("UnsetSymbol")
+    public void handleUnsetSymbolFromClient(EntityPlayer player, ChannelInput data) {
+        BlockPos pos = readCoords(data);
+        if (player.world.isBlockLoaded(pos)) {
+            DHDTE te = DHDTE.at(player.world, pos);
+            if (te != null) {
+                te.unsetSymbol();
+            }
+        }
+    }
+
+    public static void sendEnterSymbolToServer(DHDTE te, char symbol) {
+        ChannelOutput data = channel.openServer("EnterSymbol");
+        writeCoords(data, te);
+        data.writeChar(symbol);
+        data.close();
+    }
+
+    @ServerMessageHandler("EnterSymbol")
+    public void handleEnterSymbolFromClient(EntityPlayer player, ChannelInput data) {
+        BlockPos pos = readCoords(data);
+        char symbol = data.readChar();
+        if (player.world.isBlockLoaded(pos)) {
+            DHDTE te = DHDTE.at(player.world, pos);
+            if (te != null) {
+                te.enterSymbol(symbol);
+            }
+        }
     }
     
     public static void writeCoords(ChannelOutput data, TileEntity te) {
@@ -60,5 +95,4 @@ public class SGChannel extends BaseDataChannel {
     public BlockPos readCoords(ChannelInput data) {
         return BaseBlockUtils.readBlockPos(data);
     }
-
 }

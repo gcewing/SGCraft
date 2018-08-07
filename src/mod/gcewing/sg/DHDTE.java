@@ -6,15 +6,17 @@
 
 package gcewing.sg;
 
-import net.minecraft.inventory.*;
-import net.minecraft.item.*;
-import net.minecraft.nbt.*;
-import net.minecraft.tileentity.*;
-import net.minecraft.world.*;
-import net.minecraft.util.math.*;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.InventoryBasic;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
 
-import static gcewing.sg.BaseBlockUtils.*;
-import static gcewing.sg.BaseUtils.*;
+import static gcewing.sg.BaseBlockUtils.getWorldTileEntity;
+import static gcewing.sg.BaseUtils.min;
 
 public class DHDTE extends BaseTileInventory implements ISGEnergySource {
 
@@ -51,19 +53,44 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
     
     public static DHDTE at(IBlockAccess world, BlockPos pos) {
         TileEntity te = getWorldTileEntity(world, pos);
-        if (te instanceof DHDTE)
-            return (DHDTE)te;
-        else
-            return null;
+        return te instanceof DHDTE ? (DHDTE) te : null;
     }
     
     public static DHDTE at(IBlockAccess world, NBTTagCompound nbt) {
         BlockPos pos = new BlockPos(nbt.getInteger("x"), nbt.getInteger("y"), nbt.getInteger("z"));
         return DHDTE.at(world, pos);
     }
-    
-    public void setEnteredAddress(String address) {
-        enteredAddress = address;
+
+    void enterSymbol(char symbol) {
+        SGBaseTE gate = getLinkedStargateTE();
+        if (gate != null) {
+            if (enteredAddress.length() < gate.getNumChevrons()) {
+                enteredAddress += symbol;
+                if (SGBaseTE.immediateDHDGateDial) {
+                    boolean last = enteredAddress.length() == gate.getNumChevrons();
+                    gate.finishDiallingSymbol(symbol, true, false, last);
+                    gate.markChanged();
+                }
+            }
+        }
+    }
+
+    void unsetSymbol() {
+        SGBaseTE gate = getLinkedStargateTE();
+        if (gate != null) {
+            if (!enteredAddress.isEmpty()) {
+                char symbol = enteredAddress.charAt(enteredAddress.length() - 1);
+                enteredAddress = enteredAddress.substring(0, enteredAddress.length() - 1);
+                if (SGBaseTE.immediateDHDGateDial) {
+                    gate.unsetSymbol(symbol);
+                    gate.markChanged();
+                }
+            }
+        }
+    }
+
+    public void clearAddress() {
+        enteredAddress = "";
         markChanged();
     }
     
@@ -224,10 +251,7 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
     
     ItemStack fuelStackInSlot(int i) {
         ItemStack stack = getStackInSlot(firstFuelSlot + i);
-        if (isValidFuelItem(stack))
-            return stack;
-        else
-            return null;
+        return isValidFuelItem(stack) ? stack : null;
     }
     
     public static boolean isValidFuelItem(ItemStack stack) {
