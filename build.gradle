@@ -25,20 +25,30 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 archivesBaseName = jarName
 
 repositories {
+    maven { url = "http://files.minecraftforge.net/maven" } // spongeforge
     maven { url = "http://maven.cil.li/" }
+    maven {
+        name = 'oss-sonatype-public'
+        url = 'https://oss.sonatype.org/content/groups/public/'
+    }
     maven { url = "http://maven.ic2.player.to" }
+    maven { url = "http://repo.spongepowered.org/maven" }
+    maven { url = "http://cc.crzd.me/maven/" }
 }
 
 dependencies {
-    compile "li.cil.oc:OpenComputers:MC1.12.2-1.7.2.67"
-    compile "net.industrial-craft:industrialcraft-2:2.8.9-ex112:api"
-    compile files('lib/ComputerCraft1.80pr1.jar')
+    compile "li.cil.oc:OpenComputers:MC1.12.1-1.7.1.52"
+    compile "net.industrial-craft:industrialcraft-2:2.8.93-ex112:api"
+    deobfCompile "dan200.computercraft:ComputerCraft:1.80pr1-build4"
 }
 
+deobfMcMCP { failOnAtError = false }
+deobfMcSRG { failOnAtError = false }
+
 minecraft {
-    version = "1.12.2-14.23.0.2529"
+    version = "1.12.2-14.23.4.2705"
     runDir = "run"
-    mappings = 'snapshot_20180114'
+    mappings = 'snapshot_20171007'
     useDepAts = true
 
     // the mappings can be changed at any time, and must be in the following format.
@@ -55,9 +65,11 @@ sourceSets.main {
 	resources.srcDirs "src/resources"
 }
 
-//jar {
-//	exclude "ic2"
-//}
+sourceSets.main {
+	compileClasspath += files("lib")
+	java.srcDirs "src/base", "src/mod"
+	resources.srcDirs "src/resources"
+}
 
 processResources {
 

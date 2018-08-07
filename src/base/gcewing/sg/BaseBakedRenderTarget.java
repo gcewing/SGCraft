@@ -49,7 +49,7 @@ public class BaseBakedRenderTarget extends BaseRenderTarget {
     //protected VertexFormat format = Attributes.DEFAULT_BAKED_FORMAT;
     //protected VertexFormat format = DefaultVertexFormats.ITEM;
     protected VertexFormat format = theFormat;
-    protected int bytesPerVertex = format.getSize();
+    protected int bytesPerVertex = format.getNextOffset();
     protected int intsPerVertex = bytesPerVertex / 4;
     protected ByteBuffer buf = ByteBuffer.allocate(bytesPerVertex * 4);
     
