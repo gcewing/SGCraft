@@ -21,6 +21,7 @@ public class FeatureGeneration {
     public static boolean augmentStructures = false;
     public static boolean debugStructures = false;
     public static int structureAugmentationChance = 25;
+    public static int chevronUpgradeChance = 25;
     
     static Field structureMap = BaseReflectionUtils.getFieldDef(MapGenStructure.class,
         "structureMap", "field_75053_d");
@@ -28,6 +29,7 @@ public class FeatureGeneration {
     public static void configure(BaseConfiguration config) {
         augmentStructures = config.getBoolean("options", "augmentStructures", augmentStructures);
         structureAugmentationChance = config.getInteger("options", "structureAugmentationChance", structureAugmentationChance);
+        chevronUpgradeChance = config.getInteger("options", "chevronUpgradeChance", chevronUpgradeChance);
         debugStructures = config.getBoolean("debug", "debugStructures", debugStructures);
     }
 
