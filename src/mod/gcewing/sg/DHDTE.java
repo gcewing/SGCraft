@@ -44,6 +44,8 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
 
     double energyInBuffer;
 
+    public boolean immediateDialDHD = false;//SGBaseTE.immediateDHDGateDial;
+
     public static void configure(BaseConfiguration cfg) {
         linkRangeX = cfg.getInteger("dhd", "linkRangeX", linkRangeX);
         linkRangeY = cfg.getInteger("dhd", "linkRangeY", linkRangeY);
@@ -66,7 +68,8 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
         if (gate != null) {
             if (enteredAddress.length() < gate.getNumChevrons()) {
                 enteredAddress += symbol;
-                if (SGBaseTE.immediateDHDGateDial) {
+                //if (SGBaseTE.immediateDHDGateDial) {
+                if (this.immediateDialDHD) {
                     boolean last = enteredAddress.length() == gate.getNumChevrons();
                     gate.finishDiallingSymbol(symbol, true, false, last);
                     gate.markChanged();
@@ -81,7 +84,8 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
             if (!enteredAddress.isEmpty()) {
                 char symbol = enteredAddress.charAt(enteredAddress.length() - 1);
                 enteredAddress = enteredAddress.substring(0, enteredAddress.length() - 1);
-                if (SGBaseTE.immediateDHDGateDial) {
+                //if (SGBaseTE.immediateDHDGateDial) {
+                if (this.immediateDialDHD) {
                     gate.unsetSymbol(symbol);
                     gate.markChanged();
                 }

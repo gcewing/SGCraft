@@ -151,7 +151,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
     static boolean preserveInventory = false;
     static float soundVolume = 1F;
     static boolean variableChevronPositions = true;
-    static boolean immediateDHDGateDial = true;
+    //static boolean immediateDHDGateDial = true;
     
     public static double energyToOpen;
     static double energyUsePerTick;
@@ -218,7 +218,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
         preserveInventory = cfg.getBoolean("iris", "preserveInventory", preserveInventory);
         soundVolume = (float)cfg.getDouble("stargate", "soundVolume", soundVolume);
         variableChevronPositions = cfg.getBoolean("stargate", "variableChevronPositions", variableChevronPositions);
-        immediateDHDGateDial = cfg.getBoolean("stargate", "immediateDHDDial", immediateDHDGateDial);
+        //immediateDHDGateDial = cfg.getBoolean("stargate", "immediateDHDDial", immediateDHDGateDial);
     }
     
     public static SGBaseTE get(IBlockAccess world, BlockPos pos) {
@@ -587,12 +587,15 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
         if (debugConnect)
             System.out.printf("SGBaseTE: %s: connectOrDisconnect('%s') in state %s by %s\n", side(), address, state, player);
         if (address.length() > 0) {
-            if (connect(address, player, immediateDHDGateDial) != null) {
-                numEngagedChevrons = 0;
-                markChanged();
+            DHDTE te = getLinkedControllerTE();
+            if (te != null) {
+                if (connect(address, player, te.immediateDialDHD) != null) {
+                    numEngagedChevrons = 0;
+                    markChanged();
+                }
+            } else {
+                disconnect(player);
             }
-        } else {
-            disconnect(player);
         }
     }
     
