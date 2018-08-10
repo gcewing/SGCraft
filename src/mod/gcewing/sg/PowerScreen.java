@@ -6,11 +6,11 @@
 
 package gcewing.sg;
 
-import static org.lwjgl.opengl.GL11.*;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 
-import net.minecraft.entity.player.*;
-import net.minecraft.util.math.*;
-import net.minecraft.world.*;
+import static org.lwjgl.opengl.GL11.*;
 
 public class PowerScreen extends BaseGui.Screen {
 
@@ -22,10 +22,7 @@ public class PowerScreen extends BaseGui.Screen {
     
     public static PowerScreen create(EntityPlayer player, World world, BlockPos pos) {
         PowerContainer container = PowerContainer.create(player, world, pos);
-        if (container != null)
-            return new PowerScreen(container);
-        else
-            return null;
+        return container != null ? new PowerScreen(container) : null;
     }
     
     public PowerScreen(PowerContainer container) {
@@ -44,9 +41,9 @@ public class PowerScreen extends BaseGui.Screen {
         int cx = xSize / 2;
         drawCenteredString(te.getScreenTitle(), cx, 8);
         drawRightAlignedString(te.getUnitName(), 72, 28);
-        drawRightAlignedString(String.format("%F", te.energyBuffer), 121, 28);
+        drawRightAlignedString(String.format("%f", te.energyBuffer), 121, 28);
         drawRightAlignedString("Max", 72, 42);
-        drawRightAlignedString(String.format("%F", te.energyMax), 121, 42);
+        drawRightAlignedString(String.format("%f", te.energyMax), 121, 42);
          drawPowerGauge();
     }
     
