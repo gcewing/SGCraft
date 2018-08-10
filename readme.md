@@ -1,5 +1,7 @@
 This repo contains several continuations of the original SGCraft mod developed by gcewing.
 
+Downloads are available here:  https://ore.spongepowered.org/Dockter/SGCraft
+
 The following branches are active:
 - 1.12.2 -> Active fixes for 1.12.2
 - api-7 -> All fixes from 1.12.2 branch plus Sponge permissions checks and event firings.
