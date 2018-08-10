@@ -9,9 +9,11 @@ package gcewing.sg;
 import net.minecraft.block.BlockColored;
 import net.minecraft.block.BlockSandStone;
 import net.minecraft.block.BlockStairs;
+import net.minecraft.block.BlockStoneSlab;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.EnumDyeColor;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
@@ -25,6 +27,8 @@ import java.util.Random;
 public class FeatureUnderDesertPyramid extends StructureComponent {
 
     StructureComponent base;
+    boolean generateStructure = false;
+    boolean generateChevronUpgrade = false;
 
     @Override
     protected void readStructureFromNBT(NBTTagCompound compound, TemplateManager templateManager) {}
@@ -41,6 +45,9 @@ public class FeatureUnderDesertPyramid extends StructureComponent {
         if (FeatureGeneration.debugStructures)
             System.out.println("SGCraft: Instantiating FeatureUnderDesertPyramid");
         this.base = base;
+        Random rand = new Random();
+        generateStructure = rand.nextInt(100) <= FeatureGeneration.structureAugmentationChance;
+        generateChevronUpgrade = rand.nextInt(100) <= FeatureGeneration.chevronUpgradeChance;
         StructureBoundingBox baseBox = base.getBoundingBox();
         BlockPos boxCenter = new BlockPos(baseBox.minX + (baseBox.maxX - baseBox.minX + 1) / 2, baseBox.minY + (baseBox.maxY - baseBox.minY + 1) / 2, baseBox.minZ + (baseBox.maxZ - baseBox.minZ + 1) / 2);
         int cx = boxCenter.getX();
@@ -52,7 +59,7 @@ public class FeatureUnderDesertPyramid extends StructureComponent {
 
     @Override
     public boolean addComponentParts(World world, Random rand, StructureBoundingBox clip) {
-        return rand.nextInt(100) >= FeatureGeneration.structureAugmentationChance || addAugmentationParts(world, rand, clip);
+        return generateStructure && addAugmentationParts(world, rand, clip);
     }
     
     protected boolean addAugmentationParts(World world, Random rand, StructureBoundingBox clip) {
@@ -121,21 +128,21 @@ public class FeatureUnderDesertPyramid extends StructureComponent {
             }
         int baseX = box.minX + 5, baseY = box.minY + 1, baseZ = box.minZ + 2;
         SGBaseTE te = (SGBaseTE)world.getTileEntity(new BlockPos(baseX, baseY, baseZ));
-        if (te != null)
-            te.hasChevronUpgrade = true;
-//      else
-//          System.out.printf("FeatureUnderDesertPyramid.addComponentParts: No tile entity at (%d,%d,%d)\n",
-//              baseX, baseY, baseZ);
+        if (te != null) {
+            if (generateChevronUpgrade) {
+                te.hasChevronUpgrade = true;
+            }
+            
+            // Set sandstone base so Stargate doesn't appear to float.
+            ItemStack sandStoneSlab = new ItemStack(Blocks.STONE_SLAB, 1, BlockStoneSlab.EnumType.SAND.getMetadata());
+            te.getInventory().setInventorySlotContents(0, sandStoneSlab.copy());
+            te.getInventory().setInventorySlotContents(1, sandStoneSlab.copy());
+            te.getInventory().setInventorySlotContents(2, sandStoneSlab.copy());
+            te.getInventory().setInventorySlotContents(3, sandStoneSlab.copy());
+            te.getInventory().setInventorySlotContents(4, sandStoneSlab.copy());
+        }
         // Controller
         setBlockState(world, dhd, 5, 1, 7, clip);
         return true;
     }
-
-//     @Override
-//     protected void setBlockState(World worldIn, IBlockState blockstateIn, int x, int y, int z, StructureBoundingBox boundingboxIn) {
-//         System.out.printf("SGCraft: FeatureUnderDesertPyramid.setBlockState: %s at (%s, %s, %s)\n",
-//             blockstateIn, this.getXWithOffset(x, z), this.getYWithOffset(y), this.getZWithOffset(x, z));
-//         super.setBlockState(worldIn, blockstateIn, x, y, z, boundingboxIn);
-//     }
-
 }
