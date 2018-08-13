@@ -802,6 +802,12 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
                         double step = (double)(maxTimeout - timeout) / (double)maxTimeout;
                         ringAngle = startRingAngle + (targetRingAngle - startRingAngle) * step;
                         break;
+
+                    case EstablishingConnection:
+                        if (timeout == 25) {
+                            playSGSoundEffect(connectSound, 1F, 1F); // Play sound before gate actually opens.
+                        }
+                        break;
                 }
                 --timeout;
             } else {
@@ -826,7 +832,10 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
                         }
                         break;
                     case SyncAwait:
-                        finishDiallingAddress();
+                        attemptToLockStargate();
+                        break;
+                    case EstablishingConnection:
+                        openStargate();
                         break;
                     case Transient:
                         enterState(SGState.Connected, isInitiator ? ticksToStayOpen : 0);
@@ -1035,14 +1044,22 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
         }
     }
 
-    void finishDiallingAddress() {
-        //System.out.printf("SGBaseTE: Connecting to '%s'\n", dialledAddress);
+    private void attemptToLockStargate() {
+        if (debugConnect) {
+            System.out.printf("SGBaseTE: Connecting to '%s'\n", dialledAddress);
+        }
         if (!isInitiator || useEnergy(energyToOpen * distanceFactor)) {
-            playSGSoundEffect(connectSound, 1F, 1F);
-            enterState(SGState.Transient, transientDuration);
+            enterState(SGState.EstablishingConnection, 30);
         } else {
             disconnect();
         }
+    }
+
+    private void openStargate() {
+        if (debugConnect) {
+            System.out.printf("SGBaseTE: Connecting to '%s'\n", dialledAddress);
+        }
+        enterState(SGState.Transient, transientDuration);
     }
 
     boolean canTravelFromThisEnd() {
