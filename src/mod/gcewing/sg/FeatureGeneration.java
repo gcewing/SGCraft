@@ -18,8 +18,9 @@ import net.minecraftforge.event.terraingen.*;
 
 public class FeatureGeneration {
 
-    public static boolean augmentStructures = false;
+    public static boolean augmentStructures = true;
     public static boolean debugStructures = false;
+    public static boolean spawnTokra = true;
     public static int structureAugmentationChance = 25;
     public static int chevronUpgradeChance = 25;
     
@@ -31,6 +32,7 @@ public class FeatureGeneration {
         structureAugmentationChance = config.getInteger("options", "structureAugmentationChance", structureAugmentationChance);
         chevronUpgradeChance = config.getInteger("options", "chevronUpgradeChance", chevronUpgradeChance);
         debugStructures = config.getBoolean("debug", "debugStructures", debugStructures);
+        spawnTokra = config.getBoolean("options", "spawnTokraWithPyramidStargate", spawnTokra);
     }
 
     public static void onInitMapGen(InitMapGenEvent e) {

@@ -148,7 +148,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
     static int gateOpeningsPerFuelItem = 24;
     static int minutesOpenPerFuelItem = 80;
     static int secondsToStayOpen = 5 * 60;
-    static boolean oneWayTravel = false;
+    static boolean oneWayTravel = true;
     static boolean closeFromEitherEnd = true;
     static int chunkLoadingRange = 1;
     static boolean logStargateEvents = false;
