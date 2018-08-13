@@ -79,11 +79,17 @@ public class SGCraft extends BaseMod<SGCraftClient> {
     public static RFIntegration rfIntegration; //[RF]
 //     public static MystcraftIntegration mystcraftIntegration; //[MYST]
 
+    // Villager Profession for Generators
     public static VillagerProfession tokraProfession;
 
+    // Block Harvests
     public static boolean canHarvestDHD = false;
     public static boolean canHarvestSGBaseBlock = false;
     public static boolean canHarvestSGRingBlock = false;
+
+    //Client Options
+    public static boolean useHDEventHorizionTexture = true;
+    public static boolean saveAddressToClipboard = false;
 
     public SGCraft() {
         mod = this;
@@ -135,7 +141,11 @@ public class SGCraft extends BaseMod<SGCraftClient> {
         SGBaseBlock.configure(config);
         SGBaseTE.configure(config);
         FeatureGeneration.configure(config);
+        // Server-Side Options
         addOresToExistingWorlds = config.getBoolean("options", "addOresToExistingWorlds", false);
+        // Client-Side Options
+        useHDEventHorizionTexture = config.getBoolean("client", "useHDEventHorizonTexture", useHDEventHorizionTexture);
+        saveAddressToClipboard = config.getBoolean("client", "saveAddressToClipboard", saveAddressToClipboard);
     }       
 
     @Override
