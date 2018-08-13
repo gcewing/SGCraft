@@ -76,7 +76,7 @@ public class DHDBlock extends BaseBlock<DHDTE> {
 
     @Override
     public boolean canHarvestBlock(IBlockAccess world, BlockPos pos, EntityPlayer player) {
-        return true;
+        return SGCraft.canHarvestDHD;
     }
 
     @Override
