@@ -11,6 +11,6 @@
     "logoFile": "",
     "screenshots": [],
     "dependencies": [],
-    "requiredMods": ["Minecraft@1.12.2", "Forge@2705"]
+    "requiredMods": ["forge@14.23.4.2705"]
   }
 ]
