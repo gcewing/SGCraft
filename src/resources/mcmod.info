@@ -10,6 +10,7 @@
     "authors": [ "Greg Ewing", "AlmuraDev", "Radviger" ],
     "logoFile": "",
     "screenshots": [],
-    "dependencies": []
+    "dependencies": [],
+    "requiredMods": ["Minecraft@1.12.2", "Forge@2705"]
   }
 ]
