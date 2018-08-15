@@ -7,6 +7,7 @@
 package gcewing.sg.rf;
 
 import gcewing.sg.PowerTE;
+import gcewing.sg.SGCraft;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
@@ -18,8 +19,8 @@ import javax.annotation.Nullable;
 
 public class RFPowerTE extends PowerTE implements IEnergyStorage {
 
-    final static int maxEnergyBuffer = 4000000;
-    final static double rfPerSGEnergyUnit = 80.0;
+    static int maxEnergyBuffer = SGCraft.RfEnergyBuffer;
+    static double rfPerSGEnergyUnit = SGCraft.RfPerSGEnergyUnit;
     private EnergyStorage storage = new EnergyStorage(maxEnergyBuffer);
 
     public RFPowerTE() {

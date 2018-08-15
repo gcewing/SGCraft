@@ -7,6 +7,7 @@
 package gcewing.sg.ic2;
 
 import gcewing.sg.PowerTE;
+import gcewing.sg.SGCraft;
 import ic2.api.energy.event.EnergyTileLoadEvent;
 import ic2.api.energy.event.EnergyTileUnloadEvent;
 import ic2.api.energy.tile.IEnergyEmitter;
@@ -22,9 +23,9 @@ public class IC2PowerTE extends PowerTE implements IEnergySink, ITickable {
     boolean debugLoad = false;
     boolean debugInput = false;
 
-    final static int maxSafeInput = 2048;
-    final static int maxEnergyBuffer = 1000000;
-    final static double euPerSGEnergyUnit = 20.0;
+    static int maxSafeInput = SGCraft.Ic2SafeInput;
+    static int maxEnergyBuffer = SGCraft.Ic2EnergyBuffer;
+    static double euPerSGEnergyUnit = SGCraft.Ic2euPerSGEnergyUnit;
 
     boolean loaded = false;
     
