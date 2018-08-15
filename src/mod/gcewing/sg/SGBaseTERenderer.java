@@ -290,7 +290,11 @@ class SGBaseTERenderer extends BaseTileEntityRenderer {
     }
 
     void renderEventHorizon(SGBaseTE te, float partialTicks) {
-        bindTexture(SGCraft.mod.resourceLocation("textures/tileentity/eventhorizon.png"));
+        if (SGCraft.useHDEventHorizionTexture) {
+            bindTexture(SGCraft.mod.resourceLocation("textures/tileentity/eventhorizonhd.png"));
+        } else {
+            bindTexture(SGCraft.mod.resourceLocation("textures/tileentity/eventhorizon.png"));
+        }
         GL11.glDisable(GL_LIGHTING);
         setLightingDisabled(true);
         glDisable(GL_CULL_FACE);

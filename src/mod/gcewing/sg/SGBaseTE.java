@@ -280,7 +280,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
             return false;
         }
         if (sound == gateRollSound) {
-            return state == SGState.Dialling;
+            return state == SGState.Dialing;
         } else if (sound == irisOpenSound) {
             return irisState == IrisState.Opening;
         } else if (sound == irisCloseSound) {
@@ -291,7 +291,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
     }
 
     void updateChunkLoadingStatus() {
-        if (state != SGState.Idle) {
+        if (state != SGState.Idle || state == SGState.AttemptToDial) {
             int n = chunkLoadingRange;
             if (n >= 0) {
                 SGCraft.chunkManager.setForcedChunkRange(this, -n, -n, n, n);
@@ -665,6 +665,9 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
             return diallingFailure(player, "insufficientEnergy");
         }
         startDiallingStargate(address, targetGate, true, immediate);
+
+        targetGate.enterState(SGState.AttemptToDial, 0);
+
         targetGate.startDiallingStargate(homeAddress, this, false, immediate);
         return null;
     }
@@ -795,9 +798,15 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
                             performTransientDamage();
                         }
                         break;
-                    case Dialling:
+                    case Dialing:
                         double step = (double)(maxTimeout - timeout) / (double)maxTimeout;
                         ringAngle = startRingAngle + (targetRingAngle - startRingAngle) * step;
+                        break;
+
+                    case EstablishingConnection:
+                        if (timeout == 25) {
+                            playSGSoundEffect(connectSound, 1F, 1F); // Play sound before gate actually opens.
+                        }
                         break;
                 }
                 --timeout;
@@ -808,7 +817,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
                             startDiallingNextSymbol();
                         }
                         break;
-                    case Dialling:
+                    case Dialing:
                         if (isInitiator) {
                             char targetSymbol = dialledAddress.charAt(numEngagedChevrons);
                             char ownSymbol = homeAddress.charAt(numEngagedChevrons);
@@ -817,13 +826,16 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
                             targetGate.finishDiallingSymbol(ownSymbol, false, true, !targetGate.symbolsRemaining(true));
                         }
                         break;
-                    case InterDialling:
+                    case InterDialing:
                         if (isInitiator) {
                             startDiallingNextSymbol();
                         }
                         break;
                     case SyncAwait:
-                        finishDiallingAddress();
+                        attemptToLockStargate();
+                        break;
+                    case EstablishingConnection:
+                        openStargate();
                         break;
                     case Transient:
                         enterState(SGState.Connected, isInitiator ? ticksToStayOpen : 0);
@@ -1003,7 +1015,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
             int delay = (int)Math.abs(diff / ringRotationSpeed);
             targetRingAngle = targetAngle;
             //System.out.println(homeAddress + " -> Delay: " + delay + " (From angle " + ringAngle + " to angle " + targetAngle + ")");
-            enterState(SGState.Dialling, delay);
+            enterState(SGState.Dialing, delay);
         } else {
             System.out.printf("SGCraft: Stargate jammed trying to dial symbol %s\n", c);
             dialledAddress = "";
@@ -1026,20 +1038,28 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
             playSGSoundEffect(outgoing ? lockOutgoingSound : lockIncomingSound, 1F, 1F);
         } else {
             if (changeState) {
-                enterState(SGState.InterDialling, interDiallingTime);
+                enterState(SGState.InterDialing, interDiallingTime);
             }
             playSGSoundEffect(outgoing ? chevronOutgoingSound : chevronIncomingSound, 1F, 1F);
         }
     }
 
-    void finishDiallingAddress() {
-        //System.out.printf("SGBaseTE: Connecting to '%s'\n", dialledAddress);
+    private void attemptToLockStargate() {
+        if (debugConnect) {
+            System.out.printf("SGBaseTE: Connecting to '%s'\n", dialledAddress);
+        }
         if (!isInitiator || useEnergy(energyToOpen * distanceFactor)) {
-            playSGSoundEffect(connectSound, 1F, 1F);
-            enterState(SGState.Transient, transientDuration);
+            enterState(SGState.EstablishingConnection, 30);
         } else {
             disconnect();
         }
+    }
+
+    private void openStargate() {
+        if (debugConnect) {
+            System.out.printf("SGBaseTE: Connecting to '%s'\n", dialledAddress);
+        }
+        enterState(SGState.Transient, transientDuration);
     }
 
     boolean canTravelFromThisEnd() {
@@ -1452,7 +1472,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
                     case Disconnecting:
                         initiateClosingTransient();
                         break;
-                    case Dialling:
+                    case Dialing:
                         if (isInitiator) {
                             if (timeout > 0) {
                                 SGCraft.playSound(this, gateRollSound);
@@ -1477,7 +1497,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
     void clientUpdate() {
         lastRingAngle = ringAngle;
         switch (state) {
-            case Dialling:
+            case Dialing:
                 if (timeout > 0) {
                     double step = (double)(maxTimeout - timeout) / (double)maxTimeout;
                     ringAngle = startRingAngle + (targetRingAngle - startRingAngle) * step;
@@ -1789,8 +1809,8 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
     static String sgStateDescription(SGState state) {
         switch (state) {
             case Idle: return "Idle";
-            case Dialling:
-            case InterDialling: return "Dialling";
+            case Dialing:
+            case InterDialing: return "Dialing";
             case SyncAwait:
             case Transient: return "Opening";
             case Connected: return "Connected";

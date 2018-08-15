@@ -10,6 +10,7 @@
     "authors": [ "Greg Ewing", "AlmuraDev", "Radviger" ],
     "logoFile": "",
     "screenshots": [],
-    "dependencies": []
+    "dependencies": [],
+    "requiredMods": ["forge@14.23.4.2705"]
   }
 ]

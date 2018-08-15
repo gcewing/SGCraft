@@ -41,7 +41,9 @@ public class SGBaseScreen extends SGScreen {
         getAddress();
         if (addressValid) {
             //System.out.printf("SGBaseScreen: Copying address %s to clipboard\n", formattedAddress);
-            setClipboardString(formattedAddress);
+            if (SGCraft.saveAddressToClipboard) {
+                setClipboardString(formattedAddress);
+            }
         }
     }
     
