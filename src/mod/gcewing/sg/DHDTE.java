@@ -127,12 +127,11 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
         int z = nbt.getInteger("linkedZ");
         linkedPos = new BlockPos(x, y, z);
         enteredAddress = nbt.getString("enteredAddress");
+        
         if (nbt.hasKey("bufferSize")) {
-            if (getLinkedStargateTE() != null) {
-                nbt.setDouble("bufferSize", getLinkedStargateTE().getMaxEnergyBuffer());
-            } else {
-                nbt.setDouble("bufferSize", SGBaseTE.getBaseMaxEnergyBuffer());
-            }
+            this.maxEnergyBuffer = nbt.getDouble("bufferSize");
+        } else {
+            this.maxEnergyBuffer = SGBaseTE.getBaseMaxEnergyBuffer();
         }
     }
 
