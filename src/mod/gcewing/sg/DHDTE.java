@@ -6,6 +6,9 @@
 
 package gcewing.sg;
 
+import static gcewing.sg.BaseBlockUtils.getWorldTileEntity;
+import static gcewing.sg.BaseUtils.min;
+
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.item.ItemStack;
@@ -14,9 +17,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
-
-import static gcewing.sg.BaseBlockUtils.getWorldTileEntity;
-import static gcewing.sg.BaseUtils.min;
 
 public class DHDTE extends BaseTileInventory implements ISGEnergySource {
 
@@ -38,7 +38,7 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
     public BlockPos linkedPos = new BlockPos(0, 0, 0);
     public String enteredAddress = "";
     IInventory inventory = new InventoryBasic("DHD", false, numSlots);
-    
+
     static AxisAlignedBB bounds;
     static double maxEnergyBuffer;
 
@@ -50,14 +50,14 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
         linkRangeX = cfg.getInteger("dhd", "linkRangeX", linkRangeX);
         linkRangeY = cfg.getInteger("dhd", "linkRangeY", linkRangeY);
         linkRangeZ = cfg.getInteger("dhd", "linkRangeZ", linkRangeZ);
-        maxEnergyBuffer = SGBaseTE.energyPerFuelItem;
+        maxEnergyBuffer = cfg.getDouble("stargate", "maxEnergyBuffer", maxEnergyBuffer);
     }
-    
+
     public static DHDTE at(IBlockAccess world, BlockPos pos) {
         TileEntity te = getWorldTileEntity(world, pos);
         return te instanceof DHDTE ? (DHDTE) te : null;
     }
-    
+
     public static DHDTE at(IBlockAccess world, NBTTagCompound nbt) {
         BlockPos pos = new BlockPos(nbt.getInteger("x"), nbt.getInteger("y"), nbt.getInteger("z"));
         return DHDTE.at(world, pos);
@@ -97,7 +97,7 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
         enteredAddress = "";
         markChanged();
     }
-    
+
     @Override
     public AxisAlignedBB getRenderBoundingBox() {
         return bounds.expand(getX() + 0.5, getY(), getZ() + 0.5);
@@ -112,20 +112,10 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
     protected IInventory getInventory() {
         return inventory;
     }
-    
+
     public DHDBlock getBlock() {
         return (DHDBlock)getBlockType();
     }
-    
-//     public Trans3 localToGlobalTransformation() {
-//         World world = getSoundWorld();
-//         IBlockState state = world.getBlockState(pos);
-//         return getBlock().localToGlobalTransformation(world, pos, state);
-//     }
-    
-//     public int getRotation() {
-//         return getBlock().rotationInWorld(getBlockMetadata(), this);
-//     }
 
     @Override
     public void readFromNBT(NBTTagCompound nbt) {
@@ -137,6 +127,13 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
         int z = nbt.getInteger("linkedZ");
         linkedPos = new BlockPos(x, y, z);
         enteredAddress = nbt.getString("enteredAddress");
+        if (nbt.hasKey("bufferSize")) {
+            if (getLinkedStargateTE() != null) {
+                nbt.setDouble("bufferSize", getLinkedStargateTE().getMaxEnergyBuffer());
+            } else {
+                nbt.setDouble("bufferSize", SGBaseTE.getBaseMaxEnergyBuffer());
+            }
+        }
     }
 
     @Override
@@ -163,7 +160,7 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
     void checkForLink() {
         if (debugLink)
             System.out.printf("DHDTE.checkForLink at %s: isLinkedToStargate = %s\n",
-                pos, isLinkedToStargate);
+                    pos, isLinkedToStargate);
         if (!isLinkedToStargate) {
             Trans3 t = localToGlobalTransformation();
             for (int i = -linkRangeX; i <= linkRangeX; i++)
@@ -179,20 +176,20 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
                         if (te instanceof SGBaseTE) {
                             if (debugLink)
                                 System.out.printf("DHDTE.checkForLink: Found stargate at %s\n",
-                                    te.getPos());
+                                        te.getPos());
                             if (linkToStargate((SGBaseTE)te))
                                 return;
                         }
                     }
         }
     }
-    
+
     boolean linkToStargate(SGBaseTE gte) {
         if (!isLinkedToStargate && !gte.isLinkedToController && gte.isMerged) {
             if (debugLink)
                 System.out.printf(
-                    "DHDTE.linkToStargate: Linking controller at %s with stargate at %s\n",
-                    pos, gte.getPos());
+                        "DHDTE.linkToStargate: Linking controller at %s with stargate at %s\n",
+                        pos, gte.getPos());
             linkedPos = gte.getPos();
             isLinkedToStargate = true;
             markChanged();
@@ -203,14 +200,14 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
         }
         return false;
     }
-    
+
     public void clearLinkToStargate() {
         if (debugLink)
             System.out.printf("DHDTE: Unlinking controller at %s from stargate\n", pos);
         isLinkedToStargate = false;
         markChanged();
     }
-    
+
     @Override
     public double availableEnergy() {
         double energy = energyInBuffer;
@@ -221,7 +218,7 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
         }
         return energy;
     }
-    
+
     @Override
     public double drawEnergy(double amount) {
         double energyDrawn = 0;
@@ -236,11 +233,11 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
         }
         if (SGBaseTE.debugEnergyUse)
             System.out.printf("DHDTE.drawEnergy: %s; supplied: %s; buffered: %s\n",
-                amount, energyDrawn, energyInBuffer);
+                    amount, energyDrawn, energyInBuffer);
         markChanged();
         return energyDrawn;
     }
-    
+
     boolean useFuelItem() {
         for (int i = numFuelSlots - 1; i >= 0; i--) {
             ItemStack stack = fuelStackInSlot(i);
@@ -252,12 +249,12 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
         }
         return false;
     }
-    
+
     ItemStack fuelStackInSlot(int i) {
         ItemStack stack = getStackInSlot(firstFuelSlot + i);
         return isValidFuelItem(stack) ? stack : null;
     }
-    
+
     public static boolean isValidFuelItem(ItemStack stack) {
         return stack != null && stack.getItem() == SGCraft.naquadah && stack.getCount() > 0;
     }
@@ -266,5 +263,4 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
     public boolean isItemValidForSlot(int slot, ItemStack stack) {
         return isValidFuelItem(stack);
     }
-
 }
