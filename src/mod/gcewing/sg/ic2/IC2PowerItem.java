@@ -6,17 +6,16 @@
 
 package gcewing.sg.ic2;
 
-import net.minecraft.block.*;
+import gcewing.sg.PowerItem;
+import net.minecraft.block.Block;
+
 //import net.minecraft.entity.player.*;
 //import net.minecraft.nbt.*;
 //import net.minecraft.util.*;
 
-import gcewing.sg.*;
-
 public class IC2PowerItem extends PowerItem {
 
     public IC2PowerItem(Block block) {
-        super(block, "EU", IC2PowerTE.maxEnergyBuffer);
+        super(block, "EU");
     }
-
 }

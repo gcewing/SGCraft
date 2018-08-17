@@ -15,38 +15,40 @@ import ic2.api.energy.event.EnergyTileUnloadEvent;
 import ic2.api.energy.tile.IEnergyEmitter;
 import ic2.api.energy.tile.IEnergySink;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.common.MinecraftForge;
 
 public class IC2PowerTE extends PowerTE implements IEnergySink, ITickable {
 
-    boolean debugLoad = false;
-    boolean debugInput = false;
+    private boolean debugLoad = false;
+    private boolean debugInput = false;
 
     // The below is intended to set the classes first variables to config values.
-    static int maxSafeInput = SGCraft.Ic2SafeInput;
-    static int maxEnergyBuffer = SGCraft.Ic2EnergyBuffer;
-    static double euPerSGEnergyUnit = SGCraft.Ic2euPerSGEnergyUnit;
-
-    boolean loaded = false;
+    private int maxSafeInput = SGCraft.Ic2SafeInput;
+    private int powerTier = SGCraft.Ic2PowerTETier;
+    private int update = 0;
+    private boolean loaded = false;
 
     public IC2PowerTE() {
-        super(maxEnergyBuffer, euPerSGEnergyUnit);
+        super(SGCraft.Ic2MaxEnergyBuffer, SGCraft.Ic2euPerSGEnergyUnit);
     }
 
     @Override
     public void readContentsFromNBT(NBTTagCompound nbttagcompound) {
         super.readContentsFromNBT(nbttagcompound);
-        if (nbttagcompound.hasKey("input")) {
-            maxSafeInput = nbttagcompound.getInteger("input");
-            maxEnergyBuffer = nbttagcompound.getInteger("buffer");
-            euPerSGEnergyUnit = nbttagcompound.getDouble("units");
-            super.energyMax = (double) this.maxEnergyBuffer;
+        // Check if Key doesn't exist or if Admin is trying to update all the DHD's with new values.
+        if (!nbttagcompound.hasKey("input") || SGCraft.forceIC2CfgUpdate) {
+            maxSafeInput = SGCraft.Ic2SafeInput;
+            powerTier = SGCraft.Ic2PowerTETier;
+            energyMax = SGCraft.Ic2MaxEnergyBuffer;
+            energyPerSGEnergyUnit = SGCraft.Ic2euPerSGEnergyUnit;
         } else {
-            maxEnergyBuffer = SGCraft.Ic2EnergyBuffer;
-            euPerSGEnergyUnit = SGCraft.Ic2euPerSGEnergyUnit;
-            super.energyMax = SGCraft.Ic2EnergyBuffer;
+            maxSafeInput = nbttagcompound.getInteger("input");
+            powerTier = nbttagcompound.getInteger("tier");
         }
     }
 
@@ -54,13 +56,24 @@ public class IC2PowerTE extends PowerTE implements IEnergySink, ITickable {
     public void writeContentsToNBT(NBTTagCompound nbttagcompound) {
         super.writeContentsToNBT(nbttagcompound);
         nbttagcompound.setInteger("input", maxSafeInput);
-        nbttagcompound.setInteger("buffer", maxEnergyBuffer);
-        nbttagcompound.setDouble("units", euPerSGEnergyUnit);
+        nbttagcompound.setInteger("tier", powerTier);
     }
+
 
     @Override
     public String getScreenTitle() {
         return "IC2 SGPU";
+    }
+
+    @Override
+    public void update() {
+        if (!world.isRemote && !loaded) {
+            if(debugLoad) {
+                System.out.printf("SGCraft: IC2PowerTE: Adding to energy network\n");
+            }
+            loaded = true;
+            MinecraftForge.EVENT_BUS.post(new EnergyTileLoadEvent(this));
+        }
     }
 
     @Override
@@ -80,20 +93,16 @@ public class IC2PowerTE extends PowerTE implements IEnergySink, ITickable {
         super.onChunkUnload();
     }
 
-    @Override
-    public void update() {
-        if (!world.isRemote && !loaded) {
-            if(debugLoad)
-                System.out.printf("SGCraft: IC2PowerTE: Adding to energy network\n");
-            loaded = true;
-            MinecraftForge.EVENT_BUS.post(new EnergyTileLoadEvent(this));
-        }
+    public static IC2PowerTE at(IBlockAccess world, BlockPos pos) {
+        TileEntity te = world.getTileEntity(pos);
+        return te instanceof IC2PowerTE ? (IC2PowerTE) te : null;
     }
 
     void unload() {
         if (!world.isRemote && loaded) {
-            if(debugLoad)
+            if(debugLoad) {
                 System.out.printf("SGCraft: IC2PowerTE: Removing from energy network\n");
+            }
             MinecraftForge.EVENT_BUS.post(new EnergyTileUnloadEvent(this));
             loaded = false;
         }
@@ -110,24 +119,32 @@ public class IC2PowerTE extends PowerTE implements IEnergySink, ITickable {
 
     @Override
     public double getDemandedEnergy() {
-        double eu = min(maxEnergyBuffer - energyBuffer, maxSafeInput);
-        if(debugInput)
+        double eu = min(energyMax - energyBuffer, maxSafeInput);
+        if(debugInput) {
             System.out.printf("SGCraft: IC2PowerTE: Demanding %s EU\n", eu);
+        }
         return eu;
     }
 
     @Override
     public double injectEnergy(EnumFacing directionFrom, double amount, double voltage) {
         energyBuffer += amount;
-        markChanged();
-        if(debugInput)
+        if (update++ > 10) { // We dont' need 20 packets per second to the client....
+            markChanged();
+            update = 0;
+        }
+        if(debugInput) {
             System.out.printf("SGCraft: IC2PowerTE: Injected %s EU giving %s\n", amount, energyBuffer);
+        }
         return 0;
     }
 
     @Override
     public int getSinkTier() {
-        return 3;
+        return powerTier;  //HV
     }
 
+    @Override public double totalAvailableEnergy() {
+        return energyBuffer;
+    }
 }

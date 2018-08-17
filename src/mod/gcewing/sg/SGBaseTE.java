@@ -184,6 +184,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
     int timeout, maxTimeout;
     double energyInBuffer, distanceFactor; // all energy use is multiplied by this
     public String homeAddress, addressError;
+    private int updated = 0;
 
     //  public static final int firstFuelSlot = 0;
     //  public static final int numFuelSlots = 4;
@@ -591,12 +592,13 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
     //------------------------------------   Server   --------------------------------------------
 
     public void connectOrDisconnect(String address, EntityPlayer player) {
+        boolean immediate = false;
         if (debugConnect)
             System.out.printf("SGBaseTE: %s: connectOrDisconnect('%s') in state %s by %s\n", side(), address, state, player);
         if (address.length() > 0) {
             DHDTE te = getLinkedControllerTE();
             if (te != null) {
-                if (connect(address, player, te.immediateDialDHD) != null) {
+                if (connect(address, player, immediate) != null) {
                     numEngagedChevrons = 0;
                     markChanged();
                 }
@@ -882,6 +884,11 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
             System.out.printf("SGBaseTE.useEnergy: %s; buffered: %s\n", amount, energyInBuffer);
         if (amount <= energyInBuffer) {
             energyInBuffer -= amount;
+            if (updated++ > 10) {
+                // Send energy update to client for diag/gui purposes
+                markChanged();
+                updated = 0;
+            }
             return true;
         }
         List<ISGEnergySource> sources = findEnergySources();

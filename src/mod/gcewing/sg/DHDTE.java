@@ -23,34 +23,39 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
     // Debug options
     public static boolean debugLink = false;
 
-    // Configuration options
+    // Static Configuration options
     public static int linkRangeX = 5; // either side
     public static int linkRangeY = 1; // up or down
     public static int linkRangeZ = 6; // in front
-
-    // Inventory slots
+    public static AxisAlignedBB bounds;
     public static final int firstFuelSlot = 0;
     public static final int numFuelSlots = 4;
-    public static final int numSlots = numFuelSlots;
+    private static final int numSlots = numFuelSlots;
 
-    // Persisted fields
+    public static double cfgMaxEnergyBuffer = 2500;
+
+
+    // Instanced Options
     public boolean isLinkedToStargate;
     public BlockPos linkedPos = new BlockPos(0, 0, 0);
     public String enteredAddress = "";
-    IInventory inventory = new InventoryBasic("DHD", false, numSlots);
+    public IInventory inventory = new InventoryBasic("DHD", false, numSlots);
+    public double maxEnergyBuffer = 2500;
+    public double energyInBuffer = 0;
 
-    static AxisAlignedBB bounds;
-    static double maxEnergyBuffer;
+    // Required
+    public DHDTE() {}
 
-    double energyInBuffer;
-
-    public boolean immediateDialDHD = false;//SGBaseTE.immediateDHDGateDial;
+    // Required to handle instanced variables
+    public DHDTE(final double maxEnergyBuffer) {
+        this.maxEnergyBuffer = maxEnergyBuffer;
+    }
 
     public static void configure(BaseConfiguration cfg) {
         linkRangeX = cfg.getInteger("dhd", "linkRangeX", linkRangeX);
         linkRangeY = cfg.getInteger("dhd", "linkRangeY", linkRangeY);
         linkRangeZ = cfg.getInteger("dhd", "linkRangeZ", linkRangeZ);
-        maxEnergyBuffer = cfg.getDouble("stargate", "maxEnergyBuffer", maxEnergyBuffer);
+        cfgMaxEnergyBuffer = cfg.getDouble("stargate", "bufferSize", cfgMaxEnergyBuffer);
     }
 
     public static DHDTE at(IBlockAccess world, BlockPos pos) {
@@ -68,12 +73,12 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
         if (gate != null) {
             if (enteredAddress.length() < gate.getNumChevrons()) {
                 enteredAddress += symbol;
-                //if (SGBaseTE.immediateDHDGateDial) {
+                /*
                 if (this.immediateDialDHD) {
                     boolean last = enteredAddress.length() == gate.getNumChevrons();
                     gate.finishDiallingSymbol(symbol, true, false, last);
                     gate.markChanged();
-                }
+                } */
             }
         }
     }
@@ -84,11 +89,11 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
             if (!enteredAddress.isEmpty()) {
                 char symbol = enteredAddress.charAt(enteredAddress.length() - 1);
                 enteredAddress = enteredAddress.substring(0, enteredAddress.length() - 1);
-                //if (SGBaseTE.immediateDHDGateDial) {
+                /*
                 if (this.immediateDialDHD) {
                     gate.unsetSymbol(symbol);
                     gate.markChanged();
-                }
+                } */
             }
         }
     }
@@ -120,35 +125,32 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
     @Override
     public void readFromNBT(NBTTagCompound nbt) {
         super.readFromNBT(nbt);
-        isLinkedToStargate = nbt.getBoolean("isLinkedToStargate");
-        energyInBuffer = nbt.getDouble("energyInBuffer");
+        this.isLinkedToStargate = nbt.getBoolean("isLinkedToStargate");
+        this.energyInBuffer = nbt.getDouble("energyInBuffer");
         int x = nbt.getInteger("linkedX");
         int y = nbt.getInteger("linkedY");
         int z = nbt.getInteger("linkedZ");
-        linkedPos = new BlockPos(x, y, z);
-        enteredAddress = nbt.getString("enteredAddress");
-        
-        if (nbt.hasKey("bufferSize")) {
-            this.maxEnergyBuffer = nbt.getDouble("bufferSize");
+        this.linkedPos = new BlockPos(x, y, z);
+        this.enteredAddress = nbt.getString("enteredAddress");
+
+        // Check if Key doesn't exist or if Admin is trying to update all the DHD's with new values.
+        if (!nbt.hasKey("bufferSize") || SGCraft.forceDHDCfgUpdate) {
+            this.maxEnergyBuffer = cfgMaxEnergyBuffer;
         } else {
-            this.maxEnergyBuffer = SGBaseTE.getBaseMaxEnergyBuffer();
+            this.maxEnergyBuffer = nbt.getDouble("bufferSize");
         }
     }
 
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
         super.writeToNBT(nbt);
-        nbt.setBoolean("isLinkedToStargate", isLinkedToStargate);
-        nbt.setDouble("energyInBuffer", energyInBuffer);
-        nbt.setInteger("linkedX", linkedPos.getX());
-        nbt.setInteger("linkedY", linkedPos.getY());
-        nbt.setInteger("linkedZ", linkedPos.getZ());
-        nbt.setString("enteredAddress", enteredAddress);
-        if (getLinkedStargateTE() != null) {
-            nbt.setDouble("bufferSize", getLinkedStargateTE().getMaxEnergyBuffer());
-        } else {
-            nbt.setDouble("bufferSize", SGBaseTE.getBaseMaxEnergyBuffer());
-        }
+        nbt.setBoolean("isLinkedToStargate", this.isLinkedToStargate);
+        nbt.setDouble("energyInBuffer", this.energyInBuffer);
+        nbt.setInteger("linkedX", this.linkedPos.getX());
+        nbt.setInteger("linkedY", this.linkedPos.getY());
+        nbt.setInteger("linkedZ", this.linkedPos.getZ());
+        nbt.setString("enteredAddress", this.enteredAddress);
+        nbt.setDouble("bufferSize", this.maxEnergyBuffer);
         return nbt;
     }
 

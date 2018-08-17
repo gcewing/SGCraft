@@ -27,7 +27,7 @@ public class SGBaseScreen extends SGScreen {
     private String formattedAddress;
     private boolean addressValid;
     
-    private static SGBaseScreen create(EntityPlayer player, World world, BlockPos pos) {
+    public static SGBaseScreen create(EntityPlayer player, World world, BlockPos pos) {
         SGBaseTE te = SGBaseTE.at(world, pos);
         if (te != null)
             return new SGBaseScreen(player, te);

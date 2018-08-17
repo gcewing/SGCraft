@@ -13,7 +13,7 @@ import gcewing.sg.*;
 public class RFPowerItem extends PowerItem {
 
     public RFPowerItem(Block block) {
-        super(block, "RF", RFPowerTE.maxEnergyBuffer);
+        super(block, "RF");
     }
 
 }

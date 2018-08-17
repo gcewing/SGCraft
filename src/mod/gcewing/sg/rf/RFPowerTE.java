@@ -19,13 +19,13 @@ import javax.annotation.Nullable;
 
 public class RFPowerTE extends PowerTE implements IEnergyStorage {
 
-    // The below is intended to set the classes first variables to config values.
-    static int maxEnergyBuffer = SGCraft.RfEnergyBuffer;
-    static double rfPerSGEnergyUnit = SGCraft.RfPerSGEnergyUnit;
-    private EnergyStorage storage = new EnergyStorage(maxEnergyBuffer);
+    // Addon for Redstone Flux
+
+    private EnergyStorage storage = new EnergyStorage((int)energyBuffer);
+    private int update = 0;
 
     public RFPowerTE() {
-        super(maxEnergyBuffer, rfPerSGEnergyUnit);
+        super(SGCraft.RfMaxEnergyBuffer, SGCraft.RfPerSGEnergyUnit);
     }
 
     @Override
@@ -46,14 +46,11 @@ public class RFPowerTE extends PowerTE implements IEnergyStorage {
             int energy = nbttagcompound.getInteger("energy");
             storage = new EnergyStorage(capacity, capacity, capacity, energy);
         }
-        if (nbttagcompound.hasKey("buffer")) {
-            maxEnergyBuffer = nbttagcompound.getInteger("buffer");
-            rfPerSGEnergyUnit = nbttagcompound.getDouble("units");
-            super.energyBuffer = maxEnergyBuffer;
-        } else {
-            maxEnergyBuffer = SGCraft.RfEnergyBuffer;
-            rfPerSGEnergyUnit = SGCraft.RfPerSGEnergyUnit;
-            super.energyBuffer = SGCraft.RfEnergyBuffer;
+
+        // Check if Admin is trying to update all the DHD's with new values.
+        if (SGCraft.forceRFCfgUpdate) {
+            energyMax = SGCraft.Ic2MaxEnergyBuffer;
+            energyPerSGEnergyUnit = SGCraft.Ic2euPerSGEnergyUnit;
         }
     }
 
@@ -62,8 +59,6 @@ public class RFPowerTE extends PowerTE implements IEnergyStorage {
         super.writeContentsToNBT(nbttagcompound);
         nbttagcompound.setInteger("capacity", storage.getMaxEnergyStored());
         nbttagcompound.setInteger("energy", storage.getEnergyStored());
-        nbttagcompound.setInteger("buffer", maxEnergyBuffer);
-        nbttagcompound.setDouble("units", rfPerSGEnergyUnit);
     }
 
     @Override
@@ -85,7 +80,10 @@ public class RFPowerTE extends PowerTE implements IEnergyStorage {
     public int receiveEnergy(int maxReceive, boolean simulate) {
         int result = storage.receiveEnergy(maxReceive, simulate);
         energyBuffer = storage.getEnergyStored();
-        markChanged();
+        if (update++ > 10) { // We dont' need 20 packets per second to the client....
+            markChanged();
+            update = 0;
+        }
         return result;
     }
 
@@ -93,7 +91,10 @@ public class RFPowerTE extends PowerTE implements IEnergyStorage {
     public int extractEnergy(int maxExtract, boolean simulate) {
         int result = storage.extractEnergy(maxExtract, simulate);
         energyBuffer = storage.getEnergyStored();
-        markChanged();
+        if (update++ > 10) { // We dont' need 20 packets per second to the client....
+            markChanged();
+            update = 0;
+        }
         return result;
     }
 
@@ -115,5 +116,9 @@ public class RFPowerTE extends PowerTE implements IEnergyStorage {
     @Override
     public boolean canReceive() {
         return storage.canReceive();
+    }
+
+    @Override public double totalAvailableEnergy() {
+        return energyBuffer;
     }
 }

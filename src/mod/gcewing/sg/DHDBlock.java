@@ -13,6 +13,7 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -35,17 +36,17 @@ public class DHDBlock extends BaseBlock<DHDTE> {
         setHardness(1.5F);
         setCreativeTab(CreativeTabs.MISC);
     }
-    
+
     @Override
     public String[] getTextureNames() {
         return textures;
     }
-    
+
     @Override
     public ModelSpec getModelSpec(IBlockState state) {
         return model;
     }
-    
+
     @Override
     public IOrientationHandler getOrientationHandler() {
         return BaseOrientation.orient4WaysByState;
@@ -55,7 +56,7 @@ public class DHDBlock extends BaseBlock<DHDTE> {
     public EnumBlockRenderType getRenderType(IBlockState state) {
         return EnumBlockRenderType.INVISIBLE;
     }
-    
+
     @Override
     public boolean isOpaqueCube(IBlockState state) {
         return false;
@@ -92,7 +93,7 @@ public class DHDBlock extends BaseBlock<DHDTE> {
                 gte.clearLinkToController();
         }
     }
-    
+
     @Override
     public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player,
         EnumHand hand, EnumFacing side, float cx, float cy, float cz)
@@ -101,7 +102,7 @@ public class DHDBlock extends BaseBlock<DHDTE> {
         SGCraft.mod.openGui(player, id, world, pos);
         return true;
     }
-    
+
     public void checkForLink(World world, BlockPos pos) {
         //System.out.printf("DHDBlock.checkForLink at %s\n", pos);
         DHDTE te = getTileEntity(world, pos);
@@ -110,5 +111,9 @@ public class DHDBlock extends BaseBlock<DHDTE> {
         else
             System.out.printf("DHDBlock.breakBlock: No tile entity at %d\n", pos);
     }
-    
+
+    @Override
+    public TileEntity createNewTileEntity(World world, int meta) {
+        return new DHDTE(DHDTE.cfgMaxEnergyBuffer);
+    }
 }

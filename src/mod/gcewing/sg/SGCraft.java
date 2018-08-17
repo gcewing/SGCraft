@@ -89,16 +89,23 @@ public class SGCraft extends BaseMod<SGCraftClient> {
 
     // IC2 Options
     public static int Ic2SafeInput = 2048;
-    public static int Ic2EnergyBuffer = 1000000;
+    public static int Ic2MaxEnergyBuffer = 1000000;
     public static double Ic2euPerSGEnergyUnit = 20.0;
+    public static int Ic2PowerTETier = 3;
 
     // Redstone Flux Options
-    public static int RfEnergyBuffer = 4000000;
+    public static int RfMaxEnergyBuffer = 4000000;
     public static double RfPerSGEnergyUnit = 80.0;
 
     //Client Options
     public static boolean useHDEventHorizionTexture = true;
     public static boolean saveAddressToClipboard = false;
+    public static boolean displayGuiPowerDebug = true;
+
+    //World data fixes
+    public static boolean forceDHDCfgUpdate = false;
+    public static boolean forceIC2CfgUpdate = false;
+    public static boolean forceRFCfgUpdate = false;
 
     public SGCraft() {
         mod = this;
@@ -370,11 +377,17 @@ public class SGCraft extends BaseMod<SGCraftClient> {
 
         // IC2
         Ic2SafeInput  = config.getInteger("ic2", "safeInputRate", Ic2SafeInput);
-        Ic2EnergyBuffer = config.getInteger("ic2", "energyBufferSize", Ic2EnergyBuffer);
+        Ic2MaxEnergyBuffer = config.getInteger("ic2", "energyBufferSize", Ic2MaxEnergyBuffer);
         Ic2euPerSGEnergyUnit = config.getDouble("ic2", "euPerSGEnergyUnit", Ic2euPerSGEnergyUnit);
+        Ic2PowerTETier = config.getInteger("ic2", "PowerTETier", Ic2PowerTETier);
 
         // Redstone Flux
-        RfEnergyBuffer = config.getInteger("rf", "energyBufferSize", RfEnergyBuffer);
+        RfMaxEnergyBuffer = config.getInteger("rf", "energyBufferSize", RfMaxEnergyBuffer);
         RfPerSGEnergyUnit = config.getDouble("rf", "rfPerSGEnergyUnit", RfPerSGEnergyUnit);
+
+        // World Update / Fixes
+        forceDHDCfgUpdate = config.getBoolean("dhd", "force-update", forceDHDCfgUpdate);
+        forceIC2CfgUpdate = config.getBoolean("ic2", "force-update", forceIC2CfgUpdate);
+        forceRFCfgUpdate = config.getBoolean("rf", "force-update", forceRFCfgUpdate);
     }
 }
