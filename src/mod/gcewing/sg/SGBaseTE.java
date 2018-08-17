@@ -331,6 +331,9 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
                     Logger log = LogManager.getLogger();
                     String action = isMerged ? "ADDED" : "REMOVED";
                     String name = getWorld().getWorldInfo().getWorldName();
+                    if (isMerged) {
+                        this.homeAddress = address;
+                    }
                     log.info(String.format("STARGATE %s %s %s %s", action, name, pos, address));
                 }
             }
