@@ -24,6 +24,7 @@ public class IC2PowerTE extends PowerTE implements IEnergySink, ITickable {
     boolean debugLoad = false;
     boolean debugInput = false;
 
+    // The below is intended to set the classes first variables to config values.
     static int maxSafeInput = SGCraft.Ic2SafeInput;
     static int maxEnergyBuffer = SGCraft.Ic2EnergyBuffer;
     static double euPerSGEnergyUnit = SGCraft.Ic2euPerSGEnergyUnit;
@@ -41,6 +42,11 @@ public class IC2PowerTE extends PowerTE implements IEnergySink, ITickable {
             maxSafeInput = nbttagcompound.getInteger("input");
             maxEnergyBuffer = nbttagcompound.getInteger("buffer");
             euPerSGEnergyUnit = nbttagcompound.getDouble("units");
+            super.energyMax = (double) this.maxEnergyBuffer;
+        } else {
+            maxEnergyBuffer = SGCraft.Ic2EnergyBuffer;
+            euPerSGEnergyUnit = SGCraft.Ic2euPerSGEnergyUnit;
+            super.energyMax = SGCraft.Ic2EnergyBuffer;
         }
     }
 

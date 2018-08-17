@@ -19,6 +19,7 @@ import javax.annotation.Nullable;
 
 public class RFPowerTE extends PowerTE implements IEnergyStorage {
 
+    // The below is intended to set the classes first variables to config values.
     static int maxEnergyBuffer = SGCraft.RfEnergyBuffer;
     static double rfPerSGEnergyUnit = SGCraft.RfPerSGEnergyUnit;
     private EnergyStorage storage = new EnergyStorage(maxEnergyBuffer);
@@ -45,9 +46,14 @@ public class RFPowerTE extends PowerTE implements IEnergyStorage {
             int energy = nbttagcompound.getInteger("energy");
             storage = new EnergyStorage(capacity, capacity, capacity, energy);
         }
-        if (nbttagcompound.hasKey("buffer")) {   // Protects against crash for already existing RFPowerTE's
+        if (nbttagcompound.hasKey("buffer")) {
             maxEnergyBuffer = nbttagcompound.getInteger("buffer");
             rfPerSGEnergyUnit = nbttagcompound.getDouble("units");
+            super.energyBuffer = maxEnergyBuffer;
+        } else {
+            maxEnergyBuffer = SGCraft.RfEnergyBuffer;
+            rfPerSGEnergyUnit = SGCraft.RfPerSGEnergyUnit;
+            super.energyBuffer = SGCraft.RfEnergyBuffer;
         }
     }
 

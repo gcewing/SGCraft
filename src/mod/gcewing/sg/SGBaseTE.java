@@ -78,19 +78,19 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
     static boolean debugTeleport = false;
 
     static SoundEvent
-        dialFailSound,
-        connectSound,
-        disconnectSound,
-        irisOpenSound,
-        irisCloseSound,
-        irisHitSound,
-        dhdPressSound,
-        dhdDialSound,
-        chevronOutgoingSound,
-        chevronIncomingSound,
-        lockOutgoingSound,
-        lockIncomingSound,
-        gateRollSound;
+            dialFailSound,
+            connectSound,
+            disconnectSound,
+            irisOpenSound,
+            irisCloseSound,
+            irisHitSound,
+            dhdPressSound,
+            dhdDialSound,
+            chevronOutgoingSound,
+            chevronIncomingSound,
+            lockOutgoingSound,
+            lockIncomingSound,
+            gateRollSound;
 
     public static void registerSounds(SGCraft mod) {
         dialFailSound = mod.newSound("dial_fail");
@@ -135,9 +135,9 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
 
     static float defaultChevronAngle = 40f;
     static float chevronAngles[][] = {
-        //     0    1    2    <-- Base camouflage level
-        { 45f, 45f, 40f }, // 7 chevrons
-        { 36f, 33f, 30f }  // 9 chevrons
+            //     0    1    2    <-- Base camouflage level
+            { 45f, 45f, 40f }, // 7 chevrons
+            { 36f, 33f, 30f }  // 9 chevrons
     };
 
     // Configuration options
@@ -521,7 +521,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
     void enterState(SGState newState, int newTimeout) {
         if (debugState)
             System.out.printf("SGBaseTE: at %s in dimension %s entering state %s with timeout %s\n",
-                pos, world.provider.getDimension(), newState, newTimeout);
+                    pos, world.provider.getDimension(), newState, newTimeout);
         SGState oldState = state;
         state = newState;
         startRingAngle = ringAngle;
@@ -541,9 +541,9 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
 
     public boolean isConnected() {
         return state == SGState.SyncAwait
-            || state == SGState.Transient
-            || state == SGState.Connected
-            || state == SGState.Disconnecting;
+                || state == SGState.Transient
+                || state == SGState.Connected
+                || state == SGState.Disconnecting;
     }
 
     DHDTE getLinkedControllerTE() {
@@ -562,7 +562,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
         int rangeZ = DHDTE.linkRangeZ;
         if (SGBaseBlock.debugMerge)
             System.out.printf("SGBaseTE.checkForLink: in range +/-(%d,%d,%d) of %s\n",
-                rangeXY, rangeZ, rangeXY, pos);
+                    rangeXY, rangeZ, rangeXY, pos);
         for (int i = -rangeXY; i <= rangeXY; i++)
             for (int j = -rangeZ; j <= rangeZ; j++)
                 for (int k = -rangeXY; k <= rangeXY; k++) {
@@ -652,7 +652,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
         }
         if (debugConnect) {
             System.out.printf("SGBaseTE.connect: to %s in dimension %d with state %s\n",
-                targetGate.getPos(), targetGate.getWorld().provider.getDimension(), targetGate.state);
+                    targetGate.getPos(), targetGate.getWorld().provider.getDimension(), targetGate.state);
         }
         if (targetGate.getNumChevrons() < homeAddress.length()) {
             return diallingFailure(player, "targetLackChevrons");
@@ -902,7 +902,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
             System.out.printf("SGBaseTE.useEnergy: %s now on hand, need %s\n", energyOnHand, amount);
         if (amount - 0.0001 > energyOnHand) {
             System.out.printf("SGBaseTE: Energy sources only delivered %s of promised %s\n",
-                energyOnHand - energyInBuffer, energyAvailable);
+                    energyOnHand - energyInBuffer, energyAvailable);
             return false;
         }
         setEnergyInBuffer(energyOnHand - amount);
@@ -951,7 +951,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
         }
         if (total < amount)
             System.out.printf("SGCraft: Warning: Energy sources did not deliver promised energy " +
-                "(%s requested, %s delivered)\n", amount, total);
+                    "(%s requested, %s delivered)\n", amount, total);
         return total;
     }
 
@@ -988,7 +988,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
             int damage = (int)Math.ceil(dist * transientDamageRate);
             if (debugTransientDamage)
                 System.out.printf("SGBaseTE.performTransientDamage: distance = %s, damage = %s\n",
-                    dist, damage);
+                        dist, damage);
             ent.attackEntityFrom(transientDamage, damage);
         }
     }
@@ -1189,8 +1189,8 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
 
     protected static List<EntityLiving> entitiesWithinLeashRange(Entity entity) {
         AxisAlignedBB box = new AxisAlignedBB(
-            entity.posX - 7.0D, entity.posY - 7.0D, entity.posZ - 7.0D,
-            entity.posX + 7.0D, entity.posY + 7.0D, entity.posZ + 7.0D);
+                entity.posX - 7.0D, entity.posY - 7.0D, entity.posZ - 7.0D,
+                entity.posX + 7.0D, entity.posY + 7.0D, entity.posZ + 7.0D);
         return entity.world.getEntitiesWithinAABB(EntityLiving.class, box);
     }
 
@@ -1198,12 +1198,12 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
         Entity newEntity = null;
         if (debugTeleport) {
             System.out.printf("SGBaseTE.teleportEntity: %s (in dimension %d)  to dimension %d\n",
-                repr(entity), entity.dimension, dimension);
+                    repr(entity), entity.dimension, dimension);
             System.out.printf("SGBaseTE.teleportEntity: pos (%.2f, %.2f, %.2f) prev (%.2f, %.2f, %.2f) last (%.2f, %.2f, %.2f) pitch %.2f yaw %.2f\n",
-                entity.posX, entity.posY, entity.posZ,
-                entity.prevPosX, entity.prevPosY, entity.prevPosZ,
-                entity.lastTickPosX, entity.lastTickPosY, entity.lastTickPosZ,
-                entity.rotationPitch, entity.rotationYaw);
+                    entity.posX, entity.posY, entity.posZ,
+                    entity.prevPosX, entity.prevPosY, entity.prevPosZ,
+                    entity.lastTickPosX, entity.lastTickPosY, entity.lastTickPosZ,
+                    entity.rotationPitch, entity.rotationYaw);
         }
         Vector3 p = t1.ip(entity.posX, entity.posY, entity.posZ); // local position
         Vector3 v = t1.iv(entity.motionX, entity.motionY, entity.motionZ); // local velocity
@@ -1318,8 +1318,8 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
         // >>>
         player.closeScreen();
         player.connection.sendPacket(new SPacketRespawn(player.dimension,
-            player.world.getDifficulty(), newWorld.getWorldInfo().getTerrainType(),
-            player.interactionManager.getGameType()));
+                player.world.getDifficulty(), newWorld.getWorldInfo().getTerrainType(),
+                player.interactionManager.getGameType()));
         //         if (SGCraft.mystcraftIntegration != null) //[MYST]
         //             SGCraft.mystcraftIntegration.sendAgeData(newWorld, player);
         oldWorld.removeEntityDangerously(player); // Removes player right now instead of waiting for next tick
@@ -1371,12 +1371,12 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
             newEntity.setWorld(newWorld);
             if (debugTeleport)
                 System.out.printf(
-                    "SGBaseTE.teleportEntityToWorld: Spawned %s pos (%.2f, %.2f, %.2f) vel (%.2f, %.2f, %.2f) pitch %.2f (%.2f) yaw %.2f (%.2f)\n",
-                    repr(newEntity),
-                    newEntity.posX, newEntity.posY, newEntity.posZ,
-                    newEntity.motionX, newEntity.motionY, newEntity.motionZ,
-                    newEntity.rotationPitch, newEntity.prevRotationPitch,
-                    newEntity.rotationYaw, newEntity.prevRotationYaw);
+                        "SGBaseTE.teleportEntityToWorld: Spawned %s pos (%.2f, %.2f, %.2f) vel (%.2f, %.2f, %.2f) pitch %.2f (%.2f) yaw %.2f (%.2f)\n",
+                        repr(newEntity),
+                        newEntity.posX, newEntity.posY, newEntity.posZ,
+                        newEntity.motionX, newEntity.motionY, newEntity.motionZ,
+                        newEntity.rotationPitch, newEntity.prevRotationPitch,
+                        newEntity.rotationYaw, newEntity.prevRotationYaw);
         }
         oldWorld.resetUpdateEntityTick();
         if (oldWorld != newWorld)
@@ -1832,6 +1832,14 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
 
     public static SGBaseTE getBaseTE(SGInterfaceTE ite) {
         return SGBaseTE.get(ite.getWorld(), ite.getPos().add(0, 1, 0));
+    }
+
+    public double getMaxEnergyBuffer() {
+        return this.maxEnergyBuffer;
+    }
+
+    public static double getBaseMaxEnergyBuffer() {
+        return SGBaseTE.maxEnergyBuffer;
     }
 }
 
