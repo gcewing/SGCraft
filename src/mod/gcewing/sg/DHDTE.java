@@ -55,7 +55,7 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
         linkRangeX = cfg.getInteger("dhd", "linkRangeX", linkRangeX);
         linkRangeY = cfg.getInteger("dhd", "linkRangeY", linkRangeY);
         linkRangeZ = cfg.getInteger("dhd", "linkRangeZ", linkRangeZ);
-        cfgMaxEnergyBuffer = cfg.getDouble("stargate", "bufferSize", cfgMaxEnergyBuffer);
+        cfgMaxEnergyBuffer = cfg.getDouble("dhd", "bufferSize", cfgMaxEnergyBuffer);
     }
 
     public static DHDTE at(IBlockAccess world, BlockPos pos) {

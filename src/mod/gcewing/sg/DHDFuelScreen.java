@@ -56,31 +56,38 @@ public class DHDFuelScreen extends SGScreen {
         int cx = this.xSize / 2;
         setTextColor(0x004c66);
         drawCenteredString(this.screenTitle, cx, 8);
+        drawCenteredString("_____________________________________________", cx, 15);
 
-        int naquadahUnits = this.te.getInventory().getStackInSlot(0).getCount() + this.te.getInventory().getStackInSlot(1).getCount() + this.te.getInventory().getStackInSlot(2).getCount() + this.te.getInventory().getStackInSlot(3).getCount();
 
         if (SGCraft.displayGuiPowerDebug) {
             if (this.baseTe != null) {
                 // DHD Buffer Available
-                drawRightAlignedString("Gate Buffer:", 125, 30);
-                drawString(dFormat.format(Math.min(Math.max(this.baseTe.energyInBuffer, 0), this.baseTe.maxEnergyBuffer)), 130, 30);
+                drawRightAlignedString("Gate Buffer:", 85, 30);
+                drawString(dFormat.format(Math.min(Math.max(this.baseTe.energyInBuffer, 0), this.baseTe.maxEnergyBuffer)), 90, 30);
+
+                drawRightAlignedString("Buffer Max:", 85, 40);
+                drawString(dFormat.format(this.baseTe.maxEnergyBuffer), 90, 40);
             }
 
             // DHD Buffer Available
-            drawRightAlignedString("DHD Buffer:", 125, 40);
-            drawString(dFormat.format(Math.min(Math.max(this.te.energyInBuffer, 0), this.te.maxEnergyBuffer)), 130, 40);
+            drawRightAlignedString("DHD Buffer:", 200, 30);
+            drawString(dFormat.format(Math.min(Math.max(this.te.energyInBuffer, 0), this.te.maxEnergyBuffer)), 205, 30);
 
             // Buffer Max
-            drawRightAlignedString("Buffer Max:", 125, 50);
-            drawString(dFormat.format(this.te.maxEnergyBuffer), 130, 50);
+            drawRightAlignedString("Buffer Max:", 200, 40);
+            drawString(dFormat.format(this.te.maxEnergyBuffer), 205, 40);
 
-            // Naquadah Units
-            drawRightAlignedString("Naquadah:", 125, 60);
-            drawString(dFormat.format(naquadahUnits), 130, 60);
+            int naquadahUnits = this.te.getInventory().getStackInSlot(0).getCount() + this.te.getInventory().getStackInSlot(1).getCount() + this.te.getInventory().getStackInSlot(2).getCount() + this.te.getInventory().getStackInSlot(3).getCount();
 
             // Naquadah Power Units
-            drawRightAlignedString("Available Power Units:", 125, 70);
-            drawString(dFormat.format(naquadahUnits * this.energyPerFuelItem), 130, 70);
+            drawRightAlignedString("SG Power Units:", 135, 55);
+            drawString(dFormat.format(naquadahUnits * this.energyPerFuelItem), 140, 55);
+
+            // Naquadah Units
+            drawRightAlignedString("Naquadah:", 135, 65);
+            drawString(dFormat.format(naquadahUnits), 140, 65);
+
+
         }
 
         if (this.te.numFuelSlots > 0)
