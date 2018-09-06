@@ -21,7 +21,7 @@ public class RFPowerTE extends PowerTE implements IEnergyStorage {
 
     // Addon for Redstone Flux
 
-    private EnergyStorage storage = new EnergyStorage((int)energyBuffer);
+    private EnergyStorage storage = new EnergyStorage(SGCraft.RfMaxEnergyBuffer);
     private int update = 0;
 
     public RFPowerTE() {
@@ -41,6 +41,7 @@ public class RFPowerTE extends PowerTE implements IEnergyStorage {
     @Override
     public void readContentsFromNBT(NBTTagCompound nbttagcompound) {
         super.readContentsFromNBT(nbttagcompound);
+
         if (nbttagcompound.hasKey("capacity")) {
             int capacity = nbttagcompound.getInteger("capacity");
             int energy = nbttagcompound.getInteger("energy");
@@ -49,8 +50,9 @@ public class RFPowerTE extends PowerTE implements IEnergyStorage {
 
         // Check if Admin is trying to update all the DHD's with new values.
         if (SGCraft.forceRFCfgUpdate) {
-            energyMax = SGCraft.Ic2MaxEnergyBuffer;
-            energyPerSGEnergyUnit = SGCraft.Ic2euPerSGEnergyUnit;
+            // Todo: this isn't going to work because RF usages a Storage container.
+            energyMax = SGCraft.RfMaxEnergyBuffer;
+            energyPerSGEnergyUnit = SGCraft.RfPerSGEnergyUnit;
         }
     }
 
