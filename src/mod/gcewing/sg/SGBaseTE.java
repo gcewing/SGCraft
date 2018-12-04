@@ -6,10 +6,7 @@
 
 package gcewing.sg;
 
-import static gcewing.sg.BaseBlockUtils.getWorldTileEntity;
-import static gcewing.sg.BaseUtils.max;
-import static gcewing.sg.BaseUtils.min;
-
+import gcewing.sg.oc.OCIntegration;
 import gcewing.sg.oc.OCWirelessEndpoint;
 import io.netty.channel.ChannelFutureListener;
 import net.minecraft.block.Block;
@@ -37,11 +34,7 @@ import net.minecraft.potion.PotionEffect;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerList;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.ITickable;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
+import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -69,6 +62,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 
+import static gcewing.sg.BaseBlockUtils.getWorldTileEntity;
+import static gcewing.sg.BaseUtils.max;
+import static gcewing.sg.BaseUtils.min;
+
 public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSoundSource {
 
     static boolean debugState = false;
@@ -90,7 +87,8 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
         chevronIncomingSound,
         lockOutgoingSound,
         lockIncomingSound,
-        gateRollSound;
+        gateRollSound,
+        eventHorizonSound;
 
     public static void registerSounds(SGCraft mod) {
         dialFailSound = mod.newSound("dial_fail");
@@ -106,6 +104,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
         lockOutgoingSound = mod.newSound("lock_outgoing");
         lockIncomingSound = mod.newSound("lock_incoming");
         gateRollSound = mod.newSound("gate_roll");
+        eventHorizonSound = mod.newSound("event_horizon");
     }
 
     public final static String symbolChars = SGAddressing.symbolChars;
@@ -285,6 +284,8 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
             return irisState == IrisState.Opening;
         } else if (sound == irisCloseSound) {
             return irisState == IrisState.Closing;
+        } else if (sound == eventHorizonSound) {
+            return state == SGState.Connected;
         } else {
             return false;
         }
@@ -740,6 +741,8 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
                 numEngagedChevrons = 0;
                 if (state != SGState.Idle && state != SGState.Disconnecting)
                     playSGSoundEffect(dialFailSound, 1F, 1F);
+                else
+                    playSGSoundEffect(chevronOutgoingSound, 1F, 1F);
                 enterState(SGState.Idle, 0);
                 //sendClientEvent(SGEvent.FinishDisconnecting, 0);
             }
@@ -779,7 +782,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
                 addressError = e.getMessage();
             }
             if (SGCraft.ocIntegration != null) { //[OC]
-                SGCraft.ocIntegration.onSGBaseTEAdded(this);
+                ((OCIntegration)SGCraft.ocIntegration).onSGBaseTEAdded(this);
             }
         }
         if (isMerged) {
@@ -1459,6 +1462,9 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
                             }
                         }
                         break;
+                    case Connected:
+                        SGCraft.playSound(this, eventHorizonSound);
+                        break;
                 }
             }
             if (irisState != oldIrisState) {
@@ -1729,16 +1735,14 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
     static int rdx[] = {1, 0, -1, 0};
     static int rdz[] = {0, -1, 0, 1};
 
-    // Find locations of tile entities that could connect to the stargate ring.
-    // TODO: Cache this
-    public Collection<BlockRef> adjacentTiles() {
-        Collection<BlockRef> result = new ArrayList<>();
+    public Collection<TileEntity> adjacentTiles() {
+        Collection<TileEntity> result = new ArrayList<>();
         Trans3 t = localToGlobalTransformation();
         for (int i = -2; i <= 2; i++) {
             BlockPos bp = t.p(i, -1, 0).blockPos();
             TileEntity te = getWorldTileEntity(world, bp);
             if (te != null)
-                result.add(new BlockRef(te));
+                result.add(te);
         }
         return result;
     }
@@ -1752,8 +1756,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
     }
 
     void rebroadcastNetworkPacket(Object packet) {
-        for (BlockRef ref : adjacentTiles()) {
-            TileEntity te = ref.getTileEntity();
+        for (TileEntity te : adjacentTiles()) {
             if (te instanceof SGInterfaceTE)
                 ((SGInterfaceTE)te).rebroadcastNetworkPacket(packet);
         }
@@ -1772,8 +1775,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
     void postEvent(String name, Object... args) {
         //System.out.printf("SGBaseTE.postEvent: %s from (%s,%s,%s)\n", name,
         //  xCoord, yCoord, zCoord);
-        for (BlockRef b : adjacentTiles()) {
-            TileEntity te = b.getTileEntity();
+        for (TileEntity te : adjacentTiles()) {
             if (te instanceof IComputerInterface) {
                 //System.out.printf("SGBaseTE.postEvent: to TE at (%s,%s,%s)\n",
                 //  b.xCoord, b.yCoord, b.zCoord);
@@ -1809,27 +1811,5 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
 
     public static SGBaseTE getBaseTE(SGInterfaceTE ite) {
         return SGBaseTE.get(ite.getWorld(), ite.getPos().add(0, 1, 0));
-    }
-}
-
-//------------------------------------------------------------------------------------------------
-
-class BlockRef {
-    public IBlockAccess world;
-    BlockPos pos;
-
-    public BlockRef(TileEntity te) {
-        this(te.getWorld(), te.getPos());
-    }
-
-    public BlockRef(IBlockAccess world, BlockPos pos) {
-        this.world = world;
-        this.pos = pos;
-    }
-
-    public TileEntity getTileEntity() {
-        if (world == null || pos == null)
-            return null;
-        return world.getTileEntity(pos);
     }
 }
