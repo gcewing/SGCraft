@@ -347,10 +347,6 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
         }
     }
 
-    public int dimension() {
-        return world != null ? world.provider.getDimension() : -999;
-    }
-
     @Override
     public void readFromNBT(NBTTagCompound nbt) {
         super.readFromNBT(nbt);
@@ -423,22 +419,6 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
 
     public boolean isActive() {
         return state != SGState.Idle && state != SGState.Disconnecting;
-    }
-
-    static boolean isValidSymbolChar(String c) {
-        return SGAddressing.isValidSymbolChar(c);
-    }
-
-    static char symbolToChar(int i) {
-        return SGAddressing.symbolToChar(i);
-    }
-
-    static int charToSymbol(char c) {
-        return SGAddressing.charToSymbol(c);
-    }
-
-    static int charToSymbol(String c) {
-        return SGAddressing.charToSymbol(c);
     }
 
     public EnumActionResult applyChevronUpgrade(ItemStack stack, EntityPlayer player) {
@@ -1026,12 +1006,16 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
             if (changeState) {
                 enterState(SGState.SyncAwait, syncAwaitTime);
             }
-            playSGSoundEffect(outgoing ? lockOutgoingSound : lockIncomingSound, 1F, 1F);
+            if (!world.isRemote) {
+                playSGSoundEffect(outgoing ? lockOutgoingSound : lockIncomingSound, 1F, 1F);
+            }
         } else {
             if (changeState) {
                 enterState(SGState.InterDialling, interDiallingTime);
             }
-            playSGSoundEffect(outgoing ? chevronOutgoingSound : chevronIncomingSound, 1F, 1F);
+            if (!world.isRemote) {
+                playSGSoundEffect(outgoing ? chevronOutgoingSound : chevronIncomingSound, 1F, 1F);
+            }
         }
     }
 
@@ -1049,7 +1033,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
         return isInitiator || !oneWayTravel;
     }
 
-    static String repr(Entity entity) {
+    String repr(Entity entity) {
         if (entity != null) {
             String s = String.format("%s#%s", entity.getClass().getSimpleName(), entity.getEntityId());
             if (entity.isDead)
@@ -1159,7 +1143,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
 
     // Break any leash connections to or from the given entity. That happens anyway
     // when the entity is teleported, but without this it drops an extra leash item.
-    protected static void unleashEntity(Entity entity) {
+    protected void unleashEntity(Entity entity) {
         if (entity instanceof EntityLiving)
             ((EntityLiving)entity).clearLeashed(true, false);
         for (EntityLiving entity2 : entitiesWithinLeashRange(entity))
@@ -1167,14 +1151,14 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
                 entity2.clearLeashed(true, false);
     }
 
-    protected static List<EntityLiving> entitiesWithinLeashRange(Entity entity) {
+    protected List<EntityLiving> entitiesWithinLeashRange(Entity entity) {
         AxisAlignedBB box = new AxisAlignedBB(
             entity.posX - 7.0D, entity.posY - 7.0D, entity.posZ - 7.0D,
             entity.posX + 7.0D, entity.posY + 7.0D, entity.posZ + 7.0D);
         return entity.world.getEntitiesWithinAABB(EntityLiving.class, box);
     }
 
-    static Entity teleportEntity(Entity entity, Trans3 t1, Trans3 t2, int dimension, boolean destBlocked) {
+    Entity teleportEntity(Entity entity, Trans3 t1, Trans3 t2, int dimension, boolean destBlocked) {
         Entity newEntity = null;
         if (debugTeleport) {
             System.out.printf("SGBaseTE.teleportEntity: %s (in dimension %d)  to dimension %d\n",
@@ -1212,12 +1196,12 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
         }
         else {
             terminateEntityByIrisImpact(entity);
-            playIrisHitSound(worldForDimension(dimension), q, entity);
+            playIrisHitSound(SGAddressing.getWorld(dimension), q, entity);
         }
         return newEntity;
     }
 
-    static void terminateEntityByIrisImpact(Entity entity) {
+    void terminateEntityByIrisImpact(Entity entity) {
         if (entity instanceof EntityPlayer) {
             terminatePlayerByIrisImpact((EntityPlayer)entity);
         } else {
@@ -1225,7 +1209,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
         }
     }
 
-    static void terminatePlayerByIrisImpact(EntityPlayer player) {
+    void terminatePlayerByIrisImpact(EntityPlayer player) {
         if (player.capabilities.isCreativeMode)
             sendErrorMsg(player, "irisAtDestination");
         else {
@@ -1235,33 +1219,29 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
         }
     }
 
-    static WorldServer worldForDimension(int dimension) {
-        return SGAddressing.getWorld(dimension);
-    }
-
-    static void playIrisHitSound(World world, Vector3 pos, Entity entity) {
-        double volume = min(entity.width * entity.height, 1.0);
-        double pitch = 2.0 - volume;
+    void playIrisHitSound(World world, Vector3 pos, Entity entity) {
+        float volume = (float) min(entity.width * entity.height, 1.0);
+        float pitch = 2F - volume;
         if (debugTeleport)
             System.out.printf("SGBaseTE.playIrisHitSound: at (%.3f,%.3f,%.3f) volume %.3f pitch %.3f\n", pos.x, pos.y, pos.z, volume, pitch);
-        world.playSound(pos.x, pos.y, pos.z, irisHitSound, SoundCategory.NEUTRAL, (float)volume, (float)pitch, false);
+        playSoundEffect(world, pos.blockPos(), irisHitSound, volume * soundVolume, pitch);
     }
 
-    static Entity teleportWithinDimension(Entity entity, Vector3 p, Vector3 v, double a, boolean destBlocked) {
+    Entity teleportWithinDimension(Entity entity, Vector3 p, Vector3 v, double a, boolean destBlocked) {
         if (entity instanceof EntityPlayerMP)
             return teleportPlayerWithinDimension((EntityPlayerMP)entity, p, v, a);
         else
             return teleportEntityToWorld(entity, p, v, a, (WorldServer)entity.world, destBlocked);
     }
 
-    static Entity teleportPlayerWithinDimension(EntityPlayerMP entity, Vector3 p, Vector3 v, double a) {
+    Entity teleportPlayerWithinDimension(EntityPlayerMP entity, Vector3 p, Vector3 v, double a) {
         entity.rotationYaw = (float)a;
         entity.setPositionAndUpdate(p.x, p.y, p.z);
         entity.world.updateEntityWithOptionalForce(entity, false);
         return entity;
     }
 
-    static Entity teleportToOtherDimension(Entity entity, Vector3 p, Vector3 v, double a, int dimension, boolean destBlocked) {
+    Entity teleportToOtherDimension(Entity entity, Vector3 p, Vector3 v, double a, int dimension, boolean destBlocked) {
         if (entity instanceof EntityPlayerMP) {
             EntityPlayerMP player = (EntityPlayerMP)entity;
             Vector3 q = p.add(yawVector(a));
@@ -1272,7 +1252,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
         }
     }
 
-    static void sendDimensionRegister(EntityPlayerMP player, int dimensionID) {
+    void sendDimensionRegister(EntityPlayerMP player, int dimensionID) {
         DimensionType providerID = DimensionManager.getProviderType(dimensionID);
         ForgeMessage msg = new ForgeMessage.DimensionRegisterMessage(dimensionID, providerID.toString());
         FMLEmbeddedChannel channel = NetworkRegistry.INSTANCE.getChannel("FORGE", Side.SERVER);
@@ -1282,7 +1262,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
     }
 
 
-    static void transferPlayerToDimension(EntityPlayerMP player, int newDimension, Vector3 p, double a) {
+    void transferPlayerToDimension(EntityPlayerMP player, int newDimension, Vector3 p, double a) {
         //System.out.printf("SGBaseTE.transferPlayerToDimension: %s to dimension %d\n", repr(player), newDimension);
         MinecraftServer server = BaseUtils.getMinecraftServer();
         PlayerList scm = server.getPlayerList();
@@ -1320,14 +1300,14 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
         //System.out.printf("SGBaseTE.transferPlayerToDimension: Transferred %s\n", repr(player));
     }
 
-    static Entity teleportEntityToDimension(Entity entity, Vector3 p, Vector3 v, double a, int dimension, boolean destBlocked) {
+    Entity teleportEntityToDimension(Entity entity, Vector3 p, Vector3 v, double a, int dimension, boolean destBlocked) {
         //System.out.printf("SGBaseTE.teleportEntityToDimension: %s to dimension %d\n", repr(entity), dimension);
         MinecraftServer server = BaseUtils.getMinecraftServer();
         WorldServer world = server.getWorld(dimension);
         return teleportEntityToWorld(entity, p, v, a, world, destBlocked);
     }
 
-    static Entity teleportEntityToWorld(Entity oldEntity, Vector3 p, Vector3 v, double a, WorldServer newWorld, boolean destBlocked) {
+    Entity teleportEntityToWorld(Entity oldEntity, Vector3 p, Vector3 v, double a, WorldServer newWorld, boolean destBlocked) {
         if (debugTeleport)
             System.out.printf("SGBaseTE.teleportEntityToWorld: %s to %s, destBlocked = %s\n", repr(oldEntity), newWorld, destBlocked);
         WorldServer oldWorld = (WorldServer)oldEntity.world;
@@ -1388,7 +1368,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
         entity.motionZ = v.z;
     }
 
-    static void extractEntityFromWorld(World world, Entity entity) {
+    void extractEntityFromWorld(World world, Entity entity) {
         // Immediately remove entity from world without calling setDead(), which has
         // undesirable side effects on some entities.
         if (entity instanceof EntityPlayer) {
@@ -1404,28 +1384,28 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
         world.onEntityRemoved(entity);
     }
 
-    static void checkChunk(World world, Entity entity) {
+    void checkChunk(World world, Entity entity) {
         int cx = MathHelper.floor(entity.posX / 16.0D);
         int cy = MathHelper.floor(entity.posZ / 16.0D);
         Chunk chunk = world.getChunkFromChunkCoords(cx, cy);
     }
 
-    protected static int yawSign(Entity entity) {
+    protected int yawSign(Entity entity) {
         return entity instanceof EntityArrow ? -1 : 1;
     }
 
-    static Vector3 yawVector(Entity entity) {
+    Vector3 yawVector(Entity entity) {
         return yawVector(yawSign(entity) * entity.rotationYaw);
     }
 
-    static Vector3 yawVector(double yaw) {
+    Vector3 yawVector(double yaw) {
         double a = Math.toRadians(yaw);
         Vector3 v = new Vector3(-Math.sin(a), 0, Math.cos(a));
         //System.out.printf("SGBaseTE.yawVector: %.2f --> (%.3f, %.3f)\n", yaw, v.x, v.z);
         return v;
     }
 
-    static double yawAngle(Vector3 v, Entity entity) {
+    double yawAngle(Vector3 v, Entity entity) {
         double a = Math.atan2(-v.x, v.z);
         double d = Math.toDegrees(a);
         //System.out.printf("SGBaseTE.yawAngle: (%.3f, %.3f) --> %.2f\n", v.x, v.z, d);
@@ -1788,7 +1768,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
         return sgStateDescription(state);
     }
 
-    static String sgStateDescription(SGState state) {
+    String sgStateDescription(SGState state) {
         switch (state) {
             case Idle: return "Idle";
             case Dialling:
@@ -1805,7 +1785,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
         return irisStateDescription(irisState);
     }
 
-    static String irisStateDescription(IrisState state) {
+    String irisStateDescription(IrisState state) {
         return state.toString();
     }
 
