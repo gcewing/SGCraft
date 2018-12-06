@@ -18,7 +18,6 @@ import net.minecraft.server.management.PlayerChunkMapEntry;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.ForgeChunkManager;
@@ -132,14 +131,14 @@ public class BaseTileEntity extends TileEntity
     }
 
     public void playSoundEffect(SoundEvent name, float volume, float pitch) {
-        playSoundEffect(world, pos, name, volume, pitch);
+        playSoundEffect(world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, name, volume, pitch);
     }
 
-    public void playSoundEffect(World world, BlockPos pos, SoundEvent name, float volume, float pitch) {
+    public void playSoundEffect(World world, double x, double y, double z, SoundEvent name, float volume, float pitch) {
         if (world.isRemote) {
-            world.playSound(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, name, SoundCategory.BLOCKS, volume, pitch, false);
+            world.playSound(x, y, z, name, SoundCategory.BLOCKS, volume, pitch, false);
         } else {
-            world.playSound(null, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, name, SoundCategory.BLOCKS, volume, pitch);
+            world.playSound(null, x, y, z, name, SoundCategory.BLOCKS, volume, pitch);
         }
     }
     

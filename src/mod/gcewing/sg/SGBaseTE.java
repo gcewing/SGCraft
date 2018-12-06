@@ -88,7 +88,8 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
         lockOutgoingSound,
         lockIncomingSound,
         gateRollSound,
-        eventHorizonSound;
+        eventHorizonSound,
+        teleportSound;
 
     public static void registerSounds(SGCraft mod) {
         dialFailSound = mod.newSound("dial_fail");
@@ -105,6 +106,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
         lockIncomingSound = mod.newSound("lock_incoming");
         gateRollSound = mod.newSound("gate_roll");
         eventHorizonSound = mod.newSound("event_horizon");
+        teleportSound = mod.newSound("teleport");
     }
 
     public final static String symbolChars = SGAddressing.symbolChars;
@@ -1181,6 +1183,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
         if (debugTeleport)
             System.out.printf("SGBaseTE.teleportEntity: new yaw %.2f\n", a);
         if (!destBlocked) {
+            playTeleportSound(entity.getEntityWorld(), new Vector3(entity.getPositionVector()), entity);
             if (entity.dimension == dimension)
                 newEntity = teleportWithinDimension(entity, q, u, a, destBlocked);
             else {
@@ -1224,7 +1227,15 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
         float pitch = 2F - volume;
         if (debugTeleport)
             System.out.printf("SGBaseTE.playIrisHitSound: at (%.3f,%.3f,%.3f) volume %.3f pitch %.3f\n", pos.x, pos.y, pos.z, volume, pitch);
-        playSoundEffect(world, pos.blockPos(), irisHitSound, volume * soundVolume, pitch);
+        playSoundEffect(world, pos.x, pos.y, pos.z, irisHitSound, volume * soundVolume, pitch);
+    }
+
+    void playTeleportSound(World world, Vector3 pos, Entity entity) {
+        float volume = (float) min(entity.width * entity.height, 1.0);
+        float pitch = 2F - volume;
+        if (debugTeleport)
+            System.out.printf("SGBaseTE.playTeleportSound: at (%.3f,%.3f,%.3f) volume %.3f pitch %.3f\n", pos.x, pos.y, pos.z, volume, pitch);
+        playSoundEffect(world, pos.x, pos.y, pos.z, teleportSound, volume * soundVolume, pitch);
     }
 
     Entity teleportWithinDimension(Entity entity, Vector3 p, Vector3 v, double a, boolean destBlocked) {
