@@ -136,9 +136,9 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
 
     static float defaultChevronAngle = 40f;
     static float chevronAngles[][] = {
-        //     0    1    2    <-- Base camouflage level
-        { 45f, 45f, 40f }, // 7 chevrons
-        { 36f, 33f, 30f }  // 9 chevrons
+            //     0    1    2    <-- Base camouflage level
+            { 45f, 45f, 40f }, // 7 chevrons
+            { 36f, 33f, 30f }  // 9 chevrons
     };
 
     // Configuration options
@@ -149,7 +149,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
     static int gateOpeningsPerFuelItem = 24;
     static int minutesOpenPerFuelItem = 80;
     static int secondsToStayOpen = 5 * 60;
-    static boolean oneWayTravel = false;
+    static boolean oneWayTravel = true;
     static boolean closeFromEitherEnd = true;
     static int chunkLoadingRange = 1;
     static boolean logStargateEvents = false;
@@ -185,6 +185,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
     int timeout, maxTimeout;
     double energyInBuffer, distanceFactor; // all energy use is multiplied by this
     public String homeAddress, addressError;
+    private int updated = 0;
 
     //  public static final int firstFuelSlot = 0;
     //  public static final int numFuelSlots = 4;
@@ -281,7 +282,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
             return false;
         }
         if (sound == gateRollSound) {
-            return state == SGState.Dialling;
+            return state == SGState.Dialing;
         } else if (sound == irisOpenSound) {
             return irisState == IrisState.Opening;
         } else if (sound == irisCloseSound) {
@@ -294,7 +295,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
     }
 
     void updateChunkLoadingStatus() {
-        if (state != SGState.Idle) {
+        if (state != SGState.Idle || state == SGState.AttemptToDial) {
             int n = chunkLoadingRange;
             if (n >= 0) {
                 SGCraft.chunkManager.setForcedChunkRange(this, -n, -n, n, n);
@@ -334,6 +335,9 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
                     Logger log = LogManager.getLogger();
                     String action = isMerged ? "ADDED" : "REMOVED";
                     String name = getWorld().getWorldInfo().getWorldName();
+                    if (isMerged) {
+                        this.homeAddress = address;
+                    }
                     log.info(String.format("STARGATE %s %s %s %s", action, name, pos, address));
                 }
             }
@@ -510,7 +514,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
     void enterState(SGState newState, int newTimeout) {
         if (debugState)
             System.out.printf("SGBaseTE: at %s in dimension %s entering state %s with timeout %s\n",
-                pos, world.provider.getDimension(), newState, newTimeout);
+                    pos, world.provider.getDimension(), newState, newTimeout);
         SGState oldState = state;
         state = newState;
         startRingAngle = ringAngle;
@@ -530,9 +534,9 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
 
     public boolean isConnected() {
         return state == SGState.SyncAwait
-            || state == SGState.Transient
-            || state == SGState.Connected
-            || state == SGState.Disconnecting;
+                || state == SGState.Transient
+                || state == SGState.Connected
+                || state == SGState.Disconnecting;
     }
 
     DHDTE getLinkedControllerTE() {
@@ -551,7 +555,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
         int rangeZ = DHDTE.linkRangeZ;
         if (SGBaseBlock.debugMerge)
             System.out.printf("SGBaseTE.checkForLink: in range +/-(%d,%d,%d) of %s\n",
-                rangeXY, rangeZ, rangeXY, pos);
+                    rangeXY, rangeZ, rangeXY, pos);
         for (int i = -rangeXY; i <= rangeXY; i++)
             for (int j = -rangeZ; j <= rangeZ; j++)
                 for (int k = -rangeXY; k <= rangeXY; k++) {
@@ -580,12 +584,13 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
     //------------------------------------   Server   --------------------------------------------
 
     public void connectOrDisconnect(String address, EntityPlayer player) {
+        boolean immediate = false;
         if (debugConnect)
             System.out.printf("SGBaseTE: %s: connectOrDisconnect('%s') in state %s by %s\n", side(), address, state, player);
         if (address.length() > 0) {
             DHDTE te = getLinkedControllerTE();
             if (te != null) {
-                if (connect(address, player, te.immediateDialDHD) != null) {
+                if (connect(address, player, immediate) != null) {
                     numEngagedChevrons = 0;
                     markChanged();
                 }
@@ -641,7 +646,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
         }
         if (debugConnect) {
             System.out.printf("SGBaseTE.connect: to %s in dimension %d with state %s\n",
-                targetGate.getPos(), targetGate.getWorld().provider.getDimension(), targetGate.state);
+                    targetGate.getPos(), targetGate.getWorld().provider.getDimension(), targetGate.state);
         }
         if (targetGate.getNumChevrons() < homeAddress.length()) {
             return diallingFailure(player, "targetLackChevrons");
@@ -657,6 +662,9 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
             return diallingFailure(player, "insufficientEnergy");
         }
         startDiallingStargate(address, targetGate, true, immediate);
+
+        targetGate.enterState(SGState.AttemptToDial, 0);
+
         targetGate.startDiallingStargate(homeAddress, this, false, immediate);
         return null;
     }
@@ -789,9 +797,15 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
                             performTransientDamage();
                         }
                         break;
-                    case Dialling:
+                    case Dialing:
                         double step = (double)(maxTimeout - timeout) / (double)maxTimeout;
                         ringAngle = startRingAngle + (targetRingAngle - startRingAngle) * step;
+                        break;
+
+                    case EstablishingConnection:
+                        if (timeout == 25) {
+                            playSGSoundEffect(connectSound, 1F, 1F); // Play sound before gate actually opens.
+                        }
                         break;
                 }
                 --timeout;
@@ -802,7 +816,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
                             startDiallingNextSymbol();
                         }
                         break;
-                    case Dialling:
+                    case Dialing:
                         if (isInitiator) {
                             char targetSymbol = dialledAddress.charAt(numEngagedChevrons);
                             char ownSymbol = homeAddress.charAt(numEngagedChevrons);
@@ -811,13 +825,16 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
                             targetGate.finishDiallingSymbol(ownSymbol, false, true, !targetGate.symbolsRemaining(true));
                         }
                         break;
-                    case InterDialling:
+                    case InterDialing:
                         if (isInitiator) {
                             startDiallingNextSymbol();
                         }
                         break;
                     case SyncAwait:
-                        finishDiallingAddress();
+                        attemptToLockStargate();
+                        break;
+                    case EstablishingConnection:
+                        openStargate();
                         break;
                     case Transient:
                         enterState(SGState.Connected, isInitiator ? ticksToStayOpen : 0);
@@ -861,6 +878,11 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
             System.out.printf("SGBaseTE.useEnergy: %s; buffered: %s\n", amount, energyInBuffer);
         if (amount <= energyInBuffer) {
             energyInBuffer -= amount;
+            if (updated++ > 10) {
+                // Send energy update to client for diag/gui purposes
+                markChanged();
+                updated = 0;
+            }
             return true;
         }
         List<ISGEnergySource> sources = findEnergySources();
@@ -881,7 +903,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
             System.out.printf("SGBaseTE.useEnergy: %s now on hand, need %s\n", energyOnHand, amount);
         if (amount - 0.0001 > energyOnHand) {
             System.out.printf("SGBaseTE: Energy sources only delivered %s of promised %s\n",
-                energyOnHand - energyInBuffer, energyAvailable);
+                    energyOnHand - energyInBuffer, energyAvailable);
             return false;
         }
         setEnergyInBuffer(energyOnHand - amount);
@@ -930,7 +952,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
         }
         if (total < amount)
             System.out.printf("SGCraft: Warning: Energy sources did not deliver promised energy " +
-                "(%s requested, %s delivered)\n", amount, total);
+                    "(%s requested, %s delivered)\n", amount, total);
         return total;
     }
 
@@ -967,7 +989,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
             int damage = (int)Math.ceil(dist * transientDamageRate);
             if (debugTransientDamage)
                 System.out.printf("SGBaseTE.performTransientDamage: distance = %s, damage = %s\n",
-                    dist, damage);
+                        dist, damage);
             ent.attackEntityFrom(transientDamage, damage);
         }
     }
@@ -997,7 +1019,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
             int delay = (int)Math.abs(diff / ringRotationSpeed);
             targetRingAngle = targetAngle;
             //System.out.println(homeAddress + " -> Delay: " + delay + " (From angle " + ringAngle + " to angle " + targetAngle + ")");
-            enterState(SGState.Dialling, delay);
+            enterState(SGState.Dialing, delay);
         } else {
             System.out.printf("SGCraft: Stargate jammed trying to dial symbol %s\n", c);
             dialledAddress = "";
@@ -1022,7 +1044,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
             }
         } else {
             if (changeState) {
-                enterState(SGState.InterDialling, interDiallingTime);
+                enterState(SGState.InterDialing, interDiallingTime);
             }
             if (!world.isRemote) {
                 playSGSoundEffect(outgoing ? chevronOutgoingSound : chevronIncomingSound, 1F, 1F);
@@ -1030,14 +1052,22 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
         }
     }
 
-    void finishDiallingAddress() {
-        //System.out.printf("SGBaseTE: Connecting to '%s'\n", dialledAddress);
+    private void attemptToLockStargate() {
+        if (debugConnect) {
+            System.out.printf("SGBaseTE: Connecting to '%s'\n", dialledAddress);
+        }
         if (!isInitiator || useEnergy(energyToOpen * distanceFactor)) {
-            playSGSoundEffect(connectSound, 1F, 1F);
-            enterState(SGState.Transient, transientDuration);
+            enterState(SGState.EstablishingConnection, 30);
         } else {
             disconnect();
         }
+    }
+
+    private void openStargate() {
+        if (debugConnect) {
+            System.out.printf("SGBaseTE: Connecting to '%s'\n", dialledAddress);
+        }
+        enterState(SGState.Transient, transientDuration);
     }
 
     boolean canTravelFromThisEnd() {
@@ -1164,8 +1194,8 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
 
     protected List<EntityLiving> entitiesWithinLeashRange(Entity entity) {
         AxisAlignedBB box = new AxisAlignedBB(
-            entity.posX - 7.0D, entity.posY - 7.0D, entity.posZ - 7.0D,
-            entity.posX + 7.0D, entity.posY + 7.0D, entity.posZ + 7.0D);
+                entity.posX - 7.0D, entity.posY - 7.0D, entity.posZ - 7.0D,
+                entity.posX + 7.0D, entity.posY + 7.0D, entity.posZ + 7.0D);
         return entity.world.getEntitiesWithinAABB(EntityLiving.class, box);
     }
 
@@ -1173,12 +1203,12 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
         Entity newEntity = null;
         if (debugTeleport) {
             System.out.printf("SGBaseTE.teleportEntity: %s (in dimension %d)  to dimension %d\n",
-                repr(entity), entity.dimension, dimension);
+                    repr(entity), entity.dimension, dimension);
             System.out.printf("SGBaseTE.teleportEntity: pos (%.2f, %.2f, %.2f) prev (%.2f, %.2f, %.2f) last (%.2f, %.2f, %.2f) pitch %.2f yaw %.2f\n",
-                entity.posX, entity.posY, entity.posZ,
-                entity.prevPosX, entity.prevPosY, entity.prevPosZ,
-                entity.lastTickPosX, entity.lastTickPosY, entity.lastTickPosZ,
-                entity.rotationPitch, entity.rotationYaw);
+                    entity.posX, entity.posY, entity.posZ,
+                    entity.prevPosX, entity.prevPosY, entity.prevPosZ,
+                    entity.lastTickPosX, entity.lastTickPosY, entity.lastTickPosZ,
+                    entity.rotationPitch, entity.rotationYaw);
         }
         Vector3 p = t1.ip(entity.posX, entity.posY, entity.posZ); // local position
         Vector3 v = t1.iv(entity.motionX, entity.motionY, entity.motionZ); // local velocity
@@ -1298,8 +1328,8 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
         // >>>
         player.closeScreen();
         player.connection.sendPacket(new SPacketRespawn(player.dimension,
-            player.world.getDifficulty(), newWorld.getWorldInfo().getTerrainType(),
-            player.interactionManager.getGameType()));
+                player.world.getDifficulty(), newWorld.getWorldInfo().getTerrainType(),
+                player.interactionManager.getGameType()));
         //         if (SGCraft.mystcraftIntegration != null) //[MYST]
         //             SGCraft.mystcraftIntegration.sendAgeData(newWorld, player);
         oldWorld.removeEntityDangerously(player); // Removes player right now instead of waiting for next tick
@@ -1351,12 +1381,12 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
             newEntity.setWorld(newWorld);
             if (debugTeleport)
                 System.out.printf(
-                    "SGBaseTE.teleportEntityToWorld: Spawned %s pos (%.2f, %.2f, %.2f) vel (%.2f, %.2f, %.2f) pitch %.2f (%.2f) yaw %.2f (%.2f)\n",
-                    repr(newEntity),
-                    newEntity.posX, newEntity.posY, newEntity.posZ,
-                    newEntity.motionX, newEntity.motionY, newEntity.motionZ,
-                    newEntity.rotationPitch, newEntity.prevRotationPitch,
-                    newEntity.rotationYaw, newEntity.prevRotationYaw);
+                        "SGBaseTE.teleportEntityToWorld: Spawned %s pos (%.2f, %.2f, %.2f) vel (%.2f, %.2f, %.2f) pitch %.2f (%.2f) yaw %.2f (%.2f)\n",
+                        repr(newEntity),
+                        newEntity.posX, newEntity.posY, newEntity.posZ,
+                        newEntity.motionX, newEntity.motionY, newEntity.motionZ,
+                        newEntity.rotationPitch, newEntity.prevRotationPitch,
+                        newEntity.rotationYaw, newEntity.prevRotationYaw);
         }
         oldWorld.resetUpdateEntityTick();
         if (oldWorld != newWorld)
@@ -1455,7 +1485,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
                     case Disconnecting:
                         initiateClosingTransient();
                         break;
-                    case Dialling:
+                    case Dialing:
                         if (isInitiator) {
                             if (timeout > 0) {
                                 SGCraft.playSound(this, gateRollSound);
@@ -1480,7 +1510,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
     void clientUpdate() {
         lastRingAngle = ringAngle;
         switch (state) {
-            case Dialling:
+            case Dialing:
                 if (timeout > 0) {
                     double step = (double)(maxTimeout - timeout) / (double)maxTimeout;
                     ringAngle = startRingAngle + (targetRingAngle - startRingAngle) * step;
@@ -1788,8 +1818,8 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
     String sgStateDescription(SGState state) {
         switch (state) {
             case Idle: return "Idle";
-            case Dialling:
-            case InterDialling: return "Dialling";
+            case Dialing:
+            case InterDialing: return "Dialing";
             case SyncAwait:
             case Transient: return "Opening";
             case Connected: return "Connected";
@@ -1808,5 +1838,13 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
 
     public static SGBaseTE getBaseTE(SGInterfaceTE ite) {
         return SGBaseTE.get(ite.getWorld(), ite.getPos().add(0, 1, 0));
+    }
+
+    public double getMaxEnergyBuffer() {
+        return this.maxEnergyBuffer;
+    }
+
+    public static double getBaseMaxEnergyBuffer() {
+        return SGBaseTE.maxEnergyBuffer;
     }
 }

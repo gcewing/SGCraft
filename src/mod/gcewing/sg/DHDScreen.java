@@ -6,6 +6,23 @@
 
 package gcewing.sg;
 
+import static gcewing.sg.BaseBlockUtils.getWorldTileEntity;
+import static org.lwjgl.opengl.GL11.GL_ALPHA_TEST;
+import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.GL_ENABLE_BIT;
+import static org.lwjgl.opengl.GL11.GL_LINEAR;
+import static org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA;
+import static org.lwjgl.opengl.GL11.GL_SRC_ALPHA;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_MAG_FILTER;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_MIN_FILTER;
+import static org.lwjgl.opengl.GL11.glBlendFunc;
+import static org.lwjgl.opengl.GL11.glDisable;
+import static org.lwjgl.opengl.GL11.glEnable;
+import static org.lwjgl.opengl.GL11.glPopAttrib;
+import static org.lwjgl.opengl.GL11.glPushAttrib;
+import static org.lwjgl.opengl.GL11.glTexParameteri;
+
 import net.minecraft.client.audio.ISound;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.entity.player.EntityPlayer;
@@ -17,9 +34,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
-
-import static gcewing.sg.BaseBlockUtils.getWorldTileEntity;
-import static org.lwjgl.opengl.GL11.*;
 
 public class DHDScreen extends SGScreen {
 
@@ -36,7 +50,7 @@ public class DHDScreen extends SGScreen {
     int closingDelay = 0;
     int addressLength;
     DHDTE cte;
-    
+
     public DHDScreen(EntityPlayer player, World world, BlockPos pos) {
         this.world = world;
         this.pos = pos;
@@ -45,20 +59,20 @@ public class DHDScreen extends SGScreen {
         if (te != null)
             addressLength = te.getNumChevrons();
     }
-    
+
     SGBaseTE getStargateTE() {
         return cte != null ? cte.getLinkedStargateTE() : null;
     }
-    
+
     DHDTE getControllerTE() {
         TileEntity te = getWorldTileEntity(world, pos);
         return te instanceof DHDTE ? (DHDTE) te : null;
     }
-    
+
     String getEnteredAddress() {
         return cte.enteredAddress;
     }
-    
+
     void setEnteredAddress(String address) {
         cte.enteredAddress = address;
     }
@@ -69,10 +83,10 @@ public class DHDScreen extends SGScreen {
         dhdCentreX = width / 2;
         dhdCentreY = dhdTop + dhdHeight / 2;
     }
-    
-//  @Override
-//  public void onGuiClosed() {
-//  }
+
+    //  @Override
+    //  public void onGuiClosed() {
+    //  }
 
     @Override
     public void updateScreen() {
@@ -96,11 +110,11 @@ public class DHDScreen extends SGScreen {
             }
         }
     }
-    
+
     void closeAfterDelay(int ticks) {
         closingDelay = ticks;
     }
-    
+
     int findDHDButton(int mx, int my) {
         //System.out.printf("DHDScreen.findDHDButton: mx = %d, my = %d, cx = %d, cy = %d\n",
         //  mx, my, dhdCentreX, dhdCentreY);
@@ -134,7 +148,7 @@ public class DHDScreen extends SGScreen {
         System.out.printf("DHDScreen.findDHDButton: i = %d\n", i);
         return i;
     }
-    
+
     void dhdButtonPressed(int i) {
         //System.out.printf("DHDScreen.dhdButtonPressed: %d\n", i);
         if (i == 0) {
@@ -145,12 +159,12 @@ public class DHDScreen extends SGScreen {
             chevron(SGBaseTE.symbolToChar(i - 1));
         }
     }
-    
+
     void buttonSound(SoundEvent sound) {
         EntityPlayer player = mc.player;
         ISound s = new PositionedSoundRecord(sound, SoundCategory.BLOCKS,
-            1F, 1F,
-            (float)player.posX, (float)player.posY, (float)player.posZ);
+                1F, 1F,
+                (float)player.posX, (float)player.posY, (float)player.posZ);
         mc.getSoundHandler().playSound(s);
     }
 
@@ -175,7 +189,7 @@ public class DHDScreen extends SGScreen {
                 break;
         }
     }
-    
+
     void dial() {
         SGBaseTE te = getStargateTE();
         if (te != null) {
@@ -183,12 +197,12 @@ public class DHDScreen extends SGScreen {
             sendConnectOrDisconnect(te, te.state == SGState.Idle ? getEnteredAddress() : "");
         }
     }
-    
+
     void sendConnectOrDisconnect(SGBaseTE te, String address) {
         SGChannel.sendConnectOrDisconnectToServer(te, address);
         closeAfterDelay(10);
     }
-        
+
     void erase() {
         if (stargateIsIdle()) {
             buttonSound(SoundEvents.UI_BUTTON_CLICK);
@@ -199,7 +213,7 @@ public class DHDScreen extends SGScreen {
             }
         }
     }
-    
+
     void chevron(char c) {
         if (stargateIsIdle()) {
             buttonSound(SGBaseTE.dhdPressSound);
@@ -211,12 +225,12 @@ public class DHDScreen extends SGScreen {
             }
         }
     }
-    
+
     boolean stargateIsIdle() {
         SGBaseTE te = getStargateTE();
         return (te != null && te.state == SGState.Idle);
     }
-    
+
     @Override
     protected void drawGuiContainerBackgroundLayer(float var1, int var2, int var3) {
         SGBaseTE te = getStargateTE();
@@ -241,7 +255,7 @@ public class DHDScreen extends SGScreen {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         drawTexturedRect((width - dhdWidth) / 2, height - dhdHeight, dhdWidth, dhdHeight);
     }
-    
+
     void drawOrangeButton() {
         bindTexture(SGCraft.mod.resourceLocation("textures/gui/dhd_centre.png"), 128, 64);
         SGBaseTE te = getStargateTE();
@@ -254,25 +268,25 @@ public class DHDScreen extends SGScreen {
             setColor(0.5, 0.25, 0.0);
         double rx = dhdWidth * 48 / 512.0;
         double ry = dhdHeight * 48 / 256.0;
-//         Tessellator.instance.disableColor();
+        //         Tessellator.instance.disableColor();
         drawTexturedRect(dhdCentreX - rx, dhdCentreY - ry - 6, 2 * rx, 1.5 * ry,
-            64, 0, 64, 48);
+                64, 0, 64, 48);
         resetColor();
         if (connected) {
             GL11.glBlendFunc(GL11.GL_ONE, GL11.GL_ONE);
             double d = 5;
             drawTexturedRect(dhdCentreX - rx - d, dhdCentreY - ry - d - 6, 2 * (rx + d), ry + d,
-                0, 0, 64, 32);
+                    0, 0, 64, 32);
             drawTexturedRect(dhdCentreX - rx - d, dhdCentreY - 6, 2 * (rx + d), 0.5 * ry + d,
-                0, 32, 64, 32);
+                    0, 32, 64, 32);
             GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
         }
     }
-    
+
     void drawEnteredSymbols() {
         drawAddressSymbols(width / 2, dhdTop - 80, getEnteredAddress());
     }
-    
+
     void drawEnteredString() {
         String address = SGAddressing.padAddress(getEnteredAddress(), "|", addressLength);
         drawAddressString(width / 2, dhdTop - 20, address);

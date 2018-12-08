@@ -29,17 +29,12 @@ public class PowerBlock<TE extends PowerTE> extends BaseBlock<TE> {
         setSoundType(SoundType.METAL);
         setHarvestLevel("pickaxe", 0);
     }
-    
+
     @Override
     public boolean shouldCheckWeakPower(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side) {
         return true;
     }
 
-//     @Override
-//     public String getRendererClassName() {
-//         return "BaseBlockRenderer";
-//     }
-    
     @Override
     public void breakBlock(World world, BlockPos pos, IBlockState state) {
         lastRemovedTE = getTileEntity(world, pos);
@@ -53,7 +48,7 @@ public class PowerBlock<TE extends PowerTE> extends BaseBlock<TE> {
         SGCraft.mod.openGui(player, SGGui.PowerUnit, world, pos);
         return true;
     }
-    
+
     @Override
     public ArrayList<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
         ArrayList<ItemStack> ret = new ArrayList<ItemStack>();
@@ -69,7 +64,7 @@ public class PowerBlock<TE extends PowerTE> extends BaseBlock<TE> {
         ret.add(stack);
         return ret;
     }
-    
+
     @Override
     public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase player,
         ItemStack stack)
@@ -79,5 +74,4 @@ public class PowerBlock<TE extends PowerTE> extends BaseBlock<TE> {
         if (te != null && nbt != null)
             te.readContentsFromNBT(nbt);
     }
-
 }

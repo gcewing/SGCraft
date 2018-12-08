@@ -17,15 +17,9 @@ buildscript {
 
 apply plugin: 'net.minecraftforge.gradle.forge'
 
-//Only edit below this line, the above code adds and enables the nessasary things for Forge to be setup.
-
-
-//version = "1.0"
-//group= "com.yourname.modid" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = jarName
 
 repositories {
-    maven { url = "http://files.minecraftforge.net/maven" } // spongeforge
     maven { url = "http://maven.cil.li/" }
     maven {
         name = 'oss-sonatype-public'
@@ -50,19 +44,6 @@ minecraft {
     runDir = "run"
     mappings = 'snapshot_20171007'
     useDepAts = true
-
-    // the mappings can be changed at any time, and must be in the following format.
-    // snapshot_YYYYMMDD   snapshot are built nightly.
-    // stable_#            stables are built at the discretion of the MCP team.
-    // Use non-default mappings at your own risk. they may not allways work.
-    // simply re-run your setup task after changing the mappings to update your workspace.    
-    // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
-}
-
-sourceSets.main {
-	compileClasspath += files("lib")
-	java.srcDirs "src/base", "src/mod"
-	resources.srcDirs "src/resources"
 }
 
 sourceSets.main {

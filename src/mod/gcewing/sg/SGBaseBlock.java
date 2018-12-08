@@ -91,7 +91,7 @@ public class SGBaseBlock extends SGBlock<SGBaseTE>  {
 
     @Override
     public boolean canHarvestBlock(IBlockAccess world, BlockPos pos, EntityPlayer player) {
-        return true;
+        return SGCraft.canHarvestSGBaseBlock;
     }
 
     @Override
@@ -211,7 +211,9 @@ public class SGBaseBlock extends SGBlock<SGBaseTE>  {
     @Override
     public void breakBlock(World world, BlockPos pos, IBlockState state) {
         unmerge(world, pos);
-        dropUpgrades(world, pos);
+        if (SGCraft.canHarvestSGBaseBlock) {
+            dropUpgrades(world, pos);
+        }
         super.breakBlock(world, pos, state);
     }
     

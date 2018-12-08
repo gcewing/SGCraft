@@ -24,7 +24,7 @@
 			"sgcraft:chev_incoming7"
 		]
 	},
-	"gate_open": {"category": "ambient", "sounds": ["sgcraft:gate_open"]},
+	"gate_open": {"category": "ambient", "sounds": ["sgcraft:gate_open_long"]},
 	"gate_close": {"category": "ambient", "sounds": ["sgcraft:gate_close"]},
 	"iris_open":  {"category": "ambient", "sounds": ["sgcraft:iris_open"]},
 	"iris_close": {"category": "ambient", "sounds": ["sgcraft:iris_close"]},

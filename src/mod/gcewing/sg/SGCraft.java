@@ -79,6 +79,34 @@ public class SGCraft extends BaseMod<SGCraftClient> {
     public static RFIntegration rfIntegration; //[RF]
 //     public static MystcraftIntegration mystcraftIntegration; //[MYST]
 
+    // Villager Profession for Generators
+    public static VillagerProfession tokraProfession;
+
+    // Block Harvests
+    public static boolean canHarvestDHD = false;
+    public static boolean canHarvestSGBaseBlock = false;
+    public static boolean canHarvestSGRingBlock = false;
+
+    // IC2 Options
+    public static int Ic2SafeInput = 2048;
+    public static int Ic2MaxEnergyBuffer = 1000000;
+    public static double Ic2euPerSGEnergyUnit = 20.0;
+    public static int Ic2PowerTETier = 3;
+
+    // Redstone Flux Options
+    public static int RfMaxEnergyBuffer = 4000000;
+    public static double RfPerSGEnergyUnit = 80.0;
+
+    //Client Options
+    public static boolean useHDEventHorizionTexture = true;
+    public static boolean saveAddressToClipboard = false;
+    public static boolean displayGuiPowerDebug = true;
+
+    //World data fixes
+    public static boolean forceDHDCfgUpdate = false;
+    public static boolean forceIC2CfgUpdate = false;
+    public static boolean forceRFCfgUpdate = false;
+
     public SGCraft() {
         mod = this;
         creativeTab = new CreativeTabs("sgcraft:sgcraft") {
@@ -129,7 +157,11 @@ public class SGCraft extends BaseMod<SGCraftClient> {
         SGBaseBlock.configure(config);
         SGBaseTE.configure(config);
         FeatureGeneration.configure(config);
+        // Server-Side Options
         addOresToExistingWorlds = config.getBoolean("options", "addOresToExistingWorlds", false);
+        // Client-Side Options
+        useHDEventHorizionTexture = config.getBoolean("client", "useHDEventHorizonTexture", useHDEventHorizionTexture);
+        saveAddressToClipboard = config.getBoolean("client", "saveAddressToClipboard", saveAddressToClipboard);
     }       
 
     @Override
@@ -145,6 +177,7 @@ public class SGCraft extends BaseMod<SGCraftClient> {
         //sgPortalBlock = newBlock("stargatePortal", SGPortalBlock.class);
         naquadahBlock = newBlock("naquadahBlock", NaquadahBlock.class);
         naquadahOre = newBlock("naquadahOre", NaquadahOreBlock.class);
+        this.setOptions();
     }
     
     @Override
@@ -196,43 +229,66 @@ public class SGCraft extends BaseMod<SGCraftClient> {
         ItemStack blueDye = new ItemStack(Items.DYE, 1, 4);
         ItemStack orangeDye = new ItemStack(Items.DYE, 1, 14);
 
-        if (config.getBoolean("options", "allowCraftingNaquadah", false))
-            newShapelessRecipe("naquada",naquadah, 1, Ingredient.fromItems(Items.COAL, Items.SLIME_BALL, Items.BLAZE_POWDER));
-        newRecipe("sgringblock", sgRingBlock, 1, "CCC", "NNN", "SSS",
-            'S', smoothSandstone, 'N', "ingotNaquadahAlloy", 'C', chiselledSandstone);
-        newRecipe("sgcheveronblock", sgChevronBlock, "CgC", "NpN", "SrS",
-            'S', smoothSandstone, 'N', "ingotNaquadahAlloy", 'C', chiselledSandstone,
-            'g', Items.GLOWSTONE_DUST, 'r', Items.REDSTONE, 'p', Items.ENDER_PEARL);
-        newRecipe("sgbaseblock", sgBaseBlock, 1, "CrC", "NeN", "ScS",
-            'S', smoothSandstone, 'N', "ingotNaquadahAlloy", 'C', chiselledSandstone,
-            'r', Items.REDSTONE, 'e', Items.ENDER_EYE, 'c', sgCoreCrystal);
-        newRecipe("sgcontrollerblock", sgControllerBlock, 1, "bbb", "OpO", "OcO",
-            'b', Blocks.STONE_BUTTON, 'O', Blocks.OBSIDIAN, 'p', Items.ENDER_PEARL,
-            'c', sgControllerCrystal);
-        newShapelessRecipe("naquadahingot",naquadahIngot, 1, Ingredient.fromItem(Items.IRON_INGOT),
-                Ingredient.fromItem(naquadah));
-        newRecipe("naquadahblock", naquadahBlock, 1, "NNN", "NNN", "NNN", 'N', "ingotNaquadahAlloy");
-        newRecipe("sgchevronupgrade", sgChevronUpgrade, 1, "g g", "pNp", "r r",
-            'N', "ingotNaquadahAlloy",
-            'g', Items.GLOWSTONE_DUST, 'r', Items.REDSTONE, 'p', Items.ENDER_PEARL);
-        newRecipe("naquadahingot_from_block", naquadahIngot, 9, "B", 'B', naquadahBlock);
-        newRecipe("sgirisblade", sgIrisBlade, 1, " ii", "ic ", "i  ",
-            'i', Items.IRON_INGOT, 'c', new ItemStack(Items.COAL, 1, 1));
-        newRecipe("sgirisupgrade", sgIrisUpgrade, 1, "bbb", "brb", "bbb",
-            'b', sgIrisBlade, 'r', Items.REDSTONE);
-        if (config.getBoolean("options", "allowCraftingCrystals", false)) {
-            newRecipe("sgcorecrystal", sgCoreCrystal, 1, "bbr", "rdb", "brb",
-                'b', blueDye, 'r', Items.REDSTONE, 'd', Items.DIAMOND);
-            newRecipe("sgcontrollercrystal", sgControllerCrystal, 1, "roo", "odr", "oor",
-                'o', orangeDye, 'r', Items.REDSTONE, 'd', Items.DIAMOND);
+        if (config.getBoolean("recipes", "naquadah", false)) {
+            newShapelessRecipe("naquada", naquadah, 1, Ingredient.fromItems(Items.COAL, Items.SLIME_BALL, Items.BLAZE_POWDER));
         }
+
+        if (config.getBoolean("recipes", "naquadahIngot", true)) {
+            newShapelessRecipe("naquadahingot", naquadahIngot, 1, Ingredient.fromItem(Items.IRON_INGOT), Ingredient.fromItem(naquadah));
+        }
+
+        if (config.getBoolean("recipes", "naquadahIngotFromBlock", true)) {
+            newRecipe("naquadahingot_from_block", naquadahIngot, 9, "B", 'B', naquadahBlock);
+        }
+
+        if (config.getBoolean("recipes", "naquadahBlock", true)) {
+            newRecipe("naquadahblock", naquadahBlock, 1, "NNN", "NNN", "NNN", 'N', "ingotNaquadahAlloy");
+        }
+
+        if (config.getBoolean("recipes", "sgRingBlock", true)) {
+            newRecipe("sgringblock", sgRingBlock, 1, "CCC", "NNN", "SSS", 'S', smoothSandstone, 'N', "ingotNaquadahAlloy", 'C', chiselledSandstone);
+        }
+
+        if (config.getBoolean("recipes", "sgChevronBlock", true)) {
+            newRecipe("sgcheveronblock", sgChevronBlock, "CgC", "NpN", "SrS", 'S', smoothSandstone, 'N', "ingotNaquadahAlloy", 'C', chiselledSandstone, 'g', Items.GLOWSTONE_DUST, 'r', Items.REDSTONE, 'p', Items.ENDER_PEARL);
+        }
+
+        if (config.getBoolean("recipes", "sgBaseBlock", true)) {
+            newRecipe("sgbaseblock", sgBaseBlock, 1, "CrC", "NeN", "ScS", 'S', smoothSandstone, 'N', "ingotNaquadahAlloy", 'C', chiselledSandstone, 'r', Items.REDSTONE, 'e', Items.ENDER_EYE, 'c', sgCoreCrystal);
+        }
+
+        if (config.getBoolean("recipes", "sgControllerBlock", true)) {
+            newRecipe("sgcontrollerblock", sgControllerBlock, 1, "bbb", "OpO", "OcO", 'b', Blocks.STONE_BUTTON, 'O', Blocks.OBSIDIAN, 'p', Items.ENDER_PEARL, 'c', sgControllerCrystal);
+        }
+
+        if (config.getBoolean("recipes", "sgChevronUpgradeItem", true)) {
+            newRecipe("sgchevronupgrade", sgChevronUpgrade, 1, "g g", "pNp", "r r", 'N', "ingotNaquadahAlloy", 'g', Items.GLOWSTONE_DUST, 'r', Items.REDSTONE, 'p', Items.ENDER_PEARL);
+        }
+
+        if (config.getBoolean("recipes", "sgIrisBladeItem", true)) {
+            newRecipe("sgirisblade", sgIrisBlade, 1, " ii", "ic ", "i  ", 'i', Items.IRON_INGOT, 'c', new ItemStack(Items.COAL, 1, 1));
+        }
+
+        if (config.getBoolean("recipes", "sgIrisUpgradeItem", true)) {
+            newRecipe("sgirisupgrade", sgIrisUpgrade, 1, "bbb", "brb", "bbb", 'b', sgIrisBlade, 'r', Items.REDSTONE);
+        }
+
+        if (config.getBoolean("recipes", "sgCoreCrystalItem", false)) {
+            newRecipe("sgcorecrystal", sgCoreCrystal, 1, "bbr", "rdb", "brb", 'b', blueDye, 'r', Items.REDSTONE, 'd', Items.DIAMOND);
+        }
+
+        if (config.getBoolean("recipes", "sgControllerCrystalItem", false)) {
+            newRecipe("sgcontrollercrystal", sgControllerCrystal, 1, "roo", "odr", "oor", 'o', orangeDye, 'r', Items.REDSTONE, 'd', Items.DIAMOND);
+        }
+
         if (!isModLoaded("ic2"))
             addGenericCapacitorRecipe();
     }
-    
+
     protected void addGenericCapacitorRecipe() {
-        newRecipe("ic2capacitor", ic2Capacitor, 1, "iii", "ppp", "iii",
-            'i', "ingotIron", 'p', "paper");
+        if (config.getBoolean("recipes", "genericCapacitorItem", true)) {
+            newRecipe("ic2capacitor", ic2Capacitor, 1, "iii", "ppp", "iii", 'i', "ingotIron", 'p', "paper");
+        }
     }
 
     @Override
@@ -254,7 +310,7 @@ public class SGCraft extends BaseMod<SGCraftClient> {
     
     @Override //[VILL]
     protected void registerVillagers() {
-        VillagerProfession tokraProfession = new VillagerProfession("sgcraft:tokra", "sgcraft:textures/skins/tokra.png","sgcraft:textures/skins/tokra.png");
+        tokraProfession = new VillagerProfession("sgcraft:tokra", "sgcraft:textures/skins/tokra.png","sgcraft:textures/skins/tokra.png");
         // Update: Needs new skin for Zombie mode?
         VillagerCareer tokraCareer = new VillagerCareer(tokraProfession, "sgcraft:tokra");
         tokraCareer.addTrade(1, new SGTradeHandler());
@@ -313,4 +369,25 @@ public class SGCraft extends BaseMod<SGCraftClient> {
         }
     }
 
+    private void setOptions() {
+        // Block Harvests
+        canHarvestDHD = config.getBoolean("block-harvest", "dhdBlock", canHarvestDHD);
+        canHarvestSGBaseBlock  = config.getBoolean("block-harvest", "sgBaseBlock", canHarvestSGBaseBlock);
+        canHarvestSGRingBlock  = config.getBoolean("block-harvest", "sgRingBlock", canHarvestSGRingBlock);
+
+        // IC2
+        Ic2SafeInput  = config.getInteger("ic2", "safeInputRate", Ic2SafeInput);
+        Ic2MaxEnergyBuffer = config.getInteger("ic2", "energyBufferSize", Ic2MaxEnergyBuffer);
+        Ic2euPerSGEnergyUnit = config.getDouble("ic2", "euPerSGEnergyUnit", Ic2euPerSGEnergyUnit);
+        Ic2PowerTETier = config.getInteger("ic2", "PowerTETier", Ic2PowerTETier);
+
+        // Redstone Flux
+        RfMaxEnergyBuffer = config.getInteger("rf", "energyBufferSize", RfMaxEnergyBuffer);
+        RfPerSGEnergyUnit = config.getDouble("rf", "rfPerSGEnergyUnit", RfPerSGEnergyUnit);
+
+        // World Update / Fixes
+        forceDHDCfgUpdate = config.getBoolean("dhd", "force-update", forceDHDCfgUpdate);
+        forceIC2CfgUpdate = config.getBoolean("ic2", "force-update", forceIC2CfgUpdate);
+        forceRFCfgUpdate = config.getBoolean("rf", "force-update", forceRFCfgUpdate);
+    }
 }

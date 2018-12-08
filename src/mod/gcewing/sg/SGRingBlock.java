@@ -88,7 +88,7 @@ public class SGRingBlock extends SGBlock<SGRingTE> {
 
     @Override
     public boolean canHarvestBlock(IBlockAccess world, BlockPos pos, EntityPlayer player) {
-        return true;
+        return SGCraft.canHarvestSGRingBlock;
     }
     
     @Override

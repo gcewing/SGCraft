@@ -203,25 +203,36 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
     public void init(FMLInitializationEvent e) {
         MinecraftForge.EVENT_BUS.register(this);
         FMLCommonHandler.instance().bus().register(this);
-        if (client != null)
+        if (client != null) {
             client.init(e);
-        for (BaseSubsystem sub : subsystems)
-            if (sub != this)
+        }
+
+        for (BaseSubsystem sub : subsystems) {
+            if (sub != this) {
                 sub.init(e);
+            }
+            sub.registerRecipes();
+        }
     }
 
     @Override
     public void postInit(FMLPostInitializationEvent e) {
         for (BaseSubsystem sub : subsystems) {
-            if (sub != this)
+            if (sub != this) {
                 sub.postInit(e);
-            sub.registerRecipes();
+            }
+
             sub.registerOther();
         }
-        if (client != null)
+
+        if (client != null) {
             client.postInit(e);
-        if (proxy == null)
+        }
+
+        if (proxy == null) {
             proxy = this;
+        }
+
         NetworkRegistry.INSTANCE.registerGuiHandler(this, proxy);
         saveConfig();
     }
@@ -588,44 +599,7 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
         }
         return model;
     }
-    
-//  @SideOnly(Side.CLIENT)
-//  public IIcon getIcon(IIconRegister reg, String name) {
-//      return reg.registerIcon(assetKey + ":" + name);
-//  }
 
-//  public Set<String> listResources(String subdir) {
-//      try {
-//          Set<String>result = new HashSet<String>();
-//          if (resourceURL != null) {
-//              String protocol = resourceURL.getProtocol();
-//              if (protocol.equals("jar")) {
-//                  String resPath = resourceURL.getPath();
-//                  int pling = resPath.lastIndexOf("!");
-//                  URL jarURL = new URL(resPath.substring(0, pling));
-//                  String resDirInJar = resPath.substring(pling + 2);
-//                  String prefix = resDirInJar + subdir + "/";
-//                  //System.out.printf("BaseMod.listResources: looking for names starting with %s\n", prefix);
-//                  JarFile jar = new JarFile(new File(jarURL.toURI()));
-//                  Enumeration<JarEntry> entries = jar.entries();
-//                  while (entries.hasMoreElements()) {
-//                      String name = entries.nextElement().getName();
-//                      if (name.startsWith(prefix) && !name.endsWith("/") && !name.contains("/.")) {
-//                          //System.out.printf("BaseMod.listResources: name = %s\n", name);
-//                          result.add(name.substring(prefix.length()));
-//                      }
-//                  }
-//              }
-//              else
-//                  throw new RuntimeException("Resource URL protocol " + protocol + " not supported");
-//          }
-//          return result;
-//      }
-//      catch (Exception e) {
-//          throw new RuntimeException(e);
-//      }
-//  }
-    
     //------------------------- Network --------------------------------------------------
     
     public static void sendTileEntityUpdate(TileEntity te) {

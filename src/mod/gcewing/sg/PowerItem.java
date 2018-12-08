@@ -21,10 +21,9 @@ public class PowerItem extends ItemBlock {
     String unitName;
     double maxEnergy;
 
-    public PowerItem(Block block, String unitName, double maxEnergy) {
+    public PowerItem(Block block, String unitName) {
         super(block);
         this.unitName = unitName;
-        this.maxEnergy = maxEnergy;
     }
     
     @Override
@@ -35,5 +34,4 @@ public class PowerItem extends ItemBlock {
             list.add(String.format("%F %s / %F", eu, unitName, maxEnergy));
         }
     }
-
 }

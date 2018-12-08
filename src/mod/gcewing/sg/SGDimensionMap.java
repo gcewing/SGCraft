@@ -27,7 +27,7 @@ public class SGDimensionMap extends WorldSavedData {
     
     public static SGDimensionMap get() {
         World world = BaseUtils.getWorldForDimension(0);
-        return BaseUtils.getWorldData(world, SGDimensionMap.class, "sgcraft:dimension_map");
+        return BaseUtils.getWorldData(world, SGDimensionMap.class, "sgcraft-dimension_map");
     }
     
     public static Integer dimensionForIndex(int index) {
