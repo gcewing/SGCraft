@@ -277,7 +277,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
 
     @Override
     public boolean isSoundActive(SoundEvent sound) {
-        if (this.isInvalid()) {
+        if (this.isInvalid() || !this.world.isBlockLoaded(this.pos) || this.world.getTileEntity(this.pos) != this) {
             return false;
         }
         if (sound == gateRollSound) {
@@ -350,9 +350,15 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
     }
 
     @Override
+    protected void setWorldCreate(World world) {
+        this.world = world;
+    }
+
+    @Override
     public void readFromNBT(NBTTagCompound nbt) {
         super.readFromNBT(nbt);
         isMerged = nbt.getBoolean("isMerged");
+        SGState oldState = state;
         state = SGState.values()[nbt.getInteger("state")];
         ringAngle = nbt.getDouble("ringAngle");
         startRingAngle = nbt.getDouble("startRingAngle");
@@ -379,6 +385,9 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
         redstoneInput = nbt.getBoolean("redstoneInput");
         homeAddress = getStringOrNull(nbt, "address");
         addressError = nbt.getString("addressError");
+        if (oldState != state && state == SGState.Connected && world.isRemote) {
+            SGCraft.playSound(this, eventHorizonSound);
+        }
     }
 
     protected String getStringOrNull(NBTTagCompound nbt, String name) {
@@ -1452,9 +1461,6 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
                                 SGCraft.playSound(this, gateRollSound);
                             }
                         }
-                        break;
-                    case Connected:
-                        SGCraft.playSound(this, eventHorizonSound);
                         break;
                 }
             }
