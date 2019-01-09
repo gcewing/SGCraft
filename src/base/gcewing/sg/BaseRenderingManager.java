@@ -253,13 +253,13 @@ public class BaseRenderingManager<MOD extends BaseMod<? extends BaseModClient>> 
                     registerModelLocationForItem(item, itemDisp);
             }
             else
-                registerInventoryLocationForItem(item, block.getUnlocalizedName());
+                registerInventoryLocationForItem(item, block.getTranslationKey());
         }
         for (Item item : client.base.registeredItems) {
             if (itemNeedsCustomRendering(item))
                 registerModelLocationForItem(item, itemDisp);
             else
-                registerInventoryLocationForItem(item, item.getUnlocalizedName());
+                registerInventoryLocationForItem(item, item.getTranslationKey());
         }
     }
     
@@ -300,7 +300,7 @@ public class BaseRenderingManager<MOD extends BaseMod<? extends BaseModClient>> 
         int numVariants = getNumItemSubtypes(item);
         if (debugModelRegistration)
             System.out.printf("BaseModClient: Registering model location %s for %d subtypes of %s\n",
-                location, numVariants, item.getUnlocalizedName());
+                location, numVariants, item.getTranslationKey());
         for (int i = 0; i < numVariants; i++)
             ModelLoader.setCustomModelResourceLocation(item, i, location);
     }

@@ -55,7 +55,7 @@ public class NaquadahOreWorldGen implements IWorldGenerator {
         this.world = world;
         x0 = chunkX * 16;
         z0 = chunkZ * 16;
-        chunk = world.getChunkFromChunkCoords(chunkX, chunkZ);
+        chunk = world.getChunk(chunkX, chunkZ);
         generateChunk();
     }
     

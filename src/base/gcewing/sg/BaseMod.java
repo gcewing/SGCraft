@@ -371,7 +371,7 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
 
     public <ITEM extends Item> ITEM addItem(ITEM item, String name) {
         String qualName = assetKey + ":" + name;
-        item.setUnlocalizedName(qualName);
+        item.setTranslationKey(qualName);
         item.setRegistryName(assetKey, name);
         ForgeRegistries.ITEMS.register(item);
 
@@ -410,7 +410,7 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
 
     public <BLOCK extends Block> BLOCK addBlock(BLOCK block, String name, Class itemClass) {
         String qualName = assetKey + ":" + name;
-        block.setUnlocalizedName(qualName);
+        block.setTranslationKey(qualName);
         block.setRegistryName(assetKey, name);
         ForgeRegistries.BLOCKS.register(block);
 
@@ -797,8 +797,8 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
         //if (debugLoot)
         //    System.out.printf("BaseMod.onLootTableLoad\n");
         ResourceLocation locn = event.getName();
-        if (locn.getResourceDomain().equals("minecraft")) {
-            String path = String.format("/assets/%s/loot_tables/%s.json", assetKey, locn.getResourcePath());
+        if (locn.getNamespace().equals("minecraft")) {
+            String path = String.format("/assets/%s/loot_tables/%s.json", assetKey, locn.getPath());
             //if (debugLoot)
             //    System.out.printf("BaseMod.onLootTableLoad: Looking for %s\n", path);
             URL url = getClass().getResource(path);

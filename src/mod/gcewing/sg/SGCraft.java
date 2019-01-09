@@ -111,7 +111,7 @@ public class SGCraft extends BaseMod<SGCraftClient> {
         mod = this;
         creativeTab = new CreativeTabs("sgcraft:sgcraft") {
             @Override
-            public ItemStack getTabIconItem() {
+            public ItemStack createIcon() {
                 return new ItemStack(Item.getItemFromBlock(sgBaseBlock));
             }
         };

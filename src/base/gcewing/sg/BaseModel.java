@@ -35,7 +35,7 @@ public class BaseModel implements IModel {
     
     public static BaseModel fromResource(ResourceLocation location) {
         // Can't use resource manager because this needs to work on the server
-        String path = String.format("/assets/%s/%s", location.getResourceDomain(), location.getResourcePath());
+        String path = String.format("/assets/%s/%s", location.getNamespace(), location.getPath());
         InputStream in = BaseModel.class.getResourceAsStream(path);
         BaseModel model = gson.fromJson(new InputStreamReader(in), BaseModel.class);
         if (in == null)

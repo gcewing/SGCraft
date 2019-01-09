@@ -208,7 +208,7 @@ public class SGAddressing {
     protected static SGBaseTE getBaseTE(int chunkX, int chunkZ, int dimension) {
         World toWorld = getWorld(dimension);
         if (toWorld != null) {
-            Chunk chunk = toWorld.getChunkFromChunkCoords(chunkX, chunkZ);
+            Chunk chunk = toWorld.getChunk(chunkX, chunkZ);
             if (chunk != null)
                 for (Object te : chunk.getTileEntityMap().values()) {
                     if (te instanceof SGBaseTE)
