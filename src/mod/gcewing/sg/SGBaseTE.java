@@ -432,6 +432,22 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
         return nbt;
     }
 
+    static boolean isValidSymbolChar(String c) {
+        return SGAddressing.isValidSymbolChar(c);
+    }
+
+    static char symbolToChar(int i) {
+        return SGAddressing.symbolToChar(i);
+    }
+
+    static int charToSymbol(char c) {
+        return SGAddressing.charToSymbol(c);
+    }
+
+    static int charToSymbol(String c) {
+        return SGAddressing.charToSymbol(c);
+    }
+
     public boolean isActive() {
         return state != SGState.Idle && state != SGState.Disconnecting;
     }
