@@ -44,5 +44,19 @@
 	"dhd_dial": {"category": "ambient", "sounds": ["sgcraft:dhd_usual_dial"]},
 	"gate_roll": {"category": "ambient", "sounds": ["sgcraft:gate_roll"]},
 	"lock_outgoing": {"category": "ambient", "sounds": ["sgcraft:lock_outgoing"]},
-	"lock_incoming": {"category": "ambient", "sounds": ["sgcraft:lock_incoming"]}
+	"lock_incoming": {"category": "ambient", "sounds": ["sgcraft:lock_incoming"]},
+	"event_horizon": {"category": "ambient", "sounds": ["sgcraft:event_horizon"]},
+	"teleport": {
+		"category": "ambient",
+		"sounds": [
+			"sgcraft:teleport1",
+			"sgcraft:teleport2",
+			"sgcraft:teleport3",
+			"sgcraft:teleport4",
+			"sgcraft:teleport5",
+			"sgcraft:teleport6",
+			"sgcraft:teleport7",
+			"sgcraft:teleport8"
+		]
+	}
 }
