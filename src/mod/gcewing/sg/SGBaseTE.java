@@ -1241,6 +1241,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
         if (debugTeleport)
             System.out.printf("SGBaseTE.teleportEntity: new yaw %.2f\n", a);
         if (!destBlocked) {
+            // Play sound from point of origin gate.
             playTeleportSound(entity.getEntityWorld(), new Vector3(entity.getPositionVector()), entity);
             if (entity.dimension == dimension)
                 newEntity = teleportWithinDimension(entity, q, u, a, destBlocked);
@@ -1259,6 +1260,8 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
             terminateEntityByIrisImpact(entity);
             playIrisHitSound(SGAddressing.getWorld(dimension), q, entity);
         }
+        // Play sound at destination gate.
+        playTeleportSound(entity.getEntityWorld(), new Vector3(entity.getPositionVector()), entity);
         return newEntity;
     }
 
