@@ -834,8 +834,11 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
                         break;
                     case Dialing:
                         if (isInitiator) {
-                            char targetSymbol = dialledAddress.charAt(numEngagedChevrons);
-                            char ownSymbol = homeAddress.charAt(numEngagedChevrons);
+                            char charTargetSymbol = dialledAddress.charAt(numEngagedChevrons);
+                            char charOwnSymbol = homeAddress.charAt(numEngagedChevrons);
+                            String targetSymbol = Character.toString(charTargetSymbol);
+                            String ownSymbol = Character.toString(charOwnSymbol);
+                            // Note:  CC interfaces can't use CHAR!
                             finishDiallingSymbol(targetSymbol, true, true, !symbolsRemaining(true));
                             SGBaseTE targetGate = SGBaseTE.at(connectedLocation);
                             targetGate.finishDiallingSymbol(ownSymbol, false, true, !targetGate.symbolsRemaining(true));
@@ -1048,7 +1051,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
         --numEngagedChevrons;
     }
 
-    void finishDiallingSymbol(char symbol, boolean outgoing, boolean changeState, boolean lastOne) {
+    void finishDiallingSymbol(String symbol, boolean outgoing, boolean changeState, boolean lastOne) {
         ++numEngagedChevrons;
         postEvent("sgChevronEngaged", numEngagedChevrons, symbol);
         if (lastOne) {
@@ -1816,6 +1819,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
     }
 
     void postEvent(String name, Object... args) {
+        //Note: this event expect Strings only, NO CHAR!!!!
         //System.out.printf("SGBaseTE.postEvent: %s from (%s,%s,%s)\n", name,
         //  xCoord, yCoord, zCoord);
         for (TileEntity te : adjacentTiles()) {
