@@ -16,7 +16,7 @@ import net.minecraft.world.*;
 public class SGIrisUpgradeItem extends Item {
 
     @Override
-    public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world,
+    public EnumActionResult onItemUse(EntityPlayer player, World world,
         BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         //System.out.printf("SGIrisUpgradeItem.onItemUse: at %s\n", pos);
@@ -24,7 +24,7 @@ public class SGIrisUpgradeItem extends Item {
         if (block instanceof ISGBlock) {
             SGBaseTE te = ((ISGBlock)block).getBaseTE(world, pos);
             if (te != null)
-                return te.applyIrisUpgrade(stack, player);
+                return te.applyIrisUpgrade(player.getHeldItem(hand), player);
         }
         return EnumActionResult.FAIL;
     }

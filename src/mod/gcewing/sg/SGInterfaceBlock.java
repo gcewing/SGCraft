@@ -12,7 +12,6 @@ import net.minecraft.tileentity.*;
 import net.minecraft.util.*;
 import net.minecraft.util.math.*;
 import net.minecraft.world.*;
-import net.minecraftforge.common.util.*;
 
 public class SGInterfaceBlock<TE extends TileEntity> extends BaseBlock<TE> {
 

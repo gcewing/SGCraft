@@ -6,18 +6,15 @@
 
 package gcewing.sg;
 
-import java.util.*;
-import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.item.*;
-import net.minecraft.nbt.*;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.*;
-import net.minecraft.util.math.*;
-import net.minecraft.world.*;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 import net.minecraft.world.storage.MapStorage;
-
+import net.minecraft.world.storage.WorldSavedData;
 import net.minecraftforge.common.DimensionManager;
+
+import java.util.Collection;
 
 public class BaseUtils {
 
@@ -82,7 +79,10 @@ public class BaseUtils {
     }
     
     public static WorldServer getWorldForDimension(int id) {
-        return getMinecraftServer().worldServerForDimension(id);
+        if (!DimensionManager.isDimensionRegistered(id)) {
+            return null;
+        }
+        return getMinecraftServer().getWorld(id);
     }
     
     public static <T extends WorldSavedData> T getWorldData(World world, Class<T> cls, String name) {

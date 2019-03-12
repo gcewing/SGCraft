@@ -8,7 +8,6 @@ package gcewing.sg;
 
 import net.minecraft.client.renderer.tileentity.*;
 import net.minecraft.tileentity.*;
-import net.minecraft.util.*;
 
 import gcewing.sg. BaseModClient.IRenderTarget;
 
@@ -16,11 +15,12 @@ public abstract class BaseTileEntityRenderer extends TileEntitySpecialRenderer {
 
     protected static BaseGLRenderTarget target = new BaseGLRenderTarget();
 
-    public void renderTileEntityAt(TileEntity te, double x, double y, double z, float dt, int destroyStage) {
+    @Override
+    public void render(TileEntity te, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {
         BaseTileEntity bte = (BaseTileEntity)te;
         Trans3 t = bte.localToGlobalTransformation(Vector3.blockCenter(x, y, z));
         target.start(true);
-        render(bte, dt, destroyStage, t, target);
+        render(bte, partialTicks, destroyStage, t, target);
         target.finish();
     }
     

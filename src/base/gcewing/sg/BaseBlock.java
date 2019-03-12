@@ -13,13 +13,10 @@ import net.minecraft.block.material.*;
 import net.minecraft.block.properties.*;
 import net.minecraft.block.state.*;
 import net.minecraft.client.particle.*;
-import net.minecraft.client.renderer.texture.*;
 import net.minecraft.entity.*;
-import net.minecraft.entity.item.*;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.*;
 import net.minecraft.item.*;
-import net.minecraft.nbt.*;
 import net.minecraft.tileentity.*;
 import net.minecraft.util.*;
 import net.minecraft.util.math.*;
@@ -30,8 +27,6 @@ import net.minecraftforge.fml.relauncher.*;
 
 import static gcewing.sg.BaseMod.*;
 import static gcewing.sg.BaseModClient.*;
-import static gcewing.sg.BaseUtils.*;
-import static gcewing.sg.BaseBlockUtils.*;
 
 public class BaseBlock<TE extends TileEntity>
     extends BlockContainer implements BaseMod.IBlock
@@ -347,8 +342,7 @@ public class BaseBlock<TE extends TileEntity>
     // -------------------------------------------------------------------
 
     @Override
-    public IBlockState onBlockPlaced(World world, BlockPos pos, EnumFacing side, 
-        float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
+    public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)    
     {
         IBlockState state = getOrientationHandler().onBlockPlaced(this, world, pos, side,
             hitX, hitY, hitZ, getStateFromMeta(meta), placer);
@@ -395,9 +389,9 @@ public class BaseBlock<TE extends TileEntity>
         int k = pos.getZ();
         AxisAlignedBB boundingBox = blockState.getBoundingBox(world, pos);
         float f = 0.1F;
-        double d0 = i + RANDOM.nextDouble() * (boundingBox.maxX - boundingBox.minX - (f * 2.0F)) + f + boundingBox.minX;
-        double d1 = j + RANDOM.nextDouble() * (boundingBox.maxY - boundingBox.minY - (f * 2.0F)) + f + boundingBox.minY;
-        double d2 = k + RANDOM.nextDouble() * (boundingBox.maxZ - boundingBox.minZ - (f * 2.0F)) + f + boundingBox.minZ;
+        double d0 = i + RANDOM.nextDouble() * (boundingBox.maxX - boundingBox.minX - (f * 2F)) + f + boundingBox.minX;
+        double d1 = j + RANDOM.nextDouble() * (boundingBox.maxY - boundingBox.minY - (f * 2F)) + f + boundingBox.minY;
+        double d2 = k + RANDOM.nextDouble() * (boundingBox.maxZ - boundingBox.minZ - (f * 2F)) + f + boundingBox.minZ;
         switch (target.sideHit) {
             case DOWN: d1 = j + boundingBox.minY - f; break;
             case UP: d1 = j + boundingBox.maxY + f; break;
@@ -493,8 +487,8 @@ public class BaseBlock<TE extends TileEntity>
 			return super.getBoundingBox(state, world, pos);
 	}
 
-    @Override
     public AxisAlignedBB getCollisionBoundingBox(IBlockState state, World world, BlockPos pos) {
+        // Update: This had an override above the method, may be needed.
         return getBoundingBox(state, world, pos);
     }
 
@@ -513,15 +507,15 @@ public class BaseBlock<TE extends TileEntity>
 
     @Override
 	public void addCollisionBoxToList(IBlockState state, World world, BlockPos pos, 
-		AxisAlignedBB clip, List result, Entity entity)
+		AxisAlignedBB clip, List result, Entity entity, boolean enableStats)
 	{
 		List<AxisAlignedBB> list = getGlobalCollisionBoxes(world, pos, state, entity);
 		if (list != null)
 			for (AxisAlignedBB box : list)
-				if (clip.intersectsWith(box))
+				if (clip.intersects(box))
 					result.add(box);
 	    else
-	        super.addCollisionBoxToList(state, world, pos, clip, result, entity);
+	        super.addCollisionBoxToList(state, world, pos, clip, result, entity, enableStats);
 	}
 
 	protected List<AxisAlignedBB> getGlobalCollisionBoxes(IBlockAccess world, BlockPos pos,
@@ -550,5 +544,4 @@ public class BaseBlock<TE extends TileEntity>
         }
         return null;
 	}
-
 }

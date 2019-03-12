@@ -9,7 +9,6 @@ package gcewing.sg;
 import net.minecraft.entity.player.*;
 import net.minecraft.inventory.*;
 import net.minecraft.item.*;
-import net.minecraft.util.*;
 import net.minecraft.util.math.*;
 import net.minecraft.world.*;
 
@@ -48,6 +47,14 @@ public class DHDFuelContainer extends BaseContainer {
             int y = fuelSlotsY + row * 18;
             addSlotToContainer(new FuelSlot(te, b + i, x, y));
         }
+    }
+
+    @Override
+    protected SlotRange transferSlotRange(int srcSlotIndex, ItemStack stack) {
+        SlotRange range = new SlotRange();
+        range.firstSlot = DHDTE.firstFuelSlot;
+        range.numSlots = DHDTE.numFuelSlots;
+        return range;
     }
     
 //  @Override

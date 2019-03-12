@@ -13,9 +13,9 @@ import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.BlockModelShapes;
 import net.minecraft.client.renderer.BlockModelRenderer;
 import net.minecraft.client.renderer.BlockRendererDispatcher;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
@@ -66,10 +66,10 @@ public class BaseAORenderingManager extends BaseRenderingManager {
                 Trans3 t = Trans3.blockCenter;
                 Block block = state.getBlock();
                 for (BlockRenderLayer layer : BlockRenderLayer.values())
-                    if (block.canRenderInLayer(layer))
+                    if (block.canRenderInLayer(state,layer))
                         rend.renderBlock(world, pos, state, target, layer, t);
                 IBakedModel model = target.getBakedModel();
-                VertexBuffer tess = Tessellator.getInstance().getBuffer();
+                BufferBuilder tess = Tessellator.getInstance().getBuffer();
                 getBlockModelRenderer().renderModel(world, model, state, pos, tess, false); //TODO chould checkSides be false?
             }
             else
@@ -77,7 +77,7 @@ public class BaseAORenderingManager extends BaseRenderingManager {
         }
 
         @Override
-        public boolean renderBlock(IBlockState state, BlockPos pos, IBlockAccess world, VertexBuffer tess) {
+        public boolean renderBlock(IBlockState state, BlockPos pos, IBlockAccess world, BufferBuilder tess) {
             ICustomRenderer rend = getCustomRenderer(world, pos, state);
             if (rend != null)
                 return customRenderBlockToWorld(world, pos, state, tess, null, rend);
@@ -85,7 +85,7 @@ public class BaseAORenderingManager extends BaseRenderingManager {
                 return base.renderBlock(state, pos, world, tess);
         }
         
-        protected boolean customRenderBlockToWorld(IBlockAccess world, BlockPos pos, IBlockState state, VertexBuffer tess,
+        protected boolean customRenderBlockToWorld(IBlockAccess world, BlockPos pos, IBlockState state, BufferBuilder tess,
             TextureAtlasSprite icon, ICustomRenderer rend)
         {
             BaseWorldRenderTarget target = new BaseWorldRenderTarget(world, pos, tess, icon);

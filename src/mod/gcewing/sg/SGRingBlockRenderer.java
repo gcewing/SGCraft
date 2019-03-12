@@ -6,16 +6,11 @@
 
 package gcewing.sg;
 
-import net.minecraft.block.*;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.*;
 import net.minecraft.item.*;
 import net.minecraft.world.*;
-import net.minecraft.world.biome.*;
-import net.minecraft.tileentity.*;
 import net.minecraft.util.*;
 import net.minecraft.util.math.*;
-import net.minecraftforge.common.util.*;
 
 import gcewing.sg.BaseModClient.*;
 
@@ -39,7 +34,7 @@ public class SGRingBlockRenderer implements ICustomRenderer {
                     Item item = stack.getItem();
                     if (item instanceof ItemBlock) {
                         IBlockState camoState = BaseBlockUtils.getBlockStateFromItemStack(stack);
-                        if (camoState.getBlock().canRenderInLayer(layer)) {
+                        if (camoState.getBlock().canRenderInLayer(camoState,layer)) {
                             //System.out.printf("SGRingBlockRenderer: Rendering camouflage block %s at %s in layer %s\n",
                             //    camoState, pos, layer);
                             BaseRenderingManager.renderAlternateBlock(SGCraft.mod.client, world, pos, camoState, target);

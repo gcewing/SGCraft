@@ -6,12 +6,7 @@
 
 package gcewing.sg;
 
-import org.lwjgl.input.*;
-import org.lwjgl.opengl.*;
-
-import net.minecraft.client.gui.*;
 import net.minecraft.entity.player.*;
-import net.minecraft.util.*;
 import net.minecraft.util.math.*;
 import net.minecraft.world.*;
 
@@ -27,10 +22,10 @@ public class SGBaseScreen extends SGScreen {
     static final int fuelGaugeU = 0;
     static final int fuelGaugeV = 208;
     
-    SGBaseTE te;
-    String address;
-    String formattedAddress;
-    boolean addressValid;
+    private SGBaseTE te;
+    private String address;
+    private String formattedAddress;
+    private boolean addressValid;
     
     public static SGBaseScreen create(EntityPlayer player, World world, BlockPos pos) {
         SGBaseTE te = SGBaseTE.at(world, pos);
@@ -46,7 +41,9 @@ public class SGBaseScreen extends SGScreen {
         getAddress();
         if (addressValid) {
             //System.out.printf("SGBaseScreen: Copying address %s to clipboard\n", formattedAddress);
-            setClipboardString(formattedAddress);
+            if (SGCraft.saveAddressToClipboard) {
+                setClipboardString(formattedAddress);
+            }
         }
     }
     
@@ -54,23 +51,7 @@ public class SGBaseScreen extends SGScreen {
     public boolean doesGuiPauseGame() {
         return false;
     }
-    
-//  @Override
-//  protected void keyTyped(char c, int key) {
-//      if (key == Keyboard.KEY_ESCAPE)
-//          close();
-//      else if (key == Keyboard.KEY_BACK || key == Keyboard.KEY_DELETE) {
-//          int n = te.homeAddress.length();
-//          if (n > 0)
-//              setAddress(te.homeAddress.substring(0, n - 1));
-//      }
-//      else {
-//          String s = String.valueOf(c).toUpperCase();
-//          if (SGBaseTE.isValidSymbolChar(s) && te.homeAddress.length() < 7)
-//              setAddress(te.homeAddress + s);
-//      }
-//  }
-    
+
     @Override
     protected void drawBackgroundLayer() {
         bindTexture(SGCraft.mod.resourceLocation("textures/gui/sg_gui.png"), 256, 256);
@@ -89,29 +70,7 @@ public class SGBaseScreen extends SGScreen {
         if (this.te.numCamouflageSlots > 0)
             drawCenteredString("Base Camouflage", 92, 92);
     }
-    
-//  void drawFuelGauge() {
-//      //System.out.printf("SGBaseScreen.drawFuelGauge: energyInBuffer = %s, maxEnergyBuffer = %s\n",
-//      //  te.energyInBuffer, te.maxEnergyBuffer);
-//      double level = fuelGaugeHeight * te.energyInBuffer / te.maxEnergyBuffer;
-//      if (level > fuelGaugeHeight)
-//          level = fuelGaugeHeight;
-//      //System.out.printf("SGBaseScreen.drawFuelGauge: level = %s\n", level);
-//      GL11.glEnable(GL11.GL_BLEND);
-//      drawTexturedRect(fuelGaugeX, fuelGaugeY + fuelGaugeHeight - level,
-//          fuelGaugeWidth, level, fuelGaugeU, fuelGaugeV);
-//      GL11.glDisable(GL11.GL_BLEND);
-//  }
-    
-//  String getAddress() {
-//      try {
-//          return te.getHomeAddress();
-//      }
-//      catch (SGAddressing.AddressingError e) {
-//          return e.getMessage();
-//      }
-//  }
-    
+
     void getAddress() {
         if (te.homeAddress != null) {
             address = te.homeAddress;
@@ -124,5 +83,4 @@ public class SGBaseScreen extends SGScreen {
             addressValid = false;
         }
     }
-
 }

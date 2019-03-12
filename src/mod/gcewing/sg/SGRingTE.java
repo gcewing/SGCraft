@@ -39,7 +39,7 @@ public class SGRingTE extends BaseTileEntity {
     
     public SGBaseTE getBaseTE() {
         if (isMerged) {
-            TileEntity bte = worldObj.getTileEntity(basePos);
+            TileEntity bte = world.getTileEntity(basePos);
             if (bte instanceof SGBaseTE)
                 return (SGBaseTE)bte;
         }

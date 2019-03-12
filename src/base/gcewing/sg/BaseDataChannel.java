@@ -16,14 +16,11 @@ import io.netty.channel.*;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.*;
-import net.minecraft.nbt.*;
 import net.minecraft.network.*;
-import net.minecraft.util.math.BlockPos;
 
 import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
 import net.minecraftforge.fml.common.network.*;
 import net.minecraftforge.fml.common.network.FMLOutboundHandler.OutboundTarget;
-import net.minecraftforge.fml.common.registry.*;
 import net.minecraftforge.fml.relauncher.*;
 
 public class BaseDataChannel {
@@ -92,7 +89,7 @@ public class BaseDataChannel {
     @SideOnly(Side.CLIENT)
     @ClientMessageHandler(".container.")
     public void onClientContainerMessage(ChannelInput data) {
-        EntityPlayer player = Minecraft.getMinecraft().thePlayer;
+        EntityPlayer player = Minecraft.getMinecraft().player;
         String message = data.readUTF();
         doClientDispatch(player.openContainer, message, data);
     }
@@ -418,8 +415,8 @@ public class BaseDataChannel {
             ChannelInput data = new ChannelInputStream(msg.payload());
             if (ctx.channel() == channel.pipes.get(Side.SERVER)) {
                 INetHandler net = ctx.channel().attr(NetworkRegistry.NET_HANDLER).get();
-                EntityPlayer player = ((NetHandlerPlayServer)net).playerEntity;
-                channel.onReceiveFromClient(player, data);
+                EntityPlayer player = ((NetHandlerPlayServer)net).player;
+                player.getServer().addScheduledTask(() -> channel.onReceiveFromClient(player, data));
             }
             else
                 channel.onReceiveFromServer(data);

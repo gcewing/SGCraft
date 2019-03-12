@@ -6,28 +6,22 @@
 
 package gcewing.sg.oc;
 
-import java.util.*;
-import net.minecraft.entity.player.*;
-import net.minecraft.inventory.*;
-import net.minecraft.item.*;
-import net.minecraft.nbt.*;
-import net.minecraft.world.*;
-import net.minecraft.util.*;
-import net.minecraft.util.text.*;
-import net.minecraft.tileentity.*;
-
+import gcewing.sg.IComputerInterface;
+import gcewing.sg.SGBaseTE;
+import gcewing.sg.SGInterfaceTE;
 import li.cil.oc.api.Network;
-import li.cil.oc.api.machine.Value;
 import li.cil.oc.api.machine.Arguments;
-import li.cil.oc.api.machine.Context;
 import li.cil.oc.api.machine.Callback;
-import li.cil.oc.api.network.Environment;
-import li.cil.oc.api.network.Message;
-import li.cil.oc.api.network.Node;
-import li.cil.oc.api.network.Packet;
-import li.cil.oc.api.network.Visibility;
-
-import gcewing.sg.*;
+import li.cil.oc.api.machine.Context;
+import li.cil.oc.api.network.*;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.InventoryBasic;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ITickable;
+import net.minecraft.util.text.ITextComponent;
 
 public class OCInterfaceTE extends SGInterfaceTE
     implements IComputerInterface, Environment, IInventory, ITickable
@@ -76,7 +70,7 @@ public class OCInterfaceTE extends SGInterfaceTE
         if (packet instanceof Packet && hasNetworkCard()) {
             if (node != null) {
                 if (debugNetworking)
-                    System.out.printf("OCInterfaceTE.rebroadcastNetworkPacket\n");
+                    System.out.print("OCInterfaceTE.rebroadcastNetworkPacket\n");
                 node.sendToReachable("network.message", packet);
             }
         }
@@ -188,7 +182,7 @@ public class OCInterfaceTE extends SGInterfaceTE
      *       // If you do not need energy remove this call.
      *       .withConnector()
      *       // This call marks the tile entity as a component. This means you
-     *       // can mark methods in it using the {@link li.cil.oc.api.network.Callback}
+     *       // can mark methods in it using the {@link li.cil.oc.api.machine.Callback}
      *       // annotation, making them callable from user code. The first
      *       // parameter is the name by which the component will be known in
      *       // the computer, in this case it could be accessed as
@@ -247,7 +241,7 @@ public class OCInterfaceTE extends SGInterfaceTE
                 System.out.printf("OCInterfaceTE.onMessage from %s: %s", msg.source(), msg.name());
                 for (Object obj : msg.data())
                     System.out.printf(" %s", obj);
-                System.out.printf("\n");
+                System.out.print("\n");
             }
                 forwardNetworkPacket((Packet)msg.data()[0]);
         }
@@ -323,6 +317,7 @@ public class OCInterfaceTE extends SGInterfaceTE
 
     // -------------------------- IComputerInterface --------------------------
 
+    @Override
     public void postEvent(TileEntity source, String name, Object... args) {
         //System.out.printf("OCInterfaceTE.postEvent: %s to %s\n", name, node);
         if (node != null)
@@ -343,7 +338,13 @@ public class OCInterfaceTE extends SGInterfaceTE
     public int getSizeInventory() {
         IInventory inventory = getInventory();
         return (inventory != null) ? inventory.getSizeInventory() : 0;
-    }   
+    }
+
+    @Override
+    public boolean isEmpty() {
+        IInventory inventory = getInventory();
+        return inventory == null || inventory.isEmpty();
+    }
 
     /**
      * Returns the stack in slot i
@@ -412,9 +413,9 @@ public class OCInterfaceTE extends SGInterfaceTE
      * Do not make give this method the name canInteractWith because it clashes with Container
      */
     @Override
-    public boolean isUseableByPlayer(EntityPlayer player) {
+    public boolean isUsableByPlayer(EntityPlayer player) {
         IInventory inventory = getInventory();
-        return (inventory != null) ? inventory.isUseableByPlayer(player) : true;
+        return (inventory == null) || inventory.isUsableByPlayer(player);
     }
 
     @Override

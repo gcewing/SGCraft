@@ -6,10 +6,6 @@
 
 package gcewing.sg;
 
-import net.minecraft.client.gui.*;
-import net.minecraft.entity.player.*;
-import net.minecraft.world.*;
-
 // import gcewing.sg.ic2.*; //[IC2]
 
 public class SGCraftClient extends BaseModClient<SGCraft> {
@@ -37,7 +33,7 @@ public class SGCraftClient extends BaseModClient<SGCraft> {
     
     @Override
     protected void registerEntityRenderers() {
-        addEntityRenderer(IrisEntity.class, IrisRenderer.class);
+        addEntityRenderer(EntityStargateIris.class, IrisRenderer.class);
     }
 
 }

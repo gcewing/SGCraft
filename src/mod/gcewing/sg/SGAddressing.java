@@ -26,12 +26,11 @@
 
 package gcewing.sg;
 
-import net.minecraft.tileentity.*;
-import net.minecraft.world.*;
-import net.minecraft.world.chunk.*;
-import net.minecraft.server.*;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
+import net.minecraft.world.chunk.Chunk;
 
-import net.minecraftforge.common.*;
+import javax.annotation.Nullable;
 
 public class SGAddressing {
 
@@ -40,9 +39,6 @@ public class SGAddressing {
     static class AddressingError extends Exception {
         AddressingError(String s) {super(s);}
     }
-    static AddressingError malformedAddressError = new AddressingError("Malformed stargate address");
-    static AddressingError coordRangeError = new AddressingError("Coordinates out of stargate range");
-    static AddressingError dimensionRangeError = new AddressingError("Dimension not reachable by stargate");
 
     public final static String symbolChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     public final static int numSymbols = symbolChars.length();
@@ -103,7 +99,7 @@ public class SGAddressing {
         if ((l ==  numCoordSymbols || l == numCoordSymbols + numDimensionSymbols)
             && validSymbols(s))
                 return;
-        throw malformedAddressError;
+        throw new AddressingError("malformedAddress");
     }
     
     public static String normalizeAddress(String address) {
@@ -150,12 +146,12 @@ public class SGAddressing {
         int chunkx = loc.pos.getX() >> 4;
         int chunkz = loc.pos.getZ() >> 4;
         if (!inCoordRange(chunkx) || !inCoordRange(chunkz))
-            throw coordRangeError;
+            throw new AddressingError("targetOutOfRange");
 //         if (!inDimensionRange(loc.dimension))
 //             throw dimensionRangeError;
         Integer di = SGDimensionMap.indexForDimension(loc.dimension);
         if (di > maxDimensionIndex)
-            throw dimensionRangeError;
+            throw new AddressingError("dimensionTooFar");
         long c = interleaveCoords(hash(chunkx - minCoord, pc, mc), hash(chunkz - minCoord, pc, mc));
 //         int d = hash(loc.dimension - minDimension, pd, md);
         int dp = permuteDimension(c, di);
@@ -212,7 +208,7 @@ public class SGAddressing {
     protected static SGBaseTE getBaseTE(int chunkX, int chunkZ, int dimension) {
         World toWorld = getWorld(dimension);
         if (toWorld != null) {
-            Chunk chunk = toWorld.getChunkFromChunkCoords(chunkX, chunkZ);
+            Chunk chunk = toWorld.getChunk(chunkX, chunkZ);
             if (chunk != null)
                 for (Object te : chunk.getTileEntityMap().values()) {
                     if (te instanceof SGBaseTE)
@@ -264,10 +260,9 @@ public class SGAddressing {
             System.out.printf("SGAddressing.hash(%s, %s, %s) = %s\n", i, f, m, h);
         return h;
     }
-                
+
+    @Nullable
     public static WorldServer getWorld(int dimension) {
-//         MinecraftServer server = BaseUtils.getMinecraftServer();
-//         return server.worldServerForDimension(dimension);
         return BaseUtils.getWorldForDimension(dimension);
     }
     

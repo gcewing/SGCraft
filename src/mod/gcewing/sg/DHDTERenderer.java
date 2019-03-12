@@ -6,15 +6,12 @@
 
 package gcewing.sg;
 
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL12.*;
-import net.minecraft.util.*;
-
-import net.minecraft.client.renderer.tileentity.*;
-import net.minecraft.tileentity.*;
-
-import gcewing.sg.BaseModClient.*;
-import gcewing.sg.BaseTexture.*;
+import gcewing.sg.BaseModClient.IModel;
+import gcewing.sg.BaseModClient.IRenderTarget;
+import gcewing.sg.BaseModClient.ITexture;
+import gcewing.sg.BaseModClient.ITiledTexture;
+import gcewing.sg.BaseTexture.Image;
+import net.minecraft.util.ResourceLocation;
 
 class DHDTERenderer extends BaseTileEntityRenderer {
 
@@ -43,7 +40,7 @@ class DHDTERenderer extends BaseTileEntityRenderer {
             button.colored(0.5, 0.25, 0.0),
             button.colored(1.0, 0.5, 0.0).emissive(),
         };
-        model = BaseModel.fromResource(mod.resourceLocation("models/dhd.smeg"));
+        model = BaseModel.fromResource(mod.resourceLocation("models/block/dhd.smeg"));
         DHDTE.bounds = model.getBounds();
     }
     

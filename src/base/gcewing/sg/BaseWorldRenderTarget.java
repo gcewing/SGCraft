@@ -6,25 +6,16 @@
 
 package gcewing.sg;
 
-import java.util.*;
-import java.nio.*;
 import static java.lang.Math.*;
 
 import net.minecraft.block.*;
 import net.minecraft.block.state.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.block.model.*;
 import net.minecraft.client.renderer.texture.*;
-import net.minecraft.client.renderer.block.model.*;
-import net.minecraft.item.*;
-import net.minecraft.util.*;
 import net.minecraft.util.math.*;
 import net.minecraft.world.*;
 
-import net.minecraftforge.client.model.*;
-
-import gcewing.sg.BaseModClient.ITexture;
 import static gcewing.sg.BaseUtils.*;
 
 public class BaseWorldRenderTarget extends BaseRenderTarget {
@@ -33,7 +24,7 @@ public class BaseWorldRenderTarget extends BaseRenderTarget {
     protected BlockPos blockPos;
     protected IBlockState blockState;
     protected Block block;
-    protected VertexBuffer tess;
+    protected BufferBuilder tess;
     protected float cmr = 1, cmg = 1, cmb = 1;
     protected boolean ao;
     protected boolean axisAlignedNormal;
@@ -41,7 +32,7 @@ public class BaseWorldRenderTarget extends BaseRenderTarget {
     protected float vr, vg, vb, va; // Colour to be applied to next vertex
     protected int vlm1, vlm2; // Light map values to be applied to next vertex
     
-    public BaseWorldRenderTarget(IBlockAccess world, BlockPos pos, VertexBuffer tess, TextureAtlasSprite overrideIcon) {
+    public BaseWorldRenderTarget(IBlockAccess world, BlockPos pos, BufferBuilder tess, TextureAtlasSprite overrideIcon) {
         super(pos.getX(), pos.getY(), pos.getZ(), overrideIcon);
         //System.out.printf("BaseWorldRenderTarget(%s)\n", pos);
         this.world = world;
@@ -53,7 +44,7 @@ public class BaseWorldRenderTarget extends BaseRenderTarget {
         expandTrianglesToQuads = true;
     }
     
-    VertexBuffer getWorldRenderer() {
+    BufferBuilder getWorldRenderer() {
         return tess;
     }
 
@@ -132,7 +123,7 @@ public class BaseWorldRenderTarget extends BaseRenderTarget {
                             lv = state.getBlock().getAmbientOcclusionLightValue(state);
                         }
                         else
-                            lv = 1.0f;
+                            lv = 1F;
                         //System.out.printf("BaseWorldRenderTarget.aoLightVertex: (%s,%s,%s) br = 0x%08x lv = %.3f w = %.3f\n", X, Y, Z, br, lv, w);
                         if (br != 0) {
                             double br1 = ((br >> 16) & 0xff) / 240.0;

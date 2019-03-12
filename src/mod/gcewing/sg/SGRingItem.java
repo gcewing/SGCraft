@@ -8,7 +8,6 @@ package gcewing.sg;
 
 import net.minecraft.block.*;
 import net.minecraft.item.*;
-import net.minecraft.util.*;
 
 public class SGRingItem extends ItemBlock {
 
@@ -23,8 +22,8 @@ public class SGRingItem extends ItemBlock {
     }
     
     @Override
-    public String getUnlocalizedName(ItemStack stack) {
-        return String.format("%s.%s", super.getUnlocalizedName(stack), stack.getItemDamage());
+    public String getTranslationKey(ItemStack stack) {
+        return String.format("%s.%s", super.getTranslationKey(stack), stack.getItemDamage());
     }
     
 }

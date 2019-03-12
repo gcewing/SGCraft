@@ -88,19 +88,23 @@ public class BaseContainer extends Container {
     // mergeItemStack as appropriate.
     @Override
     public ItemStack transferStackInSlot(EntityPlayer player, int index) {
-        ItemStack result = null;
+        ItemStack result = ItemStack.EMPTY;
         Slot slot = inventorySlots.get(index);
         ItemStack stack = slot.getStack();
         if (slot != null && slot.getHasStack()) {
             SlotRange destRange = transferSlotRange(index, stack);
             if (destRange != null) {
-                result = stack.copy();
-                if (!mergeItemStackIntoRange(stack, destRange))
-                    return null;
-                if (stack.stackSize == 0)
-                    slot.putStack(null);
+                if (index >= destRange.numSlots) {
+                    result = stack.copy();
+                    if (!mergeItemStackIntoRange(stack, destRange))
+                        return ItemStack.EMPTY;
+                    if (stack.getCount() == 0)
+                        slot.putStack(ItemStack.EMPTY);
+                    else
+                        slot.onSlotChanged();
+                }
                 else
-                    slot.onSlotChanged();
+                    player.inventory.addItemStackToInventory(stack);
             }
         }
         return result;
