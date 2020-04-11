@@ -487,11 +487,11 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
     
     //--------------- Dungeon loot ----------------------------------------------------------
 
-    public void addRandomChestItem(ItemStack stack, int minQty, int maxQty, int weight, String... category) {
-        WeightedRandomChestContent item = new WeightedRandomChestContent(stack, minQty, maxQty, weight);
-        for (int i = 0; i < category.length; i++)
-            ChestGenHooks.addItem(category[i], item);
-    }
+    //public void addRandomChestItem(ItemStack stack, int minQty, int maxQty, int weight, String... category) {
+    //    WeightedRandomChestContent item = new WeightedRandomChestContent(stack, minQty, maxQty, weight);
+    //    for (int i = 0; i < category.length; i++)
+    //        ChestGenHooks.addItem(category[i], item);
+    //}
 
     //--------------- Entity registration ----------------------------------------------------------
 

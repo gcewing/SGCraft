@@ -230,20 +230,20 @@ public class SGCraft extends BaseMod<SGCraftClient> {
         addContainer(SGGui.PowerUnit, PowerContainer.class);
     }
 
-    @Override
-    protected void registerRandomItems() {
-        String[] categories = {ChestGenHooks.MINESHAFT_CORRIDOR,
-            ChestGenHooks.PYRAMID_DESERT_CHEST, ChestGenHooks.PYRAMID_JUNGLE_CHEST,
-            ChestGenHooks.STRONGHOLD_LIBRARY, ChestGenHooks.VILLAGE_BLACKSMITH};
+    //@Override
+    //protected void registerRandomItems() {
+        //String[] categories = {ChestGenHooks.MINESHAFT_CORRIDOR,
+            //ChestGenHooks.PYRAMID_DESERT_CHEST, ChestGenHooks.PYRAMID_JUNGLE_CHEST,
+            //ChestGenHooks.STRONGHOLD_LIBRARY, ChestGenHooks.VILLAGE_BLACKSMITH};
         //addRandomChestItem(new ItemStack(sgBaseBlock), 1, 1, 2, categories);
         //addRandomChestItem(new ItemStack(sgControllerBlock), 1, 1, 1, categories);
         //addRandomChestItem(new ItemStack(sgRingBlock, 1, 0), 1, 3, 8, categories);
         //addRandomChestItem(new ItemStack(sgRingBlock, 1, 1), 1, 3, 7, categories);
-        addRandomChestItem(new ItemStack(sgCoreCrystal), 1, 1, 2, categories);
-        addRandomChestItem(new ItemStack(sgControllerCrystal), 1, 1, 1, categories);
+        //addRandomChestItem(new ItemStack(sgCoreCrystal), 1, 1, 2, categories);
+        //addRandomChestItem(new ItemStack(sgControllerCrystal), 1, 1, 1, categories);
         //addRandomChestItem(new ItemStack(sgChevronUpgrade), 1, 1, 1, categories);
         //addRandomChestItem(new ItemStack(sgIrisBlade), 1, 1, 1, categories);
-    }
+    //}
     
     @Override
     protected void registerWorldGenerators() {
