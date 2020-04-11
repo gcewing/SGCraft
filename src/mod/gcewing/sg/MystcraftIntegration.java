@@ -15,7 +15,7 @@ public class MystcraftIntegration extends BaseSubsystem {
 
     public void sendAgeData(World world, EntityPlayer player) {
         if (world.provider instanceof WorldProviderMyst)
-            NetworkUtils.sendAgeData(world, player, world.provider.dimensionId);
+            NetworkUtils.sendAgeData(player, world.provider.dimensionId);
     }
 
 }
