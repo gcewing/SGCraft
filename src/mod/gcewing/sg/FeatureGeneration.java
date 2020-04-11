@@ -6,23 +6,24 @@
 
 package gcewing.sg;
 
-import java.util.*;
-import java.lang.reflect.Field;
-import net.minecraft.world.gen.feature.*;
 import net.minecraft.world.gen.structure.*;
+import net.minecraftforge.event.terraingen.InitMapGenEvent;
 
-import net.minecraftforge.event.terraingen.*;
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.LinkedList;
 
-import static gcewing.sg.BaseUtils.*;
+import static gcewing.sg.BaseUtils.getFieldDef;
+import static gcewing.sg.BaseUtils.setField;
 
 public class FeatureGeneration {
 
     public static boolean augmentStructures = false;
     public static boolean debugStructures = false;
-    
-    static Field structureMap = getFieldDef(MapGenStructure.class,
-        "structureMap", "field_75053_d");
-    
+
+    static final Field structureMap = getFieldDef(MapGenStructure.class,
+            "structureMap", "field_75053_d");
+
     public static void configure(BaseConfiguration config) {
         augmentStructures = config.getBoolean("options", "augmentStructures", augmentStructures);
         debugStructures = config.getBoolean("debug", "debugStructures", debugStructures);
@@ -30,13 +31,11 @@ public class FeatureGeneration {
 
     public static void onInitMapGen(InitMapGenEvent e) {
         if (augmentStructures) {
-            switch (e.type) {
-                case SCATTERED_FEATURE:
-                    if (e.newGen instanceof MapGenStructure)
-                        e.newGen = modifyScatteredFeatureGen((MapGenStructure)e.newGen);
-                    else
-                        System.out.printf("SGCraft: FeatureGeneration: SCATTERED_FEATURE generator is not a MapGenStructure, cannot customise\n");
-                    break;
+            if (e.type == InitMapGenEvent.EventType.SCATTERED_FEATURE) {
+                if (e.newGen instanceof MapGenStructure)
+                    modifyScatteredFeatureGen((MapGenStructure) e.newGen);
+                else
+                    System.out.print("SGCraft: FeatureGeneration: SCATTERED_FEATURE generator is not a MapGenStructure, cannot customise\n");
             }
         }
     }
@@ -49,27 +48,27 @@ public class FeatureGeneration {
 
 }
 
-class SGStructureMap extends HashMap {
+class SGStructureMap<K, V> extends HashMap<K, V> {
 
     @Override
-    public Object put(Object key, Object value) {
+    public V put(K key, V value) {
         //System.out.printf("SGCraft: FeatureGeneration: SGStructureMap.put: %s\n", value);
         if (value instanceof StructureStart)
-            augmentStructureStart((StructureStart)value);
+            augmentStructureStart((StructureStart) value);
         return super.put(key, value);
     }
-    
+
     void augmentStructureStart(StructureStart start) {
         LinkedList oldComponents = start.getComponents();
         LinkedList newComponents = new LinkedList();
         for (Object comp : oldComponents) {
             //System.out.printf("SGCraft: FeatureGeneration: Found component %s\n", comp);
             if (comp instanceof ComponentScatteredFeaturePieces.DesertPyramid) {
-                StructureBoundingBox box = ((StructureComponent)comp).getBoundingBox();
+                StructureBoundingBox box = ((StructureComponent) comp).getBoundingBox();
                 if (FeatureGeneration.debugStructures)
                     System.out.printf("SGCraft: FeatureGeneration: Augmenting %s at (%s, %s)\n",
-                        comp.getClass().getSimpleName(), box.getCenterX(), box.getCenterZ());
-                newComponents.add(new FeatureUnderDesertPyramid((ComponentScatteredFeaturePieces.DesertPyramid)comp));
+                            comp.getClass().getSimpleName(), box.getCenterX(), box.getCenterZ());
+                newComponents.add(new FeatureUnderDesertPyramid((ComponentScatteredFeaturePieces.DesertPyramid) comp));
             }
         }
         oldComponents.addAll(newComponents);

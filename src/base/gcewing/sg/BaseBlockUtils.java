@@ -7,34 +7,35 @@
 package gcewing.sg;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.Collection;
-
-import net.minecraft.block.*;
-import net.minecraft.block.material.*;
-// import net.minecraft.block.state.*;
-import net.minecraft.client.renderer.texture.*;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.block.Block;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.*;
-import net.minecraft.nbt.*;
-import net.minecraft.tileentity.*;
-import net.minecraft.util.*;
-import net.minecraft.world.*;
-import net.minecraftforge.common.util.*;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.IIcon;
+import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
 
-import cpw.mods.fml.relauncher.*;
+import java.util.Collection;
 
-import static gcewing.sg.BaseUtils.*;
+import static gcewing.sg.BaseUtils.facings;
+import static gcewing.sg.BaseUtils.oppositeFacing;
+
 
 public class BaseBlockUtils {
 
     public static String getNameForBlock(Block block) {
         if (block != null)
-            return Block.blockRegistry.getNameForObject(block).toString();
+            return Block.blockRegistry.getNameForObject(block);
         else
             return "";
     }
-    
+
     /*
      *   Test whether a block is receiving a redstone signal from a source
      *   other than itself. For blocks that can both send and receive in
@@ -43,11 +44,11 @@ public class BaseBlockUtils {
     public static boolean blockIsGettingExternallyPowered(World world, BlockPos pos) {
         for (EnumFacing side : facings) {
             if (isPoweringSide(world, pos.offset(side), side))
-                    return true;
+                return true;
         }
         return false;
     }
-    
+
     static boolean isPoweringSide(World world, BlockPos pos, EnumFacing side) {
         Block block = world.getBlock(pos.x, pos.y, pos.z);
         if (block.isProvidingWeakPower(world, pos.x, pos.y, pos.z, side.ordinal()) > 0)
@@ -63,74 +64,74 @@ public class BaseBlockUtils {
         }
         return false;
     }
-    
+
     public static IBlockState getBlockStateFromItemStack(ItemStack stack) {
         Block block = Block.getBlockFromItem(stack.getItem());
         int meta = 0;
         if (stack.getItem().getHasSubtypes())
             meta = stack.getItem().getMetadata(stack.getItemDamage());
         if (block instanceof BaseBlock)
-            return ((BaseBlock)block).getStateFromMeta(meta);
+            return ((BaseBlock) block).getStateFromMeta(meta);
         else
             return new MetaBlockState(block, meta);
     }
-    
+
     public static IBlockState getBlockStateFromMeta(Block block, int meta) {
         if (block instanceof BaseBlock)
-            return ((BaseBlock)block).getStateFromMeta(meta);
+            return ((BaseBlock) block).getStateFromMeta(meta);
         else
             return new MetaBlockState(block, meta);
     }
-    
+
     public static int getMetaFromBlockState(IBlockState state) {
         if (state instanceof MetaBlockState)
-            return ((MetaBlockState)state).meta;
+            return ((MetaBlockState) state).meta;
         else
-            return ((BaseBlock)state.getBlock()).getMetaFromState(state);
+            return ((BaseBlock) state.getBlock()).getMetaFromState(state);
     }
-    
+
     public static Block getWorldBlock(IBlockAccess world, BlockPos pos) {
         return world.getBlock(pos.x, pos.y, pos.z);
     }
-    
+
     public static IBlockState getWorldBlockState(IBlockAccess world, BlockPos pos) {
         Block block = world.getBlock(pos.x, pos.y, pos.z);
         int meta = world.getBlockMetadata(pos.x, pos.y, pos.z);
         if (block instanceof BaseBlock)
-            return ((BaseBlock)block).getStateFromMeta(meta);
+            return ((BaseBlock) block).getStateFromMeta(meta);
         else
             return new MetaBlockState(block, meta);
     }
-    
+
     public static boolean setWorldBlockState(World world, BlockPos pos, IBlockState state, int flags) {
         Block block = state.getBlock();
         int meta = getMetaFromBlockState(state);
         return world.setBlock(pos.x, pos.y, pos.z, block, meta, flags);
     }
-    
+
     public static void markWorldBlockForUpdate(World world, BlockPos pos) {
         world.markBlockForUpdate(pos.x, pos.y, pos.z);
-    }   
-    
+    }
+
     public static void notifyWorldNeighborsOfStateChange(World world, BlockPos pos, Block block) {
         world.notifyBlocksOfNeighborChange(pos.x, pos.y, pos.z, block);
-    }   
-    
+    }
+
     public static TileEntity getWorldTileEntity(IBlockAccess world, BlockPos pos) {
         return world.getTileEntity(pos.x, pos.y, pos.z);
     }
-    
+
     public static World getTileEntityWorld(TileEntity te) {
         return te.getWorldObj();
     }
-    
+
     public static BlockPos getTileEntityPos(TileEntity te) {
         return new BlockPos(te.xCoord, te.yCoord, te.zCoord);
     }
-    
+
     public static boolean blockCanRenderInLayer(Block block, EnumWorldBlockLayer layer) {
         if (block instanceof BaseBlock)
-            return ((BaseBlock)block).canRenderInLayer(layer);
+            return ((BaseBlock) block).canRenderInLayer(layer);
         else
             switch (layer) {
                 case SOLID:
@@ -141,10 +142,10 @@ public class BaseBlockUtils {
                     return false;
             }
     }
-    
+
     public static IBlockState getDefaultBlockState(Block block) {
         if (block instanceof BaseBlock)
-            return ((BaseBlock)block).getDefaultState();
+            return ((BaseBlock) block).getDefaultState();
         else
             return new MetaBlockState(block, 0);
     }
@@ -155,17 +156,17 @@ public class BaseBlockUtils {
         int stateId = (meta << 12) | Block.getIdFromBlock(block);
         world.playAuxSFX(fxId, pos.getX(), pos.getY(), pos.getZ(), stateId);
     }
-    
+
     public static float getBlockHardness(Block block, World world, BlockPos pos) {
         return block.getBlockHardness(world, pos.x, pos.y, pos.z);
     }
-    
+
     public static String getBlockHarvestTool(IBlockState state) {
         Block block = state.getBlock();
         int meta = getMetaFromBlockState(state);
         return block.getHarvestTool(meta);
     }
-    
+
     public static int getBlockHarvestLevel(IBlockState state) {
         Block block = state.getBlock();
         int meta = getMetaFromBlockState(state);
@@ -177,27 +178,26 @@ public class BaseBlockUtils {
         int meta = getMetaFromBlockState(state);
         return player.getBreakSpeed(block, false, meta, pos.x, pos.y, pos.z);
     }
-    
+
     @SideOnly(Side.CLIENT)
     public static IIcon getSpriteForBlockState(IBlockState state) {
         if (state != null) {
             Block block = state.getBlock();
             int meta = getMetaFromBlockState(state);
             return block.getIcon(2, meta);
-        }
-        else
+        } else
             return null;
     }
-    
+
     public static void spawnBlockStackAsEntity(World world, BlockPos pos, ItemStack stack) {
         spawnItemStackAsEntity(world, pos, stack);
     }
 
     public static void spawnItemStackAsEntity(World world, BlockPos pos, ItemStack stack) {
         float var6 = 0.7F;
-        double var7 = (double)(world.rand.nextFloat() * var6) + (double)(1.0F - var6) * 0.5D;
-        double var9 = (double)(world.rand.nextFloat() * var6) + (double)(1.0F - var6) * 0.5D;
-        double var11 = (double)(world.rand.nextFloat() * var6) + (double)(1.0F - var6) * 0.5D;
+        double var7 = (double) (world.rand.nextFloat() * var6) + (double) (1.0F - var6) * 0.5D;
+        double var9 = (double) (world.rand.nextFloat() * var6) + (double) (1.0F - var6) * 0.5D;
+        double var11 = (double) (world.rand.nextFloat() * var6) + (double) (1.0F - var6) * 0.5D;
         EntityItem var13 = new EntityItem(world, pos.x + var7, pos.y + var9, pos.z + var11, stack);
         var13.delayBeforeCanPickup = 10;
         world.spawnEntityInWorld(var13);
@@ -208,7 +208,7 @@ public class BaseBlockUtils {
         int meta = getMetaFromBlockState(state);
         return new ItemStack(block, size, meta);
     }
-    
+
     public static ItemStack newBlockStack(IBlockState state) {
         Block block = state.getBlock();
         int meta = BaseBlockUtils.getMetaFromBlockState(state);
@@ -218,7 +218,7 @@ public class BaseBlockUtils {
         }
         return null;
     }
-    
+
     public static NBTTagCompound nbtFromBlockPos(BlockPos pos) {
         NBTTagCompound nbt = new NBTTagCompound();
         nbt.setInteger("x", pos.getX());
@@ -226,28 +226,42 @@ public class BaseBlockUtils {
         nbt.setInteger("z", pos.getZ());
         return nbt;
     }
-    
+
     public static BlockPos blockPosFromNBT(NBTTagCompound nbt) {
         return new BlockPos(nbt.getInteger("x"), nbt.getInteger("y"), nbt.getInteger("z"));
     }
-    
+
     //------------------------------------------------------------------------------------------------
 
     protected static class MetaBlockState implements IBlockState {
-    
-        protected Block block;
-        public int meta;
-        
+
+        public final int meta;
+        protected final Block block;
+
         public MetaBlockState(Block block, int meta) {
             this.block = block;
             this.meta = meta;
         }
-    
-        public Collection<IProperty> getPropertyNames() {return null;}
-        public <T extends Comparable<T>> T getValue(IProperty<T> property) {return null;}
-        public <T extends Comparable<T>, V extends T> IBlockState withProperty(IProperty<T> property, V value) {return null;}
-        public <T extends Comparable<T>> IBlockState cycleProperty(IProperty<T> property) {return null;}
-        public ImmutableMap<IProperty, Comparable> getProperties() {return null;}
+
+        public Collection<IProperty> getPropertyNames() {
+            return null;
+        }
+
+        public <T extends Comparable<T>> T getValue(IProperty<T> property) {
+            return null;
+        }
+
+        public <T extends Comparable<T>, V extends T> IBlockState withProperty(IProperty<T> property, V value) {
+            return null;
+        }
+
+        public <T extends Comparable<T>> IBlockState cycleProperty(IProperty<T> property) {
+            return null;
+        }
+
+        public ImmutableMap<IProperty, Comparable> getProperties() {
+            return null;
+        }
 
         public Block getBlock() {
             return block;
