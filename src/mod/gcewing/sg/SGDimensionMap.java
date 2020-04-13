@@ -5,33 +5,39 @@
 //------------------------------------------------------------------------------------------------
 package gcewing.sg;
 
-import java.util.*;
 import com.google.common.primitives.Ints;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldSavedData;
 
-import net.minecraft.nbt.*;
-import net.minecraft.world.*;
-import net.minecraft.world.storage.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-//import net.minecraftforge.common.*;
 
 public class SGDimensionMap extends WorldSavedData {
 
-    public static boolean debugDimensionMap = false;
+    public static final boolean debugDimensionMap = false;
 
-    protected List<Integer> indexToDimension = new ArrayList<>();
-    protected Map<Integer, Integer> dimensionToIndex = new HashMap<>();
-    
+    protected final List<Integer> indexToDimension = new ArrayList<>();
+    protected final Map<Integer, Integer> dimensionToIndex = new HashMap<>();
+
     public SGDimensionMap(String name) {
         super(name);
     }
-    
+
     public static SGDimensionMap get() {
         World world = BaseUtils.getWorldForDimension(0);
         return BaseUtils.getWorldData(world, SGDimensionMap.class, "sgcraft:dimension_map");
     }
-    
+
     public static Integer dimensionForIndex(int index) {
         return get().getDimensionForIndex(index);
+    }
+
+    public static Integer indexForDimension(int dimension) {
+        return get().getIndexForDimension(dimension);
     }
 
     protected Integer getDimensionForIndex(int index) {
@@ -41,10 +47,6 @@ public class SGDimensionMap extends WorldSavedData {
         if (debugDimensionMap)
             System.out.printf("SGDimensionMap: Found index %s -> dimension %s\n", index, dimension);
         return dimension;
-    }
-    
-    public static Integer indexForDimension(int dimension) {
-        return get().getIndexForDimension(dimension);
     }
 
     protected Integer getIndexForDimension(int dimension) {
@@ -56,30 +58,29 @@ public class SGDimensionMap extends WorldSavedData {
             dimensionToIndex.put(dimension, index);
             markDirty();
             return index;
-        }
-        else {
+        } else {
             int index = dimensionToIndex.get(dimension);
             if (debugDimensionMap)
                 System.out.printf("SGDimensionMap: Found dimension %s -> index %s\n", dimension, index);
             return index;
         }
     }
-    
+
     @Override
     public void readFromNBT(NBTTagCompound nbt) {
         if (debugDimensionMap)
-            System.out.printf("SGDimensionMap: Reading from nbt\n");
+            System.out.print("SGDimensionMap: Reading from nbt\n");
         int[] a = nbt.getIntArray("dimensions");
         for (int i = 0; i < a.length; i++) {
             indexToDimension.add(a[i]);
             dimensionToIndex.put(a[i], i);
         }
     }
-    
+
     @Override
     public void writeToNBT(NBTTagCompound nbt) {
         if (debugDimensionMap)
-            System.out.printf("SGDimensionMap: Writing to nbt\n");
+            System.out.print("SGDimensionMap: Writing to nbt\n");
         int[] a = Ints.toArray(indexToDimension);
         nbt.setIntArray("dimensions", a);
     }

@@ -6,19 +6,23 @@
 
 package gcewing.sg;
 
-import net.minecraft.block.*;
-// import net.minecraft.block.state.*;
+import net.minecraft.block.Block;
 import net.minecraft.client.renderer.RenderBlocks;
-import net.minecraft.tileentity.*;
-import net.minecraft.world.*;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.biome.BiomeGenBase;
-
 import net.minecraftforge.common.util.ForgeDirection;
 
-import static gcewing.sg.BaseBlockUtils.*;
-import static gcewing.sg.BaseModClient.*;
+import static gcewing.sg.BaseBlockUtils.getMetaFromBlockState;
+import static gcewing.sg.BaseModClient.IRenderTarget;
+
 
 public class BaseRenderingUtils {
+
+    protected static final AltBlockAccess altBlockAccess = new AltBlockAccess();
+    protected static final RenderBlocks altRenderBlocks = new RenderBlocks(altBlockAccess);
+
+    //------------------------------------------------------------------------------------------------
 
     public static void renderAlternateBlock(BaseMod mod, IBlockAccess world, BlockPos pos, IBlockState state, IRenderTarget target) {
         Block block = state.getBlock();
@@ -30,21 +34,16 @@ public class BaseRenderingUtils {
         if (!block.hasTileEntity(meta)) {
             altBlockAccess.setup(world, x, y, z, meta);
             altRenderBlocks.renderBlockAllFaces(block, x, y, z);
-            ((BaseWorldRenderTarget)target).setRenderingOccurred();
+            ((BaseWorldRenderTarget) target).setRenderingOccurred();
         }
     }
-
-    //------------------------------------------------------------------------------------------------
-
-    protected static AltBlockAccess altBlockAccess = new AltBlockAccess();
-    protected static RenderBlocks altRenderBlocks = new RenderBlocks(altBlockAccess);
 
     protected static class AltBlockAccess implements IBlockAccess {
 
         IBlockAccess base;
         int targetX, targetY, targetZ;
         int metadata;
-    
+
         void setup(IBlockAccess base, int x, int y, int z, int data) {
             this.base = base;
             targetX = x;
@@ -52,7 +51,7 @@ public class BaseRenderingUtils {
             targetZ = z;
             metadata = data;
         }
-    
+
         public Block getBlock(int x, int y, int z) {
             return base.getBlock(x, y, z);
         }

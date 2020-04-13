@@ -6,166 +6,29 @@
 
 package gcewing.sg.oc;
 
-import java.util.*;
-import net.minecraft.entity.player.*;
-import net.minecraft.inventory.*;
-import net.minecraft.item.*;
-import net.minecraft.nbt.*;
-import net.minecraft.world.*;
-import net.minecraft.tileentity.*;
-
+import gcewing.sg.IComputerInterface;
+import gcewing.sg.ITickable;
+import gcewing.sg.SGBaseTE;
+import gcewing.sg.SGInterfaceTE;
 import li.cil.oc.api.Network;
-import li.cil.oc.api.machine.Value;
 import li.cil.oc.api.machine.Arguments;
-import li.cil.oc.api.machine.Context;
 import li.cil.oc.api.machine.Callback;
-import li.cil.oc.api.network.Environment;
-import li.cil.oc.api.network.Message;
-import li.cil.oc.api.network.Node;
-import li.cil.oc.api.network.Packet;
-import li.cil.oc.api.network.Visibility;
-
-import gcewing.sg.*;
+import li.cil.oc.api.machine.Context;
+import li.cil.oc.api.network.*;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.InventoryBasic;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
 
 public class OCInterfaceTE extends SGInterfaceTE
-    implements IComputerInterface, Environment, IInventory, ITickable
-{
+        implements IComputerInterface, Environment, IInventory, ITickable {
 
-    static boolean debugConnection = false;
-    static boolean debugNetworking = false;
-    
     final static int numUpgradeSlots = 1;
-    
-    IInventory inventory = new InventoryBasic("", false, numUpgradeSlots);
-
-    public OCInterfaceTE() {
-        node = Network.newNode(this, Visibility.Network)
-            .withComponent("stargate", Visibility.Network)
-            .create();
-        //System.out.printf("OCInterfaceTE: Created node %s\n", node);
-    }
-
-    //@Override 
-    protected IInventory getInventory() {
-        return inventory;
-    }
-    
-    boolean hasNetworkCard() {
-        return isNetworkCard(getStackInSlot(0));
-        //return false;
-    }
-    
-    static boolean isNetworkCard(ItemStack stack) {
-        //System.out.printf("OCInterfaceTE.isNetworkCard: comparing %s with %s\n",
-        //  stack, OCIntegration.networkCard);
-        return stack != null && OCIntegration.networkCard.isItemEqual(stack);
-    }
-    
-    void forwardNetworkPacket(Packet packet) {
-        if (packet.ttl() > 0) {
-            SGBaseTE te = getBaseTE();
-            if (te != null)
-                te.forwardNetworkPacket(packet.hop());
-        }
-    }
-
-    @Override   
-    public void rebroadcastNetworkPacket(Object packet) {
-        if (packet instanceof Packet && hasNetworkCard()) {
-            if (node != null) {
-                if (debugNetworking)
-                    System.out.printf("OCInterfaceTE.rebroadcastNetworkPacket\n");
-                node.sendToReachable("network.message", packet);
-            }
-        }
-    }
-
-    // -------------------------- Methods --------------------------
-    
-    protected static Object[] success = {true};
-    
-    protected static Object[] failure(Exception e) {
-        return new Object[] {null, e.getMessage()};
-    }
-    
-    @Callback
-    public Object[] stargateState(Context ctx, Arguments args) {
-        try {
-            CIStargateState result = ciStargateState();
-            return new Object[]{result.state, result.chevrons, result.direction};
-        }
-        catch (Exception e) {return failure(e);}
-    }
-    
-    @Callback
-    public Object[] energyAvailable(Context ctx, Arguments args) {
-        try {return new Object[]{ciEnergyAvailable()};}
-        catch (Exception e) {return failure(e);}
-    }
-    
-    @Callback
-    public Object[] energyToDial(Context ctx, Arguments args) {
-        try {return new Object[]{ciEnergyToDial(args.checkString(0))};}
-        catch (Exception e) {return failure(e);}
-    }
-    
-    @Callback
-    public Object[] localAddress(Context ctx, Arguments args) {
-        try {return new Object[]{ciLocalAddress()};}
-        catch (Exception e) {return failure(e);}
-    }
-    
-    @Callback
-    public Object[] remoteAddress(Context ctx, Arguments args) {
-        try {return new Object[]{ciRemoteAddress()};}
-        catch (Exception e) {return failure(e);}
-    }
-    
-    @Callback
-    public Object[] dial(Context ctx, Arguments args) {
-        try {ciDial(args.checkString(0)); return success;}
-        catch (Exception e) {return failure(e);}
-    }
-    
-    @Callback
-    public Object[] disconnect(Context ctx, Arguments args) {
-        try {ciDisconnect(); return success;}
-        catch (Exception e) {return failure(e);}
-    }
-    
-    @Callback
-    public Object[] irisState(Context ctx, Arguments args) {
-        try {return new Object[]{ciIrisState()};}
-        catch (Exception e) {return failure(e);}
-    }
-    
-    @Callback
-    public Object[] openIris(Context ctx, Arguments args) {
-        try {ciOpenIris(); return success;}
-        catch (Exception e) {return failure(e);}
-    }
-    
-    @Callback
-    public Object[] closeIris(Context ctx, Arguments args) {
-        try {ciCloseIris(); return success;}
-        catch (Exception e) {return failure(e);}
-    }
-
-    @Callback
-    public Object[] sendMessage(Context ctx, Arguments args) {
-        try {
-            int n = args.count();
-            Object[] objs = new Object[n];
-            for (int i = 0; i < n; i++)
-                objs[i] = args.checkAny(i);
-            ciSendMessage(objs);
-            return success;
-        }
-        catch (Exception e) {return failure(e);}
-    }       
-        
-    // -------------------------- Environment --------------------------
-
+    protected static final Object[] success = {true};
+    static final boolean debugConnection = false;
+    static final boolean debugNetworking = false;
     /**
      * This must be set in subclasses to the node that is used to represent
      * this tile entity.
@@ -201,9 +64,168 @@ public class OCInterfaceTE extends SGInterfaceTE
      *       .create();
      * </pre>
      */
-    protected Node node;
-
+    protected final Node node;
+    final IInventory inventory = new InventoryBasic("", false, numUpgradeSlots);
     protected boolean addedToNetwork = false;
+
+    public OCInterfaceTE() {
+        node = Network.newNode(this, Visibility.Network)
+                .withComponent("stargate", Visibility.Network)
+                .create();
+        //System.out.printf("OCInterfaceTE: Created node %s\n", node);
+    }
+
+    static boolean isNetworkCard(ItemStack stack) {
+        //System.out.printf("OCInterfaceTE.isNetworkCard: comparing %s with %s\n",
+        //  stack, OCIntegration.networkCard);
+        return stack != null && OCIntegration.networkCard.isItemEqual(stack);
+    }
+
+    protected static Object[] failure(Exception e) {
+        return new Object[]{null, e.getMessage()};
+    }
+
+    // -------------------------- Methods --------------------------
+
+    //@Override
+    protected IInventory getInventory() {
+        return inventory;
+    }
+
+    boolean hasNetworkCard() {
+        return isNetworkCard(getStackInSlot(0));
+        //return false;
+    }
+
+    void forwardNetworkPacket(Packet packet) {
+        if (packet.ttl() > 0) {
+            SGBaseTE te = getBaseTE();
+            if (te != null)
+                te.forwardNetworkPacket(packet.hop());
+        }
+    }
+
+    @Override
+    public void rebroadcastNetworkPacket(Object packet) {
+        if (packet instanceof Packet && hasNetworkCard()) {
+            if (node != null) {
+                if (debugNetworking)
+                    System.out.print("OCInterfaceTE.rebroadcastNetworkPacket\n");
+                node.sendToReachable("network.message", packet);
+            }
+        }
+    }
+
+    @Callback
+    public Object[] stargateState(Context ctx, Arguments args) {
+        try {
+            CIStargateState result = ciStargateState();
+            return new Object[]{result.state, result.chevrons, result.direction};
+        } catch (Exception e) {
+            return failure(e);
+        }
+    }
+
+    @Callback
+    public Object[] energyAvailable(Context ctx, Arguments args) {
+        try {
+            return new Object[]{ciEnergyAvailable()};
+        } catch (Exception e) {
+            return failure(e);
+        }
+    }
+
+    @Callback
+    public Object[] energyToDial(Context ctx, Arguments args) {
+        try {
+            return new Object[]{ciEnergyToDial(args.checkString(0))};
+        } catch (Exception e) {
+            return failure(e);
+        }
+    }
+
+    @Callback
+    public Object[] localAddress(Context ctx, Arguments args) {
+        try {
+            return new Object[]{ciLocalAddress()};
+        } catch (Exception e) {
+            return failure(e);
+        }
+    }
+
+    @Callback
+    public Object[] remoteAddress(Context ctx, Arguments args) {
+        try {
+            return new Object[]{ciRemoteAddress()};
+        } catch (Exception e) {
+            return failure(e);
+        }
+    }
+
+    @Callback
+    public Object[] dial(Context ctx, Arguments args) {
+        try {
+            ciDial(args.checkString(0));
+            return success;
+        } catch (Exception e) {
+            return failure(e);
+        }
+    }
+
+    @Callback
+    public Object[] disconnect(Context ctx, Arguments args) {
+        try {
+            ciDisconnect();
+            return success;
+        } catch (Exception e) {
+            return failure(e);
+        }
+    }
+
+    @Callback
+    public Object[] irisState(Context ctx, Arguments args) {
+        try {
+            return new Object[]{ciIrisState()};
+        } catch (Exception e) {
+            return failure(e);
+        }
+    }
+
+    @Callback
+    public Object[] openIris(Context ctx, Arguments args) {
+        try {
+            ciOpenIris();
+            return success;
+        } catch (Exception e) {
+            return failure(e);
+        }
+    }
+
+    // -------------------------- Environment --------------------------
+
+    @Callback
+    public Object[] closeIris(Context ctx, Arguments args) {
+        try {
+            ciCloseIris();
+            return success;
+        } catch (Exception e) {
+            return failure(e);
+        }
+    }
+
+    @Callback
+    public Object[] sendMessage(Context ctx, Arguments args) {
+        try {
+            int n = args.count();
+            Object[] objs = new Object[n];
+            for (int i = 0; i < n; i++)
+                objs[i] = args.checkAny(i);
+            ciSendMessage(objs);
+            return success;
+        } catch (Exception e) {
+            return failure(e);
+        }
+    }
 
     @Override
     public Node node() {
@@ -245,9 +267,9 @@ public class OCInterfaceTE extends SGInterfaceTE
                 System.out.printf("OCInterfaceTE.onMessage from %s: %s", msg.source(), msg.name());
                 for (Object obj : msg.data())
                     System.out.printf(" %s", obj);
-                System.out.printf("\n");
+                System.out.print("\n");
             }
-                forwardNetworkPacket((Packet)msg.data()[0]);
+            forwardNetworkPacket((Packet) msg.data()[0]);
         }
     }
 
@@ -282,13 +304,13 @@ public class OCInterfaceTE extends SGInterfaceTE
         // meaning this tile entity, gets unloaded.
         onRemoved();
     }
-    
+
     void onRemoved() {
         if (node != null)
             node.remove();
 //      Network.leaveWirelessNetwork(this);
     }
-    
+
     // ----------------------------------------------------------------------- //
 
     @Override
@@ -325,7 +347,7 @@ public class OCInterfaceTE extends SGInterfaceTE
         if (node != null)
             node.sendToReachable("computer.signal", prependArgs(name, args));
     }
-    
+
 //------------------------------------- IInventory -----------------------------------------
 
     void onInventoryChanged(int slot) {
@@ -338,7 +360,7 @@ public class OCInterfaceTE extends SGInterfaceTE
     public int getSizeInventory() {
         IInventory inventory = getInventory();
         return (inventory != null) ? inventory.getSizeInventory() : 0;
-    }   
+    }
 
     /**
      * Returns the stack in slot i
@@ -358,8 +380,7 @@ public class OCInterfaceTE extends SGInterfaceTE
             ItemStack result = inventory.decrStackSize(slot, amount);
             onInventoryChanged(slot);
             return result;
-        }
-        else
+        } else
             return null;
     }
 
@@ -373,8 +394,7 @@ public class OCInterfaceTE extends SGInterfaceTE
             ItemStack result = inventory.getStackInSlotOnClosing(slot);
             onInventoryChanged(slot);
             return result;
-        }
-        else
+        } else
             return null;
     }
 
@@ -411,7 +431,7 @@ public class OCInterfaceTE extends SGInterfaceTE
      */
     public boolean isUseableByPlayer(EntityPlayer player) {
         IInventory inventory = getInventory();
-        return (inventory != null) ? inventory.isUseableByPlayer(player) : true;
+        return (inventory == null) || inventory.isUseableByPlayer(player);
     }
 
     public void openInventory() {
@@ -425,7 +445,7 @@ public class OCInterfaceTE extends SGInterfaceTE
         if (inventory != null)
             inventory.closeInventory();
     }
-    
+
     public boolean isItemValidForSlot(int slot, ItemStack stack) {
         IInventory inventory = getInventory();
         if (inventory != null)
@@ -433,7 +453,7 @@ public class OCInterfaceTE extends SGInterfaceTE
         else
             return false;
     }
-    
+
     public boolean hasCustomInventoryName() {
         IInventory inventory = getInventory();
         if (inventory != null)

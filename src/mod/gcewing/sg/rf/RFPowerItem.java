@@ -6,12 +6,8 @@
 
 package gcewing.sg.rf;
 
-import java.util.*;
-
-import net.minecraft.block.*;
-import net.minecraft.item.*;
-
-import gcewing.sg.*;
+import gcewing.sg.PowerItem;
+import net.minecraft.block.Block;
 
 public class RFPowerItem extends PowerItem {
 

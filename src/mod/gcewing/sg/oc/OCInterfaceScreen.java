@@ -6,7 +6,7 @@
 
 package gcewing.sg.oc;
 
-import gcewing.sg.*;
+import gcewing.sg.BaseGui;
 
 public class OCInterfaceScreen extends BaseGui.Screen {
 
@@ -16,12 +16,12 @@ public class OCInterfaceScreen extends BaseGui.Screen {
     public OCInterfaceScreen(OCInterfaceContainer container) {
         super(container);
     }
-    
+
     @Override
     protected void drawBackgroundLayer() {
         bindTexture("gui/oc_sg_interface_gui.png", bgUSize, bgVSize);
         drawTexturedRect(0, 0, xSize, ySize, 0, 0);
         drawCenteredString("OC Stargate Interface", xSize / 2, 5);
     }
-        
+
 }

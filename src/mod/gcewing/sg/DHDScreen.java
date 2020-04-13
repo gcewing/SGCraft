@@ -6,22 +6,17 @@
 
 package gcewing.sg;
 
-import java.io.*;
-import org.lwjgl.input.*;
-import org.lwjgl.opengl.*;
+import net.minecraft.client.audio.ISound;
+import net.minecraft.client.audio.PositionedSoundRecord;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
+import org.lwjgl.input.Keyboard;
+import org.lwjgl.opengl.GL11;
+
+import static gcewing.sg.BaseBlockUtils.getWorldTileEntity;
 import static org.lwjgl.opengl.GL11.*;
-
-import net.minecraft.client.audio.*;
-import net.minecraft.client.gui.*;
-import net.minecraft.client.renderer.*;
-import net.minecraft.entity.player.*;
-import net.minecraft.tileentity.*;
-import net.minecraft.util.*;
-import net.minecraft.world.*;
-
-import net.minecraftforge.client.*;
-
-import static gcewing.sg.BaseBlockUtils.*;
 
 public class DHDScreen extends SGScreen {
 
@@ -31,14 +26,14 @@ public class DHDScreen extends SGScreen {
     final static double dhdRadius2 = dhdWidth * 0.275;
     final static double dhdRadius3 = dhdWidth * 0.45;
 
-    World world;
-    BlockPos pos;
+    final World world;
+    final BlockPos pos;
     int dhdTop, dhdCentreX, dhdCentreY;
     //String enteredAddress = "";
     int closingDelay = 0;
     int addressLength;
-    DHDTE cte;
-    
+    final DHDTE cte;
+
     public DHDScreen(EntityPlayer player, World world, BlockPos pos) {
         this.world = world;
         this.pos = pos;
@@ -47,26 +42,26 @@ public class DHDScreen extends SGScreen {
         if (te != null)
             addressLength = te.getNumChevrons();
     }
-    
+
     SGBaseTE getStargateTE() {
         if (cte != null)
             return cte.getLinkedStargateTE();
         else
             return null;
     }
-    
+
     DHDTE getControllerTE() {
         TileEntity te = getWorldTileEntity(world, pos);
         if (te instanceof DHDTE)
-            return (DHDTE)te;
+            return (DHDTE) te;
         else
             return null;
     }
-    
+
     String getEnteredAddress() {
         return cte.enteredAddress;
     }
-    
+
     void setEnteredAddress(String address) {
         cte.enteredAddress = address;
         SGChannel.sendEnteredAddressToServer(cte, address);
@@ -78,7 +73,7 @@ public class DHDScreen extends SGScreen {
         dhdCentreX = width / 2;
         dhdCentreY = dhdTop + dhdHeight / 2;
     }
-    
+
 //  @Override
 //  public void onGuiClosed() {
 //  }
@@ -93,7 +88,7 @@ public class DHDScreen extends SGScreen {
             }
         }
     }
-    
+
     @Override
     protected void mousePressed(int x, int y, int mouseButton) {
         //System.out.printf("DHDScreen.mousePressed: %d, %d, %d\n", x, y, mouseButton);
@@ -101,15 +96,14 @@ public class DHDScreen extends SGScreen {
             int i = findDHDButton(x, y);
             if (i >= 0) {
                 dhdButtonPressed(i);
-                return;
             }
         }
     }
-    
+
     void closeAfterDelay(int ticks) {
         closingDelay = ticks;
     }
-    
+
     int findDHDButton(int mx, int my) {
         //System.out.printf("DHDScreen.findDHDButton: mx = %d, my = %d, cx = %d, cy = %d\n",
         //  mx, my, dhdCentreX, dhdCentreY);
@@ -134,16 +128,16 @@ public class DHDScreen extends SGScreen {
         //return i0 + (int)Math.floor(a * 14 / 360);
         int i0, nb;
         if (r > dhdRadius2) {
-            i0 = 1; nb = 26;
+            i0 = 1;
+            nb = 26;
+        } else {
+            i0 = 27;
+            nb = 11;
         }
-        else {
-            i0 = 27; nb = 11;
-        }
-        int i = i0 + (int)Math.floor(a * nb / 360);
         //System.out.printf("DHDScreen.findDHDButton: i = %d\n", i);
-        return i;
+        return i0 + (int) Math.floor(a * nb / 360);
     }
-    
+
     void dhdButtonPressed(int i) {
         //System.out.printf("DHDScreen.dhdButtonPressed: %d\n", i);
         buttonSound();
@@ -154,13 +148,13 @@ public class DHDScreen extends SGScreen {
         else
             enterCharacter(SGBaseTE.symbolToChar(i - 1));
     }
-    
+
     void buttonSound() {
         //mc.sndManager.playSoundFX("random.click", 1.0F, 1.0F);
         EntityPlayer player = mc.thePlayer;
         ISound sound = new PositionedSoundRecord(
-            new ResourceLocation("random.click"),
-            1.0F, 1.0F, (float)player.posX, (float)player.posY, (float)player.posZ);
+                new ResourceLocation("random.click"),
+                1.0F, 1.0F, (float) player.posX, (float) player.posY, (float) player.posZ);
         mc.getSoundHandler().playSound(sound);
     }
 
@@ -178,7 +172,7 @@ public class DHDScreen extends SGScreen {
                 enterCharacter(C.charAt(0));
         }
     }
-    
+
     void orangeButtonPressed(boolean connectOnly) {
         SGBaseTE te = getStargateTE();
         if (te != null) {
@@ -188,12 +182,12 @@ public class DHDScreen extends SGScreen {
                 sendConnectOrDisconnect(te, "");
         }
     }
-    
+
     void sendConnectOrDisconnect(SGBaseTE te, String address) {
         SGChannel.sendConnectOrDisconnectToServer(te, address);
         closeAfterDelay(10);
     }
-        
+
     void backspace() {
         if (stargateIsIdle()) {
             buttonSound();
@@ -203,7 +197,7 @@ public class DHDScreen extends SGScreen {
                 setEnteredAddress(a.substring(0, n - 1));
         }
     }
-    
+
     void enterCharacter(char c) {
         if (stargateIsIdle()) {
             buttonSound();
@@ -213,16 +207,16 @@ public class DHDScreen extends SGScreen {
                 setEnteredAddress(a + c);
         }
     }
-    
+
     boolean stargateIsIdle() {
         SGBaseTE te = getStargateTE();
         return (te != null && te.state == SGState.Idle);
     }
-    
+
     @Override
     protected void drawGuiContainerBackgroundLayer(float var1, int var2, int var3) {
         SGBaseTE te = getStargateTE();
-        glPushAttrib(GL_ENABLE_BIT|GL_COLOR_BUFFER_BIT);
+        glPushAttrib(GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT);
         glEnable(GL11.GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glDisable(GL_ALPHA_TEST);
@@ -241,9 +235,9 @@ public class DHDScreen extends SGScreen {
         bindTexture(SGCraft.mod.resourceLocation("textures/gui/dhd_gui.png"));
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        drawTexturedRect((width - dhdWidth) / 2, height - dhdHeight, dhdWidth, dhdHeight);
+        drawTexturedRect((width - dhdWidth) / 2d, height - dhdHeight, dhdWidth, dhdHeight);
     }
-    
+
     void drawOrangeButton() {
         bindTexture(SGCraft.mod.resourceLocation("textures/gui/dhd_centre.png"), 128, 64);
         SGBaseTE te = getStargateTE();
@@ -258,23 +252,23 @@ public class DHDScreen extends SGScreen {
         double ry = dhdHeight * 48 / 256.0;
 //         Tessellator.instance.disableColor();
         drawTexturedRect(dhdCentreX - rx, dhdCentreY - ry - 6, 2 * rx, 1.5 * ry,
-            64, 0, 64, 48);
+                64, 0, 64, 48);
         resetColor();
         if (connected) {
             GL11.glBlendFunc(GL11.GL_ONE, GL11.GL_ONE);
             double d = 5;
             drawTexturedRect(dhdCentreX - rx - d, dhdCentreY - ry - d - 6, 2 * (rx + d), ry + d,
-                0, 0, 64, 32);
+                    0, 0, 64, 32);
             drawTexturedRect(dhdCentreX - rx - d, dhdCentreY - 6, 2 * (rx + d), 0.5 * ry + d,
-                0, 32, 64, 32);
+                    0, 32, 64, 32);
             GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
         }
     }
-    
+
     void drawEnteredSymbols() {
         drawAddressSymbols(width / 2, dhdTop - 80, getEnteredAddress());
     }
-    
+
     void drawEnteredString() {
         String address = SGAddressing.padAddress(getEnteredAddress(), "|", addressLength);
         drawAddressString(width / 2, dhdTop - 20, address);

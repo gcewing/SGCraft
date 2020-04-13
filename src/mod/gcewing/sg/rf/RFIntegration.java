@@ -6,16 +6,15 @@
 
 package gcewing.sg.rf;
 
-import net.minecraft.block.*;
-import net.minecraft.init.*;
-import net.minecraft.item.*;
-import gcewing.sg.*;
+import gcewing.sg.BaseSubsystem;
+import gcewing.sg.SGCraft;
+import gcewing.sg.SGCraftClient;
 
 public class RFIntegration extends BaseSubsystem<SGCraft, SGCraftClient> {
 
     @Override
     public void registerBlocks() {
-        mod.rfPowerUnit = mod.newBlock("rfPowerUnit", RFPowerBlock.class);
+        SGCraft.rfPowerUnit = mod.newBlock("rfPowerUnit", RFPowerBlock.class);
     }
 
 }

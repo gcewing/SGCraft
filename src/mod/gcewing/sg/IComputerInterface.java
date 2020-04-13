@@ -6,10 +6,10 @@
 
 package gcewing.sg;
 
-import net.minecraft.tileentity.*;
+import net.minecraft.tileentity.TileEntity;
 
 public interface IComputerInterface {
 
-    public void postEvent(TileEntity source, String name, Object... args);
+    void postEvent(TileEntity source, String name, Object... args);
 
 }

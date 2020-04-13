@@ -6,33 +6,32 @@
 
 package gcewing.sg.oc;
 
-import net.minecraft.world.*;
-
+import gcewing.sg.BaseConfiguration;
+import gcewing.sg.SGBaseTE;
 import li.cil.oc.api.Network;
 import li.cil.oc.api.network.Packet;
 import li.cil.oc.api.network.WirelessEndpoint;
-
-import gcewing.sg.*;
+import net.minecraft.world.World;
 
 public class OCWirelessEndpoint implements WirelessEndpoint {
 
     public static double forwardingStrength = 50;
-    
-    static boolean debugWireless = false;
 
-    SGBaseTE te;
-    
-    public static void configure(BaseConfiguration config) {
-        forwardingStrength = config.getDouble("opencomputers", "wirelessRebroadcastStrength", forwardingStrength);
-    }
-    
+    static final boolean debugWireless = false;
+
+    final SGBaseTE te;
+
     public OCWirelessEndpoint(SGBaseTE te) {
         if (debugWireless)
             System.out.printf("SGCraft: OCSGWirelessEndpoint: added %s for %s\n", this, te);
         this.te = te;
         Network.joinWirelessNetwork(this);
     }
-    
+
+    public static void configure(BaseConfiguration config) {
+        forwardingStrength = config.getDouble("opencomputers", "wirelessRebroadcastStrength", forwardingStrength);
+    }
+
     public void remove() {
         if (debugWireless)
             System.out.printf("SGCraft: OCSGWirelessEndpoint: removed for %s\n", te);
@@ -40,17 +39,32 @@ public class OCWirelessEndpoint implements WirelessEndpoint {
     }
 
     // --------------------------- WirelessEndpoint ---------------------------
-    
-    @Override public int x() {return te.xCoord;}
-    @Override public int y() {return te.yCoord;}
-    @Override public int z() {return te.zCoord;}
-    @Override public World world() {return te.getWorldObj();}
-    
+
+    @Override
+    public int x() {
+        return te.xCoord;
+    }
+
+    @Override
+    public int y() {
+        return te.yCoord;
+    }
+
+    @Override
+    public int z() {
+        return te.zCoord;
+    }
+
+    @Override
+    public World world() {
+        return te.getWorldObj();
+    }
+
     @Override
     public void receivePacket(Packet packet, WirelessEndpoint sender) {
         if (debugWireless)
             System.out.printf("OCSGWirelessEndpoint.receivePacket: ttl %s from %s by %s\n",
-                packet.ttl(), sender, te);
+                    packet.ttl(), sender, te);
         if (packet.ttl() > 0) {
             SGBaseTE dte = te.getConnectedStargateTE();
             if (dte != null && dte.ocWirelessEndpoint != null) {

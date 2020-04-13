@@ -1,5 +1,7 @@
 {
-    "variants": {
-        "normal": { "model": "sgcraft:naquadahOre" }
+  "variants": {
+    "normal": {
+      "model": "sgcraft:naquadahOre"
     }
+  }
 }

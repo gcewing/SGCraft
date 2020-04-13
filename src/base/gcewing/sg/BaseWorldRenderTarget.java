@@ -6,40 +6,32 @@
 
 package gcewing.sg;
 
-import java.util.*;
-import java.nio.*;
-import static java.lang.Math.*;
-
-import net.minecraft.block.*;
-// import net.minecraft.block.state.*;
+import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.*;
-// import net.minecraft.client.renderer.block.model.*;
-import net.minecraft.client.renderer.texture.*;
-// import net.minecraft.client.renderer.vertex.*;
-// import net.minecraft.client.resources.model.*;
-import net.minecraft.item.*;
-import net.minecraft.util.*;
-import net.minecraft.world.*;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.util.IIcon;
+import net.minecraft.world.IBlockAccess;
 
-import net.minecraftforge.client.model.*;
+import static gcewing.sg.BaseUtils.ifloor;
+import static gcewing.sg.BaseUtils.iround;
+import static java.lang.Math.floor;
 
-import gcewing.sg.BaseModClient.ITexture;
-import static gcewing.sg.BaseUtils.*;
 
 public class BaseWorldRenderTarget extends BaseRenderTarget {
 
-    protected IBlockAccess world;
-    protected BlockPos blockPos;
-    protected Block block;
-    protected Tessellator tess;
-    protected float cmr = 1, cmg = 1, cmb = 1;
-    protected boolean ao;
+    protected final IBlockAccess world;
+    protected final BlockPos blockPos;
+    protected final Block block;
+    protected final Tessellator tess;
+    protected final float cmr = 1;
+    protected final float cmg = 1;
+    protected final float cmb = 1;
+    protected final boolean ao;
     protected boolean axisAlignedNormal;
     protected boolean renderingOccurred;
     protected float vr, vg, vb, va; // Colour to be applied to next vertex
     protected int vlm1, vlm2; // Light map values to be applied to next vertex
-    
+
     public BaseWorldRenderTarget(IBlockAccess world, BlockPos pos, Tessellator tess, IIcon overrideIcon) {
         super(pos.getX(), pos.getY(), pos.getZ(), overrideIcon);
         //System.out.printf("BaseWorldRenderTarget(%s)\n", pos);
@@ -50,9 +42,9 @@ public class BaseWorldRenderTarget extends BaseRenderTarget {
         ao = Minecraft.isAmbientOcclusionEnabled() && block.getLightValue() == 0;
         expandTrianglesToQuads = true;
     }
-    
+
     // ---------------------------- IRenderTarget ----------------------------
-    
+
     @Override
     public void setNormal(Vector3 n) {
 //      System.out.printf("BaseWorldRenderer.setNormal: %s (%.3f, %.3f, %.3f)\n",
@@ -60,7 +52,7 @@ public class BaseWorldRenderTarget extends BaseRenderTarget {
         super.setNormal(n);
         axisAlignedNormal = n.dot(face) >= 0.99;
     }
-    
+
     protected void rawAddVertex(Vector3 p, double u, double v) {
 //      System.out.printf("BaseWorldRenderer.rawAddVertex: %s (%.3f, %.3f, %.3f) uv (%.5f, %.5f) at %s\n",
 //          vertexCount, p.x, p.y, p.z, u, v, tess.getCurrentOffset());
@@ -73,7 +65,7 @@ public class BaseWorldRenderTarget extends BaseRenderTarget {
 //      if (textureOverride)
 //          tess.dumpLastVertex();
     }
-    
+
     //-----------------------------------------------------------------------------------------
 
     protected void lightVertex(Vector3 p) {
@@ -113,12 +105,11 @@ public class BaseWorldRenderTarget extends BaseRenderTarget {
                         int br;
                         try {
                             br = block.getMixedBrightnessForBlock(world, pos.x, pos.y, pos.z);
-                        }
-                        catch (RuntimeException e) {
+                        } catch (RuntimeException e) {
                             System.out.printf("BaseWorldRenderTarget.aoLightVertex: getMixedBrightnessForBlock(%s) with weight %s for block at %s: %s\n",
-                                pos, w, blockPos, e);
+                                    pos, w, blockPos, e);
                             System.out.printf("BaseWorldRenderTarget.aoLightVertex: v = %s n = %s\n",
-                                v, n);
+                                    v, n);
                             throw e;
                         }
                         float lv;
@@ -146,7 +137,7 @@ public class BaseWorldRenderTarget extends BaseRenderTarget {
             brv = (iround(brSum1 / wt * 0xf0) << 16) | iround(brSum2 / wt * 0xf0);
         else
             brv = block.getMixedBrightnessForBlock(world, blockPos.x, blockPos.y, blockPos.z);
-        float lvv = (float)lvSum;
+        float lvv = (float) lvSum;
         //System.out.printf("brv = 0x%08x lvv = %.3f shade = %.3f\n", brv, lvv, shade);
         setLight(shade * lvv, brv);
     }
@@ -157,9 +148,9 @@ public class BaseWorldRenderTarget extends BaseRenderTarget {
         BlockPos pos;
         if (axisAlignedNormal)
             pos = new BlockPos(
-                (int)floor(p.x + 0.01 * n.x),
-                (int)floor(p.y + 0.01 * n.y),
-                (int)floor(p.z + 0.01 * n.z));
+                    (int) floor(p.x + 0.01 * n.x),
+                    (int) floor(p.y + 0.01 * n.y),
+                    (int) floor(p.z + 0.01 * n.z));
         else
             pos = blockPos;
         int br = block.getMixedBrightnessForBlock(world, pos.x, pos.y, pos.z);
@@ -181,7 +172,7 @@ public class BaseWorldRenderTarget extends BaseRenderTarget {
         super.finish();
         return renderingOccurred;
     }
-    
+
     public void setRenderingOccurred() {
         renderingOccurred = true;
     }

@@ -8,9 +8,8 @@ package gcewing.sg;
 
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.tileentity.*;
-import net.minecraft.util.*;
-import net.minecraft.world.*;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
 
 public abstract class SGBlock<TE extends TileEntity> extends BaseBlock<TE> implements ISGBlock {
 
@@ -18,7 +17,7 @@ public abstract class SGBlock<TE extends TileEntity> extends BaseBlock<TE> imple
         super(material, teClass);
     }
 
-    @Override    
+    @Override
     public boolean removedByPlayer(World world, EntityPlayer player, int x, int y, int z) {
         if (player.capabilities.isCreativeMode && isConnected(world, new BlockPos(x, y, z))) {
             if (world.isRemote)
@@ -27,7 +26,7 @@ public abstract class SGBlock<TE extends TileEntity> extends BaseBlock<TE> imple
         }
         return super.removedByPlayer(world, player, x, y, z);
     }
-    
+
     boolean isConnected(World world, BlockPos pos) {
         SGBaseTE bte = getBaseTE(world, pos);
         return bte != null && bte.isConnected();
