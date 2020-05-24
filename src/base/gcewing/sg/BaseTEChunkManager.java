@@ -6,35 +6,39 @@
 
 package gcewing.sg;
 
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.ChunkCoordIntPair;
-import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeChunkManager;
+import java.util.*;
+
+import net.minecraft.nbt.*;
+import net.minecraft.tileentity.*;
+import net.minecraft.world.*;
+import net.minecraft.world.chunk.*;
+import net.minecraft.util.*;
+
+import net.minecraftforge.common.*;
 import net.minecraftforge.common.ForgeChunkManager.Ticket;
 import net.minecraftforge.common.ForgeChunkManager.Type;
-
-import java.util.List;
+import net.minecraftforge.event.*;
+import net.minecraftforge.event.world.*;
 
 public class BaseTEChunkManager implements ForgeChunkManager.LoadingCallback {
 
-    public final boolean debug = false;
-    final BaseMod base;
-
+    public boolean debug = false;
+    BaseMod base;
+    
     public BaseTEChunkManager(BaseMod mod) {
         base = mod;
         ForgeChunkManager.setForcedChunkLoadingCallback(mod, this);
         if (debug)
             System.out.printf("%s: BaseTEChunkManager: Chunk loading callback installed\n",
-                    base.modPackage);
+                base.modPackage);
     }
-
+    
     protected Ticket newTicket(World world) {
         if (debug)
             System.out.printf("%s: BaseTEChunkManager.newTicket for %s\n", base.modPackage, world);
         return ForgeChunkManager.requestTicket(base, world, Type.NORMAL);
     }
-
+    
     @Override
     public void ticketsLoaded(List<ForgeChunkManager.Ticket> tickets, World world) {
         if (debug)
@@ -49,8 +53,8 @@ public class BaseTEChunkManager implements ForgeChunkManager.LoadingCallback {
                     TileEntity te = world.getTileEntity(x, y, z);
                     if (debug)
                         System.out.printf("%s: BaseTEChunkManager.ticketsLoaded: Ticket for %s at (%d, %d, %d)\n",
-                                base.modPackage, te, x, y, z);
-                    if (!(te instanceof BaseTileEntity && reinstateChunkTicket((BaseTileEntity) te, ticket))) {
+                            base.modPackage, te, x, y, z);
+                    if (!(te instanceof BaseTileEntity && reinstateChunkTicket((BaseTileEntity)te, ticket))) {
                         if (debug)
                             System.out.printf("%s: BaseTEChunkManager.ticketsLoaded: : Unable to reinstate ticket\n", base.modPackage);
                         ForgeChunkManager.releaseTicket(ticket);
@@ -58,7 +62,7 @@ public class BaseTEChunkManager implements ForgeChunkManager.LoadingCallback {
                 }
         }
     }
-
+    
     public void setForcedChunkRange(BaseTileEntity te, int minX, int minZ, int maxX, int maxZ) {
         te.releaseChunkTicket();
         Ticket ticket = getChunkTicket(te);
@@ -75,7 +79,7 @@ public class BaseTEChunkManager implements ForgeChunkManager.LoadingCallback {
             forceChunkRangeOnTicket(te, ticket);
         }
     }
-
+    
     public void clearForcedChunkRange(BaseTileEntity te) {
         te.releaseChunkTicket();
     }
@@ -88,7 +92,7 @@ public class BaseTEChunkManager implements ForgeChunkManager.LoadingCallback {
         int maxZ = nbt.getInteger("rangeMaxZ");
         if (debug)
             System.out.printf("BaseChunkLoadingTE: Forcing range (%s,%s)-(%s,%s) in dimension %s\n",
-                    minX, minZ, maxX, maxZ, te.getWorldObj().provider.dimensionId);
+                minX, minZ, maxX, maxZ, te.getWorldObj().provider.dimensionId);
         int chunkX = te.xCoord >> 4;
         int chunkZ = te.zCoord >> 4;
         for (int i = minX; i <= maxX; i++)
@@ -103,7 +107,7 @@ public class BaseTEChunkManager implements ForgeChunkManager.LoadingCallback {
             te.chunkTicket = newTicket(te.getWorldObj());
         return te.chunkTicket;
     }
-
+    
     public boolean reinstateChunkTicket(BaseTileEntity te, Ticket ticket) {
         if (te.chunkTicket == null) {
             if (debug)
@@ -111,20 +115,21 @@ public class BaseTEChunkManager implements ForgeChunkManager.LoadingCallback {
             te.chunkTicket = ticket;
             forceChunkRangeOnTicket(te, ticket);
             return true;
-        } else
+        }
+        else
             return false;
     }
-
+    
     public void dumpChunkLoadingState(BaseTileEntity te, String label) {
         System.out.printf("%s: Chunk loading state:\n", label);
         System.out.printf("Chunk ticket = %s\n", te.chunkTicket);
         if (te.chunkTicket != null) {
-            System.out.print("Loaded chunks:");
+            System.out.printf("Loaded chunks:");
             for (Object item : te.chunkTicket.getChunkList()) {
-                ChunkCoordIntPair coords = (ChunkCoordIntPair) item;
+                ChunkCoordIntPair coords = (ChunkCoordIntPair)item;
                 System.out.printf(" (%d,%d)", coords.chunkXPos, coords.chunkZPos);
             }
-            System.out.print("\n");
+            System.out.printf("\n");
         }
     }
 

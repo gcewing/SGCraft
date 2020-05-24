@@ -6,14 +6,13 @@
 
 package gcewing.sg;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.lang.*;
+import java.util.*;
 
 public class BaseStringUtils {
 
     public static String[] split(String sep, String string) {
-        List<String> list = new ArrayList<>();
+        List<String> list = new ArrayList<String>();
         String[] result = new String[0];
         int i = 0;
         while (i < string.length()) {
@@ -26,12 +25,12 @@ public class BaseStringUtils {
         result = list.toArray(result);
         return result;
     }
-
+    
     public static String join(String sep, String[] strings) {
         return join(sep, Arrays.asList(strings));
     }
 
-    public static String join(String sep, Iterable<String> strings) {
+     public static String join(String sep, Iterable<String> strings) {
         StringBuilder result = new StringBuilder();
         boolean first = true;
         for (String s : strings) {

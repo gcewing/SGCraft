@@ -6,12 +6,12 @@
 
 package gcewing.sg;
 
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.util.*;
+import net.minecraft.world.*;
 
 public interface ISGBlock {
 
-    SGBaseTE getBaseTE(IBlockAccess world, BlockPos pos);
-
-    boolean isMerged(IBlockAccess world, BlockPos pos);
+    public SGBaseTE getBaseTE(IBlockAccess world, BlockPos pos);
+    public boolean isMerged(IBlockAccess world, BlockPos pos);
 
 }

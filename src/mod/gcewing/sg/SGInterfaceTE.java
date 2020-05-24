@@ -6,35 +6,50 @@
 
 package gcewing.sg;
 
+import net.minecraft.tileentity.*;
 import gcewing.sg.SGAddressing.AddressingError;
-
-import static gcewing.sg.BaseBlockUtils.getTileEntityWorld;
+import static gcewing.sg.BaseBlockUtils.*;
 
 public class SGInterfaceTE extends BaseTileEntity {
-
-    public static Object[] prependArgs(Object... args) {
-        int preLength = args.length - 1;
-        Object[] post = (Object[]) args[preLength];
-        Object[] xargs = new Object[preLength + post.length];
-        System.arraycopy(args, 0, xargs, 0, preLength);
-        System.arraycopy(post, 0, xargs, preLength, post.length);
-        return xargs;
-    }
 
     public SGBaseTE getBaseTE() {
         return SGBaseTE.get(worldObj, getPos().add(0, 1, 0));
     }
-
+    
+    // Signature is really prependArgs(Object..., Object[])
+    
+    public static Object[] prependArgs(Object... args) {
+        int preLength = args.length - 1;
+        Object[] post = (Object[])args[preLength];
+        Object[] xargs = new Object[preLength + post.length];
+        for (int i = 0; i < preLength; i++)
+            xargs[i] = args[i];
+        for (int i = 0; i < post.length; i++)
+            xargs[preLength + i] = post[i];
+        return xargs;
+    }
+    
     public void rebroadcastNetworkPacket(Object packet) {
     }
 
+    public static class CIStargateState {
+        public String state;
+        public int chevrons;
+        public String direction;
+        public CIStargateState(String state, int chevrons, String direction) {
+            this.state = state;
+            this.chevrons = chevrons;
+            this.direction = direction;
+        }
+    }
+        
     public SGBaseTE requireBaseTE() {
         SGBaseTE te = getBaseTE();
         if (te != null && te.isMerged)
             return te;
         throw new IllegalArgumentException("No stargate connected to interface");
     }
-
+    
     public SGBaseTE requireIrisTE() {
         SGBaseTE te = requireBaseTE();
         if (te != null && te.hasIrisUpgrade)
@@ -42,17 +57,18 @@ public class SGInterfaceTE extends BaseTileEntity {
         else
             throw new IllegalArgumentException("No iris fitted to stargate");
     }
-
+    
     String directionDescription(SGBaseTE te) {
         if (te.isConnected()) {
             if (te.isInitiator)
                 return "Outgoing";
             else
                 return "Incoming";
-        } else
+        }
+        else
             return "";
     }
-
+    
     public CIStargateState ciStargateState() {
         SGBaseTE te = getBaseTE();
         if (te != null)
@@ -60,7 +76,7 @@ public class SGInterfaceTE extends BaseTileEntity {
         else
             return new CIStargateState("Offline", 0, "");
     }
-
+    
     public double ciEnergyAvailable() {
         SGBaseTE te = getBaseTE();
         if (te != null)
@@ -68,7 +84,7 @@ public class SGInterfaceTE extends BaseTileEntity {
         else
             return 0;
     }
-
+    
     public double ciEnergyToDial(String address) {
         SGBaseTE te = requireBaseTE();
         try {
@@ -78,12 +94,13 @@ public class SGInterfaceTE extends BaseTileEntity {
                 throw new IllegalArgumentException("No stargate at address " + address);
             double distanceFactor = SGBaseTE.distanceFactorForCoordDifference(te, dte);
             return SGBaseTE.energyToOpen * distanceFactor;
-        } catch (AddressingError e) {
+        }
+        catch (AddressingError e) {
             System.out.printf("SGBaseTE.ciEnergyToDial: caught %s\n", e);
             throw new IllegalArgumentException(e.getMessage());
         }
     }
-
+    
     public String ciLocalAddress() {
         SGBaseTE te = getBaseTE();
         try {
@@ -91,11 +108,12 @@ public class SGInterfaceTE extends BaseTileEntity {
                 return te.getHomeAddress();
             else
                 return "";
-        } catch (AddressingError e) {
+        }
+        catch (AddressingError e) {
             throw new IllegalArgumentException(e.getMessage());
         }
     }
-
+    
     public String ciRemoteAddress() {
         SGBaseTE te = requireBaseTE();
         try {
@@ -103,11 +121,12 @@ public class SGInterfaceTE extends BaseTileEntity {
                 return SGAddressing.addressForLocation(te.connectedLocation);
             else
                 return "";
-        } catch (AddressingError e) {
+        }
+        catch (AddressingError e) {
             throw new IllegalArgumentException(e.getMessage());
         }
     }
-
+    
     public void ciDial(String address) {
         SGBaseTE te = requireBaseTE();
         address = SGAddressing.normalizeAddress(address);
@@ -115,14 +134,14 @@ public class SGInterfaceTE extends BaseTileEntity {
         if (error != null)
             throw new IllegalArgumentException(error);
     }
-
+    
     public void ciDisconnect() {
         SGBaseTE te = requireBaseTE();
         String error = te.attemptToDisconnect(null);
         if (error != null)
             throw new IllegalArgumentException(error);
     }
-
+    
     public String ciIrisState() {
         SGBaseTE te = getBaseTE();
         if (te != null && te.hasIrisUpgrade)
@@ -130,32 +149,20 @@ public class SGInterfaceTE extends BaseTileEntity {
         else
             return "Offline";
     }
-
+    
     public void ciOpenIris() {
         requireIrisTE().openIris();
     }
-
+    
     public void ciCloseIris() {
         requireIrisTE().closeIris();
     }
-
+    
     public void ciSendMessage(Object[] args) {
         SGBaseTE te = requireBaseTE();
         String error = te.sendMessage(args);
         if (error != null)
             throw new IllegalArgumentException(error);
-    }
-
-    public static class CIStargateState {
-        public final String state;
-        public final int chevrons;
-        public final String direction;
-
-        public CIStargateState(String state, int chevrons, String direction) {
-            this.state = state;
-            this.chevrons = chevrons;
-            this.direction = direction;
-        }
     }
 
 }

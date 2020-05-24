@@ -6,10 +6,10 @@
 
 package gcewing.sg;
 
-import com.xcompwiz.mystcraft.network.NetworkUtils;
-import com.xcompwiz.mystcraft.world.WorldProviderMyst;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
+import com.xcompwiz.mystcraft.network.NetworkUtils;
+import com.xcompwiz.mystcraft.world.WorldProviderMyst;
 
 public class MystcraftIntegration extends BaseSubsystem {
 

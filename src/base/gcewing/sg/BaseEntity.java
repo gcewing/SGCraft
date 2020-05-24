@@ -16,6 +16,11 @@ public abstract class BaseEntity extends Entity {
         super(world);
     }
 
+    public void setBoundingBox(AxisAlignedBB box) {
+        boundingBox.setBounds(box.minX, box.minY, box.minZ,
+            box.maxX, box.maxY, box.maxZ);
+    }
+    
     public AxisAlignedBB getEntityBoundingBox() {
         return boundingBox;
     }
@@ -23,11 +28,6 @@ public abstract class BaseEntity extends Entity {
     @Override
     public AxisAlignedBB getBoundingBox() {
         return getCollisionBoundingBox();
-    }
-
-    public void setBoundingBox(AxisAlignedBB box) {
-        boundingBox.setBounds(box.minX, box.minY, box.minZ,
-                box.maxX, box.maxY, box.maxZ);
     }
 
     public AxisAlignedBB getCollisionBoundingBox() {

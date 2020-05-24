@@ -6,22 +6,22 @@
 
 package gcewing.sg.cc;
 
-import dan200.computercraft.api.peripheral.IComputerAccess;
-import gcewing.sg.IComputerInterface;
-import gcewing.sg.SGInterfaceTE;
-import net.minecraft.tileentity.TileEntity;
+import java.util.*;
+import net.minecraft.world.*;
+import net.minecraft.tileentity.*;
+import dan200.computercraft.api.lua.*;
+import dan200.computercraft.api.peripheral.*;
 
-import java.util.HashSet;
-import java.util.Set;
+import gcewing.sg.*;
 
 public class CCInterfaceTE extends SGInterfaceTE implements IComputerInterface {
 
-    final Set<IComputerAccess> attachedComputers = new HashSet<>();
+    Set<IComputerAccess> attachedComputers = new HashSet<IComputerAccess>();
 
     public void postEvent(TileEntity source, String name, Object... args) {
         //System.out.printf("CCInterfaceTE.postEvent: %s\n", name);
         for (IComputerAccess cpu : attachedComputers)
             cpu.queueEvent(name, prependArgs(cpu.getAttachmentName(), args));
     }
-
+    
 }

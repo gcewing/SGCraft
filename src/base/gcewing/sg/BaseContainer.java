@@ -6,53 +6,48 @@
 
 package gcewing.sg;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.inventory.Container;
-import net.minecraft.inventory.ICrafting;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Slot;
-import net.minecraft.item.ItemStack;
+import static java.lang.Math.*;
+import java.lang.reflect.*;
+import net.minecraft.entity.player.*;
+import net.minecraft.inventory.*;
+import net.minecraft.item.*;
 
-import java.lang.reflect.Constructor;
-
-import static java.lang.Math.min;
+import static gcewing.sg.BaseUtils.*;
 
 public class BaseContainer extends Container {
 
-    final int xSize;
-    final int ySize;
+    int xSize, ySize;
     SlotRange playerSlotRange; // Slots containing player inventory
     SlotRange containerSlotRange; // Default slot range for shift-clicking into from player inventory
-
+    
     public BaseContainer(int width, int height) {
         xSize = width;
         ySize = height;
     }
-
+    
     public BaseContainer(int width, int height, EntityPlayer player) {
         this(width, height);
         addPlayerSlots(player);
     }
-
+    
     // Slots added between beginContainerSlots and endContainerSlots will be included in
     // containerSlotRange.
-
+    
     protected void beginContainerSlots() {
         containerSlotRange = new SlotRange();
     }
-
+    
     protected void endContainerSlots() {
         containerSlotRange.end();
     }
-
+        
     protected void beginPlayerSlots() {
         playerSlotRange = new SlotRange();
     }
 
     protected void endPlayerSlots() {
         playerSlotRange.end();
-    }
+    }        
 
     // Call one of the addPlayerSlots methods from the constructor to add player inventory
     // slots and set playerSlotRange.
@@ -74,7 +69,7 @@ public class BaseContainer extends Container {
             this.addSlotToContainer(new Slot(inventory, var3, x + var3 * 18, y + 58));
         endPlayerSlots();
     }
-
+    
     public void addPlayerSlotsRotated(EntityPlayer player, int x, int y) {
         beginPlayerSlots();
         InventoryPlayer inventory = player.inventory;
@@ -98,23 +93,26 @@ public class BaseContainer extends Container {
         return addSlots(inventory, firstSlot, numSlots, x, y, numRows, Slot.class);
     }
 
-    public SlotRange addSlots(IInventory inventory, int firstSlot, int numSlots, int x, int y, int numRows, Class slotClass) {
+    public SlotRange addSlots(IInventory inventory, int firstSlot, int numSlots, int x, int y, int numRows,
+        Class slotClass)
+    {
         SlotRange range = new SlotRange();
         try {
             Constructor slotCon = slotClass.getConstructor(IInventory.class, int.class, int.class, int.class);
             int numCols = (numSlots + numRows - 1) / numRows;
             for (int i = 0; i < numSlots; i++) {
-                int row = i / numCols;
+                int row = i /numCols;
                 int col = i % numCols;
-                addSlotToContainer((Slot) slotCon.newInstance(inventory, firstSlot + i, x + col * 18, y + row * 18));
+                addSlotToContainer((Slot)slotCon.newInstance(inventory, firstSlot + i, x + col * 18, y + row * 18));
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new RuntimeException(e);
         }
         range.end();
         return range;
     }
-
+    
     @Override
     public boolean canInteractWith(EntityPlayer var1) {
         return true;
@@ -123,26 +121,21 @@ public class BaseContainer extends Container {
     @Override
     public void detectAndSendChanges() {
         super.detectAndSendChanges();
-        for (Object o : crafters) {
-            ICrafting crafter = (ICrafting) o;
+        for (int i = 0; i < crafters.size(); i++) {
+            ICrafting crafter = (ICrafting)crafters.get(i);
             sendStateTo(crafter);
         }
     }
-
-    private void sendStateTo(ICrafting crafter) {
-    }
-
+    
 
     // To enable shift-clicking, check validitity of items here and call
     // mergeItemStack as appropriate.
     @Override
     public ItemStack transferStackInSlot(EntityPlayer player, int index) {
         ItemStack result = null;
-        Slot slot = (Slot) inventorySlots.get(index);
-        if (slot == null)
-            return null;
+        Slot slot = (Slot)inventorySlots.get(index);
         ItemStack stack = slot.getStack();
-        if (slot.getHasStack()) {
+        if (slot != null && slot.getHasStack()) {
             SlotRange destRange = transferSlotRange(index, stack);
             if (destRange != null) {
                 result = stack.copy();
@@ -160,7 +153,7 @@ public class BaseContainer extends Container {
     protected boolean mergeItemStackIntoRange(ItemStack stack, SlotRange range) {
         return mergeItemStack(stack, range.firstSlot, range.firstSlot + range.numSlots, range.reverseMerge);
     }
-
+    
     // A better version of mergeItemStack that respects Slot.isItemValid() and Slot.getStackLimit().
     @Override
     protected boolean mergeItemStack(ItemStack stack, int startSlot, int endSlot, boolean reverse) {
@@ -169,13 +162,14 @@ public class BaseContainer extends Container {
         if (stack.isStackable()) {
             for (int i = 0; i < n && stack.stackSize > 0; i++) {
                 int k = reverse ? endSlot - 1 - i : startSlot + i;
-                Slot slot = (Slot) this.inventorySlots.get(k);
+                Slot slot = (Slot)this.inventorySlots.get(k);
                 ItemStack slotStack = slot.getStack();
                 if (slotStack != null
-                        && slotStack.isStackable()
-                        && slotStack.getItem() == stack.getItem()
-                        && (!stack.getHasSubtypes() || stack.getItemDamage() == slotStack.getItemDamage())
-                        && ItemStack.areItemStackTagsEqual(stack, slotStack)) {
+                    && slotStack.isStackable()
+                    && slotStack.getItem() == stack.getItem()
+                    && (!stack.getHasSubtypes() || stack.getItemDamage() == slotStack.getItemDamage())
+                    && ItemStack.areItemStackTagsEqual(stack, slotStack))
+                {
                     if (transferToSlot(stack, slot))
                         result = true;
                 }
@@ -183,7 +177,7 @@ public class BaseContainer extends Container {
         }
         for (int i = 0; i < n && stack.stackSize > 0; i++) {
             int k = reverse ? endSlot - 1 - i : startSlot + i;
-            Slot slot = (Slot) this.inventorySlots.get(k);
+            Slot slot = (Slot)this.inventorySlots.get(k);
             if (!slot.getHasStack() && slot.isItemValid(stack)) {
                 ItemStack newStack = stack.copy();
                 newStack.stackSize = 0;
@@ -194,7 +188,7 @@ public class BaseContainer extends Container {
         }
         return result;
     }
-
+    
     protected boolean transferToSlot(ItemStack stack, Slot slot) {
         ItemStack slotStack = slot.getStack();
         int slotLimit = min(stack.getMaxStackSize(), slot.getSlotStackLimit());
@@ -206,15 +200,14 @@ public class BaseContainer extends Container {
             slotStack.stackSize += transferSize;
             slot.onSlotChanged();
             return true;
-        } else
+        }
+        else
             return false;
-    }
-
+    }   
+    
     // Return the range of slots into which the given stack should be moved by a shift-click.
     // Default implementation transfers between playerSlotRange and containerSlotRange.
     protected SlotRange transferSlotRange(int srcSlotIndex, ItemStack stack) {
-        if (playerSlotRange == null || containerSlotRange == null)
-            return null;
         if (playerSlotRange.contains(srcSlotIndex))
             return containerSlotRange;
         else if (containerSlotRange.contains(srcSlotIndex))
@@ -223,26 +216,29 @@ public class BaseContainer extends Container {
             return null;
     }
 
+    void sendStateTo(ICrafting crafter) {
+    }
+
     public void updateProgressBar(int i, int value) {
     }
 
     public class SlotRange {
-        public final int firstSlot;
+        public int firstSlot;
         public int numSlots;
         public boolean reverseMerge;
-
+        
         public SlotRange() {
             firstSlot = inventorySlots.size();
         }
-
+        
         public void end() {
             numSlots = inventorySlots.size() - firstSlot;
         }
-
+        
         public boolean contains(int slot) {
             return slot >= firstSlot && slot < firstSlot + numSlots;
         }
-
+        
         @Override
         public String toString() {
             return String.format("SlotRange(%s to %s)", firstSlot, firstSlot + numSlots - 1);

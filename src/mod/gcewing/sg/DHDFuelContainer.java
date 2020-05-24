@@ -6,12 +6,11 @@
 
 package gcewing.sg;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Slot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.world.World;
-
+import net.minecraft.entity.player.*;
+import net.minecraft.inventory.*;
+import net.minecraft.item.*;
+// import net.minecraft.util.BlockPos;
+import net.minecraft.world.*;
 
 public class DHDFuelContainer extends BaseContainer {
 
@@ -21,15 +20,8 @@ public class DHDFuelContainer extends BaseContainer {
     static final int playerSlotsX = 48;
     static final int playerSlotsY = 124;
 
-    final DHDTE te;
-
-    public DHDFuelContainer(EntityPlayer player, DHDTE te) {
-        super(DHDFuelScreen.guiWidth, DHDFuelScreen.guiHeight);
-        this.te = te;
-        addFuelSlots();
-        addPlayerSlots(player, playerSlotsX, playerSlotsY);
-    }
-
+    DHDTE te;
+    
     public static DHDFuelContainer create(EntityPlayer player, World world, BlockPos pos) {
         DHDTE te = DHDTE.at(world, pos);
         if (te != null)
@@ -37,7 +29,14 @@ public class DHDFuelContainer extends BaseContainer {
         else
             return null;
     }
-
+    
+    public DHDFuelContainer(EntityPlayer player, DHDTE te) {
+        super(DHDFuelScreen.guiWidth, DHDFuelScreen.guiHeight);
+        this.te = te;
+        addFuelSlots();
+        addPlayerSlots(player, playerSlotsX, playerSlotsY);
+    }
+    
     void addFuelSlots() {
         int b = DHDTE.firstFuelSlot;
         int n = DHDTE.numFuelSlots;
@@ -49,7 +48,7 @@ public class DHDFuelContainer extends BaseContainer {
             addSlotToContainer(new FuelSlot(te, b + i, x, y));
         }
     }
-
+    
 //  @Override
 //  void sendStateTo(ICrafting crafter) {
 //      crafter.sendProgressBarUpdate(this, 0, (int)((10000 * te.energyInBuffer) / te.maxEnergyBuffer));
@@ -71,7 +70,7 @@ class FuelSlot extends Slot {
     public FuelSlot(IInventory inv, int i, int x, int y) {
         super(inv, i, x, y);
     }
-
+    
     public boolean isItemValid(ItemStack stack) {
         return DHDTE.isValidFuelItem(stack);
     }

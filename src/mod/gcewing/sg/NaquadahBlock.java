@@ -6,8 +6,8 @@
 
 package gcewing.sg;
 
-import net.minecraft.block.material.MapColor;
-import net.minecraft.block.material.Material;
+import net.minecraft.block.*;
+import net.minecraft.block.material.*;
 
 public class NaquadahBlock extends BaseBlock {
 

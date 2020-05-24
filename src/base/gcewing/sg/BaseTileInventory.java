@@ -6,12 +6,11 @@
 
 package gcewing.sg;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.ISidedInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.entity.player.*;
+import net.minecraft.inventory.*;
+import net.minecraft.item.*;
+import net.minecraft.nbt.*;
+import net.minecraft.tileentity.*;
 
 public class BaseTileInventory extends BaseTileEntity implements IInventory, ISidedInventory {
 
@@ -20,7 +19,7 @@ public class BaseTileInventory extends BaseTileEntity implements IInventory, ISi
     protected IInventory getInventory() {
         return null;
     }
-
+    
     @Override
     public void readContentsFromNBT(NBTTagCompound nbt) {
         super.readContentsFromNBT(nbt);
@@ -29,7 +28,7 @@ public class BaseTileInventory extends BaseTileEntity implements IInventory, ISi
             NBTTagList list = nbt.getTagList("inventory", 10);
             int n = list.tagCount();
             for (int i = 0; i < n; i++) {
-                NBTTagCompound item = list.getCompoundTagAt(i);
+                NBTTagCompound item = (NBTTagCompound)list.getCompoundTagAt(i);
                 int slot = item.getInteger("slot");
                 ItemStack stack = ItemStack.loadItemStackFromNBT(item);
                 inventory.setInventorySlotContents(slot, stack);
@@ -56,12 +55,12 @@ public class BaseTileInventory extends BaseTileEntity implements IInventory, ISi
             nbt.setTag("inventory", list);
         }
     }
-
+    
     public boolean hasStackInSlot(int i) {
         ItemStack stack = getStackInSlot(i);
         return stack != null && stack.stackSize > 0;
     }
-
+    
     public boolean damageStackInSlot(int i, int amount) {
         ItemStack stack = getStackInSlot(i);
         int damage = stack.getItemDamage() + amount;
@@ -69,7 +68,8 @@ public class BaseTileInventory extends BaseTileEntity implements IInventory, ISi
         if (damage >= stack.getMaxDamage()) {
             setInventorySlotContents(i, null);
             return true;
-        } else {
+        }
+        else {
             onInventoryChanged(i);
             return false;
         }
@@ -87,7 +87,7 @@ public class BaseTileInventory extends BaseTileEntity implements IInventory, ISi
     public int getSizeInventory() {
         IInventory inventory = getInventory();
         return (inventory != null) ? inventory.getSizeInventory() : 0;
-    }
+    }   
 
     /**
      * Returns the stack in slot i
@@ -107,7 +107,8 @@ public class BaseTileInventory extends BaseTileEntity implements IInventory, ISi
             ItemStack result = inventory.decrStackSize(slot, amount);
             onInventoryChanged(slot);
             return result;
-        } else
+        }
+        else
             return null;
     }
 
@@ -121,7 +122,8 @@ public class BaseTileInventory extends BaseTileEntity implements IInventory, ISi
             ItemStack result = inventory.getStackInSlotOnClosing(slot);
             onInventoryChanged(slot);
             return result;
-        } else
+        }
+        else
             return null;
     }
 
@@ -158,7 +160,7 @@ public class BaseTileInventory extends BaseTileEntity implements IInventory, ISi
      */
     public boolean isUseableByPlayer(EntityPlayer player) {
         IInventory inventory = getInventory();
-        return (inventory == null) || inventory.isUseableByPlayer(player);
+        return (inventory != null) ? inventory.isUseableByPlayer(player) : true;
     }
 
     public void openInventory() {
@@ -172,7 +174,7 @@ public class BaseTileInventory extends BaseTileEntity implements IInventory, ISi
         if (inventory != null)
             inventory.closeInventory();
     }
-
+    
     public boolean isItemValidForSlot(int slot, ItemStack stack) {
         IInventory inventory = getInventory();
         if (inventory != null)
@@ -180,7 +182,7 @@ public class BaseTileInventory extends BaseTileEntity implements IInventory, ISi
         else
             return false;
     }
-
+    
     public boolean hasCustomInventoryName() {
         IInventory inventory = getInventory();
         if (inventory != null)
@@ -198,7 +200,7 @@ public class BaseTileInventory extends BaseTileEntity implements IInventory, ISi
     public int[] getAccessibleSlotsFromSide(int side) {
         IInventory inventory = getInventory();
         if (inventory instanceof ISidedInventory)
-            return ((ISidedInventory) inventory).getAccessibleSlotsFromSide(side);
+            return ((ISidedInventory)inventory).getAccessibleSlotsFromSide(side);
         else {
             if (allSlots == null) {
                 int n = getSizeInventory();
@@ -217,7 +219,7 @@ public class BaseTileInventory extends BaseTileEntity implements IInventory, ISi
     public boolean canInsertItem(int slot, ItemStack stack, int side) {
         IInventory inventory = getInventory();
         if (inventory instanceof ISidedInventory)
-            return ((ISidedInventory) inventory).canInsertItem(slot, stack, side);
+            return ((ISidedInventory)inventory).canInsertItem(slot, stack, side);
         else
             return true;
     }
@@ -229,7 +231,7 @@ public class BaseTileInventory extends BaseTileEntity implements IInventory, ISi
     public boolean canExtractItem(int slot, ItemStack stack, int side) {
         IInventory inventory = getInventory();
         if (inventory instanceof ISidedInventory)
-            return ((ISidedInventory) inventory).canExtractItem(slot, stack, side);
+            return ((ISidedInventory)inventory).canExtractItem(slot, stack, side);
         else
             return true;
     }

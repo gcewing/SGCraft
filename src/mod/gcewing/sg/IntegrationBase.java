@@ -8,7 +8,7 @@ package gcewing.sg;
 
 public class IntegrationBase extends BaseSubsystem {
 
-    protected final SGCraft mod = SGCraft.mod;
+    protected SGCraft mod = SGCraft.mod;
 
     public void onServerTick() {
     }

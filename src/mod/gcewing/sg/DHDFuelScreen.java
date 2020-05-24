@@ -6,13 +6,17 @@
 
 package gcewing.sg;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.world.World;
-import org.lwjgl.opengl.GL11;
+import org.lwjgl.input.*;
+import org.lwjgl.opengl.*;
 
+import net.minecraft.client.gui.*;
+import net.minecraft.entity.player.*;
+// import net.minecraft.util.BlockPos;
+import net.minecraft.world.*;
 
 public class DHDFuelScreen extends SGScreen {
 
+    static String screenTitle = "Stargate Controller";
     static final int guiWidth = 256;
     static final int guiHeight = 208;
     static final int fuelGaugeWidth = 16;
@@ -21,14 +25,9 @@ public class DHDFuelScreen extends SGScreen {
     static final int fuelGaugeY = 84;
     static final int fuelGaugeU = 0;
     static final int fuelGaugeV = 208;
-    static final String screenTitle = "Stargate Controller";
-    final DHDTE te;
 
-    public DHDFuelScreen(EntityPlayer player, DHDTE te) {
-        super(new DHDFuelContainer(player, te), guiWidth, guiHeight);
-        this.te = te;
-    }
-
+    DHDTE te;
+    
     public static DHDFuelScreen create(EntityPlayer player, World world, BlockPos pos) {
         DHDTE te = DHDTE.at(world, pos);
         if (te != null)
@@ -37,6 +36,11 @@ public class DHDFuelScreen extends SGScreen {
             return null;
     }
 
+    public DHDFuelScreen(EntityPlayer player, DHDTE te) {
+        super(new DHDFuelContainer(player, te), guiWidth, guiHeight);
+        this.te = te;
+    }
+    
     @Override
     protected void drawBackgroundLayer() {
         bindTexture(SGCraft.mod.resourceLocation("textures/gui/dhd_fuel_gui.png"), 256, 256);
@@ -45,17 +49,17 @@ public class DHDFuelScreen extends SGScreen {
         int cx = xSize / 2;
         setTextColor(0x004c66);
         drawCenteredString(screenTitle, cx, 8);
-        if (DHDTE.numFuelSlots > 0)
+        if (this.te.numFuelSlots > 0)
             drawString("Fuel", 150, 96);
     }
-
+    
     void drawFuelGauge() {
-        int level = (int) (fuelGaugeHeight * te.energyInBuffer / DHDTE.maxEnergyBuffer);
+        int level = (int)(fuelGaugeHeight * te.energyInBuffer / te.maxEnergyBuffer);
         if (level > fuelGaugeHeight)
             level = fuelGaugeHeight;
         GL11.glEnable(GL11.GL_BLEND);
         drawTexturedRect(fuelGaugeX, fuelGaugeY + fuelGaugeHeight - level,
-                fuelGaugeWidth, level, fuelGaugeU, fuelGaugeV);
+            fuelGaugeWidth, level, fuelGaugeU, fuelGaugeV);
         GL11.glDisable(GL11.GL_BLEND);
     }
 

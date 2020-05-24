@@ -6,28 +6,26 @@
 
 package gcewing.sg;
 
+import java.io.*;
+import io.netty.buffer.*;
+import net.minecraft.entity.*;
+import net.minecraft.nbt.*;
+import net.minecraft.world.*;
+import net.minecraft.tileentity.*;
+import net.minecraftforge.common.util.*;
+import net.minecraft.util.*;
+
 import cpw.mods.fml.common.registry.IEntityAdditionalSpawnData;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufInputStream;
-import io.netty.buffer.ByteBufOutputStream;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.world.World;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-
-import static gcewing.sg.BaseBlockUtils.getTileEntityWorld;
-import static gcewing.sg.BaseBlockUtils.getWorldTileEntity;
-import static gcewing.sg.BaseUtils.newAxisAlignedBB;
+import static gcewing.sg.BaseBlockUtils.*;
+import static gcewing.sg.BaseUtils.*;
 
 public class IrisEntity extends BaseEntity implements IEntityAdditionalSpawnData {
 
-    public static final boolean debugIrisEntity = false;
+    public static boolean debugIrisEntity = false;
 
     BlockPos blockPos;
-
+    
     public IrisEntity(World world) {
         super(world);
     }
@@ -39,15 +37,18 @@ public class IrisEntity extends BaseEntity implements IEntityAdditionalSpawnData
         double cx = 0;
         double cy = 2;
         double cz = SGBaseTE.irisZPosition;
+        double hx = radius;
+        double hy = radius;
+        double hz = thickness;
         AxisAlignedBB localBox = newAxisAlignedBB(
-                cx - radius, cy - radius, cz - thickness,
-                cx + radius, cy + radius, cz + thickness);
+            cx - hx, cy - hy, cz - hz,
+            cx + hx, cy + hy, cz + hz);
         Trans3 t = te.localToGlobalTransformation();
         AxisAlignedBB globalBox = t.t(localBox);
         //System.out.printf("IrisEntity.init: local %s\n", localBox);
         init(te.getPos(), globalBox);
     }
-
+    
     void init(BlockPos pos, AxisAlignedBB box) {
         if (debugIrisEntity)
             System.out.printf("IrisEntity.init: %s at %s box %s\n", this, pos, box);
@@ -55,7 +56,7 @@ public class IrisEntity extends BaseEntity implements IEntityAdditionalSpawnData
         setPosition(box.minX, box.minY, box.minZ);
         setBoundingBox(box);
     }
-
+    
     @Override
     protected void entityInit() {
     }
@@ -63,11 +64,11 @@ public class IrisEntity extends BaseEntity implements IEntityAdditionalSpawnData
     SGBaseTE getBaseTE() {
         TileEntity te = getWorldTileEntity(worldObj, blockPos);
         if (te instanceof SGBaseTE)
-            return (SGBaseTE) te;
+            return (SGBaseTE)te;
         else
             return null;
     }
-
+    
     @Override
     public boolean canBeCollidedWith() {
         boolean result;
@@ -79,7 +80,7 @@ public class IrisEntity extends BaseEntity implements IEntityAdditionalSpawnData
         //System.out.printf("IrisEntity.canBeCollidedWith: %s\n", result);
         return result;
     }
-
+    
     @Override
     public AxisAlignedBB getCollisionBoundingBox() {
         if (canBeCollidedWith())
@@ -92,7 +93,7 @@ public class IrisEntity extends BaseEntity implements IEntityAdditionalSpawnData
     public boolean canBePushed() {
         return false;
     }
-
+    
     @Override
     public void readEntityFromNBT(NBTTagCompound nbt) {
         if (debugIrisEntity)
@@ -110,7 +111,7 @@ public class IrisEntity extends BaseEntity implements IEntityAdditionalSpawnData
         AxisAlignedBB box = newAxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ);
         init(pos, box);
     }
-
+    
     @Override
     public void writeEntityToNBT(NBTTagCompound nbt) {
         nbt.setInteger("blockX", blockPos.getX());
@@ -147,11 +148,12 @@ public class IrisEntity extends BaseEntity implements IEntityAdditionalSpawnData
             data.writeDouble(box.maxX);
             data.writeDouble(box.maxY);
             data.writeDouble(box.maxZ);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
-
+    
     @Override
     public void readSpawnData(ByteBuf buffer) {
         //System.out.printf("IrisEntity.readSpawnData\n");
@@ -166,7 +168,8 @@ public class IrisEntity extends BaseEntity implements IEntityAdditionalSpawnData
             double maxZ = data.readDouble();
             AxisAlignedBB box = newAxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ);
             init(pos, box);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new RuntimeException(e);
         }
     }

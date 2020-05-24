@@ -6,9 +6,15 @@
 
 package gcewing.sg.ic2;
 
-import gcewing.sg.PowerItem;
-import net.minecraft.block.Block;
+import java.util.*;
 
+import net.minecraft.block.*;
+//import net.minecraft.entity.player.*;
+import net.minecraft.item.*;
+//import net.minecraft.nbt.*;
+//import net.minecraft.util.*;
+
+import gcewing.sg.*;
 
 public class IC2PowerItem extends PowerItem {
 

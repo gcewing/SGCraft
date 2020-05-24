@@ -18,7 +18,7 @@ public class Utils {
     public static double addAngle(double a, double b) {
         return normaliseAngle(a + b);
     }
-
+    
     public static double diffAngle(double a, double b) {
         // Shortest angular distance from a to b, in range -180 to 180
         double d = (a > b) ? (a - b) : (b - a);
@@ -28,9 +28,13 @@ public class Utils {
             d = -d;
         return d;
     }
-
+    
+    public static double relaxAngle(double a, double target, double rate) {
+        return addAngle(a, rate * diffAngle(a, target));
+    }
+    
     public static double interpolateAngle(double a, double b, double t) {
         return addAngle(a, t * diffAngle(a, b));
     }
-
+    
 }

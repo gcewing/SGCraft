@@ -6,14 +6,14 @@
 
 package gcewing.sg.rf;
 
-import gcewing.sg.PowerBlock;
+import gcewing.sg.*;
 
 public class RFPowerBlock extends PowerBlock<RFPowerTE> {
 
     public RFPowerBlock() {
         super(RFPowerTE.class, null);
         setModelAndTextures("block/power.smeg",
-                "rfPowerUnit-bottom", "rfPowerUnit-top", "rfPowerUnit-side");
+            "rfPowerUnit-bottom", "rfPowerUnit-top", "rfPowerUnit-side");
     }
-
+    
 }

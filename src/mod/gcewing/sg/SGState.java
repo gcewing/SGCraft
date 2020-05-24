@@ -8,13 +8,14 @@ package gcewing.sg;
 
 public enum SGState {
     Idle, Dialling, Transient, Connected, Disconnecting, InterDialling;
-
-    static final SGState[] VALUES = values();
+    
+    static SGState[] VALUES = values();
 
     public static SGState valueOf(int i) {
         try {
             return VALUES[i];
-        } catch (IndexOutOfBoundsException e) {
+        }
+        catch (IndexOutOfBoundsException e) {
             return Idle;
         }
     }

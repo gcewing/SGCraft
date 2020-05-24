@@ -6,24 +6,25 @@
 
 package gcewing.sg;
 
-import net.minecraft.block.Block;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import java.util.*;
 
-import java.util.List;
+import net.minecraft.block.*;
+import net.minecraft.entity.player.*;
+import net.minecraft.item.*;
+import net.minecraft.nbt.*;
+import net.minecraft.util.*;
 
 public class PowerItem extends BaseItemBlock {
 
-    final String unitName;
-    final double maxEnergy;
+    String unitName;
+    double maxEnergy;
 
     public PowerItem(Block block, String unitName, double maxEnergy) {
         super(block);
         this.unitName = unitName;
         this.maxEnergy = maxEnergy;
     }
-
+    
     @Override
     public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean par4) {
         NBTTagCompound nbt = stack.getTagCompound();

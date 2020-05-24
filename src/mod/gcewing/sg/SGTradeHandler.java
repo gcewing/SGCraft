@@ -6,29 +6,48 @@
 
 package gcewing.sg;
 
-import cpw.mods.fml.common.registry.VillagerRegistry.IVillageTradeHandler;
-import net.minecraft.entity.passive.EntityVillager;
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
-import net.minecraft.village.MerchantRecipe;
-import net.minecraft.village.MerchantRecipeList;
+import java.util.*;
 
-import java.util.Random;
+import net.minecraft.block.*;
+import net.minecraft.entity.*;
+import net.minecraft.entity.passive.*;
+import net.minecraft.init.*;
+import net.minecraft.item.*;
+import net.minecraft.village.*;
+
+import cpw.mods.fml.common.registry.*;
+import cpw.mods.fml.common.registry.VillagerRegistry.*;
 
 public class SGTradeHandler implements IVillageTradeHandler {
 
-    @SuppressWarnings("unchecked")
     public void manipulateTradesForVillager(EntityVillager villager, MerchantRecipeList recipes, Random random) {
 
+//      recipes.add(new MerchantRecipe(
+//          new ItemStack(Item.emerald, 4),
+//          new ItemStack(SGCraft.naquadahIngot, 3),
+//          new ItemStack(SGCraft.sgRingBlock, 1, 0)));
+//      recipes.add(new MerchantRecipe(
+//          new ItemStack(Item.emerald, 4),
+//          new ItemStack(Item.enderPearl),
+//          new ItemStack(SGCraft.sgRingBlock, 1, 1)));
+//      recipes.add(new MerchantRecipe(
+//          new ItemStack(Item.emerald, 16),
+//          new ItemStack(Item.eyeOfEnder),
+//          new ItemStack(SGCraft.sgBaseBlock)));
+//      recipes.add(new MerchantRecipe(
+//          new ItemStack(Item.emerald, 16),
+//          new ItemStack(Block.obsidian, 4),
+//          new ItemStack(SGCraft.sgControllerBlock)));
+            
         recipes.add(new MerchantRecipe(
-                new ItemStack(Items.emerald, 8),
-                new ItemStack(Items.diamond, 1),
-                new ItemStack(SGCraft.sgCoreCrystal)));
+            new ItemStack(Items.emerald, 8),
+            new ItemStack(Items.diamond, 1),
+            new ItemStack(SGCraft.sgCoreCrystal)));
 
         recipes.add(new MerchantRecipe(
-                new ItemStack(Items.emerald, 16),
-                new ItemStack(Items.diamond, 1),
-                new ItemStack(SGCraft.sgControllerCrystal)));
+            new ItemStack(Items.emerald, 16),
+            new ItemStack(Items.diamond, 1),
+            new ItemStack(SGCraft.sgControllerCrystal)));
     }
 
 }

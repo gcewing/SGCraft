@@ -9,14 +9,15 @@ package gcewing.sg;
 public enum IrisState {
     Open, Closing, Closed, Opening;
 
-    static final IrisState[] VALUES = values();
+    static IrisState[] VALUES = values();
 
     public static IrisState valueOf(int i) {
         try {
             return VALUES[i];
-        } catch (IndexOutOfBoundsException e) {
+        }
+        catch (IndexOutOfBoundsException e) {
             return Open;
         }
     }
 
-}
+};

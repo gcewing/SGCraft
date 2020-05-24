@@ -6,23 +6,24 @@
 
 package gcewing.sg;
 
-import net.minecraft.block.Block;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.world.World;
+import net.minecraft.block.*;
+import net.minecraft.item.*;
+import net.minecraft.entity.player.*;
+import net.minecraft.util.*;
+import net.minecraft.world.*;
 
-import static gcewing.sg.BaseBlockUtils.getWorldBlock;
+import static gcewing.sg.BaseBlockUtils.*;
 
 public class SGChevronUpgradeItem extends BaseItem {
 
     @Override
     public boolean onItemUse(ItemStack stack, EntityPlayer player, World world,
-                             BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ) {
+        BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
+    {
         System.out.printf("SGChevronUpgradeItem.onItemUse: at %s\n", pos);
         Block block = getWorldBlock(world, pos);
         if (block instanceof ISGBlock) {
-            SGBaseTE te = ((ISGBlock) block).getBaseTE(world, pos);
+            SGBaseTE te = ((ISGBlock)block).getBaseTE(world, pos);
             if (te != null)
                 return te.applyChevronUpgrade(stack, player);
         }

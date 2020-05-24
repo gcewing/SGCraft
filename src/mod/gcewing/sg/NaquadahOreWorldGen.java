@@ -6,15 +6,15 @@
 
 package gcewing.sg;
 
-import cpw.mods.fml.common.IWorldGenerator;
-import net.minecraft.block.Block;
-import net.minecraft.init.Blocks;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.IChunkProvider;
+import java.util.*;
 
-import java.util.Random;
+import net.minecraft.block.*;
+import net.minecraft.init.*;
+import net.minecraft.world.*;
+import net.minecraft.world.chunk.*;
+//import net.minecraft.world.gen.feature.*;
 
+import cpw.mods.fml.common.*;
 
 public class NaquadahOreWorldGen implements IWorldGenerator {
 
@@ -32,10 +32,10 @@ public class NaquadahOreWorldGen implements IWorldGenerator {
     Chunk chunk;
     int x0, z0;
 
-    final Block stone = Blocks.stone;
-    final Block lava = Blocks.lava;
-    final Block naquadah = SGCraft.naquadahOre;
-
+    Block stone = Blocks.stone;
+    Block lava = Blocks.lava;
+    Block naquadah = SGCraft.naquadahOre;
+    
     public static void configure(BaseConfiguration cfg) {
         genUnderLavaOdds = cfg.getInteger("naquadah", "genUnderLavaOdds", genUnderLavaOdds);
         maxNodesUnderLava = cfg.getInteger("naquadah", "maxNodesUnderLava", maxNodesUnderLava);
@@ -47,7 +47,8 @@ public class NaquadahOreWorldGen implements IWorldGenerator {
     }
 
     public void generate(Random random, int chunkX, int chunkZ, World world,
-                         IChunkProvider chunkGenerator, IChunkProvider chunkProvider) {
+        IChunkProvider chunkGenerator, IChunkProvider chunkProvider)
+    {
         //System.out.printf("NaquadahOreWorldGen: chunk (%d, %d)\n", chunkX, chunkZ);
         this.random = random;
         this.world = world;
@@ -56,14 +57,14 @@ public class NaquadahOreWorldGen implements IWorldGenerator {
         chunk = world.getChunkFromChunkCoords(chunkX, chunkZ);
         generateChunk();
     }
-
+    
     public void regenerate(Chunk chunk) {
         this.chunk = chunk;
         world = chunk.worldObj;
         int chunkX = chunk.xPosition;
         int chunkZ = chunk.zPosition;
         long worldSeed = world.getSeed();
-        random = new XSTR(worldSeed);
+        random = new Random(worldSeed);
         long xSeed = random.nextLong() >> 2 + 1L;
         long zSeed = random.nextLong() >> 2 + 1L;
         random.setSeed((xSeed * chunkX + zSeed * chunkZ) ^ worldSeed);
@@ -71,15 +72,15 @@ public class NaquadahOreWorldGen implements IWorldGenerator {
         z0 = chunkZ * 16;
         generateChunk();
     }
-
+    
     Block getBlock(int x, int y, int z) {
         return chunk.getBlock(x, y, z);
     }
-
+    
     void setBlock(int x, int y, int z, Block id) {
         chunk.func_150807_a(x, y, z, id, 0);
     }
-
+    
     void generateNode(Block id, int x, int y, int z, int sx, int sy, int sz) {
         int dx = random.nextInt(sx);
         int dy = random.nextInt(sy);
@@ -87,7 +88,7 @@ public class NaquadahOreWorldGen implements IWorldGenerator {
         int h = world.getHeight();
         if (debugRandom && debugLevel >= 1)
             System.out.printf("NaquadahOreWorldGen: %d x %d x %d node at (%d, %d, %d)\n",
-                    dx + 1, dy + 1, dz + 1, x0 + x, y, z0 + z);
+                dx + 1, dy + 1, dz + 1, x0 + x, y, z0 + z);
         for (int i = x; i <= x + dx; i++)
             for (int j = y; j <= y + dy; j++)
                 for (int k = z; k <= z + dz; k++)
@@ -95,11 +96,11 @@ public class NaquadahOreWorldGen implements IWorldGenerator {
                         if (getBlock(i, j, k) == stone) {
                             if (debugRandom && debugLevel >= 2)
                                 System.out.printf("NaquadahOreWorldGen: block at (%d, %d, %d)\n",
-                                        x0 + i, j, z0 + k);
+                                    x0 + i, j, z0 + k);
                             setBlock(i, j, k, id);
                         }
     }
-
+    
     boolean odds(int n) {
         return random.nextInt(n) == 0;
     }
@@ -112,11 +113,11 @@ public class NaquadahOreWorldGen implements IWorldGenerator {
                 int x = random.nextInt(16);
                 int z = random.nextInt(16);
                 for (int y = 0; y < 64; y++)
-                    if (getBlock(x, y, z) == stone && getBlock(x, y + 1, z) == lava) {
+                    if (getBlock(x, y, z) == stone && getBlock(x, y+1, z) == lava) {
                         if (debugLava)
-                            System.out.printf("NaquadahOreWorldGen: generating under lava at (%d, %d, %d)\n", x0 + x, y, z0 + z);
+                            System.out.printf("NaquadahOreWorldGen: generating under lava at (%d, %d, %d)\n", x0+x, y, z0+z);
                         generateNode(naquadah, x, y, z, 3, 1, 3);
-                    }
+                }
             }
         }
         if (odds(genIsolatedOdds)) {
@@ -127,11 +128,11 @@ public class NaquadahOreWorldGen implements IWorldGenerator {
                 int z = random.nextInt(16);
                 if (getBlock(x, y, z) == stone) {
                     if (debugRandom)
-                        System.out.printf("NaquadahOreWorldGen: generating randomly at (%d, %d, %d)\n", x0 + x, y, z0 + z);
+                        System.out.printf("NaquadahOreWorldGen: generating randomly at (%d, %d, %d)\n", x0+x, y, z0+z);
                     generateNode(naquadah, x, y, z, 2, 2, 2);
                 }
             }
         }
     }
-
+    
 }
