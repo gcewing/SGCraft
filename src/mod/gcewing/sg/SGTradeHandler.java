@@ -39,15 +39,15 @@ public class SGTradeHandler implements IVillageTradeHandler {
 //          new ItemStack(Block.obsidian, 4),
 //          new ItemStack(SGCraft.sgControllerBlock)));
             
-        recipes.add(new MerchantRecipe(
-            new ItemStack(Items.emerald, 8),
-            new ItemStack(Items.diamond, 1),
-            new ItemStack(SGCraft.sgCoreCrystal)));
+//        recipes.add(new MerchantRecipe(
+//            new ItemStack(Items.emerald, 8),
+//            new ItemStack(Items.diamond, 1),
+//            new ItemStack(SGCraft.sgCoreCrystal)));
 
-        recipes.add(new MerchantRecipe(
-            new ItemStack(Items.emerald, 16),
-            new ItemStack(Items.diamond, 1),
-            new ItemStack(SGCraft.sgControllerCrystal)));
+//        recipes.add(new MerchantRecipe(
+//            new ItemStack(Items.emerald, 16),
+//            new ItemStack(Items.diamond, 1),
+//            new ItemStack(SGCraft.sgControllerCrystal)));
     }
 
 }
