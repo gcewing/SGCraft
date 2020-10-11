@@ -20,3 +20,4 @@ item.gcewing_sg:ic2Capacitor.name=Ridiculously Large Capacitor
 death.attack.gcewing_sg:transient.player=%1$s was torn apart by an event horizon
 death.attack.gcewing_sg:iris.player=%1$s splattered against a stargate iris
 itemGroup.gcewing_sg:sgcraft=SG Craft
+description.villager.profession.sgcraft.tokra=Tok'ra
