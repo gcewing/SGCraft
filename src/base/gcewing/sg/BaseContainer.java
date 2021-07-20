@@ -210,7 +210,7 @@ public class BaseContainer extends Container {
     protected SlotRange transferSlotRange(int srcSlotIndex, ItemStack stack) {
         if (playerSlotRange.contains(srcSlotIndex))
             return containerSlotRange;
-        else if (containerSlotRange.contains(srcSlotIndex))
+        else if (containerSlotRange != null && containerSlotRange.contains(srcSlotIndex))
             return playerSlotRange;
         else
             return null;
