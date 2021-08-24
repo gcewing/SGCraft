@@ -6,27 +6,25 @@
 
 package gcewing.sg;
 
-import java.util.*;
+import static gcewing.sg.BaseBlockUtils.getWorldBlock;
+import static gcewing.sg.BaseBlockUtils.getWorldBlockState;
+import static gcewing.sg.BaseBlockUtils.markWorldBlockForUpdate;
 
-import net.minecraft.block.*;
-import net.minecraft.block.material.*;
-// import net.minecraft.block.properties.*;
-// import net.minecraft.block.state.IBlockState;
-import net.minecraft.creativetab.*;
-import net.minecraft.client.renderer.texture.*;
-import net.minecraft.entity.*;
-import net.minecraft.entity.player.*;
-import net.minecraft.item.*;
-import net.minecraft.tileentity.*;
-import net.minecraft.util.*;
-import net.minecraft.world.*;
-import net.minecraftforge.common.*;
-import net.minecraftforge.common.util.*;
-import cpw.mods.fml.common.registry.*;
-import cpw.mods.fml.relauncher.*;
+import java.util.List;
 
 import gcewing.sg.BaseMod.ModelSpec;
-import static gcewing.sg.BaseBlockUtils.*;
+import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
+// import net.minecraft.block.properties.*;
+// import net.minecraft.block.state.IBlockState;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
 
 public class SGRingBlock extends SGBlock<SGRingTE> {
 
@@ -112,7 +110,7 @@ public class SGRingBlock extends SGBlock<SGRingTE> {
         EnumFacing side, float cx, float cy, float cz)
     {
         //System.out.printf("SGRingBlock.onBlockActivated at (%d, %d, %d)\n", x, y, z);
-        SGRingTE te = getTileEntity(world, pos);
+        SGRingTE te = getRingTE(world, pos);
         if (te.isMerged) {
             //System.out.printf("SGRingBlock.onBlockActivated: base at %s\n", te.basePos);
             IBlockState baseState = getWorldBlockState(world, te.basePos);
@@ -126,12 +124,20 @@ public class SGRingBlock extends SGBlock<SGRingTE> {
     
     @Override
     public SGBaseTE getBaseTE(IBlockAccess world, BlockPos pos) {
-        SGRingTE rte = getTileEntity(world, pos);
+        SGRingTE rte = getRingTE(world, pos);
         if (rte != null)
             return rte.getBaseTE();
         else
             return null;
     }
+    
+    public SGRingTE getRingTE(IBlockAccess world, BlockPos pos) {		
+		TileEntity te = getTileEntity(world, pos); 
+		if (SGRingTE.class.isInstance(te)) {
+			return (SGRingTE) te;
+		}
+		return null;
+	}
     
     @Override
     public void getSubBlocks(Item item, CreativeTabs tab, List list) {
@@ -140,12 +146,12 @@ public class SGRingBlock extends SGBlock<SGRingTE> {
     }
     
     public boolean isMerged(IBlockAccess world, BlockPos pos) {
-        SGRingTE te = getTileEntity(world, pos);
+        SGRingTE te = getRingTE(world, pos);
         return te != null && te.isMerged;
     }
     
     public void mergeWith(World world, BlockPos pos, BlockPos basePos) {
-        SGRingTE te = getTileEntity(world, pos);
+        SGRingTE te = getRingTE(world, pos);
         te.isMerged = true;
         te.basePos = basePos;
         //te.onInventoryChanged();
@@ -153,7 +159,7 @@ public class SGRingBlock extends SGBlock<SGRingTE> {
     }
     
     public void unmergeFrom(World world, BlockPos pos, BlockPos basePos) {
-        SGRingTE te = getTileEntity(world, pos);
+        SGRingTE te = getRingTE(world, pos);
         if (SGBaseBlock.debugMerge)
             System.out.printf("SGRingBlock.unmergeFrom: ring at %s base at %s te.isMerged = %s te.basePos = %s\n",
                 pos, basePos, te.isMerged, te.basePos);
@@ -169,13 +175,13 @@ public class SGRingBlock extends SGBlock<SGRingTE> {
     public void onBlockAdded(World world, BlockPos pos, IBlockState state) {
         if (SGBaseBlock.debugMerge)
             System.out.printf("SGRingBlock.onBlockAdded: at %s\n", pos);
-        SGRingTE te = getTileEntity(world, pos);
+        SGRingTE te = getRingTE(world, pos);
         updateBaseBlocks(world, pos, te);
     }
     
     @Override
     public void breakBlock(World world, BlockPos pos, IBlockState state) {
-        SGRingTE te = getTileEntity(world, pos);
+        SGRingTE te = getRingTE(world, pos);
         super.breakBlock(world, pos, state);
         if (te != null && te.isMerged)
             updateBaseBlocks(world, pos, te);
