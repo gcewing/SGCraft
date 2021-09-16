@@ -6,19 +6,15 @@
 
 package gcewing.sg;
 
-import net.minecraft.block.*;
-import net.minecraft.block.material.*;
-// import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.texture.*;
-import net.minecraft.creativetab.*;
-import net.minecraft.entity.*;
-import net.minecraft.entity.player.*;
-import net.minecraft.item.*;
-import net.minecraft.tileentity.*;
-import net.minecraft.util.*;
-import net.minecraft.world.*;
-
 import gcewing.sg.BaseMod.ModelSpec;
+import net.minecraft.block.material.Material;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.world.World;
 
 public class DHDBlock extends BaseBlock<DHDTE> {
 
@@ -81,13 +77,13 @@ public class DHDBlock extends BaseBlock<DHDTE> {
 
     @Override
     public void breakBlock(World world, BlockPos pos, IBlockState state) {
-        DHDTE cte = getTileEntity(world, pos);
+        TileEntity cte = getTileEntity(world, pos);
         super.breakBlock(world, pos, state);
         if (cte == null) {
             System.out.printf("DHDBlock.breakBlock: No tile entity at %s\n", pos);
         }
-        else if (cte.isLinkedToStargate) {
-            SGBaseTE gte = cte.getLinkedStargateTE();
+        else if (cte instanceof DHDTE && ((DHDTE) cte).isLinkedToStargate) {
+            SGBaseTE gte = ((DHDTE) cte).getLinkedStargateTE();
             if (gte != null)
                 gte.clearLinkToController();
         }
@@ -104,11 +100,13 @@ public class DHDBlock extends BaseBlock<DHDTE> {
     
     public void checkForLink(World world, BlockPos pos) {
         //System.out.printf("DHDBlock.checkForLink at %s\n", pos);
-        DHDTE te = getTileEntity(world, pos);
-        if (te != null)
-            te.checkForLink();
-        else
-            System.out.printf("DHDBlock.breakBlock: No tile entity at %d\n", pos);
+        TileEntity te = getTileEntity(world, pos);
+        if (te instanceof DHDTE) {
+        	((DHDTE) te).checkForLink();
+        }
+        else {
+        	System.out.printf("DHDBlock.breakBlock: No tile entity at %d\n", pos);
+        }
     }
     
 }

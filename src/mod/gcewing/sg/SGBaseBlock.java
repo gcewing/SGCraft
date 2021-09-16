@@ -17,6 +17,7 @@ import net.minecraft.entity.*;
 import net.minecraft.entity.player.*;
 import net.minecraft.init.*;
 import net.minecraft.item.*;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.*;
 import net.minecraft.util.*;
 import net.minecraftforge.common.*;
@@ -77,7 +78,11 @@ public class SGBaseBlock extends SGBlock<SGBaseTE>  {
     
     @Override
     public SGBaseTE getBaseTE(IBlockAccess world, BlockPos pos) {
-        return getTileEntity(world, pos);
+    	TileEntity te = getTileEntity(world, pos);
+    	if (te instanceof SGBaseTE) {
+    		return (SGBaseTE) te;
+    	}
+        return null;
     }
 
     @Override
@@ -101,7 +106,7 @@ public class SGBaseBlock extends SGBlock<SGBaseTE>  {
     }
 
     public boolean isMerged(IBlockAccess world, BlockPos pos) {
-        SGBaseTE te = getTileEntity(world, pos);
+        SGBaseTE te = getSGBaseTE(world, pos);
         return te != null && te.isMerged;
     }
     
@@ -120,7 +125,7 @@ public class SGBaseBlock extends SGBlock<SGBaseTE>  {
             System.out.printf("SGBaseBlock: at %s meta %s state %s\n",
                 pos, world.getBlockMetadata(pos.x, pos.y, pos.z), state);
         String Side = world.isRemote ? "Client" : "Server";
-        SGBaseTE te = getTileEntity(world, pos);
+        SGBaseTE te = getSGBaseTE(world, pos);
         //System.out.printf("SGBaseBlock.onBlockActivated: %s: Tile entity = %s\n", Side, te);
         if (te != null) {
             if (debugMerge)
@@ -142,7 +147,7 @@ public class SGBaseBlock extends SGBlock<SGBaseTE>  {
     
     @Override
     public void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block block) {
-        SGBaseTE te = getTileEntity(world, pos);
+        SGBaseTE te = getSGBaseTE(world, pos);
         if (te != null)
             te.onNeighborBlockChange();
     }
@@ -172,7 +177,7 @@ public class SGBaseBlock extends SGBlock<SGBaseTE>  {
                     }
             if (debugMerge)
                 System.out.printf("SGBaseBlock: Merging\n");
-            SGBaseTE te = getTileEntity(world, pos);
+            SGBaseTE te = getSGBaseTE(world, pos);
             te.setMerged(true);
             markWorldBlockForUpdate(world, pos);
             for (int i = -2; i <= 2; i++)
@@ -212,7 +217,7 @@ public class SGBaseBlock extends SGBlock<SGBaseTE>  {
     }
     
     void dropUpgrades(World world, BlockPos pos) {
-        SGBaseTE te = getTileEntity(world, pos);
+        SGBaseTE te = getSGBaseTE(world, pos);
         if (te != null) {
             if (te.hasChevronUpgrade)
                 spawnAsEntity(world, pos, new ItemStack(SGCraft.sgChevronUpgrade));
@@ -222,7 +227,7 @@ public class SGBaseBlock extends SGBlock<SGBaseTE>  {
     }
     
     public void unmerge(World world, BlockPos pos) {
-        SGBaseTE te = getTileEntity(world, pos);
+        SGBaseTE te = getSGBaseTE(world, pos);
         boolean goBang = false;
         if (te != null /*&& te.isMerged*/) {
             if (te.isMerged && te.state == SGState.Connected) {
@@ -273,7 +278,7 @@ public class SGBaseBlock extends SGBlock<SGBaseTE>  {
     
     @Override
     public int getWeakPower(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing side) {
-        SGBaseTE te = getTileEntity(world, pos);
+        SGBaseTE te = getSGBaseTE(world, pos);
         return (te != null && te.state != SGState.Idle) ? 15 : 0;
     }
     
