@@ -412,7 +412,7 @@ extends BlockContainer implements BaseMod.IBlock
 	
 	public SGBaseTE getSGBaseTE(IBlockAccess world, BlockPos pos) {		
 		TileEntity te = getTileEntity(world, pos); 
-		if (SGBaseTE.class.isInstance(te)) {
+		if (te instanceof SGBaseTE) {
 			return (SGBaseTE) te;
 		}
 		return null;

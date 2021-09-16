@@ -38,7 +38,7 @@ public class PowerBlock<TE extends PowerTE> extends BaseBlock<TE> {
 	@Override
 	public void breakBlock(World world, BlockPos pos, IBlockState state) {
 		TileEntity te = getTileEntity(world, pos);
-		if (PowerTE.class.isInstance(te)) {
+		if (te instanceof PowerTE) {
 			lastRemovedTE = (PowerTE) te;    		
 		}
 		super.breakBlock(world, pos, state);
@@ -69,7 +69,7 @@ public class PowerBlock<TE extends PowerTE> extends BaseBlock<TE> {
 	@Override
 	public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase player, ItemStack stack) {
 		TileEntity t = getTileEntity(world, pos);
-		if (PowerTE.class.isInstance(t)) {
+		if (t instanceof PowerTE) {
 			PowerTE te = (PowerTE) t;
 			NBTTagCompound nbt = stack.getTagCompound();
 			if (te != null && nbt != null) {

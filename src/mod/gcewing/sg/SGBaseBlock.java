@@ -79,7 +79,7 @@ public class SGBaseBlock extends SGBlock<SGBaseTE>  {
     @Override
     public SGBaseTE getBaseTE(IBlockAccess world, BlockPos pos) {
     	TileEntity te = getTileEntity(world, pos);
-    	if (SGBaseTE.class.isInstance(te)) {
+    	if (te instanceof SGBaseTE) {
     		return (SGBaseTE) te;
     	}
         return null;

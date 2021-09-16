@@ -133,7 +133,7 @@ public class SGRingBlock extends SGBlock<SGRingTE> {
     
     public SGRingTE getRingTE(IBlockAccess world, BlockPos pos) {		
 		TileEntity te = getTileEntity(world, pos); 
-		if (SGRingTE.class.isInstance(te)) {
+		if (te instanceof SGRingTE) {
 			return (SGRingTE) te;
 		}
 		return null;

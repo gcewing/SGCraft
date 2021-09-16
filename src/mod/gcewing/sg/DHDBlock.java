@@ -82,7 +82,7 @@ public class DHDBlock extends BaseBlock<DHDTE> {
         if (cte == null) {
             System.out.printf("DHDBlock.breakBlock: No tile entity at %s\n", pos);
         }
-        else if (DHDTE.class.isInstance(cte) && ((DHDTE) cte).isLinkedToStargate) {
+        else if (cte instanceof DHDTE && ((DHDTE) cte).isLinkedToStargate) {
             SGBaseTE gte = ((DHDTE) cte).getLinkedStargateTE();
             if (gte != null)
                 gte.clearLinkToController();
@@ -101,7 +101,7 @@ public class DHDBlock extends BaseBlock<DHDTE> {
     public void checkForLink(World world, BlockPos pos) {
         //System.out.printf("DHDBlock.checkForLink at %s\n", pos);
         TileEntity te = getTileEntity(world, pos);
-        if (DHDTE.class.isInstance(te)) {
+        if (te instanceof DHDTE) {
         	((DHDTE) te).checkForLink();
         }
         else {
