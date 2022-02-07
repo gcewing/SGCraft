@@ -1,0 +1,16 @@
+[
+{
+  "modid": "${modId}",
+  "name": "${modName}",
+  "description": "SG-1 stargates and other stuff.",
+  "version": "${modVersion}",
+  "mcversion": "${minecraftVersion}",
+  "url": "http://www.cosc.canterbury.ac.nz/greg.ewing/minecraft/mods/SGCraft/",
+  "updateUrl": "",
+  "authors": ["Greg Ewing"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
