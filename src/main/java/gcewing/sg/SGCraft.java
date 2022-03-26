@@ -244,14 +244,14 @@ public class SGCraft extends BaseMod<SGCraftClient> {
     @SubscribeEvent
     public void onChunkLoad(ChunkDataEvent.Load e) {
         Chunk chunk = e.getChunk();
-        SGCraft.log.trace("SGCraft.onChunkLoad: " + chunk.xPosition + "," + chunk.zPosition);
+        //SGCraft.log.trace("SGCraft.onChunkLoad: " + chunk.xPosition + "," + chunk.zPosition);
         SGChunkData.onChunkLoad(e);
     }
 
     @SubscribeEvent
     public void onChunkSave(ChunkDataEvent.Save e) {
         Chunk chunk = e.getChunk();
-        SGCraft.log.trace("SGCraft.onChunkSave: " + chunk.xPosition + "," + chunk.zPosition);
+        //SGCraft.log.trace("SGCraft.onChunkSave: " + chunk.xPosition + "," + chunk.zPosition);
         SGChunkData.onChunkSave(e);
     }
     
@@ -273,11 +273,11 @@ public class SGCraft extends BaseMod<SGCraftClient> {
     public void onChunkUnload(ChunkEvent.Unload e) {
         Chunk chunk = e.getChunk();
         if (!getChunkWorld(chunk).isRemote) {
-            SGCraft.log.trace("SGCraft.onChunkUnload: " + chunk.xPosition + "," + chunk.zPosition);
+            //SGCraft.log.trace("SGCraft.onChunkUnload: " + chunk.xPosition + "," + chunk.zPosition);
             for (Object obj : getChunkTileEntityMap(chunk).values()) {
                 if (obj instanceof SGBaseTE) {
                     SGBaseTE te = (SGBaseTE)obj;
-                    SGCraft.log.trace("SGCraft.onChunkUnload: Disconnecting stargate at " + te.xCoord + "," + te.yCoord + "," + te.zCoord);
+                    //SGCraft.log.trace("SGCraft.onChunkUnload: Disconnecting stargate at " + te.xCoord + "," + te.yCoord + "," + te.zCoord);
                     te.disconnect();
                 }
             }
