@@ -9,7 +9,7 @@ The following branches are active:
 
 feature/zpm branch, use this:
 - vm options: -Xincgc -Xms1024M -Xmx2048M -Dfml.coreMods.load=org.spongepowered.mod.SpongeCoremod
-- program arguments: --noCoreSearch --mixin mixins.sgcraft.json
+- program arguments: --noCoreSearch
 
 Any questions please create an issue.
 
