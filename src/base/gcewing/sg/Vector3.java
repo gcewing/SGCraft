@@ -45,7 +45,7 @@ public class Vector3 {
     }
     
     public Vector3(Vec3d v) {
-        this(v.xCoord, v.yCoord, v.zCoord);
+        this(v.x, v.y, v.z);
     }
 
     public Vector3(Vec3i v) {

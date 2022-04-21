@@ -7,7 +7,6 @@
 package gcewing.sg;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.entity.*;
 import net.minecraft.entity.*;
 import net.minecraft.util.ResourceLocation;

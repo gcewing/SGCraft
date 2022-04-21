@@ -9,9 +9,7 @@ package gcewing.sg;
 import java.util.*;
 
 import net.minecraft.block.*;
-import net.minecraft.block.material.*;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.texture.*;
 import net.minecraft.entity.*;
 import net.minecraft.entity.player.*;
 import net.minecraft.item.*;
@@ -19,7 +17,6 @@ import net.minecraft.nbt.*;
 import net.minecraft.util.*;
 import net.minecraft.util.math.*;
 import net.minecraft.world.*;
-import net.minecraftforge.common.util.*;
 
 public class PowerBlock<TE extends PowerTE> extends BaseBlock<TE> {
 
@@ -28,21 +25,16 @@ public class PowerBlock<TE extends PowerTE> extends BaseBlock<TE> {
     public PowerBlock(Class teClass) {
         super(SGCraft.machineMaterial, teClass);
         setHardness(1.5F);
-        setResistance(10.0F);
+        setResistance(10F);
         setSoundType(SoundType.METAL);
         setHarvestLevel("pickaxe", 0);
     }
-    
+
     @Override
     public boolean shouldCheckWeakPower(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side) {
         return true;
     }
 
-//     @Override
-//     public String getRendererClassName() {
-//         return "BaseBlockRenderer";
-//     }
-    
     @Override
     public void breakBlock(World world, BlockPos pos, IBlockState state) {
         lastRemovedTE = getTileEntity(world, pos);
@@ -51,12 +43,12 @@ public class PowerBlock<TE extends PowerTE> extends BaseBlock<TE> {
 
     @Override
     public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player,
-        EnumHand hand, ItemStack heldItem, EnumFacing side, float cx, float cy, float cz)
+        EnumHand hand, EnumFacing side, float cx, float cy, float cz)
     {
         SGCraft.mod.openGui(player, SGGui.PowerUnit, world, pos);
         return true;
     }
-    
+
     @Override
     public ArrayList<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
         ArrayList<ItemStack> ret = new ArrayList<ItemStack>();
@@ -72,7 +64,7 @@ public class PowerBlock<TE extends PowerTE> extends BaseBlock<TE> {
         ret.add(stack);
         return ret;
     }
-    
+
     @Override
     public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase player,
         ItemStack stack)
@@ -82,5 +74,4 @@ public class PowerBlock<TE extends PowerTE> extends BaseBlock<TE> {
         if (te != null && nbt != null)
             te.readContentsFromNBT(nbt);
     }
-
 }

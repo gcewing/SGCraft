@@ -6,27 +6,25 @@
 
 package gcewing.sg;
 
-import java.util.List; //***
-import java.lang.reflect.*; //***
-
-import net.minecraft.block.*;
+import gcewing.sg.BaseMod.IBlock;
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.*;
-import net.minecraft.inventory.*;
-import net.minecraft.item.*;
-import net.minecraft.network.*;
-import net.minecraft.nbt.*;
-import net.minecraft.network.play.server.*;
-import net.minecraft.server.management.*;
-import net.minecraft.tileentity.*;
-import net.minecraft.util.*;
-import net.minecraft.util.text.*;
-import net.minecraft.world.*;
-
-import net.minecraftforge.common.*;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.play.server.SPacketUpdateTileEntity;
+import net.minecraft.server.management.PlayerChunkMap;
+import net.minecraft.server.management.PlayerChunkMapEntry;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvent;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.common.ForgeChunkManager.Ticket;
 
-import gcewing.sg.BaseMod.IBlock;
+import java.lang.reflect.Field;
+
 import static gcewing.sg.BaseReflectionUtils.*;
 
 public class BaseTileEntity extends TileEntity
@@ -62,10 +60,10 @@ public class BaseTileEntity extends TileEntity
 //  }
     
     public Trans3 localToGlobalTransformation(Vector3 origin) {
-        IBlockState state = worldObj.getBlockState(pos);
+        IBlockState state = world.getBlockState(pos);
         Block block = state.getBlock();
         if (block instanceof IBlock)
-            return ((IBlock)block).localToGlobalTransformation(worldObj, pos, state, origin);
+            return ((IBlock)block).localToGlobalTransformation(world, pos, state, origin);
         else {
             System.out.printf("BaseTileEntity.localToGlobalTransformation: Wrong block type at %s\n", pos);
             return new Trans3(origin);
@@ -101,7 +99,7 @@ public class BaseTileEntity extends TileEntity
         NBTTagCompound nbt = pkt.getNbtCompound();
         readFromNBT(nbt);
         if (nbt.getBoolean("updateChunk"))
-            worldObj.markBlockRangeForRenderUpdate(pos, pos);
+            world.markBlockRangeForRenderUpdate(pos, pos);
     }
     
     boolean syncWithClient() {
@@ -110,7 +108,7 @@ public class BaseTileEntity extends TileEntity
     
     public void markBlockForUpdate() {
         updateChunk = true;
-        BaseBlockUtils.markBlockForUpdate(worldObj, pos);
+        BaseBlockUtils.markBlockForUpdate(world, pos);
     }
     
     protected static Field changedSectionFilter = getFieldDef(
@@ -118,11 +116,11 @@ public class BaseTileEntity extends TileEntity
         "changedSectionFilter", "field_187288_h");
 
     public void markForUpdate() {
-        if (!worldObj.isRemote) {
+        if (!world.isRemote) {
             int x = pos.getX();
             int y = pos.getY();
             int z = pos.getZ();
-            PlayerChunkMap pm = ((WorldServer)worldObj).getPlayerChunkMap();
+            PlayerChunkMap pm = ((WorldServer)world).getPlayerChunkMap();
             PlayerChunkMapEntry entry = pm.getEntry(x >> 4, z >> 4);
             if (entry != null) {
                 int oldFlags = getIntField(entry, changedSectionFilter);
@@ -133,7 +131,15 @@ public class BaseTileEntity extends TileEntity
     }
 
     public void playSoundEffect(SoundEvent name, float volume, float pitch) {
-        worldObj.playSound(null, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, name, SoundCategory.BLOCKS, volume, pitch);
+        playSoundEffect(world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, name, volume, pitch);
+    }
+
+    public void playSoundEffect(World world, double x, double y, double z, SoundEvent name, float volume, float pitch) {
+        if (world.isRemote) {
+            world.playSound(x, y, z, name, SoundCategory.BLOCKS, volume, pitch, false);
+        } else {
+            world.playSound(null, x, y, z, name, SoundCategory.BLOCKS, volume, pitch);
+        }
     }
     
     @Override

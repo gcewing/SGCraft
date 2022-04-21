@@ -20,12 +20,10 @@ public abstract class SGBlock<TE extends TileEntity> extends BaseBlock<TE> imple
     }
 
     @Override    
-    public boolean removedByPlayer(IBlockState state, World world, BlockPos pos, EntityPlayer player,
-        boolean willHarvest)
-    {
+    public boolean removedByPlayer(IBlockState state, World world, BlockPos pos, EntityPlayer player, boolean willHarvest) {
         if (player.capabilities.isCreativeMode && isConnected(world, pos)) {
             if (world.isRemote)
-                SGBaseTE.sendChatMessage(player, "Disconnect stargate before breaking");
+                SGBaseTE.sendErrorMsg(player, "disconnectFirst");
             return false;
         }
         return super.removedByPlayer(state, world, pos, player, willHarvest);

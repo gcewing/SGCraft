@@ -6,7 +6,6 @@
 
 package gcewing.sg;
 
-import net.minecraft.tileentity.*;
 import gcewing.sg.SGAddressing.AddressingError;
 
 public class SGInterfaceTE extends BaseTileEntity {
@@ -21,10 +20,8 @@ public class SGInterfaceTE extends BaseTileEntity {
         int preLength = args.length - 1;
         Object[] post = (Object[])args[preLength];
         Object[] xargs = new Object[preLength + post.length];
-        for (int i = 0; i < preLength; i++)
-            xargs[i] = args[i];
-        for (int i = 0; i < post.length; i++)
-            xargs[preLength + i] = post[i];
+        System.arraycopy(args, 0, xargs, 0, preLength);
+        System.arraycopy(post, 0, xargs, preLength, post.length);
         return xargs;
     }
     
@@ -46,7 +43,7 @@ public class SGInterfaceTE extends BaseTileEntity {
         SGBaseTE te = getBaseTE();
         if (te != null && te.isMerged)
             return te;
-        throw new IllegalArgumentException("No stargate connected to interface");
+        throw new IllegalArgumentException("missingStargate");
     }
     
     public SGBaseTE requireIrisTE() {
@@ -54,18 +51,11 @@ public class SGInterfaceTE extends BaseTileEntity {
         if (te != null && te.hasIrisUpgrade)
             return te;
         else
-            throw new IllegalArgumentException("No iris fitted to stargate");
+            throw new IllegalArgumentException("missingIris");
     }
     
     String directionDescription(SGBaseTE te) {
-        if (te.isConnected()) {
-            if (te.isInitiator)
-                return "Outgoing";
-            else
-                return "Incoming";
-        }
-        else
-            return "";
+        return te.isConnected() ? te.isInitiator ? "Outgoing" : "Incoming" : "";
     }
     
     public CIStargateState ciStargateState() {
@@ -78,10 +68,7 @@ public class SGInterfaceTE extends BaseTileEntity {
     
     public double ciEnergyAvailable() {
         SGBaseTE te = getBaseTE();
-        if (te != null)
-            return te.availableEnergy();
-        else
-            return 0;
+        return te != null ? te.availableEnergy() : 0;
     }
     
     public double ciEnergyToDial(String address) {
@@ -90,12 +77,11 @@ public class SGInterfaceTE extends BaseTileEntity {
             address = SGAddressing.normalizeAddress(address);
             SGBaseTE dte = SGAddressing.findAddressedStargate(address, te.getWorld());
             if (dte == null)
-                throw new IllegalArgumentException("No stargate at address " + address);
+                throw new IllegalArgumentException("unknownAddress");
             double distanceFactor = SGBaseTE.distanceFactorForCoordDifference(te, dte);
             return SGBaseTE.energyToOpen * distanceFactor;
-        }
-        catch (AddressingError e) {
-            System.out.printf("SGBaseTE.ciEnergyToDial: caught %s\n", e);
+        } catch (AddressingError e) {
+            //System.out.printf("SGBaseTE.ciEnergyToDial: caught %s\n", e);
             throw new IllegalArgumentException(e.getMessage());
         }
     }
@@ -103,12 +89,8 @@ public class SGInterfaceTE extends BaseTileEntity {
     public String ciLocalAddress() {
         SGBaseTE te = getBaseTE();
         try {
-            if (te != null)
-                return te.getHomeAddress();
-            else
-                return "";
-        }
-        catch (AddressingError e) {
+            return te != null ? te.getHomeAddress() : "";
+        } catch (AddressingError e) {
             throw new IllegalArgumentException(e.getMessage());
         }
     }
@@ -116,12 +98,8 @@ public class SGInterfaceTE extends BaseTileEntity {
     public String ciRemoteAddress() {
         SGBaseTE te = requireBaseTE();
         try {
-            if (te.connectedLocation != null)
-                return SGAddressing.addressForLocation(te.connectedLocation);
-            else
-                return "";
-        }
-        catch (AddressingError e) {
+            return te.connectedLocation != null ? SGAddressing.addressForLocation(te.connectedLocation) : "";
+        } catch (AddressingError e) {
             throw new IllegalArgumentException(e.getMessage());
         }
     }
@@ -135,25 +113,22 @@ public class SGInterfaceTE extends BaseTileEntity {
 //             throw new IllegalArgumentException(e.getMessage());
 //         }
         address = SGAddressing.normalizeAddress(address);
-        System.out.printf("SGBaseTE.ciDial: dialling symbols %s\n", address);
-        String error = te.connect(address, null);
+        //System.out.printf("SGBaseTE.ciDial: dialling symbols %s\n", address);
+        String error = te.connect(address, null, false);
         if (error != null)
             throw new IllegalArgumentException(error);
     }
     
     public void ciDisconnect() {
         SGBaseTE te = requireBaseTE();
-        String error = te.attemptToDisconnect(null);
+        String error = te.disconnect(null);
         if (error != null)
             throw new IllegalArgumentException(error);
     }
     
     public String ciIrisState() {
         SGBaseTE te = getBaseTE();
-        if (te != null && te.hasIrisUpgrade)
-            return te.irisStateDescription();
-        else
-            return "Offline";
+        return te != null && te.hasIrisUpgrade ? te.irisStateDescription() : "Offline";
     }
     
     public void ciOpenIris() {

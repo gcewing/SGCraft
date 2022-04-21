@@ -6,26 +6,16 @@
 
 package gcewing.sg;
 
-import java.util.*;
-
 import net.minecraft.block.*;
 import net.minecraft.block.material.*;
 import net.minecraft.block.properties.*;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.*;
-import net.minecraft.client.renderer.texture.*;
-import net.minecraft.entity.*;
 import net.minecraft.entity.player.*;
 import net.minecraft.item.*;
-import net.minecraft.tileentity.*;
 import net.minecraft.util.*;
 import net.minecraft.util.math.*;
 import net.minecraft.world.*;
-import net.minecraftforge.common.*;
-import net.minecraftforge.common.util.*;
-import net.minecraftforge.fml.common.registry.*;
-import net.minecraftforge.fml.relauncher.*;
-
 import gcewing.sg.BaseMod.ModelSpec;
 
 public class SGRingBlock extends SGBlock<SGRingTE> {
@@ -34,10 +24,10 @@ public class SGRingBlock extends SGBlock<SGRingTE> {
 
     public static IProperty<Integer> VARIANT = PropertyInteger.create("variant", 0, 1);
 
-    static String[] textures = {"stargateBlock", "stargateRing", "stargateChevron"};
+    static String[] textures = {"stargateblock", "stargatering", "stargatechevron"};
     static ModelSpec models[] = {
-        new ModelSpec("block/sg_ring_block.smeg", "stargateBlock", "stargateRing"),
-        new ModelSpec("block/sg_ring_block.smeg", "stargateBlock", "stargateChevron")
+        new ModelSpec("block/sg_ring_block.smeg", "stargateblock", "stargatering"),
+        new ModelSpec("block/sg_ring_block.smeg", "stargateblock", "stargatechevron")
     };
     
     static String[] subBlockTitles = {
@@ -77,7 +67,7 @@ public class SGRingBlock extends SGBlock<SGRingTE> {
     }
     
     @Override
-    public boolean canRenderInLayer(BlockRenderLayer layer) {
+    public boolean canRenderInLayer(IBlockState state, BlockRenderLayer layer) {
         return true; // So that translucent camouflage blocks render correctly
     }
     
@@ -98,7 +88,7 @@ public class SGRingBlock extends SGBlock<SGRingTE> {
 
     @Override
     public boolean canHarvestBlock(IBlockAccess world, BlockPos pos, EntityPlayer player) {
-        return true;
+        return SGCraft.canHarvestSGRingBlock;
     }
     
     @Override
@@ -108,7 +98,7 @@ public class SGRingBlock extends SGBlock<SGRingTE> {
 
     @Override
     public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player,
-         EnumHand hand, ItemStack heldItem, EnumFacing side, float cx, float cy, float cz)
+         EnumHand hand, EnumFacing side, float cx, float cy, float cz)
     {
         //System.out.printf("SGRingBlock.onBlockActivated at (%d, %d, %d)\n", x, y, z);
         SGRingTE te = getTileEntity(world, pos);
@@ -117,7 +107,7 @@ public class SGRingBlock extends SGBlock<SGRingTE> {
             IBlockState baseState = world.getBlockState(te.basePos);
             Block block = baseState.getBlock();
             if (block instanceof SGBaseBlock)
-                block.onBlockActivated(world, te.basePos, baseState, player, hand, heldItem, side,
+                block.onBlockActivated(world, te.basePos, baseState, player, hand, side,
                     cx, cy, cz);
             return true;
         }
@@ -134,11 +124,15 @@ public class SGRingBlock extends SGBlock<SGRingTE> {
     }
     
     @Override
-    public void getSubBlocks(Item item, CreativeTabs tab, List list) {
-        for (int i = 0; i < numSubBlocks; i++)
-            list.add(new ItemStack(item, 1, i));
+    public void getSubBlocks(CreativeTabs tab, NonNullList<ItemStack> list) {
+        for (int i = 0; i < numSubBlocks; i++) {
+            ItemStack item = new ItemStack(this,1,i);
+            list.add(item);
+        }
+            // Update: may be incorrect, needs testing.
     }
-    
+
+    @Override
     public boolean isMerged(IBlockAccess world, BlockPos pos) {
         SGRingTE te = getTileEntity(world, pos);
         return te != null && te.isMerged;

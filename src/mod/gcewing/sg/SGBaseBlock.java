@@ -6,22 +6,16 @@
 
 package gcewing.sg;
 
-import java.util.*;
-
 import net.minecraft.block.*;
 import net.minecraft.block.material.*;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.texture.*;
 import net.minecraft.creativetab.*;
-import net.minecraft.entity.*;
 import net.minecraft.entity.player.*;
 import net.minecraft.init.*;
 import net.minecraft.item.*;
 import net.minecraft.world.*;
 import net.minecraft.util.*;
 import net.minecraft.util.math.*;
-import net.minecraftforge.common.*;
-import net.minecraftforge.common.util.*;
 
 import gcewing.sg.BaseMod.*;
 
@@ -40,7 +34,7 @@ public class SGBaseBlock extends SGBlock<SGBaseTE>  {
         {2, 1, 0, 1, 2},
     };
 
-    protected static String[] textures = {"stargateBlock", "stargateRing", "stargateBase_front"};
+    protected static String[] textures = {"stargateblock", "stargatering", "stargatebase_front"};
     protected static ModelSpec model = new ModelSpec("block/sg_base_block.smeg", textures);
     
     public static void configure(BaseConfiguration config) {
@@ -56,7 +50,7 @@ public class SGBaseBlock extends SGBlock<SGBaseTE>  {
     }
     
     @Override
-    public boolean canRenderInLayer(BlockRenderLayer layer) {
+    public boolean canRenderInLayer(IBlockState state, BlockRenderLayer layer) {
         return true; // So that translucent camouflage blocks render correctly
     }
 
@@ -97,9 +91,10 @@ public class SGBaseBlock extends SGBlock<SGBaseTE>  {
 
     @Override
     public boolean canHarvestBlock(IBlockAccess world, BlockPos pos, EntityPlayer player) {
-        return true;
+        return SGCraft.canHarvestSGBaseBlock;
     }
 
+    @Override
     public boolean isMerged(IBlockAccess world, BlockPos pos) {
         SGBaseTE te = getTileEntity(world, pos);
         return te != null && te.isMerged;
@@ -125,7 +120,7 @@ public class SGBaseBlock extends SGBlock<SGBaseTE>  {
     
     @Override
     public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player,
-        EnumHand hand, ItemStack heldItem, EnumFacing side, float cx, float cy, float cz)
+        EnumHand hand, EnumFacing side, float cx, float cy, float cz)
     {
         String Side = world.isRemote ? "Client" : "Server";
         SGBaseTE te = getTileEntity(world, pos);
@@ -149,8 +144,8 @@ public class SGBaseBlock extends SGBlock<SGBaseTE>  {
     }
     
     @Override    
-    public void neighborChanged(IBlockState state, World world, BlockPos pos, Block block) {
-        System.out.printf("SGBaseBlock.neighborChanged: %s\n", pos);
+    public void neighborChanged(IBlockState state, World world, BlockPos pos, Block block, BlockPos from) {
+        //System.out.printf("SGBaseBlock.neighborChanged: %s\n", pos);
         neighbourChanged(world, pos);
     }
 
@@ -216,7 +211,9 @@ public class SGBaseBlock extends SGBlock<SGBaseTE>  {
     @Override
     public void breakBlock(World world, BlockPos pos, IBlockState state) {
         unmerge(world, pos);
-        dropUpgrades(world, pos);
+        if (SGCraft.canHarvestSGBaseBlock) {
+            dropUpgrades(world, pos);
+        }
         super.breakBlock(world, pos, state);
     }
     

@@ -6,54 +6,67 @@
 
 package gcewing.sg;
 
-import java.io.*;
-import java.lang.annotation.*;
-import java.lang.reflect.*;
-import java.net.*;
-import java.util.*;
-import java.util.jar.*;
-
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 import com.google.gson.Gson;
-
-import net.minecraft.block.*;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.creativetab.*;
-import net.minecraft.entity.*;
-import net.minecraft.entity.player.*;
-import net.minecraft.inventory.*;
-import net.minecraft.item.*;
-import net.minecraft.network.Packet;
-import net.minecraft.server.management.*;
-import net.minecraft.tileentity.*;
-import net.minecraft.util.*;
-import net.minecraft.util.math.*;
-import net.minecraft.world.*;
-import net.minecraft.world.storage.loot.*;
-
-import net.minecraftforge.common.*;
-import net.minecraftforge.common.config.*;
-import net.minecraftforge.client.*;
-import net.minecraftforge.oredict.*;
-
-import net.minecraftforge.event.LootTableLoadEvent;
-
-import net.minecraftforge.fml.common.*;
-import net.minecraftforge.fml.common.event.*;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.network.*;
-import net.minecraftforge.fml.common.registry.*;
-import net.minecraftforge.fml.common.registry.VillagerRegistry.*;
-import net.minecraftforge.fml.relauncher.*;
-
 import gcewing.sg.BaseModClient.IModel;
+import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.inventory.Container;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.network.Packet;
+import net.minecraft.server.management.PlayerChunkMap;
+import net.minecraft.server.management.PlayerList;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundEvent;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
+import net.minecraft.world.storage.loot.LootPool;
+import net.minecraft.world.storage.loot.LootTable;
+import net.minecraft.world.storage.loot.LootTableManager;
+import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.LootTableLoadEvent;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.network.IGuiHandler;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.registry.EntityEntry;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
+import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.oredict.OreDictionary;
+
+import java.io.File;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
     extends BaseSubsystem implements IGuiHandler
 {
 
-    public boolean debugLoot = true;
+    public boolean debugLoot = false;
 
     protected Map<ResourceLocation, IModel> modelCache = new HashMap<ResourceLocation, IModel>();
 
@@ -123,8 +136,8 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
     public List<BaseSubsystem> subsystems = new ArrayList<BaseSubsystem>();
 
     public boolean debugGui = false;
-    public boolean debugBlockRegistration = false;
-    public boolean debugCreativeTabs = false;
+    public boolean debugBlockRegistration = true;
+    public boolean debugCreativeTabs = true;
 
     public String resourcePath(String fileName) {
         return resourceDir + fileName;
@@ -157,6 +170,7 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
         return Loader.isModLoaded(modid);
     }
 
+    @Override
     public void preInit(FMLPreInitializationEvent e) {
         serverSide = e.getSide().isServer();
         clientSide = e.getSide().isClient();
@@ -184,28 +198,41 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
         if (client != null)
             client.preInit(e);
     }
-    
+
+    @Override
     public void init(FMLInitializationEvent e) {
         MinecraftForge.EVENT_BUS.register(this);
         FMLCommonHandler.instance().bus().register(this);
-        if (client != null)
+        if (client != null) {
             client.init(e);
-        for (BaseSubsystem sub : subsystems)
-            if (sub != this)
+        }
+
+        for (BaseSubsystem sub : subsystems) {
+            if (sub != this) {
                 sub.init(e);
+            }
+            sub.registerRecipes();
+        }
     }
-    
+
+    @Override
     public void postInit(FMLPostInitializationEvent e) {
         for (BaseSubsystem sub : subsystems) {
-            if (sub != this)
+            if (sub != this) {
                 sub.postInit(e);
-            sub.registerRecipes();
+            }
+
             sub.registerOther();
         }
-        if (client != null)
+
+        if (client != null) {
             client.postInit(e);
-        if (proxy == null)
+        }
+
+        if (proxy == null) {
             proxy = this;
+        }
+
         NetworkRegistry.INSTANCE.registerGuiHandler(this, proxy);
         saveConfig();
     }
@@ -344,13 +371,11 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
 
     public <ITEM extends Item> ITEM addItem(ITEM item, String name) {
         String qualName = assetKey + ":" + name;
-        item.setUnlocalizedName(qualName);
-        GameRegistry.registerItem(item, name);
-        if (debugBlockRegistration)
-            System.out.printf("BaseMod.addItem: Registered %s as %s\n", item, name);
+        item.setTranslationKey(qualName);
+        item.setRegistryName(assetKey, name);
+        ForgeRegistries.ITEMS.register(item);
+
         if (creativeTab != null) {
-            if (debugCreativeTabs)
-                System.out.printf("BaseMod.addItem: Setting creativeTab of %s to %s\n", name, creativeTab);
             item.setCreativeTab(creativeTab);
         }
         registeredItems.add(item);
@@ -385,17 +410,26 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
 
     public <BLOCK extends Block> BLOCK addBlock(BLOCK block, String name, Class itemClass) {
         String qualName = assetKey + ":" + name;
-        block.setUnlocalizedName(qualName);
-//      block.setBlockTextureName(qualName);
-        //System.out.printf("BaseMod.addBlock: name '%s' qualName '%s' %s\n", name, qualName, block);
-        GameRegistry.registerBlock(block, itemClass, name);
+        block.setTranslationKey(qualName);
+        block.setRegistryName(assetKey, name);
+        ForgeRegistries.BLOCKS.register(block);
+
+        final Item item = new ItemBlock(block).setRegistryName(block.getRegistryName());
+
+        if (block instanceof SGRingBlock) {
+            final Item ringItem = new SGRingItem(block).setRegistryName(block.getRegistryName());
+            ForgeRegistries.ITEMS.register(ringItem);
+        } else {         
+            ForgeRegistries.ITEMS.register(item);
+        }
+
         if (creativeTab != null) {
-            //System.out.printf("BaseMod.addBlock: Setting creativeTab to %s\n", creativeTab);
             block.setCreativeTab(creativeTab);
         }
         if (block instanceof BaseBlock)
             ((BaseBlock)block).mod = this;
         registeredBlocks.add(block);
+
         return block;
     }
     
@@ -430,28 +464,29 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
 
     //--------------- Recipe construction ----------------------------------------------------------
 
-    public void newRecipe(Item product, int qty, Object... params) {
-        newRecipe(new ItemStack(product, qty), params);
+    public void newRecipe(String name, Item product, int qty, Object... params) {
+        newRecipe(name, new ItemStack(product, qty), params);
     }
     
-    public void newRecipe(Block product, int qty, Object... params) {
-        newRecipe(new ItemStack(product, qty), params);
+    public void newRecipe(String name, Block product, int qty, Object... params) {
+        newRecipe(name, new ItemStack(product, qty), params);
     }
 
-    public void newRecipe(ItemStack product, Object... params) {
-        GameRegistry.addRecipe(new ShapedOreRecipe(product, params));
+    public void newRecipe(String name, ItemStack product, Object... params) {
+        // Todo: Recipe needs group registration
+        GameRegistry.addShapedRecipe(new ResourceLocation("sgcraft", name),new ResourceLocation("sgcraft","Stargate"), product, params);
     }
 
-    public void newShapelessRecipe(Block product, int qty, Object... params) {
-        newShapelessRecipe(new ItemStack(product, qty), params);
+    //public void newShapelessRecipe(Block product, int qty, Ingredient... params) {
+    //    newShapelessRecipe(new ItemStack(product, qty), params);
+    //}
+    
+    public void newShapelessRecipe(String name, Item product, int qty, Ingredient... params) {
+        newShapelessRecipe(name, new ItemStack(product, qty), params);
     }
     
-    public void newShapelessRecipe(Item product, int qty, Object... params) {
-        newShapelessRecipe(new ItemStack(product, qty), params);
-    }
-    
-    public void newShapelessRecipe(ItemStack product, Object... params) {
-        GameRegistry.addRecipe(new ShapelessOreRecipe(product, params));
+    public void newShapelessRecipe(String name, ItemStack product, Ingredient... params) {
+        GameRegistry.addShapelessRecipe(new ResourceLocation("sgcraft",name), new ResourceLocation("sgcraft","Stargate"), product, params);
     }
 
     public void newSmeltingRecipe(Item product, int qty, Item input) {
@@ -461,7 +496,7 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
     public void newSmeltingRecipe(Item product, int qty, Item input, int xp) {
         GameRegistry.addSmelting(input, new ItemStack(product, qty), xp);
     }
-    
+
     public void newSmeltingRecipe(Item product, int qty, Block input) {
         newSmeltingRecipe(product, qty, input, 0);
     }
@@ -469,7 +504,7 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
     public void newSmeltingRecipe(Item product, int qty, Block input, int xp) {
         GameRegistry.addSmelting(input, new ItemStack(product, qty), xp);
     }
-    
+
     //--------------- Dungeon loot ----------------------------------------------------------
 
 //     public void addRandomChestItem(ItemStack stack, int minQty, int maxQty, int weight, String... category) {
@@ -494,12 +529,13 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
         addEntity(cls, name, id.ordinal(), updateFrequency, sendVelocityUpdates);
     }
     
-    public void addEntity(Class<? extends Entity> cls, String name, int id,
-        int updateFrequency, boolean sendVelocityUpdates)
-    {
+    public void addEntity(Class<? extends Entity> cls, String name, int id, int updateFrequency, boolean sendVelocityUpdates) {
         System.out.printf("%s: BaseMod.addEntity: %s, \"%s\", %s\n",
             getClass().getSimpleName(), cls.getSimpleName(), name, id);
-        EntityRegistry.registerModEntity(cls, name, id, /*base*/this, 256, updateFrequency, sendVelocityUpdates);
+            EntityEntry toRegister = new EntityEntry(cls, name);
+            toRegister.setRegistryName(name);
+        //EntityRegistry.registerModEntity(cls, name, id, /*base*/this, 256, updateFrequency, sendVelocityUpdates);
+        ForgeRegistries.ENTITIES.register(toRegister);
     }
 
     //--------------- Villager registration -------------------------------------------------
@@ -528,7 +564,7 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
             ResourceLocation loc = resourceLocation(name);
             SoundEvent result = new SoundEvent(loc);
             result.setRegistryName(loc);
-            GameData.getSoundEventRegistry().register(result);
+            ForgeRegistries.SOUND_EVENTS.register(result);
             return result;
         }
         catch (Exception e) {
@@ -563,44 +599,7 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
         }
         return model;
     }
-    
-//  @SideOnly(Side.CLIENT)
-//  public IIcon getIcon(IIconRegister reg, String name) {
-//      return reg.registerIcon(assetKey + ":" + name);
-//  }
 
-//  public Set<String> listResources(String subdir) {
-//      try {
-//          Set<String>result = new HashSet<String>();
-//          if (resourceURL != null) {
-//              String protocol = resourceURL.getProtocol();
-//              if (protocol.equals("jar")) {
-//                  String resPath = resourceURL.getPath();
-//                  int pling = resPath.lastIndexOf("!");
-//                  URL jarURL = new URL(resPath.substring(0, pling));
-//                  String resDirInJar = resPath.substring(pling + 2);
-//                  String prefix = resDirInJar + subdir + "/";
-//                  //System.out.printf("BaseMod.listResources: looking for names starting with %s\n", prefix);
-//                  JarFile jar = new JarFile(new File(jarURL.toURI()));
-//                  Enumeration<JarEntry> entries = jar.entries();
-//                  while (entries.hasMoreElements()) {
-//                      String name = entries.nextElement().getName();
-//                      if (name.startsWith(prefix) && !name.endsWith("/") && !name.contains("/.")) {
-//                          //System.out.printf("BaseMod.listResources: name = %s\n", name);
-//                          result.add(name.substring(prefix.length()));
-//                      }
-//                  }
-//              }
-//              else
-//                  throw new RuntimeException("Resource URL protocol " + protocol + " not supported");
-//          }
-//          return result;
-//      }
-//      catch (Exception e) {
-//          throw new RuntimeException(e);
-//      }
-//  }
-    
     //------------------------- Network --------------------------------------------------
     
     public static void sendTileEntityUpdate(TileEntity te) {
@@ -613,7 +612,7 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
             WorldServer world = (WorldServer)te.getWorld();
             PlayerList cm = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList();
             PlayerChunkMap pm = world.getPlayerChunkMap();
-            for (EntityPlayerMP player : cm.getPlayerList())
+            for (EntityPlayerMP player : cm.getPlayers())
                 if (pm.isPlayerWatchingChunk(player, x, z)) {
                     //System.out.printf("BaseMod.sendTileEntityUpdate: to %s\n", player);
                     player.connection.sendPacket(packet);
@@ -798,8 +797,8 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
         //if (debugLoot)
         //    System.out.printf("BaseMod.onLootTableLoad\n");
         ResourceLocation locn = event.getName();
-        if (locn.getResourceDomain().equals("minecraft")) {
-            String path = String.format("/assets/%s/loot_tables/%s.json", assetKey, locn.getResourcePath());
+        if (locn.getNamespace().equals("minecraft")) {
+            String path = String.format("/assets/%s/loot_tables/%s.json", assetKey, locn.getPath());
             //if (debugLoot)
             //    System.out.printf("BaseMod.onLootTableLoad: Looking for %s\n", path);
             URL url = getClass().getResource(path);
@@ -817,7 +816,7 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>>
                 //    System.out.printf("BaseMod.onLootTableLoad: data = %s\n", data);
                 Gson gson = (Gson)BaseReflectionUtils.getField(null, lootGsonField);
                 LootTable table = event.getTable();
-                LootTable newTable = ForgeHooks.loadLootTable(gson, locn, data, true);
+                LootTable newTable = ForgeHooks.loadLootTable(gson, locn, data, true, null);
                 List<LootPool> newPools = (List<LootPool>)BaseReflectionUtils.getField(newTable, lootPoolsField);
                 int i = 0;
                 for (LootPool pool : newPools) {

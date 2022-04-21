@@ -1,0 +1,8 @@
+.gradle/
+.idea/
+*.iml
+lib/*
+!lib/README.txt
+build/
+classes/
+run/

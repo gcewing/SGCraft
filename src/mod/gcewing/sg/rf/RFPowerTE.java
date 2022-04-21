@@ -6,81 +6,121 @@
 
 package gcewing.sg.rf;
 
-import net.minecraft.nbt.*;
+import gcewing.sg.PowerTE;
+import gcewing.sg.SGCraft;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.tileentity.*;
-import net.minecraftforge.common.*;
-import net.minecraftforge.common.util.*;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.energy.CapabilityEnergy;
+import net.minecraftforge.energy.EnergyStorage;
+import net.minecraftforge.energy.IEnergyStorage;
 
-import cofh.api.energy.*;
+import javax.annotation.Nullable;
 
-import gcewing.sg.*;
-import static gcewing.sg.BaseUtils.*;
-import static gcewing.sg.Utils.*;
+public class RFPowerTE extends PowerTE implements IEnergyStorage {
 
-public class RFPowerTE extends PowerTE implements IEnergyProvider, IEnergyReceiver {
+    // Addon for Redstone Flux
 
-    boolean debugInput = false;
-
-    final static int maxEnergyBuffer = 4000000;
-    final static double rfPerSGEnergyUnit = 80.0;
+    private EnergyStorage storage = new EnergyStorage(SGCraft.RfMaxEnergyBuffer);
+    private int update = 0;
 
     public RFPowerTE() {
-        super(maxEnergyBuffer, rfPerSGEnergyUnit);
+        super(SGCraft.RfMaxEnergyBuffer, SGCraft.RfPerSGEnergyUnit);
     }
-    
+
     @Override
     public String getScreenTitle() {
         return "RF SGPU";
     }
-    
+
     @Override
     public String getUnitName() {
         return "RF";
     }
-    
-    protected void addEnergy(int e) {
-        this.energyBuffer += e;
-        markChanged();
-    }    
-
-    //------------------------- IEnergyConnection -------------------------
 
     @Override
-    public boolean canConnectEnergy(EnumFacing dir) {
-        return true;
+    public void readContentsFromNBT(NBTTagCompound nbttagcompound) {
+        super.readContentsFromNBT(nbttagcompound);
+
+        if (nbttagcompound.hasKey("capacity")) {
+            int capacity = nbttagcompound.getInteger("capacity");
+            int energy = nbttagcompound.getInteger("energy");
+            storage = new EnergyStorage(capacity, capacity, capacity, energy);
+        }
+
+        // Check if Admin is trying to update all the DHD's with new values.
+        if (SGCraft.forceRFCfgUpdate) {
+            // Todo: this isn't going to work because RF usages a Storage container.
+            energyMax = SGCraft.RfMaxEnergyBuffer;
+            energyPerSGEnergyUnit = SGCraft.RfPerSGEnergyUnit;
+        }
     }
 
-    //------------------------- IEnergyHandler -------------------------
-
     @Override
-    public int getEnergyStored(EnumFacing dir) {
-        return (int)energyBuffer;
-    }
-    
-    @Override
-    public int getMaxEnergyStored(EnumFacing dir) {
-        return (int)energyMax;
+    public void writeContentsToNBT(NBTTagCompound nbttagcompound) {
+        super.writeContentsToNBT(nbttagcompound);
+        nbttagcompound.setInteger("capacity", storage.getMaxEnergyStored());
+        nbttagcompound.setInteger("energy", storage.getEnergyStored());
     }
 
-    //------------------------- IEnergyReceiver -------------------------
-    
     @Override
-    public int receiveEnergy(EnumFacing dir, int energy, boolean query) {
-        int e = (int)min(this.energyMax - this.energyBuffer, energy);
-        if (!query)
-            addEnergy(e);
-        return e;
+    public boolean hasCapability(Capability<?> capability, @Nullable EnumFacing facing) {
+        return capability.equals(CapabilityEnergy.ENERGY) || super.hasCapability(capability, facing);
     }
-    
-    //------------------------- IEnergyProvider -------------------------
-    
+
+    @Nullable
     @Override
-    public int extractEnergy(EnumFacing dir, int energy, boolean query) {
-        int e = (int)Math.min(this.energyBuffer, energy);
-        if (!query)
-            addEnergy(-e);
-        return e;
+    public <T> T getCapability(Capability<T> capability, @Nullable EnumFacing facing) {
+        if (hasCapability(capability, facing))
+            return CapabilityEnergy.ENERGY.cast(this);
+        return super.getCapability(capability, facing);
     }
-  
+
+    //------------------------ IEnergyStorage ---------------------------
+
+    @Override
+    public int receiveEnergy(int maxReceive, boolean simulate) {
+        int result = storage.receiveEnergy(maxReceive, simulate);
+        energyBuffer = storage.getEnergyStored();
+        if (update++ > 10) { // We dont' need 20 packets per second to the client....
+            markChanged();
+            update = 0;
+        }
+        return result;
+    }
+
+    @Override
+    public int extractEnergy(int maxExtract, boolean simulate) {
+        int result = storage.extractEnergy(maxExtract, simulate);
+        energyBuffer = storage.getEnergyStored();
+        if (update++ > 10) { // We dont' need 20 packets per second to the client....
+            markChanged();
+            update = 0;
+        }
+        return result;
+    }
+
+    @Override
+    public int getEnergyStored() {
+        return storage.getEnergyStored();
+    }
+
+    @Override
+    public int getMaxEnergyStored() {
+        return storage.getMaxEnergyStored();
+    }
+
+    @Override
+    public boolean canExtract() {
+        return storage.canExtract();
+    }
+
+    @Override
+    public boolean canReceive() {
+        return storage.canReceive();
+    }
+
+    @Override public double totalAvailableEnergy() {
+        return energyBuffer;
+    }
 }

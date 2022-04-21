@@ -6,16 +6,12 @@
 
 package gcewing.sg;
 
-import java.util.*;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.math.ChunkPos;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraftforge.event.world.ChunkDataEvent;
 
-import net.minecraft.nbt.*;
-import net.minecraft.util.math.*;
-import net.minecraft.world.*;
-import net.minecraft.world.chunk.*;
-
-import net.minecraftforge.common.*;
-import net.minecraftforge.event.*;
-import net.minecraftforge.event.world.*;
+import java.util.HashMap;
 
 public class SGChunkData {
 
@@ -32,7 +28,7 @@ public class SGChunkData {
     public static SGChunkData forChunk(Chunk chunk, NBTTagCompound nbt) {
         //System.out.printf("SGChunkData.forChunk: (%d, %d): %s\n",
         //    chunk.xPosition, chunk.zPosition, chunk);
-        ChunkPos coords = new ChunkPos(chunk.xPosition, chunk.zPosition);
+        ChunkPos coords = new ChunkPos(chunk.x, chunk.z);
         SGChunkData data = map.get(coords);
         if (data == null) {
             //System.out.printf("SGChunkData.forChunk: Creating new chunk data\n");
@@ -63,7 +59,7 @@ public class SGChunkData {
         //      chunk.xPosition, chunk.zPosition);
         if (!data.oresGenerated && SGCraft.addOresToExistingWorlds) {
             if (debug)
-                System.out.printf("SGChunkData.onChunkLoad: Adding ores to chunk (%d, %d)\n", chunk.xPosition, chunk.zPosition);
+                System.out.printf("SGChunkData.onChunkLoad: Adding ores to chunk (%d, %d)\n", chunk.x, chunk.z);
             SGCraft.naquadahOreGenerator.regenerate(chunk);
         }
     }

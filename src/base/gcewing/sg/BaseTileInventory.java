@@ -10,7 +10,6 @@ import net.minecraft.entity.player.*;
 import net.minecraft.inventory.*;
 import net.minecraft.item.*;
 import net.minecraft.nbt.*;
-import net.minecraft.tileentity.*;
 import net.minecraft.util.*;
 import net.minecraft.util.text.*;
 
@@ -30,7 +29,7 @@ public class BaseTileInventory extends BaseTileEntity implements IInventory, ISi
             for (int i = 0; i < n; i++) {
                 NBTTagCompound item = (NBTTagCompound)list.getCompoundTagAt(i);
                 int slot = item.getInteger("slot");
-                ItemStack stack = ItemStack.loadItemStackFromNBT(item);
+                ItemStack stack = new ItemStack(item);
                 inventory.setInventorySlotContents(slot, stack);
             }
         }
@@ -98,7 +97,13 @@ public class BaseTileInventory extends BaseTileEntity implements IInventory, ISi
     public int getSizeInventory() {
         IInventory inventory = getInventory();
         return (inventory != null) ? inventory.getSizeInventory() : 0;
-    }   
+    }
+
+    @Override
+    public boolean isEmpty() {
+        IInventory inventory = getInventory();
+        return inventory != null && inventory.isEmpty();
+    }
 
     /**
      * Returns the stack in slot i
@@ -163,9 +168,9 @@ public class BaseTileInventory extends BaseTileEntity implements IInventory, ISi
      * Do not make give this method the name canInteractWith because it clashes with Container
      */
     @Override
-    public boolean isUseableByPlayer(EntityPlayer player) {
+    public boolean isUsableByPlayer(EntityPlayer player) {
         IInventory inventory = getInventory();
-        return (inventory != null) ? inventory.isUseableByPlayer(player) : true;
+        return (inventory != null) ? inventory.isUsableByPlayer(player) : true;
     }
 
     @Override

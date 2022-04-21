@@ -1,31 +1,49 @@
 buildscript {
     repositories {
+        mavenCentral()
+        mavenLocal()
         jcenter()
-        maven { url = "http://files.minecraftforge.net/maven" }
+        maven {
+            url = "http://files.minecraftforge.net/maven"
+        }
+        maven {
+            url = "https://oss.sonatype.org/content/repositories/snapshots/"
+        }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
     }
 }
+
 apply plugin: 'net.minecraftforge.gradle.forge'
-//Only edit below this line, the above code adds and enables the nessasary things for Forge to be setup.
 
-
-//version = "1.0"
-//group= "com.yourname.modid" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = jarName
 
-minecraft {
-    version = "1.10.2-12.18.2.2099"
-    runDir = "run"
+repositories {
+    maven { url = "http://maven.cil.li/" }
+    maven {
+        name = 'oss-sonatype-public'
+        url = 'https://oss.sonatype.org/content/groups/public/'
+    }
+    maven { url = "http://maven.ic2.player.to" }
+    maven { url = "http://repo.spongepowered.org/maven" }
+    maven { url = "http://cc.crzd.me/maven/" }
+}
 
-    // the mappings can be changed at any time, and must be in the following format.
-    // snapshot_YYYYMMDD   snapshot are built nightly.
-    // stable_#            stables are built at the discretion of the MCP team.
-    // Use non-default mappings at your own risk. they may not allways work.
-    // simply re-run your setup task after changing the mappings to update your workspace.
-    mappings = "snapshot_20160518"
-    // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
+dependencies {
+    compile "li.cil.oc:OpenComputers:MC1.12.1-1.7.1.52"
+    compile "net.industrial-craft:industrialcraft-2:2.8.93-ex112:api"
+    deobfCompile "dan200.computercraft:ComputerCraft:1.80pr1-build4"
+}
+
+deobfMcMCP { failOnAtError = false }
+deobfMcSRG { failOnAtError = false }
+
+minecraft {
+    version = "1.12.2-14.23.5.2768"
+    runDir = "run"
+    mappings = 'snapshot_20180808'
+    useDepAts = true
 }
 
 sourceSets.main {
@@ -33,10 +51,6 @@ sourceSets.main {
 	java.srcDirs "src/base", "src/mod"
 	resources.srcDirs "src/resources"
 }
-
-//jar {
-//	exclude "ic2"
-//}
 
 processResources {
 

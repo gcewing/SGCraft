@@ -9,15 +9,12 @@ package gcewing.sg;
 import java.io.*;
 
 import net.minecraft.block.*;
-import net.minecraft.block.material.*;
 import net.minecraft.block.state.*;
-import net.minecraft.client.renderer.texture.*;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.*;
 import net.minecraft.util.*;
 import net.minecraft.util.math.*;
 import net.minecraft.world.*;
-import net.minecraftforge.common.util.*;
 
 import static gcewing.sg.BaseUtils.*;
 
@@ -89,7 +86,8 @@ public class BaseBlockUtils {
 //     }   
     
     public static void notifyWorldNeighborsOfStateChange(World world, BlockPos pos, Block block) {
-        world.notifyNeighborsOfStateChange(pos, block);
+        // Update: Updating observers may be wrong here.
+        world.notifyNeighborsOfStateChange(pos, block, true);
     }   
     
     public static TileEntity getWorldTileEntity(IBlockAccess world, BlockPos pos) {
@@ -105,7 +103,7 @@ public class BaseBlockUtils {
     }
     
     public static boolean blockCanRenderInLayer(Block block, BlockRenderLayer layer) {
-        return block.canRenderInLayer(layer);
+        return block.canRenderInLayer((IBlockState) block.getBlockState(),layer);
     }
     
     public static ItemStack blockStackWithState(IBlockState state, int size) {

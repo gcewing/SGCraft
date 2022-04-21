@@ -9,29 +9,29 @@ package gcewing.sg;
 import java.util.*;
 
 import net.minecraft.block.*;
-import net.minecraft.entity.player.*;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.*;
 import net.minecraft.nbt.*;
-import net.minecraft.util.*;
+import net.minecraft.world.World;
+
+import javax.annotation.Nullable;
 
 public class PowerItem extends ItemBlock {
 
     String unitName;
     double maxEnergy;
 
-    public PowerItem(Block block, String unitName, double maxEnergy) {
+    public PowerItem(Block block, String unitName) {
         super(block);
         this.unitName = unitName;
-        this.maxEnergy = maxEnergy;
     }
     
     @Override
-    public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean par4) {
+    public void addInformation(ItemStack stack, @Nullable World world, List<String> list, ITooltipFlag flag) {
         NBTTagCompound nbt = stack.getTagCompound();
         if (nbt != null) {
             double eu = nbt.getDouble("energyBuffer");
-            list.add(String.format("%.0f %s / %.0f", eu, unitName, maxEnergy));
+            list.add(String.format("%F %s / %F", eu, unitName, maxEnergy));
         }
     }
-
 }

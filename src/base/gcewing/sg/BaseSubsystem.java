@@ -7,6 +7,7 @@
 package gcewing.sg;
 
 import net.minecraft.item.*;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.event.*;
 import net.minecraftforge.fml.common.registry.*;
 
@@ -58,7 +59,7 @@ public class BaseSubsystem<MOD extends BaseMod, CLIENT extends BaseModClient> {
     
     public static Item findItem(String name) {
         String[] parts = BaseStringUtils.split(":", name);
-        return GameRegistry.findItem(parts[0], parts[1]);
+        return ForgeRegistries.ITEMS.getValue(new ResourceLocation(parts[0], parts[1]));
     }
     
 }
