@@ -1,8 +1,8 @@
-//------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 //
-//   SG Craft - Open Computers Interface GUI Screen
+// SG Craft - Open Computers Interface GUI Screen
 //
-//------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 
 package gcewing.sg.oc;
 
@@ -16,12 +16,12 @@ public class OCInterfaceScreen extends BaseGui.Screen {
     public OCInterfaceScreen(OCInterfaceContainer container) {
         super(container);
     }
-    
+
     @Override
     protected void drawBackgroundLayer() {
         bindTexture("gui/oc_sg_interface_gui.png", bgUSize, bgVSize);
         drawTexturedRect(0, 0, xSize, ySize, 0, 0);
         drawCenteredString("OC Stargate Interface", xSize / 2, 5);
     }
-        
+
 }

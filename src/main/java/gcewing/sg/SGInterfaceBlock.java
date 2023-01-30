@@ -1,8 +1,8 @@
-//------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 //
-//   SG Craft - Stargate Computer Interface Block
+// SG Craft - Stargate Computer Interface Block
 //
-//------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 
 package gcewing.sg;
 
@@ -17,7 +17,7 @@ public class SGInterfaceBlock<TE extends TileEntity> extends BaseBlock<TE> {
     public SGInterfaceBlock(Material material, Class<TE> teClass) {
         super(material, BaseOrientation.orient4WaysByState, teClass);
     }
-    
+
     @Override
     public IOrientationHandler getOrientationHandler() {
         return BaseOrientation.orient4WaysByState;
@@ -26,12 +26,11 @@ public class SGInterfaceBlock<TE extends TileEntity> extends BaseBlock<TE> {
     SGBaseTE getBaseTE(World world, int x, int y, int z) {
         for (ForgeDirection d : ForgeDirection.VALID_DIRECTIONS) {
             TileEntity te = world.getTileEntity(x + d.offsetX, y + d.offsetY, z + d.offsetZ);
-            if (te instanceof SGRingTE)
-                return ((SGRingTE)te).getBaseTE();
+            if (te instanceof SGRingTE) return ((SGRingTE) te).getBaseTE();
         }
         return null;
     }
-    
+
     @Override
     public boolean isSideSolid(IBlockAccess world, BlockPos pos, EnumFacing side) {
         return true;

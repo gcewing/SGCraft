@@ -1,15 +1,14 @@
-//------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 //
-//   SG Craft - Stargate controller fuelling gui container
+// SG Craft - Stargate controller fuelling gui container
 //
-//------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 
 package gcewing.sg;
 
 import net.minecraft.entity.player.*;
 import net.minecraft.inventory.*;
 import net.minecraft.item.*;
-// import net.minecraft.util.BlockPos;
 import net.minecraft.world.*;
 
 public class DHDFuelContainer extends BaseContainer {
@@ -21,22 +20,20 @@ public class DHDFuelContainer extends BaseContainer {
     static final int playerSlotsY = 124;
 
     DHDTE te;
-    
+
     public static DHDFuelContainer create(EntityPlayer player, World world, BlockPos pos) {
         DHDTE te = DHDTE.at(world, pos);
-        if (te != null)
-            return new DHDFuelContainer(player, te);
-        else
-            return null;
+        if (te != null) return new DHDFuelContainer(player, te);
+        else return null;
     }
-    
+
     public DHDFuelContainer(EntityPlayer player, DHDTE te) {
         super(DHDFuelScreen.guiWidth, DHDFuelScreen.guiHeight);
         this.te = te;
         addFuelSlots();
         addPlayerSlots(player, playerSlotsX, playerSlotsY);
     }
-    
+
     void addFuelSlots() {
         int b = DHDTE.firstFuelSlot;
         int n = DHDTE.numFuelSlots;
@@ -48,32 +45,31 @@ public class DHDFuelContainer extends BaseContainer {
             addSlotToContainer(new FuelSlot(te, b + i, x, y));
         }
     }
-    
-//  @Override
-//  void sendStateTo(ICrafting crafter) {
-//      crafter.sendProgressBarUpdate(this, 0, (int)((10000 * te.energyInBuffer) / te.maxEnergyBuffer));
-//  }
-//
-//  @Override
-//  public void updateProgressBar(int i, int value) {
-//      switch (i) {
-//          case 0: te.energyInBuffer = (value * te.maxEnergyBuffer) / 10000; break;
-//      }
-//  }
+
+    // @Override
+    // void sendStateTo(ICrafting crafter) {
+    // crafter.sendProgressBarUpdate(this, 0, (int)((10000 * te.energyInBuffer) / te.maxEnergyBuffer));
+    // }
+    //
+    // @Override
+    // public void updateProgressBar(int i, int value) {
+    // switch (i) {
+    // case 0: te.energyInBuffer = (value * te.maxEnergyBuffer) / 10000; break;
+    // }
+    // }
 
 }
 
-//------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 
 class FuelSlot extends Slot {
 
     public FuelSlot(IInventory inv, int i, int x, int y) {
         super(inv, i, x, y);
     }
-    
+
     public boolean isItemValid(ItemStack stack) {
         return DHDTE.isValidFuelItem(stack);
     }
 
 }
-

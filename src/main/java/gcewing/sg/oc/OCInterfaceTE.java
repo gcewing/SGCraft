@@ -1,17 +1,17 @@
-//------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 //
-//   SG Craft - Open Computers Interface Tile Entity
+// SG Craft - Open Computers Interface Tile Entity
 //
-//------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 
 package gcewing.sg.oc;
 
-import gcewing.sg.*;
 import li.cil.oc.api.Network;
 import li.cil.oc.api.machine.Arguments;
 import li.cil.oc.api.machine.Callback;
 import li.cil.oc.api.machine.Context;
 import li.cil.oc.api.network.*;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryBasic;
@@ -19,44 +19,41 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 
-public class OCInterfaceTE extends SGInterfaceTE
-    implements IComputerInterface, Environment, IInventory, ITickable
-{
+import gcewing.sg.*;
+
+public class OCInterfaceTE extends SGInterfaceTE implements IComputerInterface, Environment, IInventory, ITickable {
 
     static boolean debugConnection = false;
     static boolean debugNetworking = false;
-    
+
     final static int numUpgradeSlots = 1;
-    
+
     IInventory inventory = new InventoryBasic("", false, numUpgradeSlots);
 
     public OCInterfaceTE() {
-        node = Network.newNode(this, Visibility.Network)
-            .withComponent("stargate", Visibility.Network)
-            .create();
+        node = Network.newNode(this, Visibility.Network).withComponent("stargate", Visibility.Network).create();
     }
 
     protected IInventory getInventory() {
         return inventory;
     }
-    
+
     boolean hasNetworkCard() {
         return isNetworkCard(getStackInSlot(0));
     }
-    
+
     static boolean isNetworkCard(ItemStack stack) {
         return stack != null && OCIntegration.networkCard.isItemEqual(stack);
     }
-    
+
     void forwardNetworkPacket(Packet packet) {
         if (packet.ttl() > 0) {
             SGBaseTE te = getBaseTE();
-            if (te != null)
-                te.forwardNetworkPacket(packet.hop());
+            if (te != null) te.forwardNetworkPacket(packet.hop());
         }
     }
 
-    @Override   
+    @Override
     public void rebroadcastNetworkPacket(Object packet) {
         if (packet instanceof Packet && hasNetworkCard()) {
             if (node != null) {
@@ -65,74 +62,106 @@ public class OCInterfaceTE extends SGInterfaceTE
             }
         }
     }
-    
-    protected static Object[] success = {true};
-    
+
+    protected static Object[] success = { true };
+
     protected static Object[] failure(Exception e) {
-        return new Object[] {null, e.getMessage()};
+        return new Object[] { null, e.getMessage() };
     }
-    
+
     @Callback
     public Object[] stargateState(Context ctx, Arguments args) {
         try {
             CIStargateState result = ciStargateState();
-            return new Object[]{result.state, result.chevrons, result.direction};
+            return new Object[] { result.state, result.chevrons, result.direction };
+        } catch (Exception e) {
+            return failure(e);
         }
-        catch (Exception e) {return failure(e);}
     }
-    
+
     @Callback
     public Object[] energyAvailable(Context ctx, Arguments args) {
-        try {return new Object[]{ciEnergyAvailable()};}
-        catch (Exception e) {return failure(e);}
+        try {
+            return new Object[] { ciEnergyAvailable() };
+        } catch (Exception e) {
+            return failure(e);
+        }
     }
-    
+
     @Callback
     public Object[] energyToDial(Context ctx, Arguments args) {
-        try {return new Object[]{ciEnergyToDial(args.checkString(0))};}
-        catch (Exception e) {return failure(e);}
+        try {
+            return new Object[] { ciEnergyToDial(args.checkString(0)) };
+        } catch (Exception e) {
+            return failure(e);
+        }
     }
-    
+
     @Callback
     public Object[] localAddress(Context ctx, Arguments args) {
-        try {return new Object[]{ciLocalAddress()};}
-        catch (Exception e) {return failure(e);}
+        try {
+            return new Object[] { ciLocalAddress() };
+        } catch (Exception e) {
+            return failure(e);
+        }
     }
-    
+
     @Callback
     public Object[] remoteAddress(Context ctx, Arguments args) {
-        try {return new Object[]{ciRemoteAddress()};}
-        catch (Exception e) {return failure(e);}
+        try {
+            return new Object[] { ciRemoteAddress() };
+        } catch (Exception e) {
+            return failure(e);
+        }
     }
-    
+
     @Callback
     public Object[] dial(Context ctx, Arguments args) {
-        try {ciDial(args.checkString(0)); return success;}
-        catch (Exception e) {return failure(e);}
+        try {
+            ciDial(args.checkString(0));
+            return success;
+        } catch (Exception e) {
+            return failure(e);
+        }
     }
-    
+
     @Callback
     public Object[] disconnect(Context ctx, Arguments args) {
-        try {ciDisconnect(); return success;}
-        catch (Exception e) {return failure(e);}
+        try {
+            ciDisconnect();
+            return success;
+        } catch (Exception e) {
+            return failure(e);
+        }
     }
-    
+
     @Callback
     public Object[] irisState(Context ctx, Arguments args) {
-        try {return new Object[]{ciIrisState()};}
-        catch (Exception e) {return failure(e);}
+        try {
+            return new Object[] { ciIrisState() };
+        } catch (Exception e) {
+            return failure(e);
+        }
     }
-    
+
     @Callback
     public Object[] openIris(Context ctx, Arguments args) {
-        try {ciOpenIris(); return success;}
-        catch (Exception e) {return failure(e);}
+        try {
+            ciOpenIris();
+            return success;
+        } catch (Exception e) {
+            return failure(e);
+        }
     }
-    
+
     @Callback
     public Object[] closeIris(Context ctx, Arguments args) {
-        try {ciCloseIris(); return success;}
-        catch (Exception e) {return failure(e);}
+        try {
+            ciCloseIris();
+            return success;
+        } catch (Exception e) {
+            return failure(e);
+        }
     }
 
     @Callback
@@ -140,47 +169,47 @@ public class OCInterfaceTE extends SGInterfaceTE
         try {
             int n = args.count();
             Object[] objs = new Object[n];
-            for (int i = 0; i < n; i++)
-                objs[i] = args.checkAny(i);
+            for (int i = 0; i < n; i++) objs[i] = args.checkAny(i);
             ciSendMessage(objs);
             return success;
+        } catch (Exception e) {
+            return failure(e);
         }
-        catch (Exception e) {return failure(e);}
     }
 
     /**
-     * This must be set in subclasses to the node that is used to represent
-     * this tile entity.
+     * This must be set in subclasses to the node that is used to represent this tile entity.
      * <p/>
-     * You must only create new nodes using the factory method in the network
-     * API, {@link li.cil.oc.api.Network#newNode(Environment, Visibility)}.
+     * You must only create new nodes using the factory method in the network API,
+     * {@link li.cil.oc.api.Network#newNode(Environment, Visibility)}.
      * <p/>
      * For example:
+     * 
      * <pre>
      * // The first parameters to newNode is the host() of the node, which will
      * // usually be this tile entity. The second one is it's reachability,
      * // which determines how other nodes in the same network can query this
      * // node. See {@link li.cil.oc.api.network.Network#nodes(li.cil.oc.api.network.Node)}.
      * node = Network.newNode(this, Visibility.Network)
-     *       // This call allows the node to consume energy from the
-     *       // component network it is in and act as a consumer, or to
-     *       // inject energy into that network and act as a producer.
-     *       // If you do not need energy remove this call.
-     *       .withConnector()
-     *       // This call marks the tile entity as a component. This means you
-     *       // can mark methods in it using the {@link li.cil.oc.api.network.Callback}
-     *       // annotation, making them callable from user code. The first
-     *       // parameter is the name by which the component will be known in
-     *       // the computer, in this case it could be accessed as
-     *       // <tt>component.example</tt>. The second parameter is the
-     *       // component's visibility. This is like the node's reachability,
-     *       // but only applies to computers. For example, network cards can
-     *       // only be <em>seen</em> by the computer they're installed in, but
-     *       // can be <em>reached</em> by all other network cards in the same
-     *       // network. If you do not need callbacks remove this call.
-     *       .withComponent("example", Visibility.Neighbors)
-     *       // Finalizes the construction of the node and returns it.
-     *       .create();
+     *         // This call allows the node to consume energy from the
+     *         // component network it is in and act as a consumer, or to
+     *         // inject energy into that network and act as a producer.
+     *         // If you do not need energy remove this call.
+     *         .withConnector()
+     *         // This call marks the tile entity as a component. This means you
+     *         // can mark methods in it using the {@link li.cil.oc.api.network.Callback}
+     *         // annotation, making them callable from user code. The first
+     *         // parameter is the name by which the component will be known in
+     *         // the computer, in this case it could be accessed as
+     *         // <tt>component.example</tt>. The second parameter is the
+     *         // component's visibility. This is like the node's reachability,
+     *         // but only applies to computers. For example, network cards can
+     *         // only be <em>seen</em> by the computer they're installed in, but
+     *         // can be <em>reached</em> by all other network cards in the same
+     *         // network. If you do not need callbacks remove this call.
+     *         .withComponent("example", Visibility.Neighbors)
+     *         // Finalizes the construction of the node and returns it.
+     *         .create();
      * </pre>
      */
     protected Node node;
@@ -224,11 +253,10 @@ public class OCInterfaceTE extends SGInterfaceTE
         if (msg.name().equals("network.message") && hasNetworkCard()) {
             if (debugNetworking) {
                 SGCraft.log.debug(String.format("OCInterfaceTE.onMessage from %s: %s", msg.source(), msg.name()));
-                for (Object obj : msg.data())
-                    logMessage.append(String.format(" %s", obj));
+                for (Object obj : msg.data()) logMessage.append(String.format(" %s", obj));
                 SGCraft.log.debug(logMessage);
             }
-            forwardNetworkPacket((Packet)msg.data()[0]);
+            forwardNetworkPacket((Packet) msg.data()[0]);
         }
     }
 
@@ -260,10 +288,9 @@ public class OCInterfaceTE extends SGInterfaceTE
         // meaning this tile entity, gets unloaded.
         onRemoved();
     }
-    
+
     void onRemoved() {
-        if (node != null)
-            node.remove();
+        if (node != null) node.remove();
     }
 
     @Override
@@ -294,10 +321,8 @@ public class OCInterfaceTE extends SGInterfaceTE
     }
 
     public void postEvent(TileEntity source, String name, Object... args) {
-        if (node != null)
-            node.sendToReachable("computer.signal", prependArgs(name, args));
+        if (node != null) node.sendToReachable("computer.signal", prependArgs(name, args));
     }
-
 
     void onInventoryChanged(int slot) {
         markDirty();
@@ -309,7 +334,7 @@ public class OCInterfaceTE extends SGInterfaceTE
     public int getSizeInventory() {
         IInventory inventory = getInventory();
         return (inventory != null) ? inventory.getSizeInventory() : 0;
-    }   
+    }
 
     /**
      * Returns the stack in slot i
@@ -329,9 +354,7 @@ public class OCInterfaceTE extends SGInterfaceTE
             ItemStack result = inventory.decrStackSize(slot, amount);
             onInventoryChanged(slot);
             return result;
-        }
-        else
-            return null;
+        } else return null;
     }
 
     /**
@@ -344,9 +367,7 @@ public class OCInterfaceTE extends SGInterfaceTE
             ItemStack result = inventory.getStackInSlotOnClosing(slot);
             onInventoryChanged(slot);
             return result;
-        }
-        else
-            return null;
+        } else return null;
     }
 
     /**
@@ -387,30 +408,24 @@ public class OCInterfaceTE extends SGInterfaceTE
 
     public void openInventory() {
         IInventory inventory = getInventory();
-        if (inventory != null)
-            inventory.openInventory();
+        if (inventory != null) inventory.openInventory();
     }
 
     public void closeInventory() {
         IInventory inventory = getInventory();
-        if (inventory != null)
-            inventory.closeInventory();
+        if (inventory != null) inventory.closeInventory();
     }
-    
+
     public boolean isItemValidForSlot(int slot, ItemStack stack) {
         IInventory inventory = getInventory();
-        if (inventory != null)
-            return inventory.isItemValidForSlot(slot, stack);
-        else
-            return false;
+        if (inventory != null) return inventory.isItemValidForSlot(slot, stack);
+        else return false;
     }
-    
+
     public boolean hasCustomInventoryName() {
         IInventory inventory = getInventory();
-        if (inventory != null)
-            return inventory.hasCustomInventoryName();
-        else
-            return false;
+        if (inventory != null) return inventory.hasCustomInventoryName();
+        else return false;
     }
 
 }

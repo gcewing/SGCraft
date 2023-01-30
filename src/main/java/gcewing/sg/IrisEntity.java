@@ -1,33 +1,34 @@
-//------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 //
-//   SG Craft - Iris Entity
+// SG Craft - Iris Entity
 //
-//------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 
 package gcewing.sg;
 
-import cpw.mods.fml.common.registry.IEntityAdditionalSpawnData;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufInputStream;
-import io.netty.buffer.ByteBufOutputStream;
+import static gcewing.sg.BaseBlockUtils.getTileEntityWorld;
+import static gcewing.sg.BaseBlockUtils.getWorldTileEntity;
+import static gcewing.sg.BaseUtils.newAxisAlignedBB;
+
+import java.io.DataInput;
+import java.io.DataOutput;
+
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-
-import static gcewing.sg.BaseBlockUtils.getTileEntityWorld;
-import static gcewing.sg.BaseBlockUtils.getWorldTileEntity;
-import static gcewing.sg.BaseUtils.newAxisAlignedBB;
+import cpw.mods.fml.common.registry.IEntityAdditionalSpawnData;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufInputStream;
+import io.netty.buffer.ByteBufOutputStream;
 
 public class IrisEntity extends BaseEntity implements IEntityAdditionalSpawnData {
 
     public static boolean debugIrisEntity = false;
 
     BlockPos blockPos;
-    
+
     public IrisEntity(World world) {
         super(world);
     }
@@ -42,57 +43,48 @@ public class IrisEntity extends BaseEntity implements IEntityAdditionalSpawnData
         double hx = radius;
         double hy = radius;
         double hz = thickness;
-        AxisAlignedBB localBox = newAxisAlignedBB(
-            cx - hx, cy - hy, cz - hz,
-            cx + hx, cy + hy, cz + hz);
+        AxisAlignedBB localBox = newAxisAlignedBB(cx - hx, cy - hy, cz - hz, cx + hx, cy + hy, cz + hz);
         Trans3 t = te.localToGlobalTransformation();
         AxisAlignedBB globalBox = t.t(localBox);
         init(te.getPos(), globalBox);
     }
-    
+
     void init(BlockPos pos, AxisAlignedBB box) {
         if (debugIrisEntity) SGCraft.log.debug(String.format("IrisEntity.init: %s at %s box %s", this, pos, box));
         this.blockPos = pos;
         setPosition(box.minX, box.minY, box.minZ);
         setBoundingBox(box);
     }
-    
+
     @Override
-    protected void entityInit() {
-    }
+    protected void entityInit() {}
 
     SGBaseTE getBaseTE() {
         TileEntity te = getWorldTileEntity(worldObj, blockPos);
-        if (te instanceof SGBaseTE)
-            return (SGBaseTE)te;
-        else
-            return null;
+        if (te instanceof SGBaseTE) return (SGBaseTE) te;
+        else return null;
     }
-    
+
     @Override
     public boolean canBeCollidedWith() {
         boolean result;
         SGBaseTE te = getBaseTE();
-        if (te != null)
-            result = te.irisIsClosed();
-        else
-            result = false;
+        if (te != null) result = te.irisIsClosed();
+        else result = false;
         return result;
     }
-    
+
     @Override
     public AxisAlignedBB getCollisionBoundingBox() {
-        if (canBeCollidedWith())
-            return super.getEntityBoundingBox();
-        else
-            return null;
+        if (canBeCollidedWith()) return super.getEntityBoundingBox();
+        else return null;
     }
 
     @Override
     public boolean canBePushed() {
         return false;
     }
-    
+
     @Override
     public void readEntityFromNBT(NBTTagCompound nbt) {
         if (debugIrisEntity) SGCraft.log.debug(String.format("IrisEntity.readEntityFromNBT: %s", nbt));
@@ -109,7 +101,7 @@ public class IrisEntity extends BaseEntity implements IEntityAdditionalSpawnData
         AxisAlignedBB box = newAxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ);
         init(pos, box);
     }
-    
+
     @Override
     public void writeEntityToNBT(NBTTagCompound nbt) {
         nbt.setInteger("blockX", blockPos.getX());
@@ -122,7 +114,7 @@ public class IrisEntity extends BaseEntity implements IEntityAdditionalSpawnData
         nbt.setDouble("maxX", box.maxX);
         nbt.setDouble("maxY", box.maxY);
         nbt.setDouble("maxZ", box.maxZ);
-        if (debugIrisEntity)  SGCraft.log.debug(String.format("IrisEntity.writeEntityToNBT: %s", nbt));
+        if (debugIrisEntity) SGCraft.log.debug(String.format("IrisEntity.writeEntityToNBT: %s", nbt));
     }
 
     @Override
@@ -142,12 +134,11 @@ public class IrisEntity extends BaseEntity implements IEntityAdditionalSpawnData
             data.writeDouble(box.maxX);
             data.writeDouble(box.maxY);
             data.writeDouble(box.maxZ);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
-    
+
     @Override
     public void readSpawnData(ByteBuf buffer) {
         try {
@@ -161,8 +152,7 @@ public class IrisEntity extends BaseEntity implements IEntityAdditionalSpawnData
             double maxZ = data.readDouble();
             AxisAlignedBB box = newAxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ);
             init(pos, box);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }

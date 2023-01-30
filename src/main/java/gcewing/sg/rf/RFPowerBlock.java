@@ -1,8 +1,8 @@
-//------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 //
-//   SG Craft - RF Stargate Power Unit Block
+// SG Craft - RF Stargate Power Unit Block
 //
-//------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 
 package gcewing.sg.rf;
 
@@ -12,8 +12,7 @@ public class RFPowerBlock extends PowerBlock<RFPowerTE> {
 
     public RFPowerBlock() {
         super(RFPowerTE.class, null);
-        setModelAndTextures("block/power.smeg",
-            "rfPowerUnit-bottom", "rfPowerUnit-top", "rfPowerUnit-side");
+        setModelAndTextures("block/power.smeg", "rfPowerUnit-bottom", "rfPowerUnit-top", "rfPowerUnit-side");
     }
-    
+
 }

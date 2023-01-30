@@ -1,8 +1,8 @@
-//------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 //
-//   SG Craft - Stargate block
+// SG Craft - Stargate block
 //
-//------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 
 package gcewing.sg;
 
@@ -18,16 +18,15 @@ public abstract class SGBlock<TE extends TileEntity> extends BaseBlock<TE> imple
         super(material, teClass);
     }
 
-    @Override    
+    @Override
     public boolean removedByPlayer(World world, EntityPlayer player, int x, int y, int z) {
         if (player.capabilities.isCreativeMode && isConnected(world, new BlockPos(x, y, z))) {
-            if (world.isRemote)
-                SGBaseTE.sendChatMessage(player, "Disconnect stargate before breaking");
+            if (world.isRemote) SGBaseTE.sendChatMessage(player, "Disconnect stargate before breaking");
             return false;
         }
         return super.removedByPlayer(world, player, x, y, z);
     }
-    
+
     boolean isConnected(World world, BlockPos pos) {
         SGBaseTE bte = getBaseTE(world, pos);
         return bte != null && bte.isConnected();

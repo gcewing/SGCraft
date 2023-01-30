@@ -9,4 +9,3 @@ public class Info {
     static final String acceptedMinecraftVersions = "1.7.10";
 
 }
-

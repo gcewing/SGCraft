@@ -1,13 +1,11 @@
-//------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 //
-//   SG Craft - Stargate gui base class
+// SG Craft - Stargate gui base class
 //
-//------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 
 package gcewing.sg;
 
-import org.lwjgl.input.*;
-import org.lwjgl.opengl.*;
 import static org.lwjgl.opengl.GL11.*;
 
 import net.minecraft.client.*;
@@ -16,10 +14,12 @@ import net.minecraft.client.gui.inventory.*;
 import net.minecraft.client.renderer.*;
 import net.minecraft.entity.player.*;
 import net.minecraft.inventory.*;
-
 import net.minecraftforge.client.*;
 
-//------------------------------------------------------------------------------------------------
+import org.lwjgl.input.*;
+import org.lwjgl.opengl.*;
+
+// ------------------------------------------------------------------------------------------------
 
 public class SGScreen extends BaseGui.Screen {
 
@@ -44,15 +44,16 @@ public class SGScreen extends BaseGui.Screen {
     public SGScreen(Container container, int width, int height) {
         super(container, width, height);
     }
-    
+
     void drawAddressSymbols(int x, int y, String address) {
         int x0 = x - address.length() * cellSize / 2;
         int y0 = y + frameHeight / 2 - cellSize / 2;
-//      bindSGTexture("symbol_frame.png", 256, 64);
-//      drawTexturedRect(x - frameWidth / 2, y, frameWidth, frameHeight, 0, 0);
-        bindSGTexture(symbolTextureFile,
-            symbolTextureWidth * cellSize / symbolWidthInTexture,
-            symbolTextureHeight * cellSize / symbolHeightInTexture);
+        // bindSGTexture("symbol_frame.png", 256, 64);
+        // drawTexturedRect(x - frameWidth / 2, y, frameWidth, frameHeight, 0, 0);
+        bindSGTexture(
+                symbolTextureFile,
+                symbolTextureWidth * cellSize / symbolWidthInTexture,
+                symbolTextureHeight * cellSize / symbolHeightInTexture);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         int n = address.length();
@@ -60,29 +61,28 @@ public class SGScreen extends BaseGui.Screen {
             int s = SGBaseTE.charToSymbol(address.charAt(i));
             int row = s / symbolsPerRowInTexture;
             int col = s % symbolsPerRowInTexture;
-            drawTexturedRect(x0 + i * cellSize, y0, cellSize, cellSize,
-                col * cellSize, row * cellSize);
+            drawTexturedRect(x0 + i * cellSize, y0, cellSize, cellSize, col * cellSize, row * cellSize);
         }
     }
-    
+
     void drawAddressString(int x, int y, String address) {
         drawCenteredString(this.fontRendererObj, address, x, y, 0xffffff);
     }
-    
-//  void drawAddressString(int x, int y, String address, String caret) {
-//      drawCenteredString(this.fontRendererObj, padAddress(address, caret), x, y, 0xffffff);
-//  }
-    
-//  String padAddress(String address, String caret) {
-//      return SGAddressing.padAddress(address, caret, );
-//  }
-    
+
+    // void drawAddressString(int x, int y, String address, String caret) {
+    // drawCenteredString(this.fontRendererObj, padAddress(address, caret), x, y, 0xffffff);
+    // }
+
+    // String padAddress(String address, String caret) {
+    // return SGAddressing.padAddress(address, caret, );
+    // }
+
     void bindSGTexture(String name) {
         bindSGTexture(name, 1, 1);
     }
-    
+
     void bindSGTexture(String name, int usize, int vsize) {
         bindTexture(SGCraft.mod.resourceLocation("textures/gui/" + name), usize, vsize);
     }
-    
+
 }

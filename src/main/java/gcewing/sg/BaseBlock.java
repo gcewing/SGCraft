@@ -1,8 +1,8 @@
-//------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 //
-//   Greg's Mod Base for 1.7 Version B - Generic Block with optional Tile Entity
+// Greg's Mod Base for 1.7 Version B - Generic Block with optional Tile Entity
 //
-//------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 
 package gcewing.sg;
 
@@ -17,17 +17,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-import cpw.mods.fml.common.registry.GameRegistry;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-import gcewing.sg.BaseMod.ModelSpec;
-import gcewing.sg.BaseModClient.IModel;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
-// import net.minecraft.block.properties.*;
-// import net.minecraft.block.state.*;
 import net.minecraft.client.particle.EffectRenderer;
 import net.minecraft.client.particle.EntityDiggingFX;
 import net.minecraft.entity.Entity;
@@ -45,14 +38,18 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
-public class BaseBlock<TE extends TileEntity>
-extends BlockContainer implements BaseMod.IBlock
-{
+import cpw.mods.fml.common.registry.GameRegistry;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import gcewing.sg.BaseMod.ModelSpec;
+import gcewing.sg.BaseModClient.IModel;
+
+public class BaseBlock<TE extends TileEntity> extends BlockContainer implements BaseMod.IBlock {
 
     public static boolean debugState = false;
 
     protected static Random RANDOM = new Random();
-    //     private static TileEntity tileEntityHarvested;
+    // private static TileEntity tileEntityHarvested;
 
     public Class getDefaultItemClass() {
         return BaseItemBlock.class;
@@ -63,19 +60,19 @@ extends BlockContainer implements BaseMod.IBlock
     public interface IOrientationHandler {
 
         void defineProperties(BaseBlock block);
-        IBlockState onBlockPlaced(Block block, World world, BlockPos pos, EnumFacing side,
-                float hitX, float hitY, float hitZ, IBlockState baseState, EntityLivingBase placer);
+
+        IBlockState onBlockPlaced(Block block, World world, BlockPos pos, EnumFacing side, float hitX, float hitY,
+                float hitZ, IBlockState baseState, EntityLivingBase placer);
+
         Trans3 localToGlobalTransformation(IBlockAccess world, BlockPos pos, IBlockState state, Vector3 origin);
     }
 
     public static class Orient1Way implements IOrientationHandler {
 
-        public void defineProperties(BaseBlock block) {
-        }
+        public void defineProperties(BaseBlock block) {}
 
-        public IBlockState onBlockPlaced(Block block, World world, BlockPos pos, EnumFacing side,
-                float hitX, float hitY, float hitZ, IBlockState baseState, EntityLivingBase placer)
-        {
+        public IBlockState onBlockPlaced(Block block, World world, BlockPos pos, EnumFacing side, float hitX,
+                float hitY, float hitZ, IBlockState baseState, EntityLivingBase placer) {
             return baseState;
         }
 
@@ -103,7 +100,6 @@ extends BlockContainer implements BaseMod.IBlock
     protected BaseMod mod;
     protected AxisAlignedBB boxHit;
 
-
     // --------------------------- Constructors -------------------------------
 
     public BaseBlock(Material material) {
@@ -128,17 +124,14 @@ extends BlockContainer implements BaseMod.IBlock
 
     public BaseBlock(Material material, IOrientationHandler orient, Class<TE> teClass, String teID) {
         super(material);
-        if (orient == null)
-            orient = orient1Way;
+        if (orient == null) orient = orient1Way;
         this.orientationHandler = orient;
         tileEntityClass = teClass;
         if (teClass != null) {
-            if (teID == null)
-                teID = teClass.getName();
+            if (teID == null) teID = teClass.getName();
             try {
                 GameRegistry.registerTileEntity(teClass, teID);
-            }
-            catch (IllegalArgumentException e) {
+            } catch (IllegalArgumentException e) {
                 // Ignore redundant registration
             }
         }
@@ -172,16 +165,16 @@ extends BlockContainer implements BaseMod.IBlock
     }
 
     protected void addProperty(IProperty property) {
-        if (debugState) SGCraft.log.debug(String.format("BaseBlock.addProperty: %s to %s", property, getClass().getName()));
+        if (debugState)
+            SGCraft.log.debug(String.format("BaseBlock.addProperty: %s to %s", property, getClass().getName()));
         if (numProperties < 4) {
             int i = numProperties++;
             properties[i] = property;
             Object[] values = BaseUtils.arrayOf(property.getAllowedValues());
             propertyValues[i] = values;
-        }
-        else
-            throw new IllegalStateException("Block " + getClass().getName() + " has too many properties");
-        if (debugState) SGCraft.log.debug(String.format("BaseBlock.addProperty: %s now has %s properties", getClass().getName(), numProperties));
+        } else throw new IllegalStateException("Block " + getClass().getName() + " has too many properties");
+        if (debugState) SGCraft.log.debug(
+                String.format("BaseBlock.addProperty: %s now has %s properties", getClass().getName(), numProperties));
     }
 
     protected BlockState createBlockState() {
@@ -190,7 +183,8 @@ extends BlockContainer implements BaseMod.IBlock
         if (debugState) dumpProperties();
         checkProperties();
         IProperty[] props = Arrays.copyOf(properties, numProperties);
-        if (debugState) SGCraft.log.debug(String.format("BaseBlock.createBlockState: Creating BlockState with %s properties", props.length));
+        if (debugState) SGCraft.log.debug(
+                String.format("BaseBlock.createBlockState: Creating BlockState with %s properties", props.length));
         return new BlockState(this, props);
     }
 
@@ -199,17 +193,15 @@ extends BlockContainer implements BaseMod.IBlock
         for (int i = 0; i < numProperties; i++) {
             SGCraft.log.debug(String.format("%s: %s", i, properties[i]));
             Object[] values = propertyValues[i];
-            for (int j = 0; j < values.length; j++)
-                SGCraft.log.debug(String.format("   %s: %s", j, values[j]));
+            for (int j = 0; j < values.length; j++) SGCraft.log.debug(String.format("   %s: %s", j, values[j]));
         }
     }
 
     protected void checkProperties() {
         int n = 1;
-        for (int i = 0; i < numProperties; i++)
-            n *= propertyValues[i].length;
-        if (n > 16)
-            throw new IllegalStateException(String.format("Block %s has %s combinations of property values (16 allowed)", getClass().getName(), n));
+        for (int i = 0; i < numProperties; i++) n *= propertyValues[i].length;
+        if (n > 16) throw new IllegalStateException(
+                String.format("Block %s has %s combinations of property values (16 allowed)", getClass().getName(), n));
     }
 
     public BlockState getBlockState() {
@@ -230,9 +222,14 @@ extends BlockContainer implements BaseMod.IBlock
             Object value = state.getValue(properties[i]);
             Object[] values = propertyValues[i];
             int k = values.length - 1;
-            while (k > 0 && !values[k].equals(value))
-                --k;
-            if (debugState) SGCraft.log.debug(String.format("BaseBlock.getMetaFromState: property %s value %s --> %s of %s", i, value, k, values.length));
+            while (k > 0 && !values[k].equals(value)) --k;
+            if (debugState) SGCraft.log.debug(
+                    String.format(
+                            "BaseBlock.getMetaFromState: property %s value %s --> %s of %s",
+                            i,
+                            value,
+                            k,
+                            values.length));
             meta = meta * values.length + k;
         }
         if (debugState) SGCraft.log.debug(String.format("BaseBlock.getMetaFromState: %s --> %s", state, meta));
@@ -247,7 +244,7 @@ extends BlockContainer implements BaseMod.IBlock
             int n = values.length;
             int k = m % n;
             m /= n;
-            state = state.withProperty(properties[i], (Comparable)values[k]);
+            state = state.withProperty(properties[i], (Comparable) values[k]);
         }
         if (debugState) SGCraft.log.debug(String.format("BaseBlock.getStateFromMeta: %s --> %s", meta, state));
         return state;
@@ -289,9 +286,10 @@ extends BlockContainer implements BaseMod.IBlock
         return getDropsFromTileEntity(world, pos, state, te, fortune);
     }
 
-    protected ArrayList<ItemStack> getDropsFromTileEntity(IBlockAccess world, BlockPos pos, IBlockState state, TileEntity te, int fortune) {
+    protected ArrayList<ItemStack> getDropsFromTileEntity(IBlockAccess world, BlockPos pos, IBlockState state,
+            TileEntity te, int fortune) {
         int meta = getMetaFromState(state);
-        return super.getDrops((World)world, pos.x, pos.y, pos.z, meta, fortune);
+        return super.getDrops((World) world, pos.x, pos.y, pos.z, meta, fortune);
     }
 
     public void setModelAndTextures(String modelName, String... textureNames) {
@@ -314,13 +312,11 @@ extends BlockContainer implements BaseMod.IBlock
         return modelSpec;
     }
 
-    public boolean canRenderInLayer(EnumWorldBlockLayer layer)
-    {
+    public boolean canRenderInLayer(EnumWorldBlockLayer layer) {
         return getBlockLayer() == layer;
     }
 
-    public EnumWorldBlockLayer getBlockLayer()
-    {
+    public EnumWorldBlockLayer getBlockLayer() {
         return EnumWorldBlockLayer.SOLID;
     }
 
@@ -336,8 +332,7 @@ extends BlockContainer implements BaseMod.IBlock
 
     public String getQualifiedRendererClassName() {
         String name = getRendererClassName();
-        if (name != null)
-            name = getClass().getPackage().getName() + "." + name;
+        if (name != null) name = getClass().getPackage().getName() + "." + name;
         return name;
     }
 
@@ -393,20 +388,16 @@ extends BlockContainer implements BaseMod.IBlock
         if (tileEntityClass != null) {
             try {
                 return tileEntityClass.newInstance();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-        }
-        else
-            return null;
+        } else return null;
     }
 
-    public IBlockState onBlockPlaced(World world, BlockPos pos, EnumFacing side,
-            float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
-    {
-        return getOrientationHandler().onBlockPlaced(this, world, pos, side,
-                hitX, hitY, hitZ, getStateFromMeta(meta), placer);
+    public IBlockState onBlockPlaced(World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ,
+            int meta, EntityLivingBase placer) {
+        return getOrientationHandler()
+                .onBlockPlaced(this, world, pos, side, hitX, hitY, hitZ, getStateFromMeta(meta), placer);
     }
 
     @Override
@@ -416,14 +407,12 @@ extends BlockContainer implements BaseMod.IBlock
         int meta = world.getBlockMetadata(x, y, z);
         if (hasTileEntity(meta)) {
             TileEntity te = getTileEntity(world, pos);
-            if (te instanceof BaseMod.ITileEntity)
-                ((BaseMod.ITileEntity)te).onAddedToWorld();
+            if (te instanceof BaseMod.ITileEntity) ((BaseMod.ITileEntity) te).onAddedToWorld();
         }
         onBlockAdded(world, pos, getStateFromMeta(meta));
     }
 
-    public void onBlockAdded(World world, BlockPos pos, IBlockState state) {
-    }
+    public void onBlockAdded(World world, BlockPos pos, IBlockState state) {}
 
     @Override
     public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase entity, ItemStack stack) {
@@ -432,8 +421,8 @@ extends BlockContainer implements BaseMod.IBlock
         onBlockPlacedBy(world, pos, state, entity, stack);
     }
 
-    public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase entity, ItemStack stack) {
-    }
+    public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase entity,
+            ItemStack stack) {}
 
     @Override
     public void breakBlock(World world, int x, int y, int z, Block block, int meta) {
@@ -441,14 +430,12 @@ extends BlockContainer implements BaseMod.IBlock
         breakBlock(world, pos, getStateFromMeta(meta));
         if (hasTileEntity(meta)) {
             TileEntity te = world.getTileEntity(x, y, z);
-            if (te instanceof IInventory)
-                InventoryHelper.dropInventoryItems(world, pos, (IInventory)te);
+            if (te instanceof IInventory) InventoryHelper.dropInventoryItems(world, pos, (IInventory) te);
         }
         super.breakBlock(world, x, y, z, block, meta);
     }
 
-    public void breakBlock(World world, BlockPos pos, IBlockState state) {
-    }
+    public void breakBlock(World world, BlockPos pos, IBlockState state) {}
 
     @Override
     public boolean canHarvestBlock(EntityPlayer player, int meta) {
@@ -460,14 +447,15 @@ extends BlockContainer implements BaseMod.IBlock
     }
 
     @Override
-    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ) {
+    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX,
+            float hitY, float hitZ) {
         int meta = world.getBlockMetadata(x, y, z);
         IBlockState state = getStateFromMeta(meta);
         return onBlockActivated(world, new BlockPos(x, y, z), state, player, facings[side], hitX, hitY, hitZ);
     }
 
-    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side, float cx, float cy, float cz)
-    {
+    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side,
+            float cx, float cy, float cz) {
         TileEntity te = getTileEntity(world, pos);
         if (te != null) {
             int id = mod.getGuiId(te.getClass());
@@ -481,10 +469,8 @@ extends BlockContainer implements BaseMod.IBlock
 
     @Override
     public boolean isSideSolid(IBlockAccess world, int x, int y, int z, ForgeDirection side) {
-        if (side != ForgeDirection.UNKNOWN)
-            return isSideSolid(world, new BlockPos(x, y, z), facings[side.ordinal()]);
-        else
-            return super.isSideSolid(world, x, y, z, side);
+        if (side != ForgeDirection.UNKNOWN) return isSideSolid(world, new BlockPos(x, y, z), facings[side.ordinal()]);
+        else return super.isSideSolid(world, x, y, z, side);
     }
 
     public boolean isSideSolid(IBlockAccess world, BlockPos pos, EnumFacing side) {
@@ -507,8 +493,7 @@ extends BlockContainer implements BaseMod.IBlock
         onNeighborBlockChange(world, new BlockPos(x, y, z), state, block);
     }
 
-    public void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block block) {
-    }
+    public void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block block) {}
 
     @Override
     public int isProvidingStrongPower(IBlockAccess world, int x, int y, int z, int side) {
@@ -556,10 +541,8 @@ extends BlockContainer implements BaseMod.IBlock
 
     @Override
     public MapColor getMapColor(int meta) {
-        if (mapColor != null)
-            return mapColor;
-        else
-            return super.getMapColor(meta);
+        if (mapColor != null) return mapColor;
+        else return super.getMapColor(meta);
     }
 
     @Override
@@ -633,8 +616,7 @@ extends BlockContainer implements BaseMod.IBlock
         }
     }
 
-    protected AxisAlignedBB getLocalBounds(IBlockAccess world, BlockPos pos, IBlockState state, Entity entity)
-    {
+    protected AxisAlignedBB getLocalBounds(IBlockAccess world, BlockPos pos, IBlockState state, Entity entity) {
         ModelSpec spec = getModelSpec(state);
         if (spec != null) {
             IModel model = mod.getModel(spec.modelName);
@@ -645,53 +627,50 @@ extends BlockContainer implements BaseMod.IBlock
     }
 
     public void setBlockBounds(AxisAlignedBB box) {
-        setBlockBounds((float)box.minX, (float)box.minY, (float)box.minZ,
-                (float)box.maxX, (float)box.maxY, (float)box.maxZ);
+        setBlockBounds(
+                (float) box.minX,
+                (float) box.minY,
+                (float) box.minZ,
+                (float) box.maxX,
+                (float) box.maxY,
+                (float) box.maxZ);
     }
 
     @Override
-    public void addCollisionBoxesToList(World world, int x, int y, int z, AxisAlignedBB clip,
-            List result, Entity entity)
-    {
+    public void addCollisionBoxesToList(World world, int x, int y, int z, AxisAlignedBB clip, List result,
+            Entity entity) {
         BlockPos pos = new BlockPos(x, y, z);
         IBlockState state = getWorldBlockState(world, pos);
         addCollisionBoxesToList(world, pos, state, clip, result, entity);
     }
 
-
-    public void addCollisionBoxesToList(World world, BlockPos pos, IBlockState state, AxisAlignedBB clip, List result, Entity entity)
-    {
+    public void addCollisionBoxesToList(World world, BlockPos pos, IBlockState state, AxisAlignedBB clip, List result,
+            Entity entity) {
         List<AxisAlignedBB> list = getGlobalCollisionBoxes(world, pos, state, entity);
-        if (list != null)
-            for (AxisAlignedBB box : list)
-                if (clip.intersectsWith(box))
-                    result.add(box);
-                else
-                    super.addCollisionBoxesToList(world, pos.x, pos.y, pos.z, clip, result, entity);
+        if (list != null) for (AxisAlignedBB box : list) if (clip.intersectsWith(box)) result.add(box);
+        else super.addCollisionBoxesToList(world, pos.x, pos.y, pos.z, clip, result, entity);
     }
 
-    protected List<AxisAlignedBB> getGlobalCollisionBoxes(IBlockAccess world, BlockPos pos, IBlockState state, Entity entity)
-    {
+    protected List<AxisAlignedBB> getGlobalCollisionBoxes(IBlockAccess world, BlockPos pos, IBlockState state,
+            Entity entity) {
         Trans3 t = localToGlobalTransformation(world, pos, state);
         return getCollisionBoxes(world, pos, state, t, entity);
     }
 
-    protected List<AxisAlignedBB> getLocalCollisionBoxes(IBlockAccess world, BlockPos pos, IBlockState state, Entity entity)
-    {
+    protected List<AxisAlignedBB> getLocalCollisionBoxes(IBlockAccess world, BlockPos pos, IBlockState state,
+            Entity entity) {
         Trans3 t = localToGlobalTransformation(world, pos, state, Vector3.zero);
         return getCollisionBoxes(world, pos, state, t, entity);
     }
 
-    protected List<AxisAlignedBB> getCollisionBoxes(IBlockAccess world, BlockPos pos, IBlockState state, Trans3 t, Entity entity)
-    {
+    protected List<AxisAlignedBB> getCollisionBoxes(IBlockAccess world, BlockPos pos, IBlockState state, Trans3 t,
+            Entity entity) {
         List<AxisAlignedBB> list = new ArrayList<AxisAlignedBB>();
         ModelSpec spec = getModelSpec(state);
         if (spec != null) {
             IModel model = mod.getModel(spec.modelName);
             model.addBoxesToList(t.translate(spec.origin), list);
-        }
-        else
-            list.add(t.t(defaultCollisionBox));
+        } else list.add(t.t(defaultCollisionBox));
         return list;
     }
 
@@ -736,16 +715,34 @@ extends BlockContainer implements BaseMod.IBlock
         int j = pos.getY();
         int k = pos.getZ();
         float f = 0.1F;
-        double d0 = i + RANDOM.nextDouble() * (getBlockBoundsMaxX() - getBlockBoundsMinX() - (f * 2.0F)) + f + getBlockBoundsMinX();
-        double d1 = j + RANDOM.nextDouble() * (getBlockBoundsMaxY() - getBlockBoundsMinY() - (f * 2.0F)) + f + getBlockBoundsMinY();
-        double d2 = k + RANDOM.nextDouble() * (getBlockBoundsMaxZ() - getBlockBoundsMinZ() - (f * 2.0F)) + f + getBlockBoundsMinZ();
+        double d0 = i + RANDOM.nextDouble() * (getBlockBoundsMaxX() - getBlockBoundsMinX() - (f * 2.0F))
+                + f
+                + getBlockBoundsMinX();
+        double d1 = j + RANDOM.nextDouble() * (getBlockBoundsMaxY() - getBlockBoundsMinY() - (f * 2.0F))
+                + f
+                + getBlockBoundsMinY();
+        double d2 = k + RANDOM.nextDouble() * (getBlockBoundsMaxZ() - getBlockBoundsMinZ() - (f * 2.0F))
+                + f
+                + getBlockBoundsMinZ();
         switch (target.sideHit) {
-            case 0: d1 = j + getBlockBoundsMinY() - f; break;
-            case 1: d1 = j + getBlockBoundsMaxY() + f; break;
-            case 2: d2 = k + getBlockBoundsMinZ() - f; break;
-            case 3: d2 = k + getBlockBoundsMaxZ() + f; break;
-            case 4: d0 = i + getBlockBoundsMinX() - f; break;
-            case 5: d0 = i + getBlockBoundsMaxX() + f; break;
+            case 0:
+                d1 = j + getBlockBoundsMinY() - f;
+                break;
+            case 1:
+                d1 = j + getBlockBoundsMaxY() + f;
+                break;
+            case 2:
+                d2 = k + getBlockBoundsMinZ() - f;
+                break;
+            case 3:
+                d2 = k + getBlockBoundsMaxZ() + f;
+                break;
+            case 4:
+                d0 = i + getBlockBoundsMinX() - f;
+                break;
+            case 5:
+                d0 = i + getBlockBoundsMaxX() + f;
+                break;
         }
         fx = new EntityDiggingFX(world, d0, d1, d2, 0, 0, 0, block, meta);
         er.addEffect(fx.multiplyVelocity(0.2F).multipleParticleScaleBy(0.6F));
@@ -767,9 +764,16 @@ extends BlockContainer implements BaseMod.IBlock
                     double d0 = pos.getX() + (i + 0.5D) / b0;
                     double d1 = pos.getY() + (j + 0.5D) / b0;
                     double d2 = pos.getZ() + (k + 0.5D) / b0;
-                    fx = new EntityDiggingFX(world, d0, d1, d2,
-                            d0 - pos.getX() - 0.5D, d1 - pos.getY() - 0.5D, d2 - pos.getZ() - 0.5D,
-                            block, meta);
+                    fx = new EntityDiggingFX(
+                            world,
+                            d0,
+                            d1,
+                            d2,
+                            d0 - pos.getX() - 0.5D,
+                            d1 - pos.getY() - 0.5D,
+                            d2 - pos.getZ() - 0.5D,
+                            block,
+                            meta);
                     er.addEffect(fx);
                 }
             }
@@ -784,17 +788,13 @@ extends BlockContainer implements BaseMod.IBlock
     // This needs to return the MAXIMUM pass number that the block renders in.
     @Override
     public int getRenderBlockPass() {
-        if (canRenderInLayer(EnumWorldBlockLayer.TRANSLUCENT))
-            return 1;
-        else
-            return 0;
+        if (canRenderInLayer(EnumWorldBlockLayer.TRANSLUCENT)) return 1;
+        else return 0;
     }
 
     @Override
     public boolean canRenderInPass(int pass) {
-        for (EnumWorldBlockLayer layer : BaseModClient.passLayers[pass + 1])
-            if (canRenderInLayer(layer))
-                return true;
+        for (EnumWorldBlockLayer layer : BaseModClient.passLayers[pass + 1]) if (canRenderInLayer(layer)) return true;
         return false;
     }
 

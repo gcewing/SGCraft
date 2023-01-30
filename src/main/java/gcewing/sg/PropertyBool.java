@@ -1,32 +1,30 @@
 package gcewing.sg;
 
-import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
 
-public class PropertyBool extends PropertyHelper<Boolean>
-{
-    private final ImmutableSet<Boolean> allowedValues = ImmutableSet.<Boolean>of(Boolean.valueOf(true), Boolean.valueOf(false));
+import com.google.common.collect.ImmutableSet;
 
-    protected PropertyBool(String name)
-    {
+public class PropertyBool extends PropertyHelper<Boolean> {
+
+    private final ImmutableSet<Boolean> allowedValues = ImmutableSet
+            .<Boolean>of(Boolean.valueOf(true), Boolean.valueOf(false));
+
+    protected PropertyBool(String name) {
         super(name, Boolean.class);
     }
 
-    public Collection<Boolean> getAllowedValues()
-    {
+    public Collection<Boolean> getAllowedValues() {
         return this.allowedValues;
     }
 
-    public static PropertyBool create(String name)
-    {
+    public static PropertyBool create(String name) {
         return new PropertyBool(name);
     }
 
     /**
      * Get the name for the given value.
      */
-    public String getName(Boolean value)
-    {
+    public String getName(Boolean value) {
         return value.toString();
     }
 }

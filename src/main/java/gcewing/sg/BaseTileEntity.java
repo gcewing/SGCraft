@@ -1,12 +1,17 @@
-//------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 //
-//   Greg's Mod Base for 1.7 Version B - Generic Tile Entity
+// Greg's Mod Base for 1.7 Version B - Generic Tile Entity
 //
-//------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 
 package gcewing.sg;
 
-import gcewing.sg.BaseMod.IBlock;
+import static gcewing.sg.BaseBlockUtils.getWorldBlockState;
+import static gcewing.sg.BaseUtils.*;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -19,15 +24,9 @@ import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.common.ForgeChunkManager.Ticket;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+import gcewing.sg.BaseMod.IBlock;
 
-import static gcewing.sg.BaseBlockUtils.getWorldBlockState;
-import static gcewing.sg.BaseUtils.*;
-
-public class BaseTileEntity extends TileEntity
-    implements BaseMod.ITileEntity
-{
+public class BaseTileEntity extends TileEntity implements BaseMod.ITileEntity {
 
     public byte side, turn;
     public Ticket chunkTicket;
@@ -36,19 +35,27 @@ public class BaseTileEntity extends TileEntity
     public BlockPos getPos() {
         return new BlockPos(xCoord, yCoord, zCoord);
     }
-    
-    public int getX() {return xCoord;}
-    public int getY() {return yCoord;}
-    public int getZ() {return zCoord;}
+
+    public int getX() {
+        return xCoord;
+    }
+
+    public int getY() {
+        return yCoord;
+    }
+
+    public int getZ() {
+        return zCoord;
+    }
 
     public void setSide(int side) {
-        this.side = (byte)side;
+        this.side = (byte) side;
     }
-    
+
     public void setTurn(int turn) {
-        this.turn = (byte)turn;
+        this.turn = (byte) turn;
     }
-    
+
     public Trans3 localToGlobalRotation() {
         return localToGlobalTransformation(Vector3.zero);
     }
@@ -61,8 +68,7 @@ public class BaseTileEntity extends TileEntity
         BlockPos pos = getPos();
         IBlockState state = getWorldBlockState(worldObj, pos);
         Block block = state.getBlock();
-        if (block instanceof IBlock)
-            return ((IBlock)block).localToGlobalTransformation(worldObj, pos, state, origin);
+        if (block instanceof IBlock) return ((IBlock) block).localToGlobalTransformation(worldObj, pos, state, origin);
         else {
             SGCraft.log.debug(String.format("BaseTileEntity.localToGlobalTransformation: Wrong block type at %s", pos));
             return new Trans3(origin);
@@ -80,9 +86,7 @@ public class BaseTileEntity extends TileEntity
                 updateChunk = false;
             }
             return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, 0, nbt);
-        }
-        else
-            return null;
+        } else return null;
     }
 
     @Override
@@ -90,29 +94,34 @@ public class BaseTileEntity extends TileEntity
         NBTTagCompound nbt = pkt.func_148857_g();
         super.readFromNBT(nbt);
         readClientStateFromNBT(nbt);
-        if (nbt.getBoolean("updateChunk"))
-            worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+        if (nbt.getBoolean("updateChunk")) worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
     }
-    
+
     boolean syncWithClient() {
         return true;
     }
-    
+
     public void markBlockForUpdate() {
         updateChunk = true;
         worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
     }
-    
-    protected static Method getOrCreateChunkWatcher = getMethodDef(PlayerManager.class,
-        "getOrCreateChunkWatcher", "func_72690_a", int.class, int.class, boolean.class);
-    
+
+    protected static Method getOrCreateChunkWatcher = getMethodDef(
+            PlayerManager.class,
+            "getOrCreateChunkWatcher",
+            "func_72690_a",
+            int.class,
+            int.class,
+            boolean.class);
+
     protected static Field flagsYAreasToUpdate = getFieldDef(
-        classForName("net.minecraft.server.management.PlayerManager$PlayerInstance"),
-        "flagsYAreasToUpdate", "field_73260_f");
-    
+            classForName("net.minecraft.server.management.PlayerManager$PlayerInstance"),
+            "flagsYAreasToUpdate",
+            "field_73260_f");
+
     public void markForUpdate() {
         if (!worldObj.isRemote) {
-            PlayerManager pm = ((WorldServer)worldObj).getPlayerManager();
+            PlayerManager pm = ((WorldServer) worldObj).getPlayerManager();
             Object watcher = invokeMethod(pm, getOrCreateChunkWatcher, xCoord >> 4, zCoord >> 4, false);
             if (watcher != null) {
                 int oldFlags = getIntField(watcher, flagsYAreasToUpdate);
@@ -121,75 +130,69 @@ public class BaseTileEntity extends TileEntity
             }
         }
     }
-    
+
     public void playSoundEffect(String name, float volume, float pitch) {
         worldObj.playSoundEffect(xCoord + 0.5, yCoord + 0.5, zCoord + 0.5, name, volume, pitch);
     }
-    
+
     @Override
-    public void onAddedToWorld() {
-    }
-    
+    public void onAddedToWorld() {}
+
     @Override
     public final void readFromNBT(NBTTagCompound nbt) {
         super.readFromNBT(nbt);
         readPersistentStateFromNBT(nbt);
     }
-    
+
     protected void readPersistentStateFromNBT(NBTTagCompound nbt) {
         side = nbt.getByte("side");
         turn = nbt.getByte("turn");
         readContentsFromNBT(nbt);
     }
-    
+
     public void readFromItemStack(ItemStack stack) {
         NBTTagCompound nbt = stack.getTagCompound();
-        if (nbt != null)
-            readFromItemStackNBT(nbt);
+        if (nbt != null) readFromItemStackNBT(nbt);
     }
-    
+
     public void readFromItemStackNBT(NBTTagCompound nbt) {
         readContentsFromNBT(nbt);
     }
-    
+
     protected void readClientStateFromNBT(NBTTagCompound nbt) {
         readPersistentStateFromNBT(nbt);
     }
-    
-    public void readContentsFromNBT(NBTTagCompound nbt) {
-    }
+
+    public void readContentsFromNBT(NBTTagCompound nbt) {}
 
     @Override
     public final void writeToNBT(NBTTagCompound nbt) {
         super.writeToNBT(nbt);
         writePersistentStateToNBT(nbt);
     }
-    
+
     protected void writePersistentStateToNBT(NBTTagCompound nbt) {
-        if (side != 0)
-            nbt.setByte("side", side);
-        if (turn != 0)
-            nbt.setByte("turn", turn);
+        if (side != 0) nbt.setByte("side", side);
+        if (turn != 0) nbt.setByte("turn", turn);
         writeContentsToNBT(nbt);
     }
 
     public void writeToItemStackNBT(NBTTagCompound nbt) {
         writeContentsToNBT(nbt);
     }
-    
+
     protected void writeClientStateToNBT(NBTTagCompound nbt) {
         writePersistentStateToNBT(nbt);
     }
-    
-    public void writeContentsToNBT(NBTTagCompound nbt) {
-    }
-    
+
+    public void writeContentsToNBT(NBTTagCompound nbt) {}
+
     // Save to disk, update client and re-render block
     public void markChanged() {
         markDirty();
         markForUpdate();
     }
-    
+
     public void markBlockChanged() {
         markDirty();
         markBlockForUpdate();
@@ -200,14 +203,14 @@ public class BaseTileEntity extends TileEntity
         releaseChunkTicket();
         super.invalidate();
     }
-    
+
     public void releaseChunkTicket() {
         if (chunkTicket != null) {
             ForgeChunkManager.releaseTicket(chunkTicket);
             chunkTicket = null;
         }
     }
- 
+
     public static ItemStack blockStackWithTileEntity(Block block, int size, BaseTileEntity te) {
         return blockStackWithTileEntity(block, size, 0, te);
     }
@@ -221,19 +224,19 @@ public class BaseTileEntity extends TileEntity
         }
         return stack;
     }
-    
+
     public ItemStack newItemStack(int size) {
         return blockStackWithTileEntity(getBlockType(), size, this);
     }
-    
+
     @Override
     public boolean canUpdate() {
         return this instanceof ITickable;
     }
-    
+
     @Override
     public void updateEntity() {
-        ((ITickable)this).update();
+        ((ITickable) this).update();
     }
 
 }

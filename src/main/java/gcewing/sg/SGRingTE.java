@@ -1,16 +1,15 @@
-//------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 //
-//   SG Craft - Stargate ring tile entity
+// SG Craft - Stargate ring tile entity
 //
-//------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 
 package gcewing.sg;
 
+import static gcewing.sg.BaseBlockUtils.*;
+
 import net.minecraft.nbt.*;
 import net.minecraft.tileentity.*;
-// import net.minecraft.util.BlockPos;
-
-import static gcewing.sg.BaseBlockUtils.*;
 
 public class SGRingTE extends BaseTileEntity {
 
@@ -26,7 +25,7 @@ public class SGRingTE extends BaseTileEntity {
         int baseZ = nbt.getInteger("baseZ");
         basePos = new BlockPos(baseX, baseY, baseZ);
     }
-    
+
     @Override
     public void writeContentsToNBT(NBTTagCompound nbt) {
         super.writeContentsToNBT(nbt);
@@ -35,12 +34,11 @@ public class SGRingTE extends BaseTileEntity {
         nbt.setInteger("baseY", basePos.getY());
         nbt.setInteger("baseZ", basePos.getZ());
     }
-    
+
     public SGBaseTE getBaseTE() {
         if (isMerged) {
             TileEntity bte = getWorldTileEntity(worldObj, basePos);
-            if (bte instanceof SGBaseTE)
-                return (SGBaseTE)bte;
+            if (bte instanceof SGBaseTE) return (SGBaseTE) bte;
         }
         return null;
     }

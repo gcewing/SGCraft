@@ -1,8 +1,8 @@
-//------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 //
-//   SG Craft - Stargate Power Unit Item
+// SG Craft - Stargate Power Unit Item
 //
-//------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 
 package gcewing.sg;
 
@@ -24,7 +24,7 @@ public class PowerItem extends BaseItemBlock {
         this.unitName = unitName;
         this.maxEnergy = maxEnergy;
     }
-    
+
     @Override
     public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean par4) {
         NBTTagCompound nbt = stack.getTagCompound();
