@@ -6,17 +6,12 @@
 
 package gcewing.sg;
 
-import java.util.*;
+import java.util.Random;
 
-import net.minecraft.block.*;
-import net.minecraft.entity.*;
-import net.minecraft.entity.passive.*;
-import net.minecraft.init.*;
-import net.minecraft.item.*;
-import net.minecraft.village.*;
+import net.minecraft.entity.passive.EntityVillager;
+import net.minecraft.village.MerchantRecipeList;
 
-import cpw.mods.fml.common.registry.*;
-import cpw.mods.fml.common.registry.VillagerRegistry.*;
+import cpw.mods.fml.common.registry.VillagerRegistry.IVillageTradeHandler;
 
 public class SGTradeHandler implements IVillageTradeHandler {
 

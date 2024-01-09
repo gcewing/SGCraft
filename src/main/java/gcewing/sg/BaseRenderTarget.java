@@ -6,17 +6,8 @@
 
 package gcewing.sg;
 
-import static java.lang.Math.*;
-
-import java.nio.*;
-import java.util.*;
-
-import net.minecraft.block.*;
-import net.minecraft.client.renderer.texture.*;
-import net.minecraft.item.*;
-import net.minecraft.util.*;
-import net.minecraft.world.*;
-import net.minecraftforge.client.model.*;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.IIcon;
 
 import gcewing.sg.BaseModClient.ITexture;
 

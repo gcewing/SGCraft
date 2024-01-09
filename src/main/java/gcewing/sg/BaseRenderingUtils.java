@@ -6,13 +6,13 @@
 
 package gcewing.sg;
 
-import static gcewing.sg.BaseBlockUtils.*;
-import static gcewing.sg.BaseModClient.*;
+import static gcewing.sg.BaseBlockUtils.getMetaFromBlockState;
+import static gcewing.sg.BaseModClient.IRenderTarget;
 
-import net.minecraft.block.*;
+import net.minecraft.block.Block;
 import net.minecraft.client.renderer.RenderBlocks;
-import net.minecraft.tileentity.*;
-import net.minecraft.world.*;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.common.util.ForgeDirection;
 

@@ -1,6 +1,7 @@
 package gcewing.sg;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
 
 import net.minecraft.util.EnumFacing;
 

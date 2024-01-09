@@ -6,7 +6,9 @@
 
 package gcewing.sg;
 
-import static gcewing.sg.BaseBlockUtils.*;
+import static gcewing.sg.BaseBlockUtils.getWorldBlock;
+import static gcewing.sg.BaseBlockUtils.getWorldBlockState;
+import static gcewing.sg.BaseBlockUtils.markWorldBlockForUpdate;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;

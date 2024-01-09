@@ -6,11 +6,15 @@
 
 package gcewing.sg.oc;
 
-import net.minecraft.block.*;
-import net.minecraft.init.*;
-import net.minecraft.item.*;
+import net.minecraft.block.Block;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
 
-import gcewing.sg.*;
+import gcewing.sg.BaseConfiguration;
+import gcewing.sg.IntegrationBase;
+import gcewing.sg.SGBaseTE;
+import gcewing.sg.SGCraft;
+import gcewing.sg.SGGui;
 
 public class OCIntegration extends IntegrationBase {
 

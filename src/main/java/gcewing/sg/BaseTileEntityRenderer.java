@@ -6,11 +6,8 @@
 
 package gcewing.sg;
 
-import static gcewing.sg.BaseBlockUtils.*;
-
-import net.minecraft.client.renderer.tileentity.*;
-import net.minecraft.tileentity.*;
-import net.minecraft.util.*;
+import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
+import net.minecraft.tileentity.TileEntity;
 
 import gcewing.sg.BaseModClient.IRenderTarget;
 

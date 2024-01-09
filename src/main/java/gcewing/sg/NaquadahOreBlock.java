@@ -6,12 +6,10 @@
 
 package gcewing.sg;
 
-import java.util.*;
+import java.util.Random;
 
-import net.minecraft.block.*;
-import net.minecraft.creativetab.*;
-import net.minecraft.item.*;
-import net.minecraftforge.common.*;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.item.Item;
 
 public class NaquadahOreBlock extends BaseOreBlock {
 

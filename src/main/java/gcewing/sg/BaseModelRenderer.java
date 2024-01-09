@@ -7,12 +7,15 @@
 package gcewing.sg;
 
 // import net.minecraft.block.state.IBlockState;
+
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.*;
 import net.minecraft.world.IBlockAccess;
 
-import gcewing.sg.BaseMod.*;
-import gcewing.sg.BaseModClient.*;
+import gcewing.sg.BaseMod.IBlock;
+import gcewing.sg.BaseModClient.ICustomRenderer;
+import gcewing.sg.BaseModClient.IModel;
+import gcewing.sg.BaseModClient.IRenderTarget;
+import gcewing.sg.BaseModClient.ITexture;
 
 public class BaseModelRenderer implements ICustomRenderer {
 

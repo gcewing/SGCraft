@@ -6,18 +6,13 @@
 
 package gcewing.sg;
 
-import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL11.GL_LINEAR;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_MAG_FILTER;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_MIN_FILTER;
+import static org.lwjgl.opengl.GL11.glTexParameteri;
 
-import net.minecraft.client.*;
-import net.minecraft.client.gui.*;
-import net.minecraft.client.gui.inventory.*;
-import net.minecraft.client.renderer.*;
-import net.minecraft.entity.player.*;
-import net.minecraft.inventory.*;
-import net.minecraftforge.client.*;
-
-import org.lwjgl.input.*;
-import org.lwjgl.opengl.*;
+import net.minecraft.inventory.Container;
 
 // ------------------------------------------------------------------------------------------------
 

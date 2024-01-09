@@ -6,14 +6,16 @@
 
 package gcewing.sg;
 
-import static gcewing.sg.BaseUtils.*;
+import static gcewing.sg.BaseUtils.facings;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.*;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 
-import gcewing.sg.BaseMod.*;
+import gcewing.sg.BaseMod.IItem;
+import gcewing.sg.BaseMod.ModelSpec;
 
 public class BaseItem extends Item implements IItem {
 

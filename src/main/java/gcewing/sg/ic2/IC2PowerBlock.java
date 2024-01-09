@@ -6,7 +6,8 @@
 
 package gcewing.sg.ic2;
 
-import gcewing.sg.*;
+import gcewing.sg.BaseOrientation;
+import gcewing.sg.PowerBlock;
 
 public class IC2PowerBlock extends PowerBlock<IC2PowerTE> {
 

@@ -6,8 +6,9 @@
 
 package gcewing.sg.cc;
 
-import dan200.computercraft.api.lua.*;
-import dan200.computercraft.api.peripheral.*;
+import dan200.computercraft.api.lua.ILuaContext;
+import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.peripheral.IComputerAccess;
 
 public abstract class CCMethod {
 

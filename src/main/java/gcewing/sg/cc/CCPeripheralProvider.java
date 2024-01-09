@@ -6,12 +6,11 @@
 
 package gcewing.sg.cc;
 
-import net.minecraft.block.*;
-import net.minecraft.tileentity.*;
-import net.minecraft.world.*;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
 
-import dan200.computercraft.api.peripheral.*;
-import gcewing.sg.*;
+import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.peripheral.IPeripheralProvider;
 
 public class CCPeripheralProvider implements IPeripheralProvider {
 

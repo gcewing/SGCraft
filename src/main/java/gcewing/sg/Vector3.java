@@ -6,9 +6,10 @@
 
 package gcewing.sg;
 
-import static java.lang.Math.*;
+import static java.lang.Math.abs;
 
-import net.minecraft.util.*;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Vec3;
 
 public class Vector3 {
 

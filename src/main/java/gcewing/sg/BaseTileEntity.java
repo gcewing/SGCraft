@@ -7,7 +7,12 @@
 package gcewing.sg;
 
 import static gcewing.sg.BaseBlockUtils.getWorldBlockState;
-import static gcewing.sg.BaseUtils.*;
+import static gcewing.sg.BaseUtils.classForName;
+import static gcewing.sg.BaseUtils.getFieldDef;
+import static gcewing.sg.BaseUtils.getIntField;
+import static gcewing.sg.BaseUtils.getMethodDef;
+import static gcewing.sg.BaseUtils.invokeMethod;
+import static gcewing.sg.BaseUtils.setIntField;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;

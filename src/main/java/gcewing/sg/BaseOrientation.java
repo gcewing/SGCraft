@@ -6,13 +6,16 @@
 
 package gcewing.sg;
 
-import static gcewing.sg.BaseUtils.*;
+import static gcewing.sg.BaseUtils.horizontalFacings;
+import static gcewing.sg.BaseUtils.iround;
 
 import net.minecraft.block.Block;
-import net.minecraft.entity.*;
-import net.minecraft.tileentity.*;
-import net.minecraft.util.*;
-import net.minecraft.world.*;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
 
 import gcewing.sg.BaseBlock.IOrientationHandler;
 

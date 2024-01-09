@@ -1,6 +1,7 @@
 package gcewing.sg;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.Random;
 
 import net.minecraft.util.EnumFacing;
 

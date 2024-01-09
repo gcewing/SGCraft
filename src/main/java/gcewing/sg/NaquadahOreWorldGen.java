@@ -6,14 +6,15 @@
 
 package gcewing.sg;
 
-import java.util.*;
+import java.util.Random;
 
-import net.minecraft.block.*;
-import net.minecraft.init.*;
-import net.minecraft.world.*;
-import net.minecraft.world.chunk.*;
+import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
+import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.IChunkProvider;
 
-import cpw.mods.fml.common.*;
+import cpw.mods.fml.common.IWorldGenerator;
 
 public class NaquadahOreWorldGen implements IWorldGenerator {
 

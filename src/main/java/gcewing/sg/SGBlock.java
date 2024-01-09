@@ -8,9 +8,8 @@ package gcewing.sg;
 
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.tileentity.*;
-import net.minecraft.util.*;
-import net.minecraft.world.*;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
 
 public abstract class SGBlock<TE extends TileEntity> extends BaseBlock<TE> implements ISGBlock {
 

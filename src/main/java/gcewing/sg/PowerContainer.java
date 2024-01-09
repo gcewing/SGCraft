@@ -6,13 +6,11 @@
 
 package gcewing.sg;
 
-import static gcewing.sg.BaseBlockUtils.*;
+import static gcewing.sg.BaseBlockUtils.getWorldTileEntity;
 
-import net.minecraft.entity.player.*;
-import net.minecraft.inventory.*;
-import net.minecraft.tileentity.*;
-import net.minecraft.util.*;
-import net.minecraft.world.*;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
 
 public class PowerContainer extends BaseContainer {
 

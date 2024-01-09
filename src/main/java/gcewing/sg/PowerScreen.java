@@ -6,15 +6,13 @@
 
 package gcewing.sg;
 
-import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL11.GL_BLEND;
+import static org.lwjgl.opengl.GL11.GL_ONE;
+import static org.lwjgl.opengl.GL11.glBlendFunc;
+import static org.lwjgl.opengl.GL11.glEnable;
 
-import net.minecraft.client.gui.*;
-import net.minecraft.entity.player.*;
-import net.minecraft.util.*;
-import net.minecraft.world.*;
-
-import org.lwjgl.input.*;
-import org.lwjgl.opengl.*;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.World;
 
 public class PowerScreen extends BaseGui.Screen {
 

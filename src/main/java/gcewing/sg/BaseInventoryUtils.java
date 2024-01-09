@@ -6,8 +6,9 @@
 
 package gcewing.sg;
 
-import net.minecraft.inventory.*;
-import net.minecraft.item.*;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.ISidedInventory;
+import net.minecraft.item.ItemStack;
 
 public class BaseInventoryUtils {
 

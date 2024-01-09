@@ -6,7 +6,7 @@
 
 package gcewing.sg;
 
-import java.nio.*;
+import java.nio.FloatBuffer;
 
 import net.minecraft.client.renderer.GLAllocation;
 

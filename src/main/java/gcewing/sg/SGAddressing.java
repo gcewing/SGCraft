@@ -27,11 +27,9 @@
 
 package gcewing.sg;
 
-import net.minecraft.server.*;
-import net.minecraft.tileentity.*;
-import net.minecraft.world.*;
-import net.minecraft.world.chunk.*;
-import net.minecraftforge.common.*;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
+import net.minecraft.world.chunk.Chunk;
 
 public class SGAddressing {
 

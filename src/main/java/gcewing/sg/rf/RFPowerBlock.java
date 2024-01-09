@@ -6,7 +6,7 @@
 
 package gcewing.sg.rf;
 
-import gcewing.sg.*;
+import gcewing.sg.PowerBlock;
 
 public class RFPowerBlock extends PowerBlock<RFPowerTE> {
 

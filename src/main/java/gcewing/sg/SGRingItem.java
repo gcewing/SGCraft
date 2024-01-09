@@ -6,9 +6,8 @@
 
 package gcewing.sg;
 
-import net.minecraft.block.*;
-import net.minecraft.item.*;
-import net.minecraft.util.*;
+import net.minecraft.block.Block;
+import net.minecraft.item.ItemStack;
 
 public class SGRingItem extends BaseItemBlock {
 

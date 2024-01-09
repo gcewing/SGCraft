@@ -6,11 +6,13 @@
 
 package gcewing.sg.cc;
 
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Semaphore;
 
-import dan200.computercraft.api.lua.*;
-import dan200.computercraft.api.peripheral.*;
+import dan200.computercraft.api.lua.ILuaContext;
+import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.peripheral.IComputerAccess;
 
 public class CCMethodQueue {
 

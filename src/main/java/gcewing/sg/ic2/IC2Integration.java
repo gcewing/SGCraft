@@ -6,12 +6,12 @@
 
 package gcewing.sg.ic2;
 
-import net.minecraft.block.*;
-import net.minecraft.init.*;
-import net.minecraft.item.*;
+import net.minecraft.item.ItemStack;
 
-import gcewing.sg.*;
-import ic2.api.item.*;
+import gcewing.sg.BaseSubsystem;
+import gcewing.sg.SGCraft;
+import gcewing.sg.SGCraftClient;
+import ic2.api.item.IC2Items;
 
 public class IC2Integration extends BaseSubsystem<SGCraft, SGCraftClient> {
 

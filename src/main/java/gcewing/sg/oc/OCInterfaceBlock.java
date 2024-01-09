@@ -6,14 +6,15 @@
 
 package gcewing.sg.oc;
 
-import net.minecraft.entity.player.*;
-import net.minecraft.item.*;
-import net.minecraft.tileentity.*;
-import net.minecraft.util.*;
-import net.minecraft.world.*;
-import net.minecraftforge.common.util.*;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.world.World;
 
-import gcewing.sg.*;
+import gcewing.sg.BlockPos;
+import gcewing.sg.IBlockState;
+import gcewing.sg.SGCraft;
+import gcewing.sg.SGGui;
+import gcewing.sg.SGInterfaceBlock;
 
 public class OCInterfaceBlock extends SGInterfaceBlock<OCInterfaceTE> {
 

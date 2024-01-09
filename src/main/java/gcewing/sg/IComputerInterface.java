@@ -6,7 +6,7 @@
 
 package gcewing.sg;
 
-import net.minecraft.tileentity.*;
+import net.minecraft.tileentity.TileEntity;
 
 public interface IComputerInterface {
 

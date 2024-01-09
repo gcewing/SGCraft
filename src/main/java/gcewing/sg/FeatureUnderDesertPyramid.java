@@ -6,13 +6,14 @@
 
 package gcewing.sg;
 
-import java.util.*;
+import java.util.Random;
 
-import net.minecraft.block.*;
-import net.minecraft.init.*;
-import net.minecraft.nbt.*;
-import net.minecraft.world.*;
-import net.minecraft.world.gen.structure.*;
+import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.World;
+import net.minecraft.world.gen.structure.StructureBoundingBox;
+import net.minecraft.world.gen.structure.StructureComponent;
 
 public class FeatureUnderDesertPyramid extends StructureComponent {
 

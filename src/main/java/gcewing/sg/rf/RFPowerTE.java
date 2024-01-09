@@ -6,17 +6,12 @@
 
 package gcewing.sg.rf;
 
-import static gcewing.sg.BaseUtils.*;
-import static gcewing.sg.Utils.*;
-import static java.lang.Math.*;
+import static java.lang.Math.min;
 
-import net.minecraft.nbt.*;
-import net.minecraft.tileentity.*;
-import net.minecraftforge.common.*;
-import net.minecraftforge.common.util.*;
+import net.minecraftforge.common.util.ForgeDirection;
 
-import cofh.api.energy.*;
-import gcewing.sg.*;
+import cofh.api.energy.IEnergyHandler;
+import gcewing.sg.PowerTE;
 
 public class RFPowerTE extends PowerTE implements IEnergyHandler {
 

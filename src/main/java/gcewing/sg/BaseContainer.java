@@ -6,14 +6,17 @@
 
 package gcewing.sg;
 
-import static gcewing.sg.BaseUtils.*;
-import static java.lang.Math.*;
+import static java.lang.Math.min;
 
-import java.lang.reflect.*;
+import java.lang.reflect.Constructor;
 
-import net.minecraft.entity.player.*;
-import net.minecraft.inventory.*;
-import net.minecraft.item.*;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.inventory.Container;
+import net.minecraft.inventory.ICrafting;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.Slot;
+import net.minecraft.item.ItemStack;
 
 public class BaseContainer extends Container {
 

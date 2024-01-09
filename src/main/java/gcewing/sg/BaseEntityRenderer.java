@@ -6,9 +6,8 @@
 
 package gcewing.sg;
 
-import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.entity.*;
-import net.minecraft.entity.*;
+import net.minecraft.client.renderer.entity.Render;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
 
 public abstract class BaseEntityRenderer<T extends Entity> extends Render {

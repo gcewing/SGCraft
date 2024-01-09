@@ -6,16 +6,19 @@
 
 package gcewing.sg;
 
-import static gcewing.sg.BaseBlockUtils.*;
-import static gcewing.sg.BaseUtils.*;
+import static gcewing.sg.BaseBlockUtils.getBlockStateFromMeta;
+import static gcewing.sg.BaseBlockUtils.getMetaFromBlockState;
+import static gcewing.sg.BaseUtils.facings;
 
-import net.minecraft.block.*;
+import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.*;
+import net.minecraft.item.ItemBlock;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 
-import gcewing.sg.BaseMod.*;
+import gcewing.sg.BaseMod.IItem;
+import gcewing.sg.BaseMod.ModelSpec;
 
 public class BaseItemBlock extends ItemBlock implements IItem {
 

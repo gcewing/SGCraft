@@ -6,14 +6,18 @@
 
 package gcewing.sg;
 
-import java.io.*;
-import java.util.*;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.List;
 
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.ResourceLocation;
 
-import com.google.gson.*;
-import gcewing.sg.BaseModClient.*;
+import com.google.gson.Gson;
+
+import gcewing.sg.BaseModClient.IModel;
+import gcewing.sg.BaseModClient.IRenderTarget;
+import gcewing.sg.BaseModClient.ITexture;
 
 public class BaseModel implements IModel {
 
