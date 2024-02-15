@@ -34,7 +34,6 @@ public class BlockState {
     private final ImmutableList<IProperty> properties;
     private final ImmutableList<IBlockState> validStates;
 
-
     protected StateImplementation createState(Block block,
             ImmutableMap<IProperty, Comparable> properties /*
                                                             * , ImmutableMap<IUnlistedProperty<?>,
