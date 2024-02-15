@@ -14,7 +14,7 @@ public class RFIntegration extends BaseSubsystem<SGCraft, SGCraftClient> {
 
     @Override
     public void registerBlocks() {
-        mod.rfPowerUnit = mod.newBlock("rfPowerUnit", RFPowerBlock.class);
+        SGCraft.rfPowerUnit = mod.newBlock("rfPowerUnit", RFPowerBlock.class);
     }
 
 }

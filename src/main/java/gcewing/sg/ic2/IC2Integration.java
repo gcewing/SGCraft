@@ -21,7 +21,7 @@ public class IC2Integration extends BaseSubsystem<SGCraft, SGCraftClient> {
 
     @Override
     public void registerBlocks() {
-        mod.ic2PowerUnit = mod.newBlock("ic2PowerUnit", IC2PowerBlock.class, IC2PowerItem.class);
+        SGCraft.ic2PowerUnit = mod.newBlock("ic2PowerUnit", IC2PowerBlock.class, IC2PowerItem.class);
     }
 
     @Override
@@ -31,15 +31,15 @@ public class IC2Integration extends BaseSubsystem<SGCraft, SGCraftClient> {
         ItemStack machine = getIC2Item("machine");
         ItemStack wire = getIC2Item("copperCableItem");
         ItemStack circuit = getIC2Item("electronicCircuit");
-        mod.newRecipe(mod.ic2Capacitor, 1, "ppp", "rrr", "ppp", 'p', copperPlate, 'r', rubber);
+        mod.newRecipe(SGCraft.ic2Capacitor, 1, "ppp", "rrr", "ppp", 'p', copperPlate, 'r', rubber);
         mod.newRecipe(
-                mod.ic2PowerUnit,
+                SGCraft.ic2PowerUnit,
                 1,
                 "cwc",
                 "wMw",
                 "cec",
                 'c',
-                mod.ic2Capacitor,
+                SGCraft.ic2Capacitor,
                 'w',
                 wire,
                 'M',

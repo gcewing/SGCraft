@@ -21,7 +21,7 @@ public class TXIntegration extends BaseSubsystem<SGCraft, SGCraftClient> {
         ItemStack receptionCoil = new ItemStack(coil, 1, 1);
         ItemStack transmissionCoil = new ItemStack(coil, 1, 2);
         mod.newRecipe(
-                mod.rfPowerUnit,
+                SGCraft.rfPowerUnit,
                 1,
                 "ttt",
                 "hrh",

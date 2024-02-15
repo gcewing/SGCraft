@@ -44,11 +44,11 @@ public class DHDFuelScreen extends SGScreen {
         int cx = xSize / 2;
         setTextColor(0x004c66);
         drawCenteredString(screenTitle, cx, 8);
-        if (this.te.numFuelSlots > 0) drawString("Fuel", 150, 96);
+        if (DHDTE.numFuelSlots > 0) drawString("Fuel", 150, 96);
     }
 
     void drawFuelGauge() {
-        int level = (int) (fuelGaugeHeight * te.energyInBuffer / te.maxEnergyBuffer);
+        int level = (int) (fuelGaugeHeight * te.energyInBuffer / DHDTE.maxEnergyBuffer);
         if (level > fuelGaugeHeight) level = fuelGaugeHeight;
         GL11.glEnable(GL11.GL_BLEND);
         drawTexturedRect(

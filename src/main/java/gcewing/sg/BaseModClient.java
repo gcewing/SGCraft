@@ -297,7 +297,7 @@ public class BaseModClient<MOD extends BaseMod<? extends BaseModClient>> impleme
                             result = ctor.newInstance(cont);
                         } catch (Exception e) {
                             // throw new RuntimeException(e);
-                            base.reportExceptionCause(e);
+                            BaseMod.reportExceptionCause(e);
                             return null;
                         }
                     }
