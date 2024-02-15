@@ -11,5 +11,5 @@ public enum SGGui {
     SGController,
     DHDFuel,
     /* IC2 */PowerUnit,
-    OCInterface;
+    OCInterface
 }

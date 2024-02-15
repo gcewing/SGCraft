@@ -495,7 +495,7 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>> extends Ba
     }
 
     static class VSBinding extends IDBinding<ResourceLocation> {
-    };
+    }
 
     public List<VSBinding> registeredVillagers = new ArrayList<VSBinding>();
 
