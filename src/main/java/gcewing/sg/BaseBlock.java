@@ -371,8 +371,7 @@ public class BaseBlock<TE extends TileEntity> extends BlockContainer implements 
     }
 
     public TileEntity getTileEntity(IBlockAccess world, BlockPos pos) {
-        TileEntity te = world.getTileEntity(pos.x, pos.y, pos.z);
-        return te;
+        return world.getTileEntity(pos.x, pos.y, pos.z);
     }
 
     public SGBaseTE getSGBaseTE(IBlockAccess world, BlockPos pos) {

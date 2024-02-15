@@ -1241,8 +1241,7 @@ public class SGBaseTE extends BaseTileInventory {
 
     static Vector3 yawVector(double yaw) {
         double a = Math.toRadians(yaw);
-        Vector3 v = new Vector3(-Math.sin(a), 0, Math.cos(a));
-        return v;
+        return new Vector3(-Math.sin(a), 0, Math.cos(a));
     }
 
     static double yawAngle(Vector3 v, Entity entity) {
