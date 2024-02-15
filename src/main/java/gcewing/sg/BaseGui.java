@@ -820,7 +820,7 @@ public class BaseGui {
 
     public interface Action {
 
-        public void perform();
+        void perform();
     }
 
     public static class MethodAction implements Action {

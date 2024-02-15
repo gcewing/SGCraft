@@ -8,6 +8,6 @@ package gcewing.sg;
 
 public interface IIntegration {
 
-    public void onServerTick();
+    void onServerTick();
 
 }

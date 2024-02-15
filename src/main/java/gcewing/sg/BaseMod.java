@@ -64,7 +64,7 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>> extends Ba
 
     interface IBlock extends ITextureConsumer {
 
-        public void setRenderType(int id);
+        void setRenderType(int id);
 
         String getQualifiedRendererClassName();
 
@@ -87,12 +87,12 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>> extends Ba
 
     interface ITileEntity {
 
-        public void onAddedToWorld();
+        void onAddedToWorld();
     }
 
     interface ISetMod {
 
-        public void setMod(BaseMod mod);
+        void setMod(BaseMod mod);
     }
 
     public void setModOf(Object obj) {
