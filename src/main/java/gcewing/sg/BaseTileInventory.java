@@ -165,7 +165,7 @@ public class BaseTileInventory extends BaseTileEntity implements IInventory, ISi
      */
     public boolean isUseableByPlayer(EntityPlayer player) {
         IInventory inventory = getInventory();
-        return (inventory != null) ? inventory.isUseableByPlayer(player) : true;
+        return inventory == null || inventory.isUseableByPlayer(player);
     }
 
     public void openInventory() {
