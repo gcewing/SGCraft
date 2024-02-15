@@ -62,7 +62,7 @@ public class IrisEntity extends BaseEntity implements IEntityAdditionalSpawnData
     SGBaseTE getBaseTE() {
         TileEntity te = getWorldTileEntity(worldObj, blockPos);
         if (te instanceof SGBaseTE) return (SGBaseTE) te;
-        else return null;
+        return null;
     }
 
     @Override
@@ -77,7 +77,7 @@ public class IrisEntity extends BaseEntity implements IEntityAdditionalSpawnData
     @Override
     public AxisAlignedBB getCollisionBoundingBox() {
         if (canBeCollidedWith()) return super.getEntityBoundingBox();
-        else return null;
+        return null;
     }
 
     @Override

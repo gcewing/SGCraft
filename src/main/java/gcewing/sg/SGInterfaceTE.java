@@ -51,27 +51,28 @@ public class SGInterfaceTE extends BaseTileEntity {
     public SGBaseTE requireIrisTE() {
         SGBaseTE te = requireBaseTE();
         if (te != null && te.hasIrisUpgrade) return te;
-        else throw new IllegalArgumentException("No iris fitted to stargate");
+        throw new IllegalArgumentException("No iris fitted to stargate");
     }
 
     String directionDescription(SGBaseTE te) {
         if (te.isConnected()) {
             if (te.isInitiator) return "Outgoing";
             else return "Incoming";
-        } else return "";
+        }
+        return "";
     }
 
     public CIStargateState ciStargateState() {
         SGBaseTE te = getBaseTE();
         if (te != null)
             return new CIStargateState(te.sgStateDescription(), te.numEngagedChevrons, directionDescription(te));
-        else return new CIStargateState("Offline", 0, "");
+        return new CIStargateState("Offline", 0, "");
     }
 
     public double ciEnergyAvailable() {
         SGBaseTE te = getBaseTE();
         if (te != null) return te.availableEnergy();
-        else return 0;
+        return 0;
     }
 
     public double ciEnergyToDial(String address) {
@@ -124,7 +125,7 @@ public class SGInterfaceTE extends BaseTileEntity {
     public String ciIrisState() {
         SGBaseTE te = getBaseTE();
         if (te != null && te.hasIrisUpgrade) return te.irisStateDescription();
-        else return "Offline";
+        return "Offline";
     }
 
     public void ciOpenIris() {

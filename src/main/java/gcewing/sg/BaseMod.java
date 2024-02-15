@@ -165,10 +165,9 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>> extends Ba
     static String getModID(Class cls) {
         Annotation ann = cls.getAnnotation(Mod.class);
         if (ann instanceof Mod) return ((Mod) ann).modid();
-        else {
-            SGCraft.log.warn("BaseMod: Mod annotation not found");
-            return "<unknown>";
-        }
+
+        SGCraft.log.warn("BaseMod: Mod annotation not found");
+        return "<unknown>";
     }
 
     public static boolean isModLoaded(String modid) {
@@ -270,12 +269,12 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>> extends Ba
 
     public BaseSubsystem integrateWithMod(String modId, String subsystemClassName) {
         if (isModLoaded(modId)) return loadSubsystem(subsystemClassName);
-        else return null;
+        return null;
     }
 
     public BaseSubsystem integrateWithClass(String className, String subsystemClassName) {
         if (classAvailable(className)) return loadSubsystem(subsystemClassName);
-        else return null;
+        return null;
     }
 
     public BaseSubsystem loadSubsystem(String className) {
@@ -386,15 +385,18 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>> extends Ba
     protected Class getItemClassForBlock(Block block, Class suppliedClass) {
         Class baseClass = defaultItemClassForBlock(block);
         if (suppliedClass == null) return baseClass;
-        else {
-            if (!baseClass.isAssignableFrom(suppliedClass)) throw new RuntimeException(
+
+        if (!baseClass.isAssignableFrom(suppliedClass)) {
+            throw new RuntimeException(
                     String.format(
                             "Block item class %s for %s does not extend %s\n",
                             suppliedClass.getName(),
                             block.getUnlocalizedName(),
                             baseClass.getName()));
-            return suppliedClass;
         }
+
+        return suppliedClass;
+
     }
 
     public void addOre(String name, Block block) {
@@ -419,7 +421,11 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>> extends Ba
 
     public static boolean stackMatchesOre(ItemStack stack, String name) {
         int id2 = OreDictionary.getOreID(name);
-        for (int id1 : OreDictionary.getOreIDs(stack)) if (id1 == id2) return true;
+        for (int id1 : OreDictionary.getOreIDs(stack)) {
+            if (id1 == id2) {
+                return true;
+            }
+        }
         return false;
     }
 
@@ -512,7 +518,7 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>> extends Ba
 
     public ResourceLocation resourceLocation(String path) {
         if (path.contains(":")) return new ResourceLocation(path);
-        else return new ResourceLocation(assetKey, path);
+        return new ResourceLocation(assetKey, path);
     }
 
     public String soundName(String name) {
@@ -539,20 +545,22 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>> extends Ba
 
     public static void sendTileEntityUpdate(TileEntity te) {
         Packet packet = te.getDescriptionPacket();
-        if (packet != null) {
-            int x = te.xCoord >> 4;
-            int z = te.zCoord >> 4;
-            // SGCraft.log.trace(String.format("BaseMod.sendTileEntityUpdate: for chunk coords (%s, %s)", x, z));
-            WorldServer world = (WorldServer) te.getWorldObj();
-            ServerConfigurationManager cm = FMLCommonHandler.instance().getMinecraftServerInstance()
-                    .getConfigurationManager();
-            PlayerManager pm = world.getPlayerManager();
-            for (EntityPlayerMP player : (List<EntityPlayerMP>) cm.playerEntityList)
-                if (pm.isPlayerWatchingChunk(player, x, z)) {
-                    // SGCraft.log.trace(String.format("BaseMod.sendTileEntityUpdate: to %s", player));
-                    player.playerNetServerHandler.sendPacket(packet);
-                }
+        if (packet == null) {
+            return;
         }
+
+        int x = te.xCoord >> 4;
+        int z = te.zCoord >> 4;
+        // SGCraft.log.trace(String.format("BaseMod.sendTileEntityUpdate: for chunk coords (%s, %s)", x, z));
+        WorldServer world = (WorldServer) te.getWorldObj();
+        ServerConfigurationManager cm = FMLCommonHandler.instance().getMinecraftServerInstance()
+                .getConfigurationManager();
+        PlayerManager pm = world.getPlayerManager();
+        for (EntityPlayerMP player : (List<EntityPlayerMP>) cm.playerEntityList)
+            if (pm.isPlayerWatchingChunk(player, x, z)) {
+                // SGCraft.log.trace(String.format("BaseMod.sendTileEntityUpdate: to %s", player));
+                player.playerNetServerHandler.sendPacket(packet);
+            }
     }
 
     protected int nextGuiId = 1000;
@@ -564,7 +572,7 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>> extends Ba
     public int getGuiId(Object obj) {
         Integer id = objectToGuiId.get(obj);
         if (id != null) return id;
-        else return -1;
+        return -1;
     }
 
     public void addContainer(Enum id, Class<? extends Container> cls) {
@@ -694,30 +702,45 @@ public class BaseMod<CLIENT extends BaseModClient<? extends BaseMod>> extends Ba
 
     Object createGuiElement(Class cls, EntityPlayer player, World world, BlockPos pos, int param) {
         try {
-            if (debugGui) SGCraft.log.debug(
-                    String.format(
-                            "BaseMod.createGuiElement: Looking for create method on %s for %s in %s",
-                            cls,
-                            player,
-                            world));
+            if (debugGui) {
+                SGCraft.log.debug(
+                        String.format(
+                                "BaseMod.createGuiElement: Looking for create method on %s for %s in %s",
+                                cls,
+                                player,
+                                world));
+            }
             Method m = getMethod(cls, "create", EntityPlayer.class, World.class, BlockPos.class, int.class);
-            if (m != null) return m.invoke(null, player, world, pos, param);
+            if (m != null) {
+                return m.invoke(null, player, world, pos, param);
+            }
             m = getMethod(cls, "create", EntityPlayer.class, World.class, BlockPos.class);
-            if (m != null) return m.invoke(null, player, world, pos);
-            if (debugGui)
+            if (m != null) {
+                return m.invoke(null, player, world, pos);
+            }
+            if (debugGui) {
                 SGCraft.log.debug(String.format("BaseMod.createGuiElement: Looking for constructor on %s", cls));
+            }
             Constructor c = getConstructor(cls, EntityPlayer.class, World.class, BlockPos.class, int.class);
-            if (c != null) return c.newInstance(player, world, pos, param);
+            if (c != null) {
+                return c.newInstance(player, world, pos, param);
+            }
             c = getConstructor(cls, EntityPlayer.class, World.class, BlockPos.class);
-            if (c != null) return c.newInstance(player, world, pos);
+            if (c != null) {
+                return c.newInstance(player, world, pos);
+            }
             Class<? extends TileEntity> teCls = containerTEClasses.get(cls);
             if (teCls != null) {
                 TileEntity te = BaseBlockUtils.getWorldTileEntity(world, pos);
                 if (te != null) {
                     c = getConstructor(cls, EntityPlayer.class, teCls, int.class);
-                    if (c != null) return c.newInstance(player, te, param);
+                    if (c != null) {
+                        return c.newInstance(player, te, param);
+                    }
                     c = getConstructor(cls, EntityPlayer.class, teCls);
-                    if (c != null) return c.newInstance(player, te);
+                    if (c != null) {
+                        return c.newInstance(player, te);
+                    }
                 }
             }
             throw new RuntimeException(

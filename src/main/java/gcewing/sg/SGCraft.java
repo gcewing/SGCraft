@@ -173,8 +173,9 @@ public class SGCraft extends BaseMod<SGCraftClient> {
         ItemStack sgChevronBlock = new ItemStack(sgRingBlock, 1, 1);
         ItemStack blueDye = new ItemStack(Items.dye, 1, 4);
         ItemStack orangeDye = new ItemStack(Items.dye, 1, 14);
-        if (config.getBoolean("options", "allowCraftingNaquadah", false))
+        if (config.getBoolean("options", "allowCraftingNaquadah", false)) {
             newShapelessRecipe(naquadah, 1, Items.coal, Items.slime_ball, Items.blaze_powder);
+        }
         newRecipe(
                 sgRingBlock,
                 1,
@@ -356,15 +357,17 @@ public class SGCraft extends BaseMod<SGCraftClient> {
     @SubscribeEvent
     public void onChunkUnload(ChunkEvent.Unload e) {
         Chunk chunk = e.getChunk();
-        if (!getChunkWorld(chunk).isRemote) {
-            // SGCraft.log.trace("SGCraft.onChunkUnload: " + chunk.xPosition + "," + chunk.zPosition);
-            for (Object obj : getChunkTileEntityMap(chunk).values()) {
-                if (obj instanceof SGBaseTE) {
-                    SGBaseTE te = (SGBaseTE) obj;
-                    // SGCraft.log.trace("SGCraft.onChunkUnload: Disconnecting stargate at " + te.xCoord + "," +
-                    // te.yCoord + "," + te.zCoord);
-                    te.disconnect();
-                }
+        if (getChunkWorld(chunk).isRemote) {
+            return;
+        }
+
+        // SGCraft.log.trace("SGCraft.onChunkUnload: " + chunk.xPosition + "," + chunk.zPosition);
+        for (Object obj : getChunkTileEntityMap(chunk).values()) {
+            if (obj instanceof SGBaseTE) {
+                SGBaseTE te = (SGBaseTE) obj;
+                // SGCraft.log.trace("SGCraft.onChunkUnload: Disconnecting stargate at " + te.xCoord + "," +
+                // te.yCoord + "," + te.zCoord);
+                te.disconnect();
             }
         }
     }

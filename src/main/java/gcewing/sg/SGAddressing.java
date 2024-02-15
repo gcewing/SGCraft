@@ -176,12 +176,19 @@ public class SGAddressing {
 
     protected static SGBaseTE getBaseTE(int chunkX, int chunkZ, int dimension) {
         World toWorld = getWorld(dimension);
-        if (toWorld != null) {
-            Chunk chunk = toWorld.getChunkFromChunkCoords(chunkX, chunkZ);
-            if (chunk != null) for (Object te : chunk.chunkTileEntityMap.values()) {
-                if (te instanceof SGBaseTE) return (SGBaseTE) te;
-            }
+        if (toWorld == null) {
+            return null;
         }
+
+        Chunk chunk = toWorld.getChunkFromChunkCoords(chunkX, chunkZ);
+        if (chunk == null) {
+            return null;
+        }
+
+        for (Object te : chunk.chunkTileEntityMap.values()) {
+            if (te instanceof SGBaseTE) return (SGBaseTE) te;
+        }
+
         return null;
     }
 

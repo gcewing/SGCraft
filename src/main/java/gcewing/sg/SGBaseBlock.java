@@ -143,30 +143,32 @@ public class SGBaseBlock extends SGBlock<SGBaseTE> {
 
     void checkForMerge(World world, BlockPos pos) {
         if (debugMerge) SGCraft.log.debug(String.format("SGBaseBlock.checkForMerge at %s", pos));
-        if (!isMerged(world, pos)) {
-            Trans3 t = localToGlobalTransformation(world, pos);
-            for (int i = -2; i <= 2; i++) for (int j = 0; j <= 4; j++) if (!(i == 0 && j == 0)) {
-                // BlockPos rp = pos.add(i * dx, j, i * dz);
-                BlockPos rp = t.p(i, j, 0).blockPos();
-                int type = getRingBlockType(world, rp);
-                int pat = pattern[4 - j][2 + i];
-                if (pat != 0 && type != pat) {
-                    if (debugMerge) SGCraft.log.debug(
-                            String.format("SGBaseBlock: world %d != pattern %d at %s", type, pattern[j][2 + i], rp));
-                    return;
-                }
-            }
-            if (debugMerge) SGCraft.log.debug("SGBaseBlock: Merging");
-            SGBaseTE te = getSGBaseTE(world, pos);
-            te.setMerged(true);
-            markWorldBlockForUpdate(world, pos);
-            for (int i = -2; i <= 2; i++) for (int j = 0; j <= 4; j++) if (!(i == 0 && j == 0)) {
-                BlockPos rp = t.p(i, j, 0).blockPos();
-                Block block = getWorldBlock(world, rp);
-                if (block instanceof SGRingBlock) ((SGRingBlock) block).mergeWith(world, rp, pos);
-            }
-            te.checkForLink();
+        if (isMerged(world, pos)) {
+            return;
         }
+
+        Trans3 t = localToGlobalTransformation(world, pos);
+        for (int i = -2; i <= 2; i++) for (int j = 0; j <= 4; j++) if (!(i == 0 && j == 0)) {
+            // BlockPos rp = pos.add(i * dx, j, i * dz);
+            BlockPos rp = t.p(i, j, 0).blockPos();
+            int type = getRingBlockType(world, rp);
+            int pat = pattern[4 - j][2 + i];
+            if (pat != 0 && type != pat) {
+                if (debugMerge) SGCraft.log
+                        .debug(String.format("SGBaseBlock: world %d != pattern %d at %s", type, pattern[j][2 + i], rp));
+                return;
+            }
+        }
+        if (debugMerge) SGCraft.log.debug("SGBaseBlock: Merging");
+        SGBaseTE te = getSGBaseTE(world, pos);
+        te.setMerged(true);
+        markWorldBlockForUpdate(world, pos);
+        for (int i = -2; i <= 2; i++) for (int j = 0; j <= 4; j++) if (!(i == 0 && j == 0)) {
+            BlockPos rp = t.p(i, j, 0).blockPos();
+            Block block = getWorldBlock(world, rp);
+            if (block instanceof SGRingBlock) ((SGRingBlock) block).mergeWith(world, rp, pos);
+        }
+        te.checkForLink();
     }
 
     int getRingBlockType(World world, BlockPos pos) {

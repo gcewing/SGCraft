@@ -117,7 +117,7 @@ public class SGRingBlock extends SGBlock<SGRingTE> {
     public SGBaseTE getBaseTE(IBlockAccess world, BlockPos pos) {
         SGRingTE rte = getRingTE(world, pos);
         if (rte != null) return rte.getBaseTE();
-        else return null;
+        return null;
     }
 
     public SGRingTE getRingTE(IBlockAccess world, BlockPos pos) {

@@ -77,20 +77,22 @@ public class BaseModel implements IModel {
             int k = face.texture;
             if (k >= textures.length) k = textures.length - 1;
             ITexture tex = textures[k];
-            if (tex != null) {
-                renderer.setTexture(tex);
-                for (int[] tri : face.triangles) {
-                    renderer.beginTriangle();
-                    for (int i = 0; i < 3; i++) {
-                        int j = tri[i];
-                        double[] c = face.vertices[j];
-                        p = t.p(c[0], c[1], c[2]);
-                        n = t.v(c[3], c[4], c[5]);
-                        renderer.setNormal(n);
-                        renderer.addVertex(p, c[6], c[7]);
-                    }
-                    renderer.endFace();
+            if (tex == null) {
+                continue;
+            }
+
+            renderer.setTexture(tex);
+            for (int[] tri : face.triangles) {
+                renderer.beginTriangle();
+                for (int i = 0; i < 3; i++) {
+                    int j = tri[i];
+                    double[] c = face.vertices[j];
+                    p = t.p(c[0], c[1], c[2]);
+                    n = t.v(c[3], c[4], c[5]);
+                    renderer.setNormal(n);
+                    renderer.addVertex(p, c[6], c[7]);
                 }
+                renderer.endFace();
             }
         }
     }

@@ -31,9 +31,8 @@ public abstract class PropertyHelper<T extends Comparable> implements IProperty<
         } else if (p_equals_1_ != null && this.getClass() == p_equals_1_.getClass()) {
             PropertyHelper propertyhelper = (PropertyHelper) p_equals_1_;
             return this.valueClass.equals(propertyhelper.valueClass) && this.name.equals(propertyhelper.name);
-        } else {
-            return false;
         }
+        return false;
     }
 
     public int hashCode() {

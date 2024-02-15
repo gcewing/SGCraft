@@ -23,22 +23,30 @@ public class SGRingBlockRenderer implements ICustomRenderer {
     public void renderBlock(IBlockAccess world, BlockPos pos, IBlockState state, IRenderTarget target,
             EnumWorldBlockLayer layer, Trans3 t) {
         ISGBlock ringBlock = (ISGBlock) state.getBlock();
-        if (target.isRenderingBreakEffects() || (layer == EnumWorldBlockLayer.SOLID && !ringBlock.isMerged(world, pos)))
+        if (target.isRenderingBreakEffects()
+                || (layer == EnumWorldBlockLayer.SOLID && !ringBlock.isMerged(world, pos))) {
             SGCraft.mod.client.renderBlockUsingModelSpec(world, pos, state, target, layer, t);
-        else {
-            SGBaseTE te = ringBlock.getBaseTE(world, pos);
-            if (te != null) {
-                ItemStack stack = te.getCamouflageStack(pos);
-                if (stack != null) {
-                    Item item = stack.getItem();
-                    if (item instanceof ItemBlock) {
-                        IBlockState camoState = BaseBlockUtils.getBlockStateFromItemStack(stack);
-                        if (blockCanRenderInLayer(camoState.getBlock(), layer)) {
-                            BaseRenderingUtils.renderAlternateBlock(SGCraft.mod, world, pos, camoState, target);
-                        }
-                    }
-                }
-            }
+            return;
+        }
+
+        SGBaseTE te = ringBlock.getBaseTE(world, pos);
+        if (te == null) {
+            return;
+        }
+
+        ItemStack stack = te.getCamouflageStack(pos);
+        if (stack == null) {
+            return;
+        }
+
+        Item item = stack.getItem();
+        if (!(item instanceof ItemBlock)) {
+            return;
+        }
+
+        IBlockState camoState = BaseBlockUtils.getBlockStateFromItemStack(stack);
+        if (blockCanRenderInLayer(camoState.getBlock(), layer)) {
+            BaseRenderingUtils.renderAlternateBlock(SGCraft.mod, world, pos, camoState, target);
         }
     }
 

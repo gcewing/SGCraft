@@ -194,31 +194,40 @@ public class BaseModClient<MOD extends BaseMod<? extends BaseModClient>> impleme
     }
 
     protected void installCustomItemRenderDispatcher(Item item) {
-        if (item != null) {
-            if (debugModelRegistration)
-                SGCraft.log.debug(String.format("BaseModClient.installCustomItemRenderDispatcher: %s", item));
-            MinecraftForgeClient.registerItemRenderer(item, getItemRenderDispatcher());
+        if (item == null) {
+            return;
         }
+
+        if (debugModelRegistration) {
+            SGCraft.log.debug(String.format("BaseModClient.installCustomItemRenderDispatcher: %s", item));
+        }
+
+        MinecraftForgeClient.registerItemRenderer(item, getItemRenderDispatcher());
     }
 
     protected void removeUnusedDefaultTextureNames() {
         for (Block block : base.registeredBlocks) {
-            if (blockNeedsCustomRendering(block)) {
-                if (debugModelRegistration) SGCraft.log.debug(
+            if (!blockNeedsCustomRendering(block)) {
+                continue;
+            }
+
+            if (debugModelRegistration) {
+                SGCraft.log.debug(
                         String.format(
                                 "BaseModClient: Removing default texture from block %s",
                                 block.getUnlocalizedName()));
-                block.setBlockTextureName("minecraft:stone");
             }
+            block.setBlockTextureName("minecraft:stone");
         }
+
         for (Item item : base.registeredItems) {
-            if (itemNeedsCustomRendering(item)) {
-                if (debugModelRegistration) SGCraft.log.debug(
-                        String.format(
-                                "BaseModClient: Removing default texture from item %s",
-                                item.getUnlocalizedName()));
-                item.setTextureName("minecraft:apple");
+            if (!itemNeedsCustomRendering(item)) {
+                continue;
             }
+
+            if (debugModelRegistration) SGCraft.log.debug(
+                    String.format("BaseModClient: Removing default texture from item %s", item.getUnlocalizedName()));
+            item.setTextureName("minecraft:apple");
         }
     }
 
@@ -540,34 +549,36 @@ public class BaseModClient<MOD extends BaseMod<? extends BaseModClient>> impleme
                 if (debugRenderItem) SGCraft.log.debug(
                         String.format("BaseModClient.ItemRenderDispatcher.renderItem: Model renderer = %s", renderer));
             }
-            if (renderer != null) {
-                Trans3 t;
-                switch (type) {
-                    case ENTITY:
-                        t = entityTrans;
-                        break;
-                    case EQUIPPED:
-                        t = equippedTrans;
-                        break;
-                    case EQUIPPED_FIRST_PERSON:
-                        t = firstPersonTrans;
-                        break;
-                    case INVENTORY:
-                        t = inventoryTrans;
-                        glEnable(GL_BLEND);
-                        glEnable(GL_CULL_FACE);
-                        OpenGlHelper.glBlendFunc(770, 771, 1, 0);
-                        break;
-                    default:
-                        return;
-                }
-                glTarget.start(false);
-                renderer.renderItemStack(stack, glTarget, t);
-                glTarget.finish();
-                if (type == ItemRenderType.INVENTORY) {
-                    glDisable(GL_BLEND);
-                    glDisable(GL_CULL_FACE);
-                }
+            if (renderer == null) {
+                return;
+            }
+
+            Trans3 t;
+            switch (type) {
+                case ENTITY:
+                    t = entityTrans;
+                    break;
+                case EQUIPPED:
+                    t = equippedTrans;
+                    break;
+                case EQUIPPED_FIRST_PERSON:
+                    t = firstPersonTrans;
+                    break;
+                case INVENTORY:
+                    t = inventoryTrans;
+                    glEnable(GL_BLEND);
+                    glEnable(GL_CULL_FACE);
+                    OpenGlHelper.glBlendFunc(770, 771, 1, 0);
+                    break;
+                default:
+                    return;
+            }
+            glTarget.start(false);
+            renderer.renderItemStack(stack, glTarget, t);
+            glTarget.finish();
+            if (type == ItemRenderType.INVENTORY) {
+                glDisable(GL_BLEND);
+                glDisable(GL_CULL_FACE);
             }
         }
 
@@ -682,22 +693,29 @@ public class BaseModClient<MOD extends BaseMod<? extends BaseModClient>> impleme
 
     protected void registerSprites(TextureMap reg, TextureCache cache, Object obj) {
         if (debugModelRegistration) SGCraft.log.debug(String.format("BaseModClient.registerSprites: for %s", obj));
-        if (obj instanceof ITextureConsumer) {
-            String[] names = ((ITextureConsumer) obj).getTextureNames();
-            if (names != null) {
-                customRenderingRequired = true;
-                for (String name : names) {
-                    ResourceLocation loc = base.resourceLocation(name); // TextureMap adds "textures/"
-                    if (cache.get(loc) == null) {
-                        if (debugModelRegistration)
-                            SGCraft.log.debug(String.format("BaseModClient.registerSprites: %s", loc));
-                        IIcon icon = reg.registerIcon(loc.toString());
-                        ITexture texture = BaseTexture.fromSprite(icon);
-                        cache.put(loc, texture);
-                    }
-                }
+
+        if (!(obj instanceof ITextureConsumer)) {
+            return;
+        }
+
+        String[] names = ((ITextureConsumer) obj).getTextureNames();
+        if (names == null) {
+            return;
+        }
+
+        customRenderingRequired = true;
+
+        for (String name : names) {
+            ResourceLocation loc = base.resourceLocation(name); // TextureMap adds "textures/"
+            if (cache.get(loc) != null) {
+                continue;
             }
+
+            if (debugModelRegistration) SGCraft.log.debug(String.format("BaseModClient.registerSprites: %s", loc));
+
+            IIcon icon = reg.registerIcon(loc.toString());
+            ITexture texture = BaseTexture.fromSprite(icon);
+            cache.put(loc, texture);
         }
     }
-
 }

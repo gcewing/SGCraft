@@ -19,7 +19,7 @@ public class PowerContainer extends BaseContainer {
     public static PowerContainer create(EntityPlayer player, World world, BlockPos pos) {
         TileEntity te = getWorldTileEntity(world, pos);
         if (te instanceof PowerTE) return new PowerContainer(player, (PowerTE) te);
-        else return null;
+        return null;
     }
 
     public PowerContainer(EntityPlayer player, PowerTE te) {

@@ -73,25 +73,28 @@ public class BaseTileEntity extends TileEntity implements BaseMod.ITileEntity {
         BlockPos pos = getPos();
         IBlockState state = getWorldBlockState(worldObj, pos);
         Block block = state.getBlock();
-        if (block instanceof IBlock) return ((IBlock) block).localToGlobalTransformation(worldObj, pos, state, origin);
-        else {
-            SGCraft.log.debug(String.format("BaseTileEntity.localToGlobalTransformation: Wrong block type at %s", pos));
-            return new Trans3(origin);
+        if (block instanceof IBlock) {
+            return ((IBlock) block).localToGlobalTransformation(worldObj, pos, state, origin);
         }
+
+        SGCraft.log.debug(String.format("BaseTileEntity.localToGlobalTransformation: Wrong block type at %s", pos));
+        return new Trans3(origin);
     }
 
     @Override
     public Packet getDescriptionPacket() {
-        if (syncWithClient()) {
-            NBTTagCompound nbt = new NBTTagCompound();
-            super.writeToNBT(nbt);
-            writeClientStateToNBT(nbt);
-            if (updateChunk) {
-                nbt.setBoolean("updateChunk", true);
-                updateChunk = false;
-            }
-            return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, 0, nbt);
-        } else return null;
+        if (!syncWithClient()) {
+            return null;
+        }
+
+        NBTTagCompound nbt = new NBTTagCompound();
+        super.writeToNBT(nbt);
+        writeClientStateToNBT(nbt);
+        if (updateChunk) {
+            nbt.setBoolean("updateChunk", true);
+            updateChunk = false;
+        }
+        return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, 0, nbt);
     }
 
     @Override
@@ -125,15 +128,19 @@ public class BaseTileEntity extends TileEntity implements BaseMod.ITileEntity {
             "field_73260_f");
 
     public void markForUpdate() {
-        if (!worldObj.isRemote) {
-            PlayerManager pm = ((WorldServer) worldObj).getPlayerManager();
-            Object watcher = invokeMethod(pm, getOrCreateChunkWatcher, xCoord >> 4, zCoord >> 4, false);
-            if (watcher != null) {
-                int oldFlags = getIntField(watcher, flagsYAreasToUpdate);
-                worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
-                setIntField(watcher, flagsYAreasToUpdate, oldFlags);
-            }
+        if (worldObj.isRemote) {
+            return;
         }
+
+        PlayerManager pm = ((WorldServer) worldObj).getPlayerManager();
+        Object watcher = invokeMethod(pm, getOrCreateChunkWatcher, xCoord >> 4, zCoord >> 4, false);
+        if (watcher == null) {
+            return;
+        }
+
+        int oldFlags = getIntField(watcher, flagsYAreasToUpdate);
+        worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+        setIntField(watcher, flagsYAreasToUpdate, oldFlags);
     }
 
     public void playSoundEffect(String name, float volume, float pitch) {

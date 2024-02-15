@@ -88,9 +88,9 @@ public class BaseOrientation {
             if (te instanceof BaseTileEntity) {
                 BaseTileEntity bte = (BaseTileEntity) te;
                 return Trans3.sideTurn(origin, bte.side, bte.turn);
-            } else return super.localToGlobalTransformation(world, pos, state, origin);
+            }
+
+            return super.localToGlobalTransformation(world, pos, state, origin);
         }
-
     }
-
 }

@@ -79,33 +79,35 @@ public class BaseWorldRenderTarget extends BaseRenderTarget {
             double woz = (dz < 0) ? (Z + 1) - (vz - 0.5) : (vz + 0.5) - Z;
             // Take weighted sample of brightness and light value
             double w = wox * woy * woz;
-            if (w > 0) {
-                int br;
-                try {
-                    br = block.getMixedBrightnessForBlock(world, pos.x, pos.y, pos.z);
-                } catch (RuntimeException e) {
-                    SGCraft.log.error(
-                            String.format(
-                                    "BaseWorldRenderTarget.aoLightVertex: getMixedBrightnessForBlock(%s) with weight %s for block at %s: %s",
-                                    pos,
-                                    w,
-                                    blockPos,
-                                    e));
-                    SGCraft.log.error(String.format("BaseWorldRenderTarget.aoLightVertex: v = %s n = %s", v, n));
-                    throw e;
-                }
-                float lv;
-                if (!pos.equals(blockPos)) lv = world.getBlock(pos.x, pos.y, pos.z).getAmbientOcclusionLightValue();
-                else lv = 1.0f;
-                if (br != 0) {
-                    double br1 = ((br >> 16) & 0xff) / 240.0;
-                    double br2 = (br & 0xff) / 240.0;
-                    brSum1 += w * br1;
-                    brSum2 += w * br2;
-                    wt += w;
-                }
-                lvSum += w * lv;
+            if (w <= 0) {
+                continue;
             }
+
+            int br;
+            try {
+                br = block.getMixedBrightnessForBlock(world, pos.x, pos.y, pos.z);
+            } catch (RuntimeException e) {
+                SGCraft.log.error(
+                        String.format(
+                                "BaseWorldRenderTarget.aoLightVertex: getMixedBrightnessForBlock(%s) with weight %s for block at %s: %s",
+                                pos,
+                                w,
+                                blockPos,
+                                e));
+                SGCraft.log.error(String.format("BaseWorldRenderTarget.aoLightVertex: v = %s n = %s", v, n));
+                throw e;
+            }
+            float lv;
+            if (!pos.equals(blockPos)) lv = world.getBlock(pos.x, pos.y, pos.z).getAmbientOcclusionLightValue();
+            else lv = 1.0f;
+            if (br != 0) {
+                double br1 = ((br >> 16) & 0xff) / 240.0;
+                double br2 = (br & 0xff) / 240.0;
+                brSum1 += w * br1;
+                brSum2 += w * br2;
+                wt += w;
+            }
+            lvSum += w * lv;
         }
         int brv;
         if (wt > 0) brv = (iround(brSum1 / wt * 0xf0) << 16) | iround(brSum2 / wt * 0xf0);

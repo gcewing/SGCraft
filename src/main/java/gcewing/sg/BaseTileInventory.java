@@ -25,15 +25,17 @@ public class BaseTileInventory extends BaseTileEntity implements IInventory, ISi
     public void readContentsFromNBT(NBTTagCompound nbt) {
         super.readContentsFromNBT(nbt);
         IInventory inventory = getInventory();
-        if (inventory != null) {
-            NBTTagList list = nbt.getTagList("inventory", 10);
-            int n = list.tagCount();
-            for (int i = 0; i < n; i++) {
-                NBTTagCompound item = (NBTTagCompound) list.getCompoundTagAt(i);
-                int slot = item.getInteger("slot");
-                ItemStack stack = ItemStack.loadItemStackFromNBT(item);
-                inventory.setInventorySlotContents(slot, stack);
-            }
+        if (inventory == null) {
+            return;
+        }
+
+        NBTTagList list = nbt.getTagList("inventory", 10);
+        int n = list.tagCount();
+        for (int i = 0; i < n; i++) {
+            NBTTagCompound item = (NBTTagCompound) list.getCompoundTagAt(i);
+            int slot = item.getInteger("slot");
+            ItemStack stack = ItemStack.loadItemStackFromNBT(item);
+            inventory.setInventorySlotContents(slot, stack);
         }
     }
 
@@ -41,20 +43,24 @@ public class BaseTileInventory extends BaseTileEntity implements IInventory, ISi
     public void writeContentsToNBT(NBTTagCompound nbt) {
         super.writeContentsToNBT(nbt);
         IInventory inventory = getInventory();
-        if (inventory != null) {
-            NBTTagList list = new NBTTagList();
-            int n = inventory.getSizeInventory();
-            for (int i = 0; i < n; i++) {
-                ItemStack stack = inventory.getStackInSlot(i);
-                if (stack != null) {
-                    NBTTagCompound item = new NBTTagCompound();
-                    item.setInteger("slot", i);
-                    stack.writeToNBT(item);
-                    list.appendTag(item);
-                }
-            }
-            nbt.setTag("inventory", list);
+        if (inventory == null) {
+            return;
         }
+        NBTTagList list = new NBTTagList();
+        int n = inventory.getSizeInventory();
+        for (int i = 0; i < n; i++) {
+            ItemStack stack = inventory.getStackInSlot(i);
+            if (stack == null) {
+                continue;
+            }
+
+            NBTTagCompound item = new NBTTagCompound();
+            item.setInteger("slot", i);
+            stack.writeToNBT(item);
+            list.appendTag(item);
+        }
+        nbt.setTag("inventory", list);
+
     }
 
     public boolean hasStackInSlot(int i) {
@@ -107,7 +113,8 @@ public class BaseTileInventory extends BaseTileEntity implements IInventory, ISi
             ItemStack result = inventory.decrStackSize(slot, amount);
             onInventoryChanged(slot);
             return result;
-        } else return null;
+        }
+        return null;
     }
 
     /**
@@ -116,11 +123,13 @@ public class BaseTileInventory extends BaseTileEntity implements IInventory, ISi
      */
     public ItemStack getStackInSlotOnClosing(int slot) {
         IInventory inventory = getInventory();
-        if (inventory != null) {
-            ItemStack result = inventory.getStackInSlotOnClosing(slot);
-            onInventoryChanged(slot);
-            return result;
-        } else return null;
+        if (inventory == null) {
+            return null;
+        }
+
+        ItemStack result = inventory.getStackInSlotOnClosing(slot);
+        onInventoryChanged(slot);
+        return result;
     }
 
     /**
@@ -172,13 +181,13 @@ public class BaseTileInventory extends BaseTileEntity implements IInventory, ISi
     public boolean isItemValidForSlot(int slot, ItemStack stack) {
         IInventory inventory = getInventory();
         if (inventory != null) return inventory.isItemValidForSlot(slot, stack);
-        else return false;
+        return false;
     }
 
     public boolean hasCustomInventoryName() {
         IInventory inventory = getInventory();
         if (inventory != null) return inventory.hasCustomInventoryName();
-        else return false;
+        return false;
     }
 
     // ------------------------------------- ISidedInventory -----------------------------------------
@@ -190,14 +199,13 @@ public class BaseTileInventory extends BaseTileEntity implements IInventory, ISi
     public int[] getAccessibleSlotsFromSide(int side) {
         IInventory inventory = getInventory();
         if (inventory instanceof ISidedInventory) return ((ISidedInventory) inventory).getAccessibleSlotsFromSide(side);
-        else {
-            if (allSlots == null) {
-                int n = getSizeInventory();
-                allSlots = new int[n];
-                for (int i = 0; i < n; i++) allSlots[i] = i;
-            }
-            return allSlots;
+
+        if (allSlots == null) {
+            int n = getSizeInventory();
+            allSlots = new int[n];
+            for (int i = 0; i < n; i++) allSlots[i] = i;
         }
+        return allSlots;
     }
 
     /**
@@ -207,7 +215,7 @@ public class BaseTileInventory extends BaseTileEntity implements IInventory, ISi
     public boolean canInsertItem(int slot, ItemStack stack, int side) {
         IInventory inventory = getInventory();
         if (inventory instanceof ISidedInventory) return ((ISidedInventory) inventory).canInsertItem(slot, stack, side);
-        else return true;
+        return true;
     }
 
     /**
@@ -218,7 +226,7 @@ public class BaseTileInventory extends BaseTileEntity implements IInventory, ISi
         IInventory inventory = getInventory();
         if (inventory instanceof ISidedInventory)
             return ((ISidedInventory) inventory).canExtractItem(slot, stack, side);
-        else return true;
+        return true;
     }
 
 }

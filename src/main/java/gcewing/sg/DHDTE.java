@@ -54,7 +54,7 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
     public static DHDTE at(IBlockAccess world, BlockPos pos) {
         TileEntity te = getWorldTileEntity(world, pos);
         if (te instanceof DHDTE) return (DHDTE) te;
-        else return null;
+        return null;
     }
 
     public static DHDTE at(IBlockAccess world, NBTTagCompound nbt) {
@@ -130,39 +130,50 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
     void checkForLink() {
         if (debugLink) SGCraft.log.debug(
                 String.format("DHDTE.checkForLink at %s: isLinkedToStargate = %s", getPos(), isLinkedToStargate));
-        if (!isLinkedToStargate) {
-            Trans3 t = localToGlobalTransformation();
-            for (int i = -linkRangeX; i <= linkRangeX; i++)
-                for (int j = -linkRangeY; j <= linkRangeY; j++) for (int k = 1; k <= linkRangeZ; k++) {
-                    Vector3 p = t.p(i, j, -k);
-                    BlockPos bp = new BlockPos(p.floorX(), p.floorY(), p.floorZ());
-                    if (debugLink) SGCraft.log.debug(String.format("DHDTE.checkForLink: probing %s", bp));
-                    TileEntity te = getWorldTileEntity(worldObj, bp);
-                    if (te instanceof SGBaseTE) {
-                        if (debugLink) SGCraft.log
-                                .debug(String.format("DHDTE.checkForLink: Found stargate at %s", getTileEntityPos(te)));
-                        if (linkToStargate((SGBaseTE) te)) return;
-                    }
+        if (isLinkedToStargate) {
+            return;
+        }
+
+        Trans3 t = localToGlobalTransformation();
+        for (int i = -linkRangeX; i <= linkRangeX; i++) {
+            for (int j = -linkRangeY; j <= linkRangeY; j++) for (int k = 1; k <= linkRangeZ; k++) {
+                Vector3 p = t.p(i, j, -k);
+                BlockPos bp = new BlockPos(p.floorX(), p.floorY(), p.floorZ());
+
+                if (debugLink) SGCraft.log.debug(String.format("DHDTE.checkForLink: probing %s", bp));
+
+                TileEntity te = getWorldTileEntity(worldObj, bp);
+                if (!(te instanceof SGBaseTE)) {
+                    continue;
                 }
+
+                if (debugLink)
+                    SGCraft.log.debug(String.format("DHDTE.checkForLink: Found stargate at %s", getTileEntityPos(te)));
+
+                if (linkToStargate((SGBaseTE) te)) {
+                    return;
+                }
+            }
         }
     }
 
     boolean linkToStargate(SGBaseTE gte) {
-        if (!isLinkedToStargate && !gte.isLinkedToController && gte.isMerged) {
-            if (debugLink) SGCraft.log.debug(
-                    String.format(
-                            "DHDTE.linkToStargate: Linking controller at %s with stargate at %s",
-                            getPos(),
-                            getTileEntityPos(gte)));
-            linkedPos = gte.getPos();
-            isLinkedToStargate = true;
-            markChanged();
-            gte.linkedPos = getPos();
-            gte.isLinkedToController = true;
-            gte.markChanged();
-            return true;
+        if (isLinkedToStargate || gte.isLinkedToController || !gte.isMerged) {
+            return false;
         }
-        return false;
+
+        if (debugLink) SGCraft.log.debug(
+                String.format(
+                        "DHDTE.linkToStargate: Linking controller at %s with stargate at %s",
+                        getPos(),
+                        getTileEntityPos(gte)));
+        linkedPos = gte.getPos();
+        isLinkedToStargate = true;
+        markChanged();
+        gte.linkedPos = getPos();
+        gte.isLinkedToController = true;
+        gte.markChanged();
+        return true;
     }
 
     public void clearLinkToStargate() {
@@ -213,7 +224,7 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
     ItemStack fuelStackInSlot(int i) {
         ItemStack stack = getStackInSlot(firstFuelSlot + i);
         if (isValidFuelItem(stack)) return stack;
-        else return null;
+        return null;
     }
 
     public static boolean isValidFuelItem(ItemStack stack) {

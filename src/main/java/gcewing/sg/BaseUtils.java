@@ -289,7 +289,7 @@ public class BaseUtils {
         double maxY = min(box1.maxY, box2.maxY);
         double maxZ = min(box1.maxZ, box2.maxZ);
         if (minX < maxX && minY < maxY && minZ < maxZ) return newAxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ);
-        else return null;
+        return null;
     }
 
     public static MinecraftServer getMinecraftServer() {

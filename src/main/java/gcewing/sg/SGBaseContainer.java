@@ -20,7 +20,7 @@ public class SGBaseContainer extends BaseContainer {
     public static SGBaseContainer create(EntityPlayer player, World world, BlockPos pos) {
         SGBaseTE te = SGBaseTE.at(world, pos);
         if (te != null) return new SGBaseContainer(player, te);
-        else return null;
+        return null;
     }
 
     public SGBaseContainer(EntityPlayer player, SGBaseTE te) {

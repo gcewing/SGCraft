@@ -98,19 +98,21 @@ class SGBaseTERenderer extends BaseTileEntityRenderer {
     @Override
     public void renderTileEntityAt(TileEntity te, double x, double y, double z, float t, int destroyStage) {
         SGBaseTE tesg = (SGBaseTE) te;
-        if (tesg.isMerged) {
-            glPushMatrix();
-            if (SGBaseTE.transparency) {
-                glEnable(GL_BLEND);
-                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            } else glDisable(GL_BLEND);
-            glEnable(GL_RESCALE_NORMAL);
-            glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-            glTranslated(x + 0.5, y + 2.5, z + 0.5);
-            renderStargate(tesg, t);
-            glDisable(GL_RESCALE_NORMAL);
-            glPopMatrix();
+        if (!tesg.isMerged) {
+            return;
         }
+
+        glPushMatrix();
+        if (SGBaseTE.transparency) {
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        } else glDisable(GL_BLEND);
+        glEnable(GL_RESCALE_NORMAL);
+        glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+        glTranslated(x + 0.5, y + 2.5, z + 0.5);
+        renderStargate(tesg, t);
+        glDisable(GL_RESCALE_NORMAL);
+        glPopMatrix();
     }
 
     void renderStargate(SGBaseTE te, float t) {

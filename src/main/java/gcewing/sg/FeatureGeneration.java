@@ -8,6 +8,7 @@ package gcewing.sg;
 
 import static gcewing.sg.BaseUtils.getFieldDef;
 import static gcewing.sg.BaseUtils.setField;
+import static net.minecraftforge.event.terraingen.InitMapGenEvent.EventType.SCATTERED_FEATURE;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -33,16 +34,17 @@ public class FeatureGeneration {
     }
 
     public static void onInitMapGen(InitMapGenEvent e) {
-        if (augmentStructures) {
-            switch (e.type) {
-                case SCATTERED_FEATURE:
-                    if (e.newGen instanceof MapGenStructure)
-                        e.newGen = modifyScatteredFeatureGen((MapGenStructure) e.newGen);
-                    else SGCraft.log.warn(
-                            "SGCraft: FeatureGeneration: SCATTERED_FEATURE generator is not a MapGenStructure, cannot customise");
-                    break;
+        if (!augmentStructures) {
+            return;
+        }
+        if (e.type == SCATTERED_FEATURE) {
+            if (e.newGen instanceof MapGenStructure) e.newGen = modifyScatteredFeatureGen((MapGenStructure) e.newGen);
+            else {
+                SGCraft.log.warn(
+                        "SGCraft: FeatureGeneration: SCATTERED_FEATURE generator is not a MapGenStructure, cannot customise");
             }
         }
+
     }
 
     static MapGenStructure modifyScatteredFeatureGen(MapGenStructure gen) {
@@ -64,18 +66,21 @@ class SGStructureMap extends HashMap {
         LinkedList oldComponents = start.getComponents();
         LinkedList newComponents = new LinkedList();
         for (Object comp : oldComponents) {
-            if (comp instanceof ComponentScatteredFeaturePieces.DesertPyramid) {
-                StructureBoundingBox box = ((StructureComponent) comp).getBoundingBox();
-                if (FeatureGeneration.debugStructures) SGCraft.log.debug(
+            if (!(comp instanceof ComponentScatteredFeaturePieces.DesertPyramid)) {
+                continue;
+            }
+
+            StructureBoundingBox box = ((StructureComponent) comp).getBoundingBox();
+            if (FeatureGeneration.debugStructures) {
+                SGCraft.log.debug(
                         String.format(
                                 "SGCraft: FeatureGeneration: Augmenting %s at (%s, %s)",
                                 comp.getClass().getSimpleName(),
                                 box.getCenterX(),
                                 box.getCenterZ()));
-                newComponents.add(new FeatureUnderDesertPyramid((ComponentScatteredFeaturePieces.DesertPyramid) comp));
             }
+            newComponents.add(new FeatureUnderDesertPyramid((ComponentScatteredFeaturePieces.DesertPyramid) comp));
         }
         oldComponents.addAll(newComponents);
     }
-
 }

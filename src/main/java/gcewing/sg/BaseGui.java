@@ -160,9 +160,10 @@ public class BaseGui {
             if (gstate.previous != null) {
                 gstate = gstate.previous;
                 mc.getTextureManager().bindTexture(gstate.texture);
-            } else {
-                SGCraft.log.warn("BaseGui: Warning: Graphics state stack underflow");
+                return;
             }
+
+            SGCraft.log.warn("BaseGui: Warning: Graphics state stack underflow");
         }
 
         public void drawRect(double x, double y, double w, double h) {
@@ -316,14 +317,18 @@ public class BaseGui {
         @Override
         protected void mouseMovedOrUp(int x, int y, int button) {
             super.mouseMovedOrUp(x, y, button);
-            if (mouseWidget != null) {
-                MouseCoords m = new MouseCoords(mouseWidget, x, y);
-                if (button == -1) mouseWidget.mouseMoved(m);
-                else {
-                    mouseWidget.mouseReleased(m, button);
-                    mouseWidget = null;
-                }
+            if (mouseWidget == null) {
+                return;
             }
+
+            MouseCoords m = new MouseCoords(mouseWidget, x, y);
+            if (button == -1) {
+                mouseWidget.mouseMoved(m);
+                return;
+            }
+
+            mouseWidget.mouseReleased(m, button);
+            mouseWidget = null;
         }
 
         @Override
@@ -334,19 +339,23 @@ public class BaseGui {
 
         protected void mousePressed(int x, int y, int button) {
             mouseWidget = root.dispatchMousePress(x, y, button);
-            if (mouseWidget != null) {
-                closeOldFocus(mouseWidget);
-                focusOn(mouseWidget);
-                mouseWidget.mousePressed(new MouseCoords(mouseWidget, x, y), button);
+            if (mouseWidget == null) {
+                return;
             }
+
+            closeOldFocus(mouseWidget);
+            focusOn(mouseWidget);
+            mouseWidget.mousePressed(new MouseCoords(mouseWidget, x, y), button);
         }
 
         void closeOldFocus(IWidget clickedWidget) {
-            if (!isFocused(clickedWidget)) {
-                IWidgetContainer parent = clickedWidget.parent();
-                while (!isFocused(parent)) parent = parent.parent();
-                dispatchClosure(parent.getFocus());
+            if (isFocused(clickedWidget)) {
+                return;
             }
+
+            IWidgetContainer parent = clickedWidget.parent();
+            while (!isFocused(parent)) parent = parent.parent();
+            dispatchClosure(parent.getFocus());
         }
 
         void dispatchClosure(IWidget target) {
@@ -358,36 +367,44 @@ public class BaseGui {
 
         IWidget getFocusOf(IWidget widget) {
             if (widget instanceof IWidgetContainer) return ((IWidgetContainer) widget).getFocus();
-            else return null;
+            return null;
         }
 
         @Override
         public void keyTyped(char c, int key) {
-            if (!root.dispatchKeyPress(c, key)) {
-                if (key == 1 || key == mc.gameSettings.keyBindInventory.getKeyCode()) close();
-                else super.keyTyped(c, key);
+            if (root.dispatchKeyPress(c, key)) {
+                return;
             }
+
+            if (key == 1 || key == mc.gameSettings.keyBindInventory.getKeyCode()) {
+                close();
+                return;
+            }
+
+            super.keyTyped(c, key);
         }
 
         public void focusOn(IWidget newFocus) {
             SGCraft.log.trace(String.format("BaseGui.Screen.focusOn: %s", name(newFocus)));
             IWidgetContainer parent = newFocus.parent();
-            if (parent != null) {
-                IWidget oldFocus = parent.getFocus();
-                SGCraft.log.trace(String.format("BaseGui.Screen.focusOn: Old parent focus = %s", name(oldFocus)));
-                if (isFocused(parent)) {
-                    SGCraft.log.trace("BaseGui.Screen.focusOn: Parent is focused");
-                    if (oldFocus != newFocus) {
-                        tellFocusChanged(oldFocus, false);
-                        parent.setFocus(newFocus);
-                        tellFocusChanged(newFocus, true);
-                    }
-                } else {
-                    SGCraft.log.trace("BaseGui.Screen.focusOn: Parent is not focused");
-                    parent.setFocus(newFocus);
-                    focusOn(parent);
-                }
+            if (parent == null) {
+                return;
             }
+            IWidget oldFocus = parent.getFocus();
+            SGCraft.log.trace(String.format("BaseGui.Screen.focusOn: Old parent focus = %s", name(oldFocus)));
+            if (isFocused(parent)) {
+                SGCraft.log.trace("BaseGui.Screen.focusOn: Parent is focused");
+                if (oldFocus != newFocus) {
+                    tellFocusChanged(oldFocus, false);
+                    parent.setFocus(newFocus);
+                    tellFocusChanged(newFocus, true);
+                }
+                return;
+            }
+
+            SGCraft.log.trace("BaseGui.Screen.focusOn: Parent is not focused");
+            parent.setFocus(newFocus);
+            focusOn(parent);
         }
 
         public void focusChanged(boolean state) {}
@@ -405,9 +422,13 @@ public class BaseGui {
 
     static void tellFocusChanged(IWidget widget, boolean state) {
         SGCraft.log.trace(String.format("BaseGui.tellFocusChanged: to %s for %s", state, name(widget)));
-        if (widget != null) {
-            widget.focusChanged(state);
-            if (widget instanceof IWidgetContainer) tellFocusChanged(((IWidgetContainer) widget).getFocus(), state);
+        if (widget == null) {
+            return;
+        }
+
+        widget.focusChanged(state);
+        if (widget instanceof IWidgetContainer) {
+            tellFocusChanged(((IWidgetContainer) widget).getFocus(), state);
         }
     }
 
@@ -609,10 +630,12 @@ public class BaseGui {
 
         public void remove(IWidget widget) {
             widgets.remove(widget);
-            if (getFocus() == widget) {
-                if (isFocused(this)) tellFocusChanged(widget, false);
-                setFocus(null);
+            if (getFocus() != widget) {
+                return;
             }
+
+            if (isFocused(this)) tellFocusChanged(widget, false);
+            setFocus(null);
         }
 
         @Override

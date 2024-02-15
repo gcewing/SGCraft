@@ -200,7 +200,7 @@ public class Vector3 {
         double ax = abs(dx), ay = abs(dy), az = abs(dz);
         if (ay >= ax && ay >= az) return dy < 0 ? EnumFacing.DOWN : EnumFacing.UP;
         else if (ax >= az) return dx > 0 ? EnumFacing.WEST : EnumFacing.EAST; // E/W are swapped between 1.7 and 1.8
-        else return dz < 0 ? EnumFacing.NORTH : EnumFacing.SOUTH;
+        return dz < 0 ? EnumFacing.NORTH : EnumFacing.SOUTH;
     }
 
     public static Vector3[] faceBasis(EnumFacing f) {

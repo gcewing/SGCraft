@@ -57,7 +57,7 @@ public class SGLocation {
         }
         TileEntity te = getWorldTileEntity(world, pos);
         if (te instanceof SGBaseTE) return (SGBaseTE) te;
-        else return null;
+        return null;
     }
 
 }

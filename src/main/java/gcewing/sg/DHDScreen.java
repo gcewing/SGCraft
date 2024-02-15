@@ -58,13 +58,13 @@ public class DHDScreen extends SGScreen {
 
     SGBaseTE getStargateTE() {
         if (cte != null) return cte.getLinkedStargateTE();
-        else return null;
+        return null;
     }
 
     DHDTE getControllerTE() {
         TileEntity te = getWorldTileEntity(world, pos);
         if (te instanceof DHDTE) return (DHDTE) te;
-        else return null;
+        return null;
     }
 
     String getEnteredAddress() {
@@ -96,12 +96,13 @@ public class DHDScreen extends SGScreen {
 
     @Override
     protected void mousePressed(int x, int y, int mouseButton) {
-        if (mouseButton == 0) {
-            int i = findDHDButton(x, y);
-            if (i >= 0) {
-                dhdButtonPressed(i);
-                return;
-            }
+        if (mouseButton != 0) {
+            return;
+        }
+
+        int i = findDHDButton(x, y);
+        if (i >= 0) {
+            dhdButtonPressed(i);
         }
     }
 

@@ -28,7 +28,7 @@ public class DHDFuelScreen extends SGScreen {
     public static DHDFuelScreen create(EntityPlayer player, World world, BlockPos pos) {
         DHDTE te = DHDTE.at(world, pos);
         if (te != null) return new DHDFuelScreen(player, te);
-        else return null;
+        return null;
     }
 
     public DHDFuelScreen(EntityPlayer player, DHDTE te) {

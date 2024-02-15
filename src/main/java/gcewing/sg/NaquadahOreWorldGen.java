@@ -123,23 +123,20 @@ public class NaquadahOreWorldGen implements IWorldGenerator {
                 }
             }
         }
-        if (odds(genIsolatedOdds)) {
-            int n = random.nextInt(maxIsolatedNodes) + 1;
-            for (int i = 0; i < n; i++) {
-                int x = random.nextInt(16);
-                int y = random.nextInt(64);
-                int z = random.nextInt(16);
-                if (getBlock(x, y, z) == stone) {
-                    if (debugRandom) SGCraft.log.debug(
-                            String.format(
-                                    "NaquadahOreWorldGen: generating randomly at (%d, %d, %d)",
-                                    x0 + x,
-                                    y,
-                                    z0 + z));
-                    generateNode(naquadah, x, y, z, 2, 2, 2);
-                }
+        if (!odds(genIsolatedOdds)) {
+            return;
+        }
+
+        int n = random.nextInt(maxIsolatedNodes) + 1;
+        for (int i = 0; i < n; i++) {
+            int x = random.nextInt(16);
+            int y = random.nextInt(64);
+            int z = random.nextInt(16);
+            if (getBlock(x, y, z) == stone) {
+                if (debugRandom) SGCraft.log.debug(
+                        String.format("NaquadahOreWorldGen: generating randomly at (%d, %d, %d)", x0 + x, y, z0 + z));
+                generateNode(naquadah, x, y, z, 2, 2, 2);
             }
         }
     }
-
 }

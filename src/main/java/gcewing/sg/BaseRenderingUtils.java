@@ -27,11 +27,13 @@ public class BaseRenderingUtils {
 
     public static void renderAlternateBlock(IBlockAccess world, int x, int y, int z, Block block, int meta,
             IRenderTarget target) {
-        if (!block.hasTileEntity(meta)) {
-            altBlockAccess.setup(world, x, y, z, meta);
-            altRenderBlocks.renderBlockAllFaces(block, x, y, z);
-            ((BaseWorldRenderTarget) target).setRenderingOccurred();
+        if (block.hasTileEntity(meta)) {
+            return;
         }
+
+        altBlockAccess.setup(world, x, y, z, meta);
+        altRenderBlocks.renderBlockAllFaces(block, x, y, z);
+        ((BaseWorldRenderTarget) target).setRenderingOccurred();
     }
 
     // ------------------------------------------------------------------------------------------------

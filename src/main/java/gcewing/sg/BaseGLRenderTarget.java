@@ -60,38 +60,52 @@ public class BaseGLRenderTarget extends BaseRenderTarget {
 
     @Override
     public void setTexture(ITexture tex) {
-        if (texture != tex) {
-            super.setTexture(tex);
-            ResourceLocation loc = tex.location();
-            if (loc != null) {
-                setGLMode(0);
-                if (debugGL) SGCraft.log.debug("BaseGLRenderTarget: bindTexture(" + loc + ")");
-                BaseModClient.bindTexture(loc);
-            }
-            setTexturedMode(!tex.isSolid());
-            setEmissiveMode(tex.isEmissive());
+        if (texture == tex) {
+            return;
         }
+
+        super.setTexture(tex);
+        ResourceLocation loc = tex.location();
+        if (loc != null) {
+            setGLMode(0);
+            if (debugGL) SGCraft.log.debug("BaseGLRenderTarget: bindTexture(" + loc + ")");
+            BaseModClient.bindTexture(loc);
+        }
+        setTexturedMode(!tex.isSolid());
+        setEmissiveMode(tex.isEmissive());
+
     }
 
     protected void setEmissiveMode(boolean state) {
         int mode = state ? 1 : 0;
-        if (emissiveMode != mode) {
-            if (debugGL) SGCraft.log.debug("BaseGLRenderTarget: glSetEnabled(GL_LIGHTING, " + !state + ")");
-            glSetEnabled(GL_LIGHTING, !state);
-            if (usingLightmap) setLightmapEnabled(!state);
-            emissiveMode = mode;
+        if (emissiveMode == mode) {
+            return;
         }
+
+        if (debugGL) SGCraft.log.debug("BaseGLRenderTarget: glSetEnabled(GL_LIGHTING, " + !state + ")");
+
+        glSetEnabled(GL_LIGHTING, !state);
+
+        if (usingLightmap) setLightmapEnabled(!state);
+
+        emissiveMode = mode;
+
     }
 
     protected void setTexturedMode(boolean state) {
         int mode = state ? 1 : 0;
-        if (texturedMode != mode) {
-            if (debugGL) SGCraft.log.debug("BaseGLRenderTarget.setTexturedMode: " + state);
-            setGLMode(0);
-            if (debugGL) SGCraft.log.debug("BaseGLRenderTarget: glSetEnabled(GL_TEXTURE_2D, " + state + ")");
-            glSetEnabled(GL_TEXTURE_2D, state);
-            texturedMode = mode;
+        if (texturedMode == mode) {
+            return;
         }
+
+        if (debugGL) SGCraft.log.debug("BaseGLRenderTarget.setTexturedMode: " + state);
+
+        setGLMode(0);
+
+        if (debugGL) SGCraft.log.debug("BaseGLRenderTarget: glSetEnabled(GL_TEXTURE_2D, " + state + ")");
+
+        glSetEnabled(GL_TEXTURE_2D, state);
+        texturedMode = mode;
     }
 
     protected void setLightmapEnabled(boolean state) {
@@ -127,27 +141,30 @@ public class BaseGLRenderTarget extends BaseRenderTarget {
     }
 
     protected void setGLMode(int mode) {
-        if (glMode != mode) {
-            if (glMode != 0) {
-                if (debugGL) SGCraft.log.debug("BaseGLRenderTarget: glEnd()");
-                glEnd();
-            }
-            glMode = mode;
-            switch (glMode) {
-                case 0:
-                    break;
-                case 3:
-                    if (debugGL) SGCraft.log.debug("BaseGLRenderTarget: glBegin(GL_TRIANGLES)");
-                    glBegin(GL_TRIANGLES);
-                    break;
-                case 4:
-                    if (debugGL) SGCraft.log.debug("BaseGLRenderTarget: glBegin(GL_QUADS)");
-                    glBegin(GL_QUADS);
-                    break;
-                default:
-                    throw new IllegalStateException(String.format("Invalid glMode %s", glMode));
-            }
+        if (glMode == mode) {
+            return;
         }
+
+        if (glMode != 0) {
+            if (debugGL) SGCraft.log.debug("BaseGLRenderTarget: glEnd()");
+            glEnd();
+        }
+        glMode = mode;
+        switch (glMode) {
+            case 0:
+                break;
+            case 3:
+                if (debugGL) SGCraft.log.debug("BaseGLRenderTarget: glBegin(GL_TRIANGLES)");
+                glBegin(GL_TRIANGLES);
+                break;
+            case 4:
+                if (debugGL) SGCraft.log.debug("BaseGLRenderTarget: glBegin(GL_QUADS)");
+                glBegin(GL_QUADS);
+                break;
+            default:
+                throw new IllegalStateException(String.format("Invalid glMode %s", glMode));
+        }
+
     }
 
     @Override

@@ -24,7 +24,9 @@ public class BaseOreBlock extends BaseBlock {
             int j = random.nextInt(fortune + 2) - 1;
             if (j < 0) j = 0;
             return this.quantityDropped(random) * (j + 1);
-        } else return this.quantityDropped(random);
+        }
+
+        return this.quantityDropped(random);
     }
 
 }

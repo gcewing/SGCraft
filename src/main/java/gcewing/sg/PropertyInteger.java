@@ -42,9 +42,8 @@ public class PropertyInteger extends PropertyHelper<Integer> {
                 PropertyInteger propertyinteger = (PropertyInteger) p_equals_1_;
                 return this.allowedValues.equals(propertyinteger.allowedValues);
             }
-        } else {
-            return false;
         }
+        return false;
     }
 
     public int hashCode() {

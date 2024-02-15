@@ -109,32 +109,32 @@ public class Cartesian {
                     }
 
                     return true;
-                } else {
-                    if (this.index >= this.iterators.length) {
-                        for (this.index = this.iterators.length - 1; this.index >= 0; --this.index) {
-                            Iterator<? extends T> iterator = this.iterators[this.index];
+                }
 
-                            if (iterator.hasNext()) {
-                                break;
-                            }
+                if (this.index >= this.iterators.length) {
+                    for (this.index = this.iterators.length - 1; this.index >= 0; --this.index) {
+                        Iterator<? extends T> iterator = this.iterators[this.index];
 
-                            if (this.index == 0) {
-                                this.endOfData();
-                                break;
-                            }
+                        if (iterator.hasNext()) {
+                            break;
+                        }
 
-                            iterator = this.iterables[this.index].iterator();
-                            this.iterators[this.index] = iterator;
+                        if (this.index == 0) {
+                            this.endOfData();
+                            break;
+                        }
 
-                            if (!iterator.hasNext()) {
-                                this.endOfData();
-                                break;
-                            }
+                        iterator = this.iterables[this.index].iterator();
+                        this.iterators[this.index] = iterator;
+
+                        if (!iterator.hasNext()) {
+                            this.endOfData();
+                            break;
                         }
                     }
-
-                    return this.index >= 0;
                 }
+
+                return this.index >= 0;
             }
 
             public T[] next() {

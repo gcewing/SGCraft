@@ -70,7 +70,9 @@ public class BaseItemBlock extends ItemBlock implements IItem {
                 --stack.stackSize;
             }
             return true;
-        } else return false;
+        }
+
+        return false;
     }
 
     @Override

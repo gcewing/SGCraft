@@ -74,14 +74,17 @@ public class BaseInventoryUtils {
             if (base.canInsertItem(slot, stack, side)) {
                 base.setInventorySlotContents(slot, stack);
                 return true;
-            } else return false;
+            }
+
+            return false;
         }
 
         public ItemStack extract(int i) {
             int slot = slots[i];
             ItemStack stack = base.getStackInSlot(slot);
             if (base.canExtractItem(slot, stack, side)) return stack;
-            else return null;
+
+            return null;
         }
 
     }
