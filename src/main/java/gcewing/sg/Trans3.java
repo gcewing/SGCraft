@@ -23,7 +23,7 @@ public class Trans3 {
     public static Trans3 ident = new Trans3(Vector3.zero);
     public static Trans3 blockCenter = new Trans3(Vector3.blockCenter);
 
-    public static Trans3 sideTurnRotations[][] = new Trans3[6][4];
+    public static Trans3[][] sideTurnRotations = new Trans3[6][4];
     static {
         for (int side = 0; side < 6; side++) for (int turn = 0; turn < 4; turn++)
             sideTurnRotations[side][turn] = new Trans3(Vector3.zero, Matrix3.sideTurnRotations[side][turn]);
