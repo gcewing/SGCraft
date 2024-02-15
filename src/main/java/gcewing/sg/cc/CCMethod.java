@@ -32,13 +32,4 @@ public abstract class CCMethod {
         return call(cpu, ctx, target, args);
     }
 
-    // public Object[] invoke(IComputerAccess cpu, ILuaContext ctx, Object[] args) throws LuaException {
-    // try {
-    // return call(cpu, ctx, args);
-    // }
-    // catch (Exception e) {
-    // throw new LuaException(e);
-    // }
-    // }
-
 }

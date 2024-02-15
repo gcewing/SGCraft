@@ -158,11 +158,6 @@ public class SGBaseTE extends BaseTileInventory {
     public String homeAddress;
     public String addressError;
 
-    // public static final int firstFuelSlot = 0;
-    // public static final int numFuelSlots = 4;
-    // public static final int firstUpgradeSlot = 4;
-    // public static final int numUpgradeSlots = 0;
-
     IInventory inventory = new InventoryBasic("Stargate", false, numInventorySlots);
 
     double[][][] ehGrid;

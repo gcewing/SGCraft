@@ -217,10 +217,6 @@ public class BaseUtils {
         }
     }
 
-    // public static int getMetaFromState(IBlockState state) {
-    // return ((BaseBlock)state.getBlock()).getMetaFromState(state);
-    // }
-
     public static int getWorldDimensionId(World world) {
         return world.provider.dimensionId;
     }

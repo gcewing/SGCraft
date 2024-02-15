@@ -34,10 +34,6 @@ public class BlockState {
     private final ImmutableList<IProperty> properties;
     private final ImmutableList<IBlockState> validStates;
 
-    // public BlockState(Block blockIn, IProperty... properties)
-    // {
-    // this(blockIn, properties /*, null*/);
-    // }
 
     protected StateImplementation createState(Block block,
             ImmutableMap<IProperty, Comparable> properties /*

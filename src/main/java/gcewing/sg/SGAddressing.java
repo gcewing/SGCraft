@@ -56,9 +56,6 @@ public class SGAddressing {
     public final static int minCoord = -maxCoord;
     public final static int coordRange = maxCoord - minCoord + 1;
     public final static int minDirectDimension = -648;
-    // public final static int minDimension = -648;
-    // public final static int maxDimension = 647;
-    // public final static int dimensionRange = maxDimension - minDimension + 1;
     public final static int maxDimensionIndex = 1295;
     public final static int dimensionRange = maxDimensionIndex + 1;
     final static String padding = "---------";

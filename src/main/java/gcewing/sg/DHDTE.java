@@ -86,16 +86,6 @@ public class DHDTE extends BaseTileInventory implements ISGEnergySource {
         return (DHDBlock) getBlockType();
     }
 
-    // public Trans3 localToGlobalTransformation() {
-    // World world = getWorld();
-    // IBlockState state = world.getBlockState(pos);
-    // return getBlock().localToGlobalTransformation(world, pos, state);
-    // }
-
-    // public int getRotation() {
-    // return getBlock().rotationInWorld(getBlockMetadata(), this);
-    // }
-
     @Override
     public void readContentsFromNBT(NBTTagCompound nbt) {
         super.readContentsFromNBT(nbt);

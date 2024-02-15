@@ -43,8 +43,6 @@ public class SGScreen extends BaseGui.Screen {
     void drawAddressSymbols(int x, int y, String address) {
         int x0 = x - address.length() * cellSize / 2;
         int y0 = y + frameHeight / 2 - cellSize / 2;
-        // bindSGTexture("symbol_frame.png", 256, 64);
-        // drawTexturedRect(x - frameWidth / 2, y, frameWidth, frameHeight, 0, 0);
         bindSGTexture(
                 symbolTextureFile,
                 symbolTextureWidth * cellSize / symbolWidthInTexture,

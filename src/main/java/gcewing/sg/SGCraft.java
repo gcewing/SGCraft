@@ -365,8 +365,6 @@ public class SGCraft extends BaseMod<SGCraftClient> {
         for (Object obj : getChunkTileEntityMap(chunk).values()) {
             if (obj instanceof SGBaseTE) {
                 SGBaseTE te = (SGBaseTE) obj;
-                // SGCraft.log.trace("SGCraft.onChunkUnload: Disconnecting stargate at " + te.xCoord + "," +
-                // te.yCoord + "," + te.zCoord);
                 te.disconnect();
             }
         }

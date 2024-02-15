@@ -46,10 +46,7 @@ public class BaseGui {
         final static int defaultTextColor = 0x404040;
 
         protected BaseMod mod;
-        // double uscale, vscale;
-        // float red = 1.0F, green = 1.0F, blue = 1.0F;
-        // public int textColor = defaultTextColor;
-        // public boolean textShadow = false;
+
         protected Root root;
         protected String title;
         protected IWidget mouseWidget;

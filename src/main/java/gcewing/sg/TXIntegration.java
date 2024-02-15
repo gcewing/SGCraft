@@ -15,8 +15,6 @@ public class TXIntegration extends BaseSubsystem<SGCraft, SGCraftClient> {
 
     @Override
     public void registerRecipes() {
-        // Item cell = GameRegistry.findItem("ThermalExpansion", "Cell");
-        // ItemStack hardenedEnergyCell = new ItemStack(cell, 1, 2);
         Item frame = GameRegistry.findItem("ThermalExpansion", "Frame");
         Item coil = GameRegistry.findItem("ThermalExpansion", "material");
         ItemStack hardenedEnergyFrame = new ItemStack(frame, 1, 4);
